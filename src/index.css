@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg: #F8F7F3;
+    --surface: #FFFFFF;
+    --surface-soft: #F1EFE8;
+    --surface-subtle: #FAF9F5;
+    
+    --text-primary: #1E2430;
+    --text-secondary: #687080;
+    --text-muted: #8E95A2;
+    
+    --border: #E4E1D9;
+    --border-light: #EFECE6;
+    
+    --primary: #4F46A5;
+    --primary-hover: #433B91;
+    --primary-soft: #EEECFA;
+    --primary-border: #D7D2F4;
+    
+    --learned: #4F806A;
+    --learned-text: #35654E;
+    --learned-soft: #E9F3ED;
+    --learned-border: #BFD7C8;
+    
+    --learning: #B97922;
+    --learning-text: #8A5A18;
+    --learning-soft: #FBF1DE;
+    --learning-border: #E7C98F;
+    
+    --favorite: #B75D6A;
+    --favorite-soft: #FDF0F2;
+    
+    --danger: #C65D55;
+    --danger-soft: #FAECEA;
+    --danger-border: #F0CBC7;
+
+    --correct: #3F7C63;
+    --correct-soft: #E8F3ED;
+
+    /* CEFR Tokens */
+    --cefr-a1: #5F806D;
+    --cefr-a1-soft: #EDF4F0;
+    --cefr-a1-border: #C9DDD0;
+
+    --cefr-a2: #4E7D80;
+    --cefr-a2-soft: #EAF2F2;
+    --cefr-a2-border: #BDD9DA;
+
+    --cefr-b1: #6258A5;
+    --cefr-b1-soft: #F0EEFA;
+    --cefr-b1-border: #D0CBEA;
+
+    --cefr-b2: #795F87;
+    --cefr-b2-soft: #F5EFF8;
+    --cefr-b2-border: #DCBEDE;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text-primary);
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Manrope', 'Plus Jakarta Sans', system-ui, sans-serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Calm Study Micro-Animations */
+.animate-fadeIn {
+  animation: fadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Card Flip Transition (220-320ms smooth) */
+.card-flip-container {
+  perspective: 1000px;
+}
+
+.card-flip-inner {
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+/* Custom Scrollbar for Calm Aesthetic */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D9D5CC;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #BEB9AE;
+}
+
+/* English Word Typography Class */
+.word-display-desktop {
+  font-size: 2.25rem; /* 36px */
+  line-height: 2.5rem;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+}
+
+@media (min-width: 640px) {
+  .word-display-desktop {
+    font-size: 2.5rem; /* 40px */
+    line-height: 2.75rem;
+  }
+}

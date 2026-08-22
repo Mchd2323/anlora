@@ -1,0 +1,15 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# Python (veri üretim scriptleri)
+__pycache__/
+*.pyc
+
+# Sunucu tarafı yerel veri
+src/data/custom_cards_cloud.json

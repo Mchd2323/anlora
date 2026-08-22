@@ -1,0 +1,344 @@
+import React, { useState, useEffect } from 'react';
+import { WordCard, LearningState } from '../../types';
+import {
+  Volume2,
+  Heart,
+  RotateCw,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  MoreVertical,
+  Edit2,
+  Trash2,
+  BookmarkPlus,
+  Sparkles,
+  Layers,
+  HelpCircle
+} from 'lucide-react';
+import { speakText } from '../../utils/speech';
+import { CEFRBadge } from '../ui/CEFRBadge';
+import { getUserWordStatus } from '../../utils/storageV2';
+
+interface StudyCardProps {
+  card: WordCard;
+  isFavorite: boolean;
+  learningState?: LearningState;
+  onToggleFavorite: (id: string) => void;
+  onSetStatus: (id: string, status: 'learned' | 'learning' | 'unseen') => void;
+  onOpenEdit?: (card: WordCard) => void;
+  onDelete?: (id: string) => void;
+  onOpenAddToCollection?: (card: WordCard) => void;
+  isCustomDeck?: boolean;
+}
+
+export const StudyCard: React.FC<StudyCardProps> = ({
+  card,
+  isFavorite,
+  learningState,
+  onToggleFavorite,
+  onSetStatus,
+  onOpenEdit,
+  onDelete,
+  onOpenAddToCollection,
+  isCustomDeck = false
+}) => {
+  // 3-Stage Active Recall Reveal State
+  const [isMeaningRevealed, setIsMeaningRevealed] = useState(false);
+  const [isExamplesExpanded, setIsExamplesExpanded] = useState(false);
+  const [isOtherSensesExpanded, setIsOtherSensesExpanded] = useState(false);
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // When card changes, reset reveal state
+  useEffect(() => {
+    setIsMeaningRevealed(false);
+    setIsExamplesExpanded(false);
+    setIsOtherSensesExpanded(false);
+    setIsMenuOpen(false);
+  }, [card.id]);
+
+  const currentStatus = getUserWordStatus(card.id, learningState ? { [card.id]: learningState } : {});
+
+  const handlePlayAudio = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setIsPlayingAudio(true);
+    speakText(card.word);
+    setTimeout(() => setIsPlayingAudio(false), 900);
+  };
+
+  const allExamples = card.examples && card.examples.length > 0
+    ? card.examples
+    : (card.senses && card.senses[0]?.examples) || [];
+
+  const otherSenses = card.senses && card.senses.length > 1
+    ? card.senses.slice(1)
+    : [];
+
+  return (
+    <div className="relative w-full max-w-xl mx-auto select-none">
+      <div
+        className="bg-[#FFFFFF] rounded-2xl border border-[#E4E1D9] shadow-[0_4px_24px_rgba(30,36,48,0.06)] p-6 sm:p-8 flex flex-col justify-between min-h-[380px] sm:min-h-[420px] transition-all relative overflow-hidden"
+      >
+        {/* Top Card Bar: Tags, Audio & Actions */}
+        <div className="flex items-center justify-between gap-2 pb-4 border-b border-[#EFECE6]">
+          <div className="flex items-center gap-2">
+            {card.level && <CEFRBadge level={card.level} size="sm" />}
+            <span className="text-xs font-semibold px-2.5 py-1 bg-[#F8F7F3] border border-[#E4E1D9] rounded-lg text-[#687080]">
+              {card.partOfSpeech || 'n.'}
+            </span>
+            {card.sourceName && (
+              <span className="text-[11px] font-medium px-2 py-0.5 bg-[#EEECFA] text-[#4F46A5] rounded-md truncate max-w-[140px]">
+                {card.sourceName}
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1">
+            {/* Pronunciation Audio Button */}
+            <button
+              onClick={handlePlayAudio}
+              className={`p-2 rounded-xl border transition-all cursor-pointer ${
+                isPlayingAudio
+                  ? 'bg-[#4F46A5] text-white border-[#4F46A5] scale-105 shadow-xs'
+                  : 'bg-[#F8F7F3] hover:bg-[#EEECFA] text-[#4F46A5] border-[#E4E1D9]'
+              }`}
+              title="Telaffuz Dinle"
+              aria-label="Telaffuz Dinle"
+            >
+              <Volume2 className={`w-4 h-4 ${isPlayingAudio ? 'animate-pulse' : ''}`} />
+            </button>
+
+            {/* Favorite toggle */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleFavorite(card.id);
+              }}
+              className={`p-2 rounded-xl border transition-all cursor-pointer ${
+                isFavorite
+                  ? 'bg-[#FAECEA] text-[#D96B82] border-[#E8C2BD]'
+                  : 'bg-[#F8F7F3] hover:bg-[#FAECEA] text-[#8E95A2] hover:text-[#D96B82] border-[#E4E1D9]'
+              }`}
+              title={isFavorite ? 'Favorilerden Çıkar' : 'Favorilere Ekle'}
+              aria-label="Favori"
+            >
+              <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
+            </button>
+
+            {/* Custom Card 3-Dots Menu */}
+            {(isCustomDeck || onOpenEdit || onDelete || onOpenAddToCollection) && (
+              <div className="relative">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsMenuOpen(!isMenuOpen);
+                  }}
+                  className="p-2 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#8E95A2] hover:text-[#1E2430] rounded-xl border border-[#E4E1D9] transition-colors cursor-pointer"
+                  aria-label="Seçenekler"
+                >
+                  <MoreVertical className="w-4 h-4" />
+                </button>
+
+                {isMenuOpen && (
+                  <div
+                    className="absolute right-0 top-full mt-1.5 w-44 bg-[#FFFFFF] rounded-xl border border-[#E4E1D9] shadow-lg py-1.5 z-30 space-y-0.5 animate-fadeIn"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {onOpenAddToCollection && (
+                      <button
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          onOpenAddToCollection(card);
+                        }}
+                        className="w-full px-3 py-1.5 text-xs text-left text-[#1E2430] hover:bg-[#F8F7F3] flex items-center gap-2 cursor-pointer"
+                      >
+                        <BookmarkPlus className="w-3.5 h-3.5 text-[#4F46A5]" />
+                        <span>Sete Ekle</span>
+                      </button>
+                    )}
+
+                    {card.isCustom && onOpenEdit && (
+                      <button
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          onOpenEdit(card);
+                        }}
+                        className="w-full px-3 py-1.5 text-xs text-left text-[#1E2430] hover:bg-[#F8F7F3] flex items-center gap-2 cursor-pointer"
+                      >
+                        <Edit2 className="w-3.5 h-3.5 text-[#687080]" />
+                        <span>Kartı Düzenle</span>
+                      </button>
+                    )}
+
+                    {card.isCustom && onDelete && (
+                      <button
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          if (confirm(`"${card.word}" kartını silmek istediğinize emin misiniz?`)) {
+                            onDelete(card.id);
+                          }
+                        }}
+                        className="w-full px-3 py-1.5 text-xs text-left text-[#C65D55] hover:bg-[#FAECEA] flex items-center gap-2 cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Kartı Sil</span>
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Center: Stage 1 - English Word & Recall Area */}
+        <div className="flex-1 flex flex-col justify-center items-center text-center py-6 sm:py-8 space-y-4">
+          <div
+            onClick={() => setIsMeaningRevealed(!isMeaningRevealed)}
+            className="cursor-pointer group flex flex-col items-center gap-1.5 transition-transform active:scale-[0.98]"
+          >
+            <h2 className="text-3xl sm:text-4xl font-black text-[#1E2430] tracking-tight group-hover:text-[#4F46A5] transition-colors">
+              {card.word}
+            </h2>
+            {card.phonetic && (
+              <span className="text-xs font-mono text-[#8E95A2]">
+                /{card.phonetic}/
+              </span>
+            )}
+
+            {!isMeaningRevealed && (
+              <div className="mt-4 px-3.5 py-1.5 bg-[#F8F7F3] group-hover:bg-[#EEECFA] text-[#8E95A2] group-hover:text-[#4F46A5] rounded-full text-xs font-semibold border border-[#E4E1D9] transition-all flex items-center gap-1.5">
+                <Sparkles className="w-3 h-3 text-[#4F46A5]" />
+                <span>Anlamı görmek için dokun</span>
+              </div>
+            )}
+          </div>
+
+          {/* Stage 2 - Turkish Meaning (Smooth Reveal) */}
+          {isMeaningRevealed && (
+            <div className="w-full space-y-4 pt-2 animate-fadeIn">
+              <div className="p-4 bg-[#FDFBF7] rounded-xl border border-[#E4E1D9] text-center space-y-1">
+                <span className="text-[11px] font-bold text-[#8E95A2] uppercase tracking-wider block">
+                  Türkçe Anlamı
+                </span>
+                <p className="text-lg sm:text-xl font-bold text-[#1E2430]">
+                  {card.turkishMeaning}
+                </p>
+                {card.contextualMeaning && card.contextualMeaning !== card.turkishMeaning && (
+                  <p className="text-xs text-[#4F46A5] font-medium pt-1">
+                    Bağlam anlamı: {card.contextualMeaning}
+                  </p>
+                )}
+              </div>
+
+              {/* Multi-Sense Accordion if applicable */}
+              {otherSenses.length > 0 && (
+                <div className="w-full text-left">
+                  <button
+                    onClick={() => setIsOtherSensesExpanded(!isOtherSensesExpanded)}
+                    className="w-full px-3.5 py-2 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-xs font-semibold text-[#687080] rounded-xl border border-[#E4E1D9] flex items-center justify-between transition-colors cursor-pointer"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <Layers className="w-3.5 h-3.5 text-[#4F46A5]" />
+                      <span>Diğer Anlamlar ({otherSenses.length})</span>
+                    </span>
+                    {isOtherSensesExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                  </button>
+
+                  {isOtherSensesExpanded && (
+                    <div className="mt-2 space-y-2 p-3 bg-[#FFFFFF] rounded-xl border border-[#E4E1D9] text-xs animate-fadeIn">
+                      {otherSenses.map((sense, idx) => (
+                        <div key={sense.id || idx} className="border-b border-[#EFECE6] last:border-0 pb-2 last:pb-0 space-y-0.5">
+                          <div className="flex items-center gap-2">
+                            {sense.partOfSpeech && (
+                              <span className="text-[10px] font-bold px-1.5 py-0.5 bg-[#E4E1D9] text-[#687080] rounded">
+                                {sense.partOfSpeech}
+                              </span>
+                            )}
+                            <span className="font-bold text-[#1E2430]">
+                              {sense.turkishMeanings.join(', ')}
+                            </span>
+                          </div>
+                          {sense.examples && sense.examples[0] && (
+                            <p className="text-[11px] text-[#687080] italic">
+                              "{sense.examples[0].en}"
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Stage 3 - Example Sentences Accordion */}
+              {allExamples.length > 0 && (
+                <div className="w-full text-left">
+                  <button
+                    onClick={() => setIsExamplesExpanded(!isExamplesExpanded)}
+                    className="w-full px-3.5 py-2.5 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-xs font-semibold text-[#1E2430] rounded-xl border border-[#E4E1D9] flex items-center justify-between transition-colors cursor-pointer"
+                  >
+                    <span>Örnek Cümleler ({allExamples.length})</span>
+                    {isExamplesExpanded ? (
+                      <ChevronUp className="w-4 h-4 text-[#687080]" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-[#687080]" />
+                    )}
+                  </button>
+
+                  {isExamplesExpanded && (
+                    <div className="mt-2 space-y-2.5 p-3.5 bg-[#FDFBF7] rounded-xl border border-[#E4E1D9] text-xs animate-fadeIn">
+                      {allExamples.map((ex, idx) => (
+                        <div key={idx} className="space-y-1 border-b border-[#EFECE6] last:border-0 pb-2.5 last:pb-0">
+                          <p className="font-medium text-[#1E2430] leading-relaxed">
+                            {ex.en}
+                          </p>
+                          <p className="text-[#687080] text-[11px]">
+                            {ex.tr}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Bottom Bar: Status Toggles (Öğreniyorum / Öğrendim) */}
+        <div className="pt-4 border-t border-[#EFECE6] flex items-center justify-between gap-2">
+          <span className="text-[11px] font-bold text-[#8E95A2] uppercase tracking-wider">
+            Durum:
+          </span>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => onSetStatus(card.id, currentStatus === 'learning' ? 'unseen' : 'learning')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 cursor-pointer ${
+                currentStatus === 'learning'
+                  ? 'bg-[#FBF1DE] text-[#B97922] border-[#E7C98F]'
+                  : 'bg-[#F8F7F3] hover:bg-[#FBF1DE] text-[#687080] border-[#E4E1D9]'
+              }`}
+            >
+              <RotateCw className={`w-3.5 h-3.5 ${currentStatus === 'learning' ? 'animate-spin-slow' : ''}`} />
+              <span>{currentStatus === 'learning' ? 'Öğreniyorum' : 'Öğren'}</span>
+            </button>
+
+            <button
+              onClick={() => onSetStatus(card.id, currentStatus === 'learned' ? 'unseen' : 'learned')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 cursor-pointer ${
+                currentStatus === 'learned'
+                  ? 'bg-[#E9F3ED] text-[#4F806A] border-[#BFD7C8]'
+                  : 'bg-[#F8F7F3] hover:bg-[#E9F3ED] text-[#687080] border-[#E4E1D9]'
+              }`}
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>{currentStatus === 'learned' ? 'Öğrendim' : 'Öğrendim'}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

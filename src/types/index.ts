@@ -1,0 +1,347 @@
+export type Level = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+
+export type PartOfSpeech =
+  | 'n.'
+  | 'v.'
+  | 'adj.'
+  | 'adv.'
+  | 'prep.'
+  | 'conj.'
+  | 'pron.'
+  | 'det.'
+  | 'modal v.'
+  | 'phr. v.'
+  | 'exclam.'
+  | 'num.'
+  | 'phrase'
+  | 'idiom';
+
+export interface ExampleSentence {
+  en: string;
+  tr: string;
+}
+
+export type ValidationStatus = 'VALID' | 'WARNING' | 'INVALID';
+
+/**
+ * Immutable Oxford 3000 Core Sense Definition
+ */
+export interface OxfordSense {
+  id: string;
+  partOfSpeech?: string;
+  turkishMeanings: string[];
+  examples: {
+    english: string;
+    turkish: string;
+  }[];
+  usageNote?: string;
+}
+
+/**
+ * Immutable Oxford 3000 Core Dictionary Entry
+ */
+export interface OxfordEntry {
+  id: string;
+  headword: string;
+  lemma: string;
+  qualifier?: string;
+  cefr: 'A1' | 'A2' | 'B1' | 'B2';
+  partOfSpeech: string | string[];
+  turkishMeaning: string;
+  phonetic?: string;
+  examples: ExampleSentence[];
+  senses?: OxfordSense[];
+}
+
+/**
+ * User Learning State for Oxford Entries (Separated from Core Data)
+ */
+export interface UserOxfordState {
+  oxfordEntryId: string;
+  status: 'unmarked' | 'learning' | 'learned';
+  favorite: boolean;
+  masteryScore?: number;
+  reviewCount?: number;
+  correctCount?: number;
+  wrongCount?: number;
+  lastReviewedAt?: string;
+  nextReviewAt?: string;
+}
+
+export interface WordSense {
+  id: string;
+  partOfSpeech?: string; // e.g. "n.", "v.", "adj.", "adv.", "prep.", "phr. v."
+  turkishMeanings: string[]; // e.g. ["hafif"]
+  shortExplanationTr?: string; // short clarification in Turkish
+  contextSentence?: string;
+  examples: ExampleSentence[];
+  userProvidedMeaning?: string;
+  aiValidated?: boolean;
+  aiValidationStatus?: ValidationStatus;
+  aiWarningNote?: string;
+  suggestedCorrection?: string;
+  userStatus?: 'learned' | 'learning' | 'unseen';
+  cefr?: Level;
+  usageNoteTr?: string;
+}
+
+export interface WordCard {
+  id: string;
+  word: string;
+  headword?: string; // canonical Oxford headword
+  lemma?: string;
+  qualifier?: string;
+  canonicalWord?: string; // normalized base form
+  partOfSpeech: string; // e.g., "n.", "v.", "adj." (primary / legacy)
+  turkishMeaning: string; // primary / legacy
+  contextualMeaning?: string; // specific meaning in user's context sentence
+  otherMeanings?: string[]; // other common meanings
+  phonetic?: string;
+  examples: ExampleSentence[];
+  level?: Level;
+  senses?: WordSense[]; // multi-POS / multi-sense breakdown (unlimited senses)
+  isCustom?: boolean;
+  customNote?: string;
+  sourceType?: 'oxford' | 'custom';
+  sourceEntryId?: string; // canonical Oxford ID if originated from Oxford 3000
+  sourceContext?: string; // e.g. "He was reluctant to tell her the truth."
+  sourceName?: string; // e.g. "Breaking Bad S02E05"
+  collocations?: string[]; // e.g. ["reluctant to do", "reluctant agreement"]
+  prepositions?: string[];
+  dateAdded?: string;
+  isAiGenerated?: boolean;
+  duplicateOverride?: boolean;
+}
+
+// Collection / Deck entity
+export interface Collection {
+  id: string;
+  name: string;
+  description?: string;
+  iconName?: string; // e.g., 'BookOpen', 'Tv', 'Briefcase', 'GraduationCap', etc.
+  color?: string; // Tailwind color class e.g., 'indigo', 'amber', 'emerald', 'rose', 'sky', 'violet'
+  isPinned?: boolean;
+  isArchived?: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Cross-Collection Membership (Many-to-Many linking with contextual notes)
+export interface CollectionMembership {
+  id: string;
+  wordId: string;
+  collectionId: string;
+  sourceContext?: string; // Source sentence specific to this collection
+  sourceName?: string; // Source tag (e.g. "Breaking Bad S02E05")
+  addedAt: string;
+}
+
+// Spaced Repetition / Learning State per word (Global across user memory)
+export type LearningStage =
+  | 'NEW'
+  | 'LEARNING'
+  | 'REVIEW'
+  | 'WEAK'
+  | 'MASTERED'
+  | 'RELEARNING';
+
+export type ResponseQuality = 'again' | 'hard' | 'good' | 'easy';
+
+export interface SenseLearningState {
+  senseId: string;
+  userStatus: 'unseen' | 'learning' | 'learned';
+  masteryScore?: number;
+  nextReviewAt?: string;
+  correctCount?: number;
+  wrongCount?: number;
+}
+
+export interface LearningState {
+  wordId: string;
+  userStatus?: 'learned' | 'learning' | 'unseen';
+  stage: LearningStage;
+  masteryScore: number; // 0 - 100
+  difficulty: number; // 0.1 - 1.0 (higher = harder)
+  reviewCount: number;
+  correctCount: number;
+  wrongCount: number;
+  consecutiveCorrect: number;
+  consecutiveWrong: number;
+  intervalDays: number;
+  lastReviewedAt?: string;
+  nextReviewAt: string; // ISO date string
+  lastResponseQuality?: ResponseQuality;
+  senseStates?: Record<string, SenseLearningState>;
+}
+
+// Individual review event log
+export interface ReviewEvent {
+  id: string;
+  wordId: string;
+  collectionId?: string;
+  timestamp: string;
+  quality: ResponseQuality;
+  mode: 'flashcard' | 'typed' | 'listening' | 'cloze' | 'quiz';
+  isCorrect: boolean;
+  timeSpentMs?: number;
+}
+
+// Confusion Pair detected from user errors
+export interface ConfusionPair {
+  id: string;
+  wordAId: string;
+  wordBId: string;
+  wordA: string;
+  wordB: string;
+  confusionCount: number;
+  lastConfusedAt: string;
+}
+
+// User Settings
+export interface UserSettings {
+  dailyReviewGoal: number;
+  dailyNewWordsGoal: number;
+  autoPlayAudioOnCard: boolean;
+  preferredStudyMode: 'mixed' | 'flashcard' | 'typed' | 'listening' | 'cloze';
+  enableTypoTolerance: boolean;
+}
+
+// Duplicate check result structure
+export type DuplicateType =
+  | 'EXACT_IN_COLLECTION'
+  | 'EXACT_IN_OTHER_COLLECTION'
+  | 'EXACT_IN_OXFORD'
+  | 'INFLECTED_FORM'
+  | 'DIFFERENT_SENSE'
+  | 'NONE';
+
+export interface DuplicateCheckResult {
+  type: DuplicateType;
+  normalizedWord: string;
+  matchedWordCard?: WordCard;
+  matchedCollectionName?: string;
+  matchedCollectionId?: string;
+  lemmaSuggestion?: {
+    baseForm: string;
+    explanation: string;
+  };
+  otherCollectionNames?: string[];
+  isInOxford?: boolean;
+  oxfordLevel?: Level;
+}
+
+// Text vocabulary miner token result
+export interface MinedWordItem {
+  rawWord: string;
+  lemma: string;
+  count: number;
+  status: 'KNOWN' | 'IN_SYSTEM' | 'OXFORD_AVAILABLE' | 'NEW';
+  level?: Level;
+  matchedCard?: WordCard;
+  suggestedMeaning?: string;
+}
+
+// Study Session Types
+export type StudySessionMode = 'mixed' | 'flashcard' | 'typed' | 'listening' | 'cloze';
+
+export interface StudyCardItem {
+  word: WordCard;
+  learningState?: LearningState;
+  questionType: 'flashcard' | 'typed' | 'listening' | 'cloze';
+  clozeSentence?: { en: string; tr: string; blanked: string };
+  contextSentence?: string;
+  collectionSources?: { collectionName: string; sourceName?: string; sourceContext?: string }[];
+}
+
+export interface StudySessionSummary {
+  totalReviewed: number;
+  totalNewStudied: number;
+  totalMistakes: number;
+  upgradedCount: number;
+  weakWordIds: string[];
+  completedAt: string;
+}
+
+// Quiz System Types
+export interface QuizQuestion {
+  id: string;
+  word: WordCard;
+  type: 'multiple-choice-tr' | 'multiple-choice-en' | 'fill-blank' | 'listening';
+  questionText: string;
+  audioWord?: string;
+  options: string[];
+  correctAnswer: string;
+}
+
+export interface QuizResult {
+  sourceName: string;
+  totalQuestions: number;
+  correctAnswers: number;
+  wrongAnswers: number;
+  scorePercentage: number;
+  mistakenWords: WordCard[];
+  date: string;
+}
+
+export interface QuizSessionSummary {
+  sessionId: string;
+  date: string;
+  totalQuestions: number;
+  correctCount: number;
+  wrongCount: number;
+  scorePercent: number;
+  mistakeWords: string[];
+}
+
+export interface Badge {
+  id: string;
+  name: string;
+  description: string;
+  iconName: string;
+  unlocked: boolean;
+  unlockedAt?: string;
+  requirementText: string;
+}
+
+export interface UserStats {
+  totalQuizzesTaken: number;
+  totalCorrect: number;
+  totalWrong: number;
+  streakDays: number;
+  lastActiveDate: string;
+  mistakesMap: Record<string, { word: WordCard; wrongCount: number }>;
+  learnedCount: number;
+  favoriteCount: number;
+  customCardsCount: number;
+  typedRecallAccuracy?: number;
+  listeningAccuracy?: number;
+  clozeAccuracy?: number;
+  totalStudySessionsCompleted?: number;
+}
+
+export interface UserProfile {
+  email: string | null;
+  name?: string;
+  isLoggedIn: boolean;
+  country?: string;
+  city?: string;
+  emailVerified?: boolean;
+  authProvider?: 'google' | 'email' | 'guest';
+  lastSyncTime?: string;
+}
+
+// Complete Version 2 Backup Archive
+export interface V2BackupPayload {
+  schemaVersion: 2;
+  exportedAt: string;
+  collections: Collection[];
+  memberships: CollectionMembership[];
+  customWords: WordCard[];
+  learningStates: Record<string, LearningState>;
+  reviewHistory: ReviewEvent[];
+  confusionPairs: ConfusionPair[];
+  favorites: string[];
+  userSettings: UserSettings;
+  stats: UserStats;
+  unlockedBadges: string[];
+}
