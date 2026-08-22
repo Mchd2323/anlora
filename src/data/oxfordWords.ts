@@ -1,9 +1,27 @@
 import { WordCard, Badge } from '../types';
-import { oxfordRepository, OXFORD_DATA_VERSION, OXFORD_METADATA } from '../services/oxfordRepository';
+import { oxfordCoreRepository, OXFORD_DATA_VERSION, OXFORD_GROUPS } from '../services/oxfordCoreRepository';
 
-export { oxfordRepository, OXFORD_DATA_VERSION, OXFORD_METADATA };
+export { oxfordCoreRepository, OXFORD_DATA_VERSION, OXFORD_GROUPS };
 
-export const OXFORD_3000_WORDS: WordCard[] = oxfordRepository.getOxfordEntries() as WordCard[];
+/**
+ * Oxford 3000 (A1–B2) kelimeleri.
+ *
+ * Kaynak artık `oxfordCoreRepository`; veri resmî Oxford listelerinden
+ * üretiliyor ve her sözcük türü ayrı bir sense taşıyor. Dışa verilen ad
+ * korunuyor ki mevcut bileşenler değişmeden çalışsın.
+ */
+export const OXFORD_3000_WORDS: WordCard[] = [
+  ...oxfordCoreRepository.getWordCardsByGroup('A1'),
+  ...oxfordCoreRepository.getWordCardsByGroup('A2'),
+  ...oxfordCoreRepository.getWordCardsByGroup('B1'),
+  ...oxfordCoreRepository.getWordCardsByGroup('B2'),
+];
+
+/** Oxford 5000 Ek kelimeleri (B2 Ek + C1). Oxford 3000 B2 ile karıştırılmaz. */
+export const OXFORD_5000_EXTRA_WORDS: WordCard[] = [
+  ...oxfordCoreRepository.getWordCardsByGroup('B2_EK'),
+  ...oxfordCoreRepository.getWordCardsByGroup('C1'),
+];
 
 /**
  * Motivasyon rozetleri.

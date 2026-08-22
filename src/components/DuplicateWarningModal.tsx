@@ -2,6 +2,7 @@ import React from 'react';
 import { DuplicateCheckResult, WordCard } from '../types';
 import { AlertCircle, Plus, Edit2, Link, BookOpen, X } from 'lucide-react';
 import { CEFRBadge } from './ui/CEFRBadge';
+import { shouldShowCefr } from '../types/oxford';
 import { useModalA11y } from '../hooks/useModalA11y';
 
 interface DuplicateWarningModalProps {
@@ -131,7 +132,7 @@ export const DuplicateWarningModal: React.FC<DuplicateWarningModalProps> = ({
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-bold text-[#1E2430]">{card.word}</span>
                     <div className="flex items-center gap-1.5">
-                      {card.level && <CEFRBadge level={card.level} size="sm" />}
+                      {shouldShowCefr(card) && <CEFRBadge level={card.level!} size="sm" />}
                       <span className="text-[11px] text-[#687080]">{card.partOfSpeech}</span>
                     </div>
                   </div>

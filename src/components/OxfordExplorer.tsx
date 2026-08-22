@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { WordCard, Level, LearningState } from '../types';
+import { OxfordGroupKey } from '../types/oxford';
 import { WordCardComponent } from './WordCard';
 import { StudyFlashcard } from './study/StudyFlashcard';
 import {
@@ -24,7 +25,7 @@ interface OxfordExplorerProps {
   favorites: string[];
   learned: string[];
   learningStates?: Record<string, LearningState>;
-  selectedLevel: Level | 'ALL' | 'B2_EK';
+  selectedLevel: Level | 'ALL' | OxfordGroupKey;
   setSelectedLevel: (lvl: any) => void;
   selectedCollectionGroup?: OxfordCollectionType;
   onSelectCollectionGroup?: (group: OxfordCollectionType) => void;
@@ -80,7 +81,11 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
   }, [activeGroup, words, extraWords]);
 
   const oxford3000Levels: (Level | 'ALL')[] = ['ALL', 'A1', 'A2', 'B1', 'B2'];
+  const extraLevels: OxfordGroupKey[] = ['B2_EK', 'C1'];
 
+  // Sayılar veriden okunur; arayüzde sabit sayı yazılmaz (talimat 24).
+  // Aynı yüzey kelimesinin farklı sözcük türü kayıtları olabildiği için
+  // kayıt sayısı ile benzersiz kelime sayısı aynı olmayabilir.
   const levelCounts = useMemo(() => {
     const counts: Record<string, number> = {
       ALL: words.length,
@@ -88,12 +93,19 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
       A2: 0,
       B1: 0,
       B2: 0,
-      B2_EK: extraWords.length
+      B2_EK: 0,
+      C1: 0
     };
     words.forEach((card) => {
       if (card.level && counts[card.level] !== undefined) {
         counts[card.level]++;
       }
+    });
+    extraWords.forEach((card) => {
+      // B2 Ek ile Oxford 3000 B2 karıştırılmaz: bu havuzdaki B2 kayıtları
+      // kaynak grubu farklı olduğu için ayrı sayılır.
+      if (card.level === 'C1') counts.C1++;
+      else counts.B2_EK++;
     });
     return counts;
   }, [words, extraWords]);
@@ -101,7 +113,9 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
   const levelStats = useMemo(() => {
     let levelWords: WordCard[] = [];
     if (activeGroup === 'oxford5000_extra') {
-      levelWords = extraWords;
+      levelWords = extraWords.filter(
+        (w) => (w.level === 'C1' ? 'C1' : 'B2_EK') === selectedLevel
+      );
     } else {
       levelWords = selectedLevel === 'ALL' ? words : words.filter((w) => w.level === selectedLevel);
     }
@@ -127,6 +141,11 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
 
   const filteredWords = useMemo(() => {
     return currentPool.filter((card) => {
+      if (activeGroup === 'oxford5000_extra') {
+        // B2 Ek / C1 ayrımı
+        const cardGroup = card.level === 'C1' ? 'C1' : 'B2_EK';
+        if (selectedLevel !== cardGroup) return false;
+      }
       if (activeGroup === 'oxford3000' && selectedLevel !== 'ALL' && card.level !== selectedLevel) {
         return false;
       }
@@ -169,14 +188,14 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
   if (isStudyingFlashcards) {
     const studyTitle =
       activeGroup === 'oxford5000_extra'
-        ? 'Oxford 5000 – Ek 2000 (B2 Ek)'
+        ? `Oxford 5000 – Ek (${selectedLevel === 'C1' ? 'C1' : 'B2 Ek'})`
         : selectedLevel === 'ALL'
         ? 'Oxford 3000'
         : `Oxford 3000 (${selectedLevel})`;
 
     const sourceContext =
       activeGroup === 'oxford5000_extra'
-        ? 'Oxford 5000 Ek (B2 Ek)'
+        ? `Oxford 5000 Ek (${selectedLevel === 'C1' ? 'C1' : 'B2 Ek'})`
         : selectedLevel === 'ALL'
         ? 'Oxford 3000'
         : `${selectedLevel} Kelimeleri`;
@@ -244,8 +263,8 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
 
         <div className="text-[11px] sm:text-xs text-[#8E95A2] font-medium px-3 text-center sm:text-right">
           {activeGroup === 'oxford3000'
-            ? 'A1–B2 Temel Çekirdek Kelimeler'
-            : 'The Oxford 5000™ B2–C1 Ek Kelime Listesi'}
+            ? 'Temel A1–B2 kelimeleri'
+            : 'B2–C1 için yaklaşık 2000 ileri kelime'}
         </div>
       </div>
 
@@ -254,18 +273,18 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-xl sm:text-2xl font-bold text-[#1E2430]">
-              {activeGroup === 'oxford5000_extra' ? 'Oxford 5000 – Ek 2000' : 'Oxford 3000'}
+              {activeGroup === 'oxford5000_extra' ? 'Oxford 5000 – Ek Kelimeler' : 'Oxford 3000'}
             </h2>
             {activeGroup === 'oxford5000_extra' ? (
-              <CEFRBadge level="B2 EK" />
+              <CEFRBadge level={selectedLevel === 'C1' ? 'C1' : 'B2 EK'} />
             ) : (
               selectedLevel !== 'ALL' && <CEFRBadge level={selectedLevel} />
             )}
           </div>
           <p className="text-xs sm:text-sm text-[#687080] mt-1">
             {activeGroup === 'oxford5000_extra'
-              ? "Oxford 3000'e ek olarak verilen 700 B2 seviye kelime ile ileri seviyeye adım atın."
-              : 'Seviyeni seç ve kelimeleri çalışmaya başla.'}
+              ? 'B2–C1 için yaklaşık 2000 ileri kelime.'
+              : 'Temel A1–B2 kelimeleri.'}
           </p>
         </div>
 
@@ -321,28 +340,38 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
               );
             })
           ) : (
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                className="px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap border bg-[#593E91] text-white border-[#593E91] shadow-xs flex items-center gap-2"
-              >
-                <span>B2 Ek</span>
-                <span className="px-1.5 py-0.2 rounded-md text-[10px] font-bold bg-white/20 text-white">
-                  {extraWords.length}
-                </span>
-              </button>
-              <button
-                type="button"
-                disabled
-                title="C1 Seviyesi bir sonraki güncellemede eklenecektir"
-                className="px-4 py-2 rounded-xl text-xs font-medium whitespace-nowrap border border-[#E4E1D9] bg-[#F8F7F3] text-[#8E95A2] opacity-60 cursor-not-allowed flex items-center gap-2"
-              >
-                <span>C1</span>
-                <span className="text-[10px] bg-[#E4E1D9] text-[#8E95A2] px-1.5 py-0.2 rounded-md font-bold">
-                  Yakında
-                </span>
-              </button>
-            </div>
+            /*
+             * Oxford 5000 Ek grubu: B2 Ek ve C1.
+             *
+             * Bu bölüm önceden yalnızca B2 Ek gösteriyor, C1'i "Yakında"
+             * etiketiyle devre dışı bir düğme olarak sunuyordu. C1 verisi
+             * resmî kaynaktan eklendiği için artık gerçek bir seviyedir.
+             * Sayılar sabit yazılmaz, veri kümesinden okunur (talimat 24).
+             */
+            extraLevels.map((lvl) => {
+              const isSelected = selectedLevel === lvl;
+              const count = levelCounts[lvl] || 0;
+              return (
+                <button
+                  key={lvl}
+                  onClick={() => setSelectedLevel(lvl)}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap border flex items-center gap-2 cursor-pointer ${
+                    isSelected
+                      ? 'bg-[#593E91] text-white border-[#593E91] shadow-xs'
+                      : 'bg-[#F8F7F3] text-[#1E2430] border-[#E4E1D9] hover:bg-[#F1EFE8]'
+                  }`}
+                >
+                  <span>{lvl === 'B2_EK' ? 'B2 Ek' : 'C1'}</span>
+                  <span
+                    className={`px-1.5 py-0.2 rounded-md text-[10px] font-bold ${
+                      isSelected ? 'bg-white/20 text-white' : 'bg-[#E4E1D9] text-[#687080]'
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })
           )}
         </div>
 

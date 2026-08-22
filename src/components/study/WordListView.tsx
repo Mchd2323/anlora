@@ -11,6 +11,7 @@ import {
   BookOpen
 } from 'lucide-react';
 import { CEFRBadge } from '../ui/CEFRBadge';
+import { shouldShowCefr } from '../../types/oxford';
 import { getUserWordStatus } from '../../utils/storageV2';
 import { speakText } from '../../utils/speech';
 
@@ -193,13 +194,15 @@ export const WordListView: React.FC<WordListViewProps> = ({
                       <span className="text-sm sm:text-base font-bold text-[#1E2430] group-hover:text-[#4F46A5] transition-colors truncate">
                         {word.word}
                       </span>
-                      {word.level && <CEFRBadge level={word.level} size="sm" />}
+                      {shouldShowCefr(word) && <CEFRBadge level={word.level!} size="sm" />}
                       <span className="text-[10px] font-semibold text-[#8E95A2]">
                         {word.partOfSpeech}
                       </span>
                     </div>
                     <p className="text-xs text-[#687080] truncate mt-0.5">
-                      {word.turkishMeaning}
+                      {word.turkishMeaning || (
+                        <span className="text-[#8E95A2] italic">anlam hazırlanıyor</span>
+                      )}
                     </p>
                   </div>
                 </div>

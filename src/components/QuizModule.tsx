@@ -38,10 +38,38 @@ import { getUserWordStatus } from '../utils/storageV2';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { LearningStatusControl } from './ui/LearningStatusControl';
 import { BRAND } from '../config/brand';
+import { OxfordGroupKey } from '../types/oxford';
+
+/** Sınav kaynağı olarak seçilebilen Oxford grupları. */
+const OXFORD_GROUP_KEYS: OxfordGroupKey[] = ['A1', 'A2', 'B1', 'B2', 'B2_EK', 'C1'];
+
+const OXFORD_GROUP_LABELS: Record<OxfordGroupKey, string> = {
+  A1: 'Oxford A1',
+  A2: 'Oxford A2',
+  B1: 'Oxford B1',
+  B2: 'Oxford B2',
+  B2_EK: 'Oxford B2 Ek',
+  C1: 'Oxford C1'
+};
+
+/**
+ * Bir kartın Oxford grup anahtarını verir.
+ *
+ * B2 Ek ile Oxford 3000 B2 aynı CEFR seviyesindedir ama farklı kaynak
+ * gruplarıdır; ayrımı `sourceEntryId` öneki taşır (ox3k / ox5k).
+ */
+function oxfordGroupOf(card: WordCard): OxfordGroupKey | null {
+  const id = card.sourceEntryId || card.id;
+  if (typeof id !== 'string') return null;
+  if (id.startsWith('ox5k-')) return card.level === 'C1' ? 'C1' : 'B2_EK';
+  if (id.startsWith('ox3k-')) return (card.level as OxfordGroupKey) || null;
+  return null;
+}
 
 interface QuizModuleProps {
   initialCollectionId?: string;
   allWords: WordCard[]; // Oxford 3000 words
+  extraWords?: WordCard[]; // Oxford 5000 Ek (B2 Ek + C1)
   customCards: WordCard[]; // Custom cards
   collections: Collection[];
   memberships: CollectionMembership[];
@@ -70,6 +98,7 @@ type StatusFilter = 'ALL' | 'LEARNING' | 'LEARNED';
 export const QuizModule: React.FC<QuizModuleProps> = ({
   initialCollectionId,
   allWords,
+  extraWords = [],
   customCards,
   collections,
   memberships,
@@ -83,7 +112,9 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
 
   // Configuration State
   const [quizMode, setQuizMode] = useState<QuizMode>('MIXED');
-  // Selected sources: can contain 'A1', 'A2', 'B1', 'B2', or collection IDs
+  // Seçili kaynaklar: Oxford grup anahtarları ('A1'…'C1', 'B2_EK') veya
+  // kullanıcının kendi set kimlikleri. Kullanıcı seti silinirse kaynak
+  // listesinden de kendiliğinden düşer (koleksiyon listesinden okunuyor).
   const [selectedSources, setSelectedSources] = useState<string[]>(
     initialCollectionId ? [initialCollectionId] : ['A1', 'A2']
   );
@@ -115,8 +146,21 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
   };
 
   const handleSelectAllOxford = () => {
-    setSelectedSources(['A1', 'A2', 'B1', 'B2']);
+    setSelectedSources(['A1', 'A2', 'B1', 'B2', 'B2_EK', 'C1']);
   };
+
+  // Oxford grup sayıları; arayüzde sabit sayı yazmak yerine veriden okunur.
+  const oxfordGroupCounts = useMemo(() => {
+    const counts = {} as Record<OxfordGroupKey, number>;
+    OXFORD_GROUP_KEYS.forEach((key) => {
+      counts[key] = 0;
+    });
+    [...allWords, ...extraWords].forEach((card) => {
+      const group = oxfordGroupOf(card);
+      if (group) counts[group] = (counts[group] || 0) + 1;
+    });
+    return counts;
+  }, [allWords, extraWords]);
 
   // Calculate available pool size based on chosen sources and filter
   const currentPool = useMemo(() => {
@@ -124,8 +168,15 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
     const wordSet = new Set<WordCard>();
 
     selectedSources.forEach((src) => {
-      if (['A1', 'A2', 'B1', 'B2'].includes(src)) {
-        allWords.filter((w) => w.level === src).forEach((w) => wordSet.add(w));
+      if (OXFORD_GROUP_KEYS.includes(src as OxfordGroupKey)) {
+        // B2 Ek, Oxford 3000 B2'den ayrıdır: ikisi de CEFR olarak B2'dir ama
+        // kaynak grupları farklıdır, karıştırılmamalıdır.
+        extraWords
+          .filter((w) => oxfordGroupOf(w) === src)
+          .forEach((w) => wordSet.add(w));
+        allWords
+          .filter((w) => oxfordGroupOf(w) === src)
+          .forEach((w) => wordSet.add(w));
       } else {
         const colWordIds = memberships
           .filter((m) => m.collectionId === src)
@@ -152,8 +203,8 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
   const startQuiz = () => {
     if (currentPool.length < MIN_POOL_SIZE) {
       setSetupError(
-        `Seçilen kaynak ve filtrede yeterli kelime bulunamadı (en az ${MIN_POOL_SIZE} kelime gerekli). ` +
-          `Şu an ${currentPool.length} kelime var. Lütfen daha fazla seviye veya set seçin.`
+        `Seçtiğin kaynaklarda ${currentPool.length} kelime var. ` +
+          `Sınav için en az ${MIN_POOL_SIZE} kelime gerekiyor; başka bir seviye ya da set ekleyebilirsin.`
       );
       return;
     }
@@ -309,11 +360,11 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
 
               {/* Oxford Levels */}
               <div className="space-y-1.5">
-                <div className="text-[11px] font-semibold text-[#8E95A2]">Oxford 3000:</div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {(['A1', 'A2', 'B1', 'B2'] as const).map((lvl) => {
+                <div className="text-[11px] font-semibold text-[#8E95A2]">Oxford kelimeleri:</div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {OXFORD_GROUP_KEYS.map((lvl) => {
                     const isSelected = selectedSources.includes(lvl);
-                    const count = allWords.filter((w) => w.level === lvl).length;
+                    const count = oxfordGroupCounts[lvl] || 0;
                     return (
                       <button
                         key={lvl}
@@ -331,7 +382,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                           ) : (
                             <Square className="w-3.5 h-3.5 text-[#8E95A2]" />
                           )}
-                          <span>Oxford {lvl}</span>
+                          <span>{OXFORD_GROUP_LABELS[lvl]}</span>
                         </div>
                         <span className="text-[10px] text-[#8E95A2]">{count}</span>
                       </button>
@@ -424,7 +475,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                 4. Soru Sayısı
               </label>
               <div className="grid grid-cols-4 gap-2">
-                {[5, 10, 20, 50].map((count) => (
+                {[5, 10, 20, 30, 50, 75, 100].map((count) => (
                   <button
                     key={count}
                     type="button"
@@ -451,6 +502,17 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
               </span>
             </div>
           </div>
+
+          {/*
+            * Havuz seçilen soru sayısından azsa bu bir hata değildir:
+            * sınav mevcut kelime sayısıyla hazırlanır (talimat 53).
+            */}
+          {currentPool.length >= MIN_POOL_SIZE && currentPool.length < questionCount && (
+            <div className="mb-3 px-4 py-3 rounded-xl bg-[#FBF1DE] border border-[#E7C98F] text-[#8A5A18] text-xs font-medium leading-relaxed">
+              Seçtiğin kaynaklarda {currentPool.length} uygun kelime var. Sınav{' '}
+              {currentPool.length} soruyla hazırlanacak.
+            </div>
+          )}
 
           {setupError && (
             <div

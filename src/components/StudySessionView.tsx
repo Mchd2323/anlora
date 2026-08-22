@@ -10,6 +10,8 @@ import {
 } from '../types';
 import {
   Brain,
+  RotateCcw,
+  Check,
   RotateCw,
   Volume2,
   CheckCircle2,
@@ -29,7 +31,7 @@ import { speakText } from '../utils/speech';
 import { checkTypedAnswerCorrectness, normalizeWordString } from '../utils/lemmatizer';
 import { isWordDueForReview } from '../utils/srsEngine';
 import { blankOutWord } from '../utils/quizGenerator';
-import { oxfordRepository } from '../services/oxfordRepository';
+import { oxfordCoreRepository } from '../services/oxfordCoreRepository';
 import { CEFRBadge } from './ui/CEFRBadge';
 
 interface StudySessionViewProps {
@@ -233,7 +235,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
       typedInput,
       currentItem.card.word,
       settings?.enableTypoTolerance !== false,
-      oxfordRepository.isKnownWord
+      oxfordCoreRepository.isKnownWord
     );
     setTypedResult(result);
     setIsAnswerSubmitted(true);
@@ -691,43 +693,38 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
           )}
         </div>
 
-        {/* Spaced Repetition Quality Grading Buttons */}
+        {/*
+          * Çalışma durumu: yalnızca iki seçenek.
+          *
+          * Önceki sürüm dört hafıza derecesi (Tekrar / Zor / İyi / Kolay)
+          * gösteriyordu. Bu, aralıklı tekrar motorunun iç kavramıdır ve
+          * öğrenciden her kartta kendi hatırlama kalitesini ölçmesini ister;
+          * pratikte karar yorgunluğu yaratır ve tutarsız girdi üretir.
+          *
+          * Arayüz artık "Tekrar Et" ve "Öğrendim" diyor. Motor değişmedi:
+          * bu iki seçenek arka planda kanıt ağırlıklı SRS derecelerine
+          * çevriliyor, aralık merdiveni ve ustalık puanı aynen çalışıyor.
+          */}
         {(isFlipped || isAnswerSubmitted) && (
-          <div className="p-4 bg-[#F8F7F3] border-t border-[#EFECE6] space-y-2 animate-fadeIn">
+          <div className="p-4 bg-[#F8F7F3] border-t border-[#EFECE6] space-y-2.5 animate-fadeIn">
             <span className="text-[10px] font-bold text-[#8E95A2] uppercase tracking-wider block text-center">
-              Hafıza Değerlendirmen:
+              Bu kelimeyi biliyor musun?
             </span>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 gap-2.5">
               <button
                 onClick={() => handleGradeResponse('again')}
-                className="py-2.5 px-2 rounded-xl bg-[#FAECEA] hover:bg-[#F5D7D3] text-[#C65D55] border border-[#F0CBC7] text-xs font-bold transition-transform active:scale-95 text-center cursor-pointer"
+                className="py-3 px-3 rounded-xl bg-[#FBF1DE] hover:bg-[#F5E2BE] text-[#8A5A18] border border-[#E7C98F] text-sm font-bold transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer min-h-[48px]"
               >
-                <span className="block">Tekrar</span>
-                <span className="text-[10px] opacity-80 block font-normal">&lt; 10 dk</span>
-              </button>
-
-              <button
-                onClick={() => handleGradeResponse('hard')}
-                className="py-2.5 px-2 rounded-xl bg-[#FBF1DE] hover:bg-[#F5E2BE] text-[#8A5A18] border border-[#E7C98F] text-xs font-bold transition-transform active:scale-95 text-center cursor-pointer"
-              >
-                <span className="block">Zor</span>
-                <span className="text-[10px] opacity-80 block font-normal">1 gün</span>
+                <RotateCcw className="w-4 h-4" />
+                <span>Tekrar Et</span>
               </button>
 
               <button
                 onClick={() => handleGradeResponse('good')}
-                className="py-2.5 px-2 rounded-xl bg-[#EEECFA] hover:bg-[#E0DAF7] text-[#4F46A5] border border-[#D7D2F4] text-xs font-bold transition-transform active:scale-95 text-center cursor-pointer"
+                className="py-3 px-3 rounded-xl bg-[#E9F3ED] hover:bg-[#D5EADF] text-[#35654E] border border-[#BFD7C8] text-sm font-bold transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer min-h-[48px]"
               >
-                <span className="block">İyi</span>
-                <span className="text-[10px] opacity-80 block font-normal">3 gün</span>
-              </button>
-
-              <button
-                onClick={() => handleGradeResponse('easy')}
-                className="py-2.5 px-2 rounded-xl bg-[#E9F3ED] hover:bg-[#D5EADF] text-[#35654E] border border-[#BFD7C8] text-xs font-bold transition-transform active:scale-95 text-center cursor-pointer"
-              >
-                <span className="block">Kolay</span>
-                <span className="text-[10px] opacity-80 block font-normal">7 gün</span>
+                <Check className="w-4 h-4" />
+                <span>Öğrendim</span>
               </button>
             </div>
           </div>

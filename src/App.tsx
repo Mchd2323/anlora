@@ -12,7 +12,7 @@ import { AuthModal } from './components/AuthModal';
 import { AddToCollectionModal } from './components/AddToCollectionModal';
 import { EditCardModal } from './components/EditCardModal';
 
-import { OXFORD_3000_WORDS } from './data/oxfordWords';
+import { OXFORD_3000_WORDS, OXFORD_5000_EXTRA_WORDS } from './data/oxfordWords';
 import {
   WordCard,
   Level,
@@ -55,12 +55,16 @@ import {
   setUserWordStatus
 } from './utils/storageV2';
 import { apiFetch, logout } from './utils/authClient';
+import { runOxfordIdMigrationIfNeeded } from './utils/oxfordIdMigration';
+import { OxfordGroupKey } from './types/oxford';
 import { useToast } from './components/ui/ToastProvider';
 
 export default function App() {
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<TabType>('today');
-  const [selectedLevel, setSelectedLevel] = useState<Level | 'ALL'>('ALL');
+  // Seviye seçimi Oxford 3000 (A1–B2 + Tümü) ve Oxford 5000 Ek (B2 Ek, C1)
+  // gruplarını birlikte kapsar.
+  const [selectedLevel, setSelectedLevel] = useState<Level | 'ALL' | OxfordGroupKey>('ALL');
   const [studySessionInitialDeckId, setStudySessionInitialDeckId] = useState<string | undefined>(undefined);
   const [quizInitialDeckId, setQuizInitialDeckId] = useState<string | undefined>(undefined);
 
@@ -83,6 +87,11 @@ export default function App() {
   // Initialize and Migrate V1 data on startup
   useEffect(() => {
     runV1toV2MigrationIfNeeded(OXFORD_3000_WORDS);
+    // Oxford verisi resmî kaynaklardan yeniden üretildiğinde kayıt kimlikleri
+    // kararlı bir şemaya geçti. Kullanıcının "Öğrendim", "Tekrar Et", favori
+    // ve çalışma geçmişi bu kimliklere bağlı olduğu için göç V2'den HEMEN
+    // SONRA, diğer okumalardan önce çalışmalıdır.
+    runOxfordIdMigrationIfNeeded();
 
     setCollections(getCollectionsV2());
     setMemberships(getMembershipsV2());
@@ -99,8 +108,10 @@ export default function App() {
   }, []);
 
   // Combined list of Oxford 3000 words + User Custom Cards
+  // Oxford 3000 + Oxford 5000 Ek (B2 Ek, C1) + kullanıcının kendi kartları.
+  // Çalışma, sınav ve favoriler bu birleşik havuz üzerinden çalışır.
   const allWordsCombined = useMemo(() => {
-    return [...OXFORD_3000_WORDS, ...customWords];
+    return [...OXFORD_3000_WORDS, ...OXFORD_5000_EXTRA_WORDS, ...customWords];
   }, [customWords]);
 
   const favoriteWordsList = useMemo(() => {
@@ -403,6 +414,7 @@ export default function App() {
         {activeTab === 'oxford' && (
           <OxfordExplorer
             words={OXFORD_3000_WORDS}
+            extraWords={OXFORD_5000_EXTRA_WORDS}
             favorites={favorites}
             learned={Object.keys(learningStates).filter(k => learningStates[k]?.stage === 'MASTERED')}
             learningStates={learningStates}
@@ -426,6 +438,7 @@ export default function App() {
         {activeTab === 'quiz' && (
           <QuizModule
             allWords={OXFORD_3000_WORDS}
+            extraWords={OXFORD_5000_EXTRA_WORDS}
             customCards={customWords}
             collections={collections}
             memberships={memberships}

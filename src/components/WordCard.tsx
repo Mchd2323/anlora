@@ -236,15 +236,23 @@ export const WordCardComponent: React.FC<WordCardProps> = ({
                   <span className="text-[10px] font-bold text-[#4F46A5] uppercase tracking-wider block mb-0.5">
                     Türkçe Anlamı
                   </span>
-                  <p className="text-lg font-bold text-[#1E2430] leading-snug">
-                    {card.turkishMeaning}
-                  </p>
+                  {card.turkishMeaning ? (
+                    <p className="text-lg font-bold text-[#1E2430] leading-snug">
+                      {card.turkishMeaning}
+                    </p>
+                  ) : (
+                    /* Anlamı henüz hazırlanmamış kayıt: uydurma karşılık
+                       göstermek yerine durum açıkça söylenir. */
+                    <p className="text-sm text-[#8E95A2] leading-relaxed">
+                      Bu kelimenin Türkçe karşılığı henüz hazırlanmadı.
+                    </p>
+                  )}
                 </div>
 
                 {/* Multiple senses breakdown if available */}
-                {card.senses && card.senses.length > 0 && (
+                {card.senses && card.senses.some((s) => s.turkishMeanings.length > 0) && (
                   <div className="pt-2 border-t border-[#E4E1D9] space-y-1.5">
-                    {card.senses.map((s, sIdx) => (
+                    {card.senses.filter((s) => s.turkishMeanings.length > 0).map((s, sIdx) => (
                       <div key={sIdx} className="text-xs">
                         <span className="font-bold text-[#4F46A5] mr-1.5">{s.partOfSpeech}</span>
                         <span className="text-[#1E2430] font-medium">{s.turkishMeanings.join('; ')}</span>

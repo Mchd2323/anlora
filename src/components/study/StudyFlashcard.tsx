@@ -512,9 +512,20 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                     <span className="text-[11px] font-bold text-[#8E95A2] uppercase tracking-wider block">
                       Türkçe Anlamı
                     </span>
-                    <p className="text-lg sm:text-2xl font-bold text-[#1E2430]">
-                      {currentCard.turkishMeaning}
-                    </p>
+                    {currentCard.turkishMeaning ? (
+                      <p className="text-lg sm:text-2xl font-bold text-[#1E2430]">
+                        {currentCard.turkishMeaning}
+                      </p>
+                    ) : (
+                      /*
+                       * Anlamı henüz hazırlanmamış kayıt. Uydurma bir karşılık
+                       * göstermek yerine durumu açıkça söylüyoruz: yanlış anlam
+                       * öğretmek, boş bırakmaktan çok daha zararlıdır.
+                       */
+                      <p className="text-sm text-[#8E95A2] leading-relaxed py-1">
+                        Bu kelimenin Türkçe karşılığı henüz hazırlanmadı.
+                      </p>
+                    )}
                     {currentCard.contextualMeaning && currentCard.contextualMeaning !== currentCard.turkishMeaning && (
                       <p className="text-xs text-[#4F46A5] font-medium pt-1">
                         Bağlam anlamı: {currentCard.contextualMeaning}

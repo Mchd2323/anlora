@@ -6,7 +6,7 @@ Anlora, İngilizce kelime öğrenmek için tasarlanmış bir web uygulamasıdır
 
 ## Özellikler
 
-- **Oxford 3000 & 5000 Ek sözlüğü** — A1, A2, B1, B2 seviyelerinde 3.226 çekirdek madde + 700 Oxford 5000 Ek (B2) maddesi; Türkçe anlamlar, sözcük türü ve IPA telaffuz.
+- **Oxford 3000 & Oxford 5000 Ek sözlüğü** — resmî CEFR listelerinden üretilmiş 5.323 madde / 5.947 sense. Oxford 3000: A1 (900), A2 (872), B1 (809), B2 (727). Oxford 5000 Ek: B2 Ek (700), C1 (1.315). Her sözcük türü ayrı sense taşır; qualifier ve homograf ayrımları korunur.
 - **Ayarlar** — günlük tekrar/yeni kelime hedefi, tercih edilen çalışma modu, otomatik telaffuz, yazım toleransı.
 - **Çevrimdışı çalışma (PWA)** — ana ekrana eklenebilir; ilk ziyaretten sonra internet olmadan da açılır.
 - **Tam yedekleme** — koleksiyonlar, üyelikler, öğrenme durumları ve ayarlar dâhil dışa aktarma ve geri yükleme.
@@ -61,8 +61,8 @@ src/
   components/     Arayüz bileşenleri (dashboard, çalışma, sınav, koleksiyonlar, profil)
     study/        Çalışma oturumu görünümleri (flashcard, kelime listesi)
     ui/           Küçük ortak bileşenler (rozet, toast, durum kontrolleri)
-  data/           Oxford kelime verisi (wordsA1/A2/B1/B2.json, oxford5000ExtraB2.json)
-  services/       Sözlük veri erişim katmanı (repository)
+  data/           Oxford verisi (oxford3000.json, oxford5000extra.json), kimlik göç haritası
+  services/       Sözlük veri erişim katmanı (oxfordCoreRepository)
   utils/          SRS motoru, depolama, sınav üretimi, lemmatizer, metin madencisi,
                   AI istemcisi, kimlik doğrulama istemcisi, konuşma, tarih yardımcıları
     __tests__/    Saf mantığın birim testleri
@@ -71,8 +71,8 @@ src/
   config/         Marka metinleri
 public/           PWA manifesti, ikonlar, servis çalışanı
 server.ts         Express sunucusu: AI uçları, kimlik doğrulama, senkronizasyon, özel kartlar
-scripts/          Kelime verisini üretme, zenginleştirme ve denetleme araçları (TS + Python)
-  data-repair/    Fonetik onarımı, şablon karantinası, örnek cümle yeniden üretimi
+scripts/oxford/   Oxford veri boru hattı: ayrıştırma, birleştirme, denetim,
+                  doğrulama, telaffuz doldurma, içerik zenginleştirme
 ```
 
 ## API uçları
@@ -101,6 +101,52 @@ Kimlik doğrulama gerektiren uçlar `Authorization: Bearer <token>` başlığı 
 
 `scripts/` altındaki araçlar Oxford verisini üretmek, zenginleştirmek ve denetlemek için kullanılır (örn. `buildOxford5000B2.ts`, `auditOxford3000.ts`, `enrich_all_words.py`). Bu scriptler tek seferlik veri hazırlığı içindir; uygulama çalışma zamanında `src/data/` altındaki hazır JSON dosyalarını kullanır. Toplu üretim ilerlemesi `.batch_checkpoints/` altında saklanır.
 
+## Oxford veri boru hattı
+
+Oxford verisi bileşen kodunda değil, `scripts/oxford/` altındaki boru hattında yönetilir. Kaynak otoritesi resmî `The Oxford 3000™` ve `The Oxford 5000™ by CEFR level` listeleridir: headword, CEFR seviyesi, sözcük türü, qualifier, homograf numarası ve kaynak sırası konusunda uygulama verisiyle çelişirlerse kaynak esas alınır.
+
+```bash
+# 1. Resmî PDF listelerini ayrıştır (kaynak JSON'ları üretir)
+python3 scripts/oxford/parse_sources.py <oxford3000.pdf> <oxford5000.pdf> \
+    scripts/oxford/source/oxford3000.source.json \
+    scripts/oxford/source/oxford5000extra.source.json
+
+# 2. Kaynakları ve mevcut içeriği birleştir (DOĞRUYSA KORU, EKSİKSE EKLE)
+python3 scripts/oxford/build_dataset.py
+
+# 3. Eksik IPA telaffuzlarını CMUdict'ten doldur
+python3 scripts/oxford/fill_phonetics.py <cmudict.dict>
+
+# 4. Kaynak ile veriyi karşılaştır
+python3 scripts/oxford/audit_oxford.py
+
+# 5. Doğrula (CI için: ANLORA_VALIDATE_STRICT=true)
+python3 scripts/oxford/validate_oxford.py
+
+# 6. Eksik Türkçe anlam ve örnekleri üret (yalnızca geliştirme aşamasında)
+GEMINI_API_KEY=... npx tsx scripts/oxford/enrich_oxford.ts --limit 40
+```
+
+### Veri modeli
+
+Bir kaynak SATIRI bir kayıttır; satırdaki her sözcük türü ayrı bir sense olur. `boost v., n.` tek kayıt, iki sense demektir ve fiil anlamı ile isim anlamı birbirine karışmaz. `bank (money)` ile `bank (river)` ayrı kayıtlardır; `can1` ile `can2` de öyle.
+
+Kimlikler deterministiktir — dataset + CEFR + headword + homograf + qualifier'dan üretilir, kaynak sırasına bağlı değildir. Kullanıcı ilerlemesi bu kimliklere bağlanır; liste güncellendiğinde kaymaz. Eski kimlikler `src/data/oxfordIdMigration.json` üzerinden otomatik göç eder ("Öğrendim", "Tekrar Et", favoriler, üyelikler ve çalışma geçmişi korunur).
+
+Oxford çekirdeği **salt okunurdur**: kullanıcı da çalışma zamanındaki yapay zekâ da değiştiremez. Çalışma zamanında hiçbir yapay zekâ isteği yapılmaz; veri pakete gömülüdür ve çevrimdışı çalışır.
+
+### İçeriğin durumu
+
+Kaynak listeler yalnızca kelimeleri verir; Türkçe karşılık ve örnek cümle içermez. Mevcut uygulamadan güvenle taşınabilen içerik taşındı, taşınamayanlar `needsReview` ile işaretlendi. **Uydurma veri yazılmaz**: anlamı bilinmeyen bir kayda yer tutucu yazmak yerine kayıt eksik bırakılır ve `enrich_oxford.ts` ile doldurulur.
+
+| Durum | Kayıt |
+| --- | --- |
+| Tam (anlam + 3 örnek) | 915 |
+| Anlamı var, örneği eksik | 2.936 |
+| Anlamı da eksik | 1.472 |
+
+Sözcük türüne güvenle atanamayan eski anlamlar (`about prep., adv.` için tek bir "hakkında, ilgili, konusunda" dizesi gibi) kayıt düzeyinde `legacyMeaning` olarak saklanır: tek bir sense'e yazmak yanlış sözcük türü anlamı koymak olurdu, atmak ise kullanıcının bugün gördüğü bilgiyi kaybetmek olurdu.
+
 ## Testler ve veri denetimi
 
 Saf mantık (SRS motoru, sınav üretimi, karıştırma, depolama, seri hesabı, rozet koşulları, lemmatizer, metin madencisi, tekrar tespiti, yedekleme) birim testleriyle kapsanır:
@@ -116,26 +162,16 @@ npx tsx scripts/auditOxford3000.ts
 ANLORA_AUDIT_STRICT=true npx tsx scripts/auditOxford3000.ts   # CI için: kusur varsa hata kodu
 ```
 
-### Örnek cümlelerin durumu
+### Şablon cümle geçmişi
 
-Çekirdek sözlükteki 9.678 örnek cümlenin 8.515'i (%88) yirmi bir sabit kalıptan üretilmişti ve kelime sözcük türüne bakılmaksızın kalıba yerleştirildiği için dilbilgisi dışıydı (`ago` zarfı için *"I want to ago today because it is very important."*). Bu cümleler veriden çıkarıldı; etkilenen 2.846 madde `examplesVerified: false` taşıyor ve `scripts/data-repair/quarantine_report.json` içinde listeleniyor. Arayüz bu maddelerde uydurma cümle göstermek yerine örnek olmadığını açıkça söyler.
-
-Yeniden üretmek için (Oxford 5000 Ek setini üreten, şablon içermeyen boru hattının aynısı):
-
-```bash
-GEMINI_API_KEY=... npx tsx scripts/data-repair/repair_examples.ts
-GEMINI_API_KEY=... npx tsx scripts/data-repair/repair_examples.ts --limit 50   # önce küçük bir parti dene
-```
-
-Betik kontrol noktası tutar, ürettiği cümleleri şablon listesine karşı doğrular ve yalnızca geçenleri veriye yazar.
+Önceki veri kümesinde 9.678 örnek cümlenin 8.515'i (%88) yirmi bir sabit kalıptan üretilmişti ve kelime sözcük türüne bakılmaksızın kalıba yerleştirildiği için dilbilgisi dışıydı (`ago` zarfı için *"I want to ago today because it is very important."*). Veri kümesi resmî kaynaklardan yeniden kurulurken bu cümleler alınmadı; sunucudaki `validateGeneratedWordCard` ve `validate_oxford.py` aynı kalıpların geri girmesini engeller.
 
 ## Notlar ve bilinen sınırlar
 
 - Kullanıcı ilerlemesi öncelikle tarayıcıda `localStorage` üzerinde tutulur; ilk açılışta V1 şemasından V2'ye otomatik göç çalışır. Depolama yazımları hata durumunda uygulamayı çökertmez; kota dolduğunda kullanıcıya bildirim gösterilir.
-- Oxford sözlüğü (868 KB JSON) açılışta bütün olarak yüklenir. Ayrı bir derleme parçasına alındığı için önbelleklenebilir, ancak kalıcı çözüm `oxfordRepository`'yi seviye başına dinamik `import()` ile tembel yüklemeye çevirmektir.
-- Çekirdek sözlükte anlam ayrımı (`senses`) yoktur; çok anlamlı kelimeler tek bir virgüllü dizede toplanmıştır (`light` → "açık (renk), hafif"). Anlam ayrımı yalnızca Oxford 5000 Ek setinde uygulanmıştır. Çekirdeği bu modele taşımak en büyük açık iş kalemidir.
+- Oxford sözlüğü açılışta bütün olarak yüklenir. Ayrı bir derleme parçasına alındığı için önbelleklenebilir, ancak kalıcı çözüm `oxfordCoreRepository`'yi grup başına dinamik `import()` ile tembel yüklemeye çevirmektir.
+- Kayıtların 4.408'i (%83) `needsReview` taşır: yapısal bilgi eksiksizdir ama Türkçe anlam ve/veya örnek cümleler henüz üretilmemiştir. `enrich_oxford.ts` bir API anahtarıyla bu boşluğu doldurur; en büyük açık iş kalemi budur.
 - Fonetik yazım Genel Amerikan İngilizcesindedir (CMUdict kaynaklı), çünkü uygulama kelimeleri `en-US` sesiyle okur.
 - Kullanıcı hesapları düz bir JSON dosyasında tutulur ve oturumlar süreç belleğindedir: tek sunucu örneği için yeterli, yatay ölçeklenen bir dağıtım için değil. Gerçek bir dağıtımda bir veritabanı ve paylaşımlı oturum deposu gerekir.
 - Doğrulama kodları e-posta ile gönderilmez, sunucu günlüğüne yazılır. Üretim için `deliverVerificationCode` bir e-posta sağlayıcısına bağlanmalıdır.
-- `scripts/` altındaki üç toplu üretim betiğinde (`batchGeneratorB2.ts`, `directGenerator.ts`, `fastBatchGeneratorB2.ts`) `EnrichedSense.partOfSpeech` zorunlu/opsiyonel uyuşmazlığından kaynaklanan tip hatası vardır. Uygulama çalışma zamanını etkilemez.
 - Arayüzde hâlâ birkaç `alert()`/`confirm()` çağrısı bulunur; bildirim altyapısı (`ToastProvider`) kurulu olduğu için bunlar kademeli olarak taşınabilir.

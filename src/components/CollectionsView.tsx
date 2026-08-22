@@ -33,6 +33,7 @@ import {
 import { calculateCollectionProgress } from '../utils/srsEngine';
 import { BatchWordModal } from './BatchWordModal';
 import { TextMinerModal } from './TextMinerModal';
+import { useModalA11y } from '../hooks/useModalA11y';
 import { DuplicateWarningModal } from './DuplicateWarningModal';
 import { detectWordDuplicate } from '../utils/duplicateDetector';
 import { speakText } from '../utils/speech';
@@ -97,6 +98,12 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   const [showBatchModal, setShowBatchModal] = useState(false);
   const [showMinerModal, setShowMinerModal] = useState(false);
   const [showAddWordModal, setShowAddWordModal] = useState(false);
+  /** Son eklenen kelime; arka arkaya ekleme akışında geri bildirim için. */
+  const [lastAddedWord, setLastAddedWord] = useState<string | null>(null);
+  // Bu iki modal bileşenin içinde tanımlı olduğu için ortak modal kancasını
+  // burada kullanıyoruz: Escape ile kapanma, odak tuzağı ve odak dönüşü.
+  const createModalRef = useModalA11y(showCreateModal, () => setShowCreateModal(false));
+  const addWordModalRef = useModalA11y(showAddWordModal, () => resetAddWordModal());
 
   // 3-dots menu dropdown state
   const [openMenuDeckId, setOpenMenuDeckId] = useState<string | null>(null);
@@ -157,6 +164,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   }, [activeDeckWords, searchQuery]);
 
   const resetAddWordModal = () => {
+    setLastAddedWord(null);
     setWordInput('');
     setContextInput('');
     setCreationMode('CHOICE');
@@ -287,7 +295,17 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     };
 
     onAddCustomWord(newCard, activeDeck.id, contextInput.trim() || undefined);
-    resetAddWordModal();
+
+    // Kelime ekleme genelde arka arkaya yapılan bir iştir: modal kapanıp
+    // yeniden açılmak yerine alanlar temizlenir ve odak yeniden kelime
+    // alanına döner. Küçük bir onay satırı da ne eklendiğini gösterir
+    // (talimat 48: "Bir kelime daha ekle").
+    setLastAddedWord(newCard.word);
+    setWordInput('');
+    setManualTurkishMeaning('');
+    setContextInput('');
+    setManualExamples([{ en: '', tr: '' }]);
+    setDuplicateResult(null);
   };
 
   // If user is studying this set in Flashcard Study Mode
@@ -650,9 +668,14 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
       {/* MODAL: YENİ KELİME SETİ OLUŞTUR */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="anlora-create-set-title"
+          ref={createModalRef}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn">
           <div className="bg-[#FFFFFF] rounded-2xl max-w-md w-full border border-[#E4E1D9] shadow-xl p-6 space-y-4">
-            <h3 className="text-base font-bold text-[#1E2430] flex items-center gap-2">
+            <h3 id="anlora-create-set-title" className="text-base font-bold text-[#1E2430] flex items-center gap-2">
               <Layers className="w-4 h-4 text-[#4F46A5]" />
               Yeni Kelime Seti Oluştur
             </h3>
@@ -797,10 +820,15 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
       {/* MODAL: KELİME EKLEME (AI / MANUEL SEÇENEKLERİ) */}
       {showAddWordModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="anlora-add-word-title"
+          ref={addWordModalRef}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto">
           <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full border border-[#E4E1D9] shadow-xl p-6 sm:p-7 space-y-5 my-8">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-[#1E2430] flex items-center gap-2">
+              <h3 id="anlora-add-word-title" className="text-lg font-bold text-[#1E2430] flex items-center gap-2">
                 <Plus className="w-4 h-4 text-[#4F46A5]" />
                 Yeni Kelime Ekle
               </h3>
@@ -808,6 +836,15 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 {activeDeck?.name}
               </span>
             </div>
+
+            {lastAddedWord && (
+              <div className="px-3.5 py-2.5 rounded-xl bg-[#E9F3ED] border border-[#BFD7C8] text-[#35654E] text-xs font-semibold flex items-center gap-2">
+                <Check className="w-3.5 h-3.5 shrink-0" />
+                <span>
+                  <b>{lastAddedWord}</b> sete eklendi. Bir kelime daha ekleyebilirsin.
+                </span>
+              </div>
+            )}
 
             {/* ADIM 1: KELİME VE BAĞLAM GİRİŞİ */}
             {creationMode === 'CHOICE' && (

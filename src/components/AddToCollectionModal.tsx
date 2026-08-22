@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Collection, WordCard } from '../types';
 import { BookmarkPlus, Plus, Check, X, Layers, FolderPlus } from 'lucide-react';
 import { CEFRBadge } from './ui/CEFRBadge';
+import { shouldShowCefr } from '../types/oxford';
 import { useModalA11y } from '../hooks/useModalA11y';
 
 interface AddToCollectionModalProps {
@@ -84,7 +85,9 @@ export const AddToCollectionModal: React.FC<AddToCollectionModalProps> = ({
               )}
               <p className="text-xs text-[#687080]">{wordCard.turkishMeaning}</p>
             </div>
-            <CEFRBadge level={wordCard.level || 'B1'} size="sm" />
+            {/* Seviye yalnızca Oxford kaynaklıysa gösterilir; kişisel karta
+                uydurma bir CEFR yazmak yanlış bilgi verir. */}
+            {shouldShowCefr(wordCard) && <CEFRBadge level={wordCard.level!} size="sm" />}
           </div>
 
           {/* Optional Context Inputs */}

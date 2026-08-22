@@ -1,0 +1,36 @@
+{
+  "sourceCounts": {
+    "oxford3000|A1": 900,
+    "oxford3000|A2": 872,
+    "oxford3000|B1": 809,
+    "oxford3000|B2": 727,
+    "oxford5000-extra|B2 Ek": 700,
+    "oxford5000-extra|C1": 1315
+  },
+  "sourceSenseCounts": {
+    "oxford3000|A1": 1075,
+    "oxford3000|A2": 993,
+    "oxford3000|B1": 906,
+    "oxford3000|B2": 835,
+    "oxford5000-extra|B2 Ek": 735,
+    "oxford5000-extra|C1": 1403
+  },
+  "entries": 5323,
+  "senses": 5947,
+  "uniqueHeadwords": 4952,
+  "missing": [],
+  "content": {
+    "completeEntries": 915,
+    "meaningOnly": 2936,
+    "noMeaning": 1472,
+    "needsReview": 4408,
+    "legacyMeaning": 468,
+    "senseComplete": 915,
+    "senseMeaningOnly": 2468,
+    "senseEmpty": 2564
+  },
+  "multiEntryHeadwords": 333,
+  "differentPos": 330,
+  "differentQualifier": 17,
+  "differentHomograph": 8
+}

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { speakText } from '../../utils/speech';
 import { CEFRBadge } from '../ui/CEFRBadge';
+import { shouldShowCefr } from '../../types/oxford';
 import { getUserWordStatus } from '../../utils/storageV2';
 
 interface StudyCardProps {
@@ -82,7 +83,7 @@ export const StudyCard: React.FC<StudyCardProps> = ({
         {/* Top Card Bar: Tags, Audio & Actions */}
         <div className="flex items-center justify-between gap-2 pb-4 border-b border-[#EFECE6]">
           <div className="flex items-center gap-2">
-            {card.level && <CEFRBadge level={card.level} size="sm" />}
+            {shouldShowCefr(card) && <CEFRBadge level={card.level!} size="sm" />}
             <span className="text-xs font-semibold px-2.5 py-1 bg-[#F8F7F3] border border-[#E4E1D9] rounded-lg text-[#687080]">
               {card.partOfSpeech || 'n.'}
             </span>
