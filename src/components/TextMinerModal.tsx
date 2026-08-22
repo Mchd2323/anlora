@@ -3,6 +3,7 @@ import { Collection, WordCard, LearningState, MinedWordItem } from '../types';
 import { FileText, Sparkles, Filter, CheckCircle2, BookmarkPlus, X, Loader2, ArrowRight } from 'lucide-react';
 import { mineVocabularyFromText } from '../utils/textMiner';
 import { CEFRBadge } from './ui/CEFRBadge';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 interface TextMinerModalProps {
   isOpen: boolean;
@@ -26,6 +27,8 @@ export const TextMinerModal: React.FC<TextMinerModalProps> = ({
   learningStates,
   onAddMinedWordsToCollection
 }) => {
+  const modalRef = useModalA11y(isOpen, onClose);
+
   if (!isOpen) return null;
 
   const [rawText, setRawText] = useState('');
@@ -78,7 +81,12 @@ export const TextMinerModal: React.FC<TextMinerModalProps> = ({
     : [];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="anlora-text-miner-title"
+      ref={modalRef}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn">
       <div
         className="bg-[#FFFFFF] rounded-2xl max-w-2xl w-full border border-[#E4E1D9] shadow-xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
@@ -90,7 +98,7 @@ export const TextMinerModal: React.FC<TextMinerModalProps> = ({
               <FileText className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-[#1E2430]">Metinden Kelime Ayıkla (Text Miner)</h3>
+              <h3 id="anlora-text-miner-title" className="text-sm font-bold text-[#1E2430]">Metinden Kelime Ayıkla (Text Miner)</h3>
               <p className="text-xs text-[#687080]">
                 Bir metin yapıştır; bilmediğin kelimeleri otomatik ayıklayıp setine ekle.
               </p>

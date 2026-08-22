@@ -3,6 +3,7 @@ import { Collection, WordCard } from '../types';
 import { Layers, Sparkles, ArrowRight, X, Loader2 } from 'lucide-react';
 import { normalizeWordString } from '../utils/lemmatizer';
 import { detectWordDuplicate } from '../utils/duplicateDetector';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 interface BatchWordModalProps {
   isOpen: boolean;
@@ -39,6 +40,8 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
   onAddCustomWord,
   onLinkWordToCollection
 }) => {
+  const modalRef = useModalA11y(isOpen, onClose);
+
   if (!isOpen) return null;
 
   const [rawInput, setRawInput] = useState('');
@@ -161,7 +164,12 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="anlora-batch-word-title"
+      ref={modalRef}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn">
       <div
         className="bg-[#FFFFFF] rounded-2xl max-w-2xl w-full border border-[#E4E1D9] shadow-xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
@@ -173,7 +181,7 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
               <Layers className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-[#1E2430]">Toplu Kelime Ekle</h3>
+              <h3 id="anlora-batch-word-title" className="text-sm font-bold text-[#1E2430]">Toplu Kelime Ekle</h3>
               <p className="text-xs text-[#687080]">
                 Hedef Set: <span className="font-bold text-[#1E2430]">{targetCollection?.name}</span>
               </p>

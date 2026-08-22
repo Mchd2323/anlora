@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Collection, WordCard } from '../types';
 import { BookmarkPlus, Plus, Check, X, Layers, FolderPlus } from 'lucide-react';
 import { CEFRBadge } from './ui/CEFRBadge';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 interface AddToCollectionModalProps {
   isOpen: boolean;
@@ -39,8 +40,15 @@ export const AddToCollectionModal: React.FC<AddToCollectionModalProps> = ({
     setIsCreatingNew(false);
   };
 
+  const modalRef = useModalA11y(isOpen, onClose);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="anlora-add-collection-title"
+      ref={modalRef}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn">
       <div
         className="bg-[#FFFFFF] rounded-2xl max-w-md w-full border border-[#E4E1D9] shadow-xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
@@ -52,7 +60,7 @@ export const AddToCollectionModal: React.FC<AddToCollectionModalProps> = ({
               <BookmarkPlus className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-[#1E2430]">Kelimelerime Ekle</h3>
+              <h3 id="anlora-add-collection-title" className="text-sm font-bold text-[#1E2430]">Kelimelerime Ekle</h3>
               <p className="text-xs text-[#687080]">
                 "{wordCard.word}" kelimesini bir sete ekle
               </p>

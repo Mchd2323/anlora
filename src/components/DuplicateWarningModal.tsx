@@ -2,6 +2,7 @@ import React from 'react';
 import { DuplicateCheckResult, WordCard } from '../types';
 import { AlertCircle, Plus, Edit2, Link, BookOpen, X } from 'lucide-react';
 import { CEFRBadge } from './ui/CEFRBadge';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 interface DuplicateWarningModalProps {
   isOpen: boolean;
@@ -26,8 +27,15 @@ export const DuplicateWarningModal: React.FC<DuplicateWarningModalProps> = ({
 
   const card = duplicateInfo.matchedWordCard;
 
+  const modalRef = useModalA11y(isOpen, onClose);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="anlora-duplicate-title"
+      ref={modalRef}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn">
       <div
         className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full border border-[#E4E1D9] shadow-xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
@@ -39,7 +47,7 @@ export const DuplicateWarningModal: React.FC<DuplicateWarningModalProps> = ({
               <AlertCircle className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-[#1E2430]">Mevcut Kelime Tespiti</h3>
+              <h3 id="anlora-duplicate-title" className="text-sm font-bold text-[#1E2430]">Mevcut Kelime Tespiti</h3>
               <p className="text-xs text-[#687080]">
                 "{duplicateInfo.normalizedWord}" kelimesi sistemde incelendi
               </p>

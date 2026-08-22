@@ -1,0 +1,18 @@
+{
+  "name": "Anlora — İngilizce Kelime Öğren",
+  "short_name": "Anlora",
+  "description": "Oxford 3000 ve Oxford 5000 Ek kelimelerini Türkçe anlamları ve çift dilli örneklerle çalış.",
+  "lang": "tr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F8F7F3",
+  "theme_color": "#4F46A5",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

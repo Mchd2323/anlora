@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { WordCard, Level, ExampleSentence } from '../types';
 import { X, Save, Edit3, Plus, Trash2, BookOpen } from 'lucide-react';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 interface EditCardModalProps {
   card: WordCard;
@@ -17,6 +18,8 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
   onSave,
   onDelete,
 }) => {
+  const modalRef = useModalA11y(isOpen, onClose);
+
   if (!isOpen) return null;
 
   const [word, setWord] = useState(card.word);
@@ -72,7 +75,12 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="anlora-edit-card-title"
+      ref={modalRef}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto">
       <div
         className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full border border-[#E4E1D9] shadow-xl overflow-hidden my-8"
         onClick={(e) => e.stopPropagation()}
@@ -84,7 +92,7 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
               <Edit3 className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-[#1E2430]">Kelime Kartını Düzenle</h3>
+              <h3 id="anlora-edit-card-title" className="text-sm font-bold text-[#1E2430]">Kelime Kartını Düzenle</h3>
               <p className="text-xs text-[#687080]">
                 Kartın anlam ve örneklerini güncelle
               </p>

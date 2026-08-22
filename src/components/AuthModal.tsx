@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { UserProfile } from '../types';
 import { apiFetch, storeSession, clearSession } from '../utils/authClient';
+import { useModalA11y } from '../hooks/useModalA11y';
 import {
   CloudCheck,
   ShieldCheck,
@@ -87,6 +88,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const filteredCities = useMemo(() => {
     return filterTurkishCities(citySearch);
   }, [citySearch]);
+
+  const modalRef = useModalA11y(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -313,7 +316,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
 
             <div>
-              <h3 className="text-lg font-bold text-[#1E2430]">
+              <h3 id="anlora-auth-modal-title" className="text-lg font-bold text-[#1E2430]">
                 {profile.name || 'Anlora Üyesi'}
               </h3>
               <p className="text-xs text-[#687080] mt-0.5">{profile.email}</p>
