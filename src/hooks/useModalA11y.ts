@@ -21,6 +21,14 @@ export function useModalA11y(isOpen: boolean, onClose: () => void) {
   const containerRef = useRef<HTMLDivElement>(null);
   const previouslyFocused = useRef<HTMLElement | null>(null);
 
+  // `onClose` çoğu çağrı yerinde satır içi bir ok fonksiyonudur, yani her
+  // render'da kimliği değişir. Doğrudan bağımlılık listesine konursa efekt
+  // her render'da sökülüp yeniden kurulur; temizleme adımı da odağı sürekli
+  // modalin dışına geri fırlatır. Bu yüzden geri çağrı bir ref'te tutulur ve
+  // efekt yalnızca açık/kapalı durumuna bağlanır.
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -48,7 +56,7 @@ export function useModalA11y(isOpen: boolean, onClose: () => void) {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.stopPropagation();
-        onClose();
+        onCloseRef.current();
         return;
       }
 
@@ -84,7 +92,7 @@ export function useModalA11y(isOpen: boolean, onClose: () => void) {
       // Odağı modali açan öğeye geri ver.
       previouslyFocused.current?.focus?.();
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   return containerRef;
 }

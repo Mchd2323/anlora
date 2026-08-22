@@ -94,15 +94,10 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
 
   const hasSets = collections.length > 0;
 
+  // Set oluşturmak giriş gerektirmez: veri zaten yerelde tutuluyor ve giriş
+  // yalnızca bulut yedeklemesi içindir. İlk adımda hesap istemek, ürünün
+  // "hızlı ekleme" vaadinin önündeki en büyük sürtünmeydi.
   const handleCreateSetClick = () => {
-    if (!profile?.isLoggedIn) {
-      if (onOpenAuthModal) {
-        onOpenAuthModal();
-      } else {
-        onNavigateToTab('collections');
-      }
-      return;
-    }
     if (onOpenCreateSet) {
       onOpenCreateSet();
     } else {

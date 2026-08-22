@@ -356,13 +356,17 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
           </button>
 
           <button
-            onClick={() => {
-              if (!profile?.isLoggedIn && onOpenAuthModal) {
-                onOpenAuthModal();
-              } else {
-                setShowCreateModal(true);
-              }
-            }}
+            /*
+             * Set oluşturmak giriş gerektirmez.
+             *
+             * Önceki davranış, hesabı olmayan kullanıcıyı ilk setini
+             * oluşturmadan önce kayıt ekranına yönlendiriyordu. Uygulamanın
+             * verisi zaten yereldir ve giriş yalnızca bulut yedeklemesi
+             * içindir; ilk adımda hesap istemek, ürünün "hızlı ekleme"
+             * vaadinin önündeki en büyük sürtünmeydi. Giriş, veri buluta
+             * eşitlenmek istendiğinde profil ekranından yapılabilir.
+             */
+            onClick={() => setShowCreateModal(true)}
             className="px-4 py-2 bg-[#4F46A5] hover:bg-[#433B91] text-white text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-1.5 active:scale-[0.98] cursor-pointer"
           >
             <Plus className="w-4 h-4" />
