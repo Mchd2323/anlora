@@ -4,27 +4,79 @@ export interface SpeechOptions {
   lang?: string; // 'en-US' or 'en-GB'
 }
 
-export function speakText(text: string, options: SpeechOptions = {}): Promise<void> {
-  return new Promise((resolve) => {
+/**
+ * Ses listesi hazır olduğunda çözülen söz (promise).
+ *
+ * `speechSynthesis.getVoices()` Chrome ve Edge'de ilk çağrıda çoğu zaman boş
+ * dizi döner; listeyi `voiceschanged` olayından sonra doldurur. Önceki
+ * sürümde bu beklenmediği için sayfa açıldıktan sonraki ilk telaffuz
+ * tarayıcının varsayılan sesiyle — Türkçe arayüzde çoğunlukla Türkçe bir
+ * sesle — okunuyordu; İngilizce kelime Türkçe fonetikle seslendiriliyordu.
+ */
+let voicesReady: Promise<SpeechSynthesisVoice[]> | null = null;
+
+function loadVoices(): Promise<SpeechSynthesisVoice[]> {
+  if (voicesReady) return voicesReady;
+
+  voicesReady = new Promise<SpeechSynthesisVoice[]>(resolve => {
     if (!('speechSynthesis' in window)) {
-      console.warn('Tarayıcınız sesli okuma (SpeechSynthesis) özelliğini desteklemiyor.');
-      resolve();
+      resolve([]);
       return;
     }
 
+    const immediate = window.speechSynthesis.getVoices();
+    if (immediate.length > 0) {
+      resolve(immediate);
+      return;
+    }
+
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      window.speechSynthesis.removeEventListener('voiceschanged', finish);
+      resolve(window.speechSynthesis.getVoices());
+    };
+
+    window.speechSynthesis.addEventListener('voiceschanged', finish);
+    // Olay hiç gelmezse (bazı mobil tarayıcılar) sonsuza kadar bekleme.
+    window.setTimeout(finish, 1500);
+  });
+
+  return voicesReady;
+}
+
+function pickEnglishVoice(
+  voices: SpeechSynthesisVoice[],
+  lang: string
+): SpeechSynthesisVoice | undefined {
+  const preferredNames = ['Google', 'Natural', 'Samantha', 'Daniel'];
+  return (
+    voices.find(v => v.lang === lang && preferredNames.some(n => v.name.includes(n))) ||
+    voices.find(v => v.lang === lang) ||
+    voices.find(v => v.lang.startsWith('en') && preferredNames.some(n => v.name.includes(n))) ||
+    voices.find(v => v.lang.startsWith('en'))
+  );
+}
+
+export async function speakText(text: string, options: SpeechOptions = {}): Promise<void> {
+  if (!('speechSynthesis' in window)) {
+    console.warn('Tarayıcınız sesli okuma (SpeechSynthesis) özelliğini desteklemiyor.');
+    return;
+  }
+
+  const lang = options.lang || 'en-US';
+  const voices = await loadVoices();
+
+  return new Promise<void>(resolve => {
     window.speechSynthesis.cancel(); // Stop ongoing speech
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = options.lang || 'en-US';
+    utterance.lang = lang;
     utterance.rate = options.rate ?? 0.9;
     utterance.pitch = options.pitch ?? 1.0;
 
-    // Try to pick a natural sounding English voice
-    const voices = window.speechSynthesis.getVoices();
-    const englishVoice = voices.find(
-      (v) => v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Samantha') || v.name.includes('Daniel'))
-    ) || voices.find((v) => v.lang.startsWith('en'));
-
+    const englishVoice = pickEnglishVoice(voices, lang);
     if (englishVoice) {
       utterance.voice = englishVoice;
     }
@@ -34,6 +86,12 @@ export function speakText(text: string, options: SpeechOptions = {}): Promise<vo
 
     window.speechSynthesis.speak(utterance);
   });
+}
+
+/** Tarayıcıda hiç İngilizce ses yüklü değilse arayüz bunu kullanıcıya söyleyebilir. */
+export async function hasEnglishVoice(): Promise<boolean> {
+  const voices = await loadVoices();
+  return voices.some(v => v.lang.startsWith('en'));
 }
 
 export function stopSpeech(): void {

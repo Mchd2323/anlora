@@ -23,7 +23,8 @@ import {
   UserProfile,
   UserSettings,
   ResponseQuality,
-  StudySessionSummary
+  StudySessionSummary,
+  QuizSessionSummary
 } from './types';
 import {
   runV1toV2MigrationIfNeeded,
@@ -53,9 +54,11 @@ import {
   saveUserProfileV2,
   setUserWordStatus
 } from './utils/storageV2';
-import { isWordDueForReview } from './utils/srsEngine';
+import { apiFetch, logout } from './utils/authClient';
+import { useToast } from './components/ui/ToastProvider';
 
 export default function App() {
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<TabType>('today');
   const [selectedLevel, setSelectedLevel] = useState<Level | 'ALL'>('ALL');
   const [studySessionInitialDeckId, setStudySessionInitialDeckId] = useState<string | undefined>(undefined);
@@ -103,18 +106,6 @@ export default function App() {
   const favoriteWordsList = useMemo(() => {
     return allWordsCombined.filter((w) => favorites.includes(w.id));
   }, [allWordsCombined, favorites]);
-
-  // Calculate total words due for review today
-  const dueTodayCount = useMemo(() => {
-    let count = 0;
-    allWordsCombined.forEach(w => {
-      const s = learningStates[w.id];
-      if (isWordDueForReview(s)) {
-        count++;
-      }
-    });
-    return count;
-  }, [allWordsCombined, learningStates]);
 
   // Collection Handlers
   const handleCreateCollection = (name: string, description?: string, color?: string, iconName?: string): Collection => {
@@ -226,12 +217,19 @@ export default function App() {
   };
 
   // Quiz Completion
-  const handleCompleteQuiz = (
-    correctCount: number,
-    wrongCount: number,
-    mistakenWords: WordCard[]
-  ) => {
-    const updatedStats = recordQuizResultV2(correctCount, wrongCount, mistakenWords);
+  const handleFinishQuiz = (summary: QuizSessionSummary) => {
+    // Yanlış bilinen kelimelerin kart nesnelerini id'lerinden çöz; hata
+    // listesi kartın kendisini sakladığı için tam nesne gerekiyor.
+    const wordById = new Map(allWordsCombined.map(w => [w.id, w]));
+    const mistakenWords = summary.mistakeWords
+      .map(id => wordById.get(id))
+      .filter((w): w is WordCard => !!w);
+
+    const updatedStats = recordQuizResultV2(
+      summary.correctCount,
+      summary.wrongCount,
+      mistakenWords
+    );
     setStats(updatedStats);
     setUnlockedBadges(checkAndUnlockBadgesV2());
   };
@@ -249,6 +247,9 @@ export default function App() {
   };
 
   const handleLogout = () => {
+    // Sunucudaki oturum jetonunu da geçersiz kıl; yalnızca yerel profili
+    // temizlemek jetonu geçerli bırakırdı.
+    void logout();
     const guestProfile: UserProfile = {
       email: null,
       name: 'Misafir Kullanıcı',
@@ -276,14 +277,19 @@ export default function App() {
         settings,
         unlockedBadges
       };
-      await fetch('/api/sync/save', {
+      // E-posta artık gövdede gönderilmiyor: sunucu kullanıcıyı oturum
+      // jetonundan çözer. Eski uçta e-posta tek kimlikti ve başkasının
+      // adresini yazan herkes onun verisini ezebiliyordu.
+      await apiFetch('/api/sync/save', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: profile.email, userData })
+        body: JSON.stringify({ userData })
       });
-      alert('Tüm verileriniz bulut hesabınıza başarıyla eşitlendi!');
-    } catch {
-      alert('Bulut eşitleme hatası oluştu.');
+      showToast('Tüm verileriniz bulut hesabınıza eşitlendi.', 'learned');
+      const syncedProfile = { ...profile, lastSyncTime: new Date().toLocaleTimeString('tr-TR') };
+      saveUserProfileV2(syncedProfile);
+      setProfile(syncedProfile);
+    } catch (err: any) {
+      showToast(err?.message || 'Bulut eşitleme hatası oluştu.', 'error');
     }
   };
 
@@ -419,7 +425,7 @@ export default function App() {
             memberships={memberships}
             learningStates={learningStates}
             initialCollectionId={quizInitialDeckId}
-            onCompleteQuiz={handleCompleteQuiz}
+            onFinishQuiz={handleFinishQuiz}
             onRecordStudyResult={(wId, qual, mode) => handleRecordStudyResult(wId, qual, mode)}
             onGoToMistakes={() => setActiveTab('profile')}
             onSetWordStatus={handleSetWordStatus}

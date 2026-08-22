@@ -10,7 +10,22 @@ import {
 import { UserProfile } from '../types';
 import { BRAND } from '../config/brand';
 
-export type TabType = 'today' | 'collections' | 'oxford' | 'quiz' | 'profile';
+/**
+ * Uygulamadaki tüm görünümler.
+ *
+ * 'study' ve 'custom' gezinme çubuğunda sekme olarak görünmez ama gerçek birer
+ * görünümdür (`App.tsx` bunlara `setActiveTab` ile geçer). Önceki sürümde
+ * birlik listede yer almadıkları için TypeScript bu geçişleri hata olarak
+ * göremiyordu; @types/react eksik olduğu için de fark edilmemişti.
+ */
+export type TabType =
+  | 'today'
+  | 'collections'
+  | 'oxford'
+  | 'quiz'
+  | 'profile'
+  | 'study'
+  | 'custom';
 
 interface NavbarProps {
   activeTab: TabType;

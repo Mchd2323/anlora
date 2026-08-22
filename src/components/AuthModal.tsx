@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { UserProfile } from '../types';
+import { apiFetch, storeSession, clearSession } from '../utils/authClient';
 import {
   CloudCheck,
   ShieldCheck,
@@ -89,30 +90,34 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   if (!isOpen) return null;
 
-  // 1. Google One-Tap / OAuth Handler
-  const handleGoogleAuth = async () => {
+  // 1. Google ile giriş
+  //
+  // Önceki sürümde bu düğme gerçek bir Google akışı çalıştırmıyordu: istemci
+  // `user.<rastgele4hane>@gmail.com` biçiminde bir adres uyduruyor, sunucu da
+  // bunu doğrulamadan kabul ediyordu. Kullanıcı "Google ile giriş yaptım"
+  // sanıyor, aslında her seferinde rastgele yeni bir hesap açılıyor ve önceki
+  // verisine bir daha ulaşamıyordu. Gerçek akış bir Google kimlik jetonu
+  // gerektirir; jeton olmadan düğme dürüstçe devre dışıdır.
+  const handleGoogleAuth = async (credential?: string) => {
+    if (!credential) {
+      setError(
+        'Google ile giriş bu kurulumda henüz etkin değil. Lütfen e-posta ve parolanızla devam edin.'
+      );
+      return;
+    }
+
     setIsLoading(true);
     setError('');
     setMessage('');
 
     try {
-      // In web app, we authenticate using safe client payload or standard token
-      const defaultEmail = `user.${Math.floor(1000 + Math.random() * 9000)}@gmail.com`;
-      const res = await fetch('/api/auth/google', {
+      const data = await apiFetch('/api/auth/google', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: defaultEmail,
-          name: 'Google Kullanıcısı',
-          country: 'Türkiye',
-          city: city || 'İstanbul'
-        })
+        body: JSON.stringify({ credential })
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Google ile giriş başarısız oldu.');
-
-      const newProfile: UserProfile = {
+      storeSession(data.token, data.expiresAt);
+      onUpdateProfile({
         email: data.user.email,
         name: data.user.name,
         country: data.user.country,
@@ -121,9 +126,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         authProvider: 'google',
         isLoggedIn: true,
         lastSyncTime: new Date().toLocaleTimeString('tr-TR')
-      };
-
-      onUpdateProfile(newProfile);
+      });
       setAuthStep('guest_migration');
     } catch (err: any) {
       setError(err.message || 'Google ile giriş yapılamadı.');
@@ -140,8 +143,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       return;
     }
 
-    if (isRegisterMode && password.length < 6) {
-      setError('Parola en az 6 karakter olmalıdır.');
+    if (isRegisterMode && password.length < 8) {
+      setError('Parola en az 8 karakter olmalıdır.');
       return;
     }
 
@@ -152,9 +155,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     try {
       if (isRegisterMode) {
         // Register API call with anti-bot honeypot
-        const res = await fetch('/api/auth/register', {
+        const data = await apiFetch('/api/auth/register', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             name: name.trim() || email.split('@')[0],
             email: email.trim(),
@@ -165,9 +167,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           })
         });
 
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Kayıt işlemi başarısız.');
-
         if (data.devCode) {
           setDevCodePreview(data.devCode);
         }
@@ -177,17 +176,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         setAuthStep('verify_email');
       } else {
         // Login API call
-        const res = await fetch('/api/auth/login', {
+        const data = await apiFetch('/api/auth/login', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             email: email.trim(),
             password
           })
         });
 
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Giriş yapılamadı.');
+        storeSession(data.token, data.expiresAt);
 
         const newProfile: UserProfile = {
           email: data.user.email,
@@ -224,17 +221,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setMessage('');
 
     try {
-      const res = await fetch('/api/auth/verify-email', {
+      const data = await apiFetch('/api/auth/verify-email', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: email.trim(),
           code: verificationCode.trim()
         })
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Doğrulama kodu geçersiz.');
+      storeSession(data.token, data.expiresAt);
 
       const newProfile: UserProfile = {
         email: data.user.email,
@@ -264,14 +259,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setError('');
 
     try {
-      const res = await fetch('/api/auth/resend-code', {
+      const data = await apiFetch('/api/auth/resend-code', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim() })
       });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Kod gönderilemedi.');
 
       if (data.devCode) {
         setDevCodePreview(data.devCode);
@@ -288,6 +279,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   // 5. Logout Handler
   const handleLogout = () => {
+    clearSession();
     onUpdateProfile({
       email: null,
       name: 'Misafir Kullanıcı',
@@ -590,7 +582,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
               <div>
                 <label className="block text-[11px] font-bold text-[#687080] uppercase mb-1">
-                  Şifre {isRegisterMode && <span className="text-[#8E95A2] font-normal">(en az 6 karakter)</span>}
+                  Şifre {isRegisterMode && <span className="text-[#8E95A2] font-normal">(en az 8 karakter)</span>}
                 </label>
                 <div className="relative">
                   <Lock className="w-4 h-4 text-[#8E95A2] absolute left-3 top-1/2 -translate-y-1/2" />
@@ -724,7 +716,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <div className="space-y-2.5 pt-1">
               {/* Google Button */}
               <button
-                onClick={handleGoogleAuth}
+                type="button"
+                onClick={() => handleGoogleAuth()}
                 disabled={isLoading}
                 className="w-full py-2.5 px-4 bg-[#FFFFFF] hover:bg-[#F8F7F3] text-[#1E2430] font-semibold text-xs rounded-xl border border-[#E4E1D9] shadow-2xs transition-colors flex items-center justify-center gap-2.5 cursor-pointer"
               >

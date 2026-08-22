@@ -5,7 +5,9 @@ import {
   WordCard,
   Level,
   UserProfile,
-  LearningState
+  LearningState,
+  UserSettings,
+  UserStats
 } from '../types';
 import {
   Layers,
@@ -13,9 +15,13 @@ import {
   Plus,
   ArrowRight,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  Flame,
+  Target,
+  Play
 } from 'lucide-react';
 import { getUserWordStatus } from '../utils/storageV2';
+import { summarizeQueue } from '../utils/srsEngine';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { BRAND } from '../config/brand';
 
@@ -23,25 +29,48 @@ interface TodayDashboardProps {
   collections: Collection[];
   memberships: CollectionMembership[];
   oxfordWords: WordCard[];
+  customWords?: WordCard[];
   learningStates?: Record<string, LearningState>;
+  settings?: UserSettings;
+  stats?: UserStats;
   profile?: UserProfile;
   onNavigateToTab: (tab: string) => void;
   onSelectLevel?: (level: Level) => void;
   onOpenCreateSet?: () => void;
   onOpenAuthModal?: () => void;
+  onStartStudy?: (collectionId?: string) => void;
+  onOpenTextMiner?: () => void;
 }
 
 export const TodayDashboard: React.FC<TodayDashboardProps> = ({
   collections,
   memberships,
   oxfordWords,
+  customWords = [],
   learningStates = {},
+  settings,
+  stats,
   profile,
   onNavigateToTab,
   onSelectLevel,
   onOpenCreateSet,
-  onOpenAuthModal
+  onOpenAuthModal,
+  onStartStudy
 }) => {
+  // Bugünün iş yükü: bekleyen tekrarlar ve hiç çalışılmamış kelimeler ayrı
+  // sayılır. Tek bir "vadesi gelen" sayısı vermek, dokunulmamış tüm Oxford
+  // sözlüğünü (~3.900 madde) günlük göreve dönüştürüyordu.
+  const todayQueue = useMemo(() => {
+    const ids = [...oxfordWords, ...customWords].map(w => w.id);
+    return summarizeQueue(ids, learningStates);
+  }, [oxfordWords, customWords, learningStates]);
+
+  const reviewGoal = settings?.dailyReviewGoal ?? 15;
+  const newGoal = settings?.dailyNewWordsGoal ?? 5;
+  const plannedReviews = Math.min(todayQueue.dueCount, reviewGoal);
+  const plannedNew = Math.min(todayQueue.newCount, newGoal);
+  const plannedTotal = plannedReviews + plannedNew;
+  const streakDays = stats?.streakDays ?? 0;
   // Oxford level counts & progress
   const oxfordLevelStats = useMemo(() => {
     const counts: Record<string, { total: number; learned: number; learning: number }> = {
@@ -98,7 +127,67 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
         </p>
       </div>
 
-      {/* 2. BİRİNCİ BÖLÜM: KELİME SETLERİM */}
+      {/* 2. BUGÜNÜN PLANI: bekleyen tekrar, yeni kelime ve günlük seri */}
+      <div className="bg-[#FFFFFF] rounded-2xl p-5 sm:p-6 border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-[#EEECFA] text-[#4F46A5] flex items-center justify-center">
+              <Target className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-[#1E2430]">Bugünün Planı</h2>
+              <p className="text-[11px] text-[#687080]">
+                Günlük hedefin: {reviewGoal} tekrar + {newGoal} yeni kelime
+              </p>
+            </div>
+          </div>
+
+          {streakDays > 0 && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FBF1DE] border border-[#E7C98F] self-start">
+              <Flame className="w-3.5 h-3.5 text-[#B97922]" />
+              <span className="text-xs font-bold text-[#8A5A18]">
+                {streakDays} günlük seri
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 mt-4">
+          <div className="p-3.5 rounded-xl bg-[#FAF9F5] border border-[#EFECE6]">
+            <div className="text-2xl font-black text-[#4F46A5] tabular-nums">
+              {todayQueue.dueCount}
+            </div>
+            <div className="text-[10px] font-bold text-[#687080] uppercase tracking-wide mt-0.5">
+              Bekleyen tekrar
+            </div>
+          </div>
+          <div className="p-3.5 rounded-xl bg-[#FAF9F5] border border-[#EFECE6]">
+            <div className="text-2xl font-black text-[#4F806A] tabular-nums">
+              {todayQueue.newCount}
+            </div>
+            <div className="text-[10px] font-bold text-[#687080] uppercase tracking-wide mt-0.5">
+              Hiç çalışılmamış
+            </div>
+          </div>
+        </div>
+
+        {onStartStudy && (
+          <button
+            onClick={() => onStartStudy()}
+            disabled={plannedTotal === 0}
+            className="w-full mt-4 py-3 bg-[#4F46A5] hover:bg-[#433B91] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <Play className="w-4 h-4" />
+            <span>
+              {plannedTotal > 0
+                ? `Çalışmaya başla (${plannedTotal} kelime)`
+                : 'Bugünlük her şey tamam'}
+            </span>
+          </button>
+        )}
+      </div>
+
+      {/* 3. KELİME SETLERİM */}
       <div className="bg-[#FFFFFF] rounded-2xl p-6 sm:p-7 border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="space-y-2 max-w-xl">

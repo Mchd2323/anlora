@@ -253,13 +253,22 @@ export interface StudyCardItem {
   collectionSources?: { collectionName: string; sourceName?: string; sourceContext?: string }[];
 }
 
+/**
+ * Bir çalışma oturumunun sonucu.
+ *
+ * Alan adları `StudySessionView`'ün ürettiği nesneyle hizalandı. Önceki
+ * sürümde tip tamamen farklı alanlar (totalReviewed, weakWordIds, ...)
+ * tanımlıyordu; @types/react kurulu olmadığı için bu uyuşmazlık derlemede
+ * hiç görünmüyordu.
+ */
 export interface StudySessionSummary {
-  totalReviewed: number;
-  totalNewStudied: number;
-  totalMistakes: number;
-  upgradedCount: number;
-  weakWordIds: string[];
-  completedAt: string;
+  sessionId: string;
+  date: string;
+  totalCardsReviewed: number;
+  newCardsLearned: number;
+  reviewsCompleted: number;
+  mistakeWordIds: string[];
+  upgradedWordIds: string[];
 }
 
 // Quiz System Types
@@ -293,6 +302,23 @@ export interface QuizSessionSummary {
   mistakeWords: string[];
 }
 
+/**
+ * Snapshot of everything a badge condition may look at. Passing a single
+ * object keeps the unlock rules colocated with the badge definitions, so a
+ * badge can never again be defined with an id that no rule checks for.
+ */
+export interface BadgeProgressSnapshot {
+  masteredCount: number;
+  favoritesCount: number;
+  customWordsCount: number;
+  collectionsCount: number;
+  streakDays: number;
+  totalQuizzesTaken: number;
+  totalCorrect: number;
+  totalWrong: number;
+  bestQuizAccuracy: number;
+}
+
 export interface Badge {
   id: string;
   name: string;
@@ -301,6 +327,8 @@ export interface Badge {
   unlocked: boolean;
   unlockedAt?: string;
   requirementText: string;
+  /** Returns true once the learner has earned this badge. */
+  isEarned: (progress: BadgeProgressSnapshot) => boolean;
 }
 
 export interface UserStats {
@@ -317,6 +345,8 @@ export interface UserStats {
   listeningAccuracy?: number;
   clozeAccuracy?: number;
   totalStudySessionsCompleted?: number;
+  /** Bugüne kadarki en yüksek sınav doğruluk oranı (0-1). */
+  bestQuizAccuracy?: number;
 }
 
 export interface UserProfile {

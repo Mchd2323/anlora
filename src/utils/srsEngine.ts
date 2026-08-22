@@ -6,12 +6,44 @@
  */
 
 import { LearningState, LearningStage, ResponseQuality, WordCard } from '../types';
+import { addDaysToStartOfDay, differenceInCalendarDays } from './dateUtils';
 
 /**
  * Standard interval ladder in days:
  * 1 -> 3 -> 7 -> 14 -> 30 -> 60 -> 120 -> 240
+ *
+ * The ladder is the backbone of scheduling: a successful review advances one
+ * rung (two on "easy"), a lapse drops back. Difficulty then stretches or
+ * compresses the chosen rung, so a word the learner keeps failing comes back
+ * sooner than the nominal interval and an easy word drifts later.
  */
 export const INTERVAL_LADDER = [1, 3, 7, 14, 30, 60, 120, 240];
+
+/** Lowest and highest scheduling interval, in days. */
+export const MIN_INTERVAL_DAYS = 1;
+export const MAX_INTERVAL_DAYS = INTERVAL_LADDER[INTERVAL_LADDER.length - 1];
+
+/**
+ * Finds the ladder rung matching an interval, so a state saved by an older
+ * build (which used a free-running multiplier) still maps onto the ladder.
+ */
+export function ladderIndexForInterval(intervalDays: number): number {
+  if (intervalDays <= 0) return -1;
+  for (let i = INTERVAL_LADDER.length - 1; i >= 0; i--) {
+    if (intervalDays >= INTERVAL_LADDER[i]) return i;
+  }
+  return 0;
+}
+
+/**
+ * Applies the difficulty modifier to a nominal ladder interval.
+ * difficulty 0.0 (easy word) -> x1.15, 0.5 -> x1.0, 1.0 (hard word) -> x0.7.
+ */
+export function applyDifficultyModifier(intervalDays: number, difficulty: number): number {
+  const clamped = Math.min(1, Math.max(0, difficulty));
+  const modifier = 1.15 - clamped * 0.45;
+  return Math.max(MIN_INTERVAL_DAYS, Math.round(intervalDays * modifier));
+}
 
 /**
  * Creates initial default learning state for a newly added or unstudied word
@@ -30,7 +62,11 @@ export function createInitialLearningState(wordId: string, initialStage: Learnin
     consecutiveWrong: 0,
     intervalDays: isMasteredInitial ? 14 : 0,
     lastReviewedAt: isMasteredInitial ? new Date().toISOString() : undefined,
-    nextReviewAt: new Date().toISOString() // Due now
+    // A word the learner marks as already known should not reappear the same
+    // day; only genuinely new words are due immediately.
+    nextReviewAt: isMasteredInitial
+      ? addDaysToStartOfDay(14).toISOString()
+      : new Date().toISOString()
   };
 }
 
@@ -79,20 +115,25 @@ export function computeNextReviewState(
     state.consecutiveCorrect += 1;
     state.consecutiveWrong = 0;
 
-    // Difficulty adjustment
+    // Difficulty adjustment. A successful recall must never make a word look
+    // *harder* than before -- the previous build nudged difficulty up by 0.01
+    // on every "good" answer, so a word answered correctly fifty times drifted
+    // towards maximum difficulty and its intervals stopped growing.
     if (quality === 'easy') {
-      state.difficulty = Math.max(0.1, state.difficulty - 0.05);
+      state.difficulty = Math.max(0, state.difficulty - 0.08);
     } else {
-      state.difficulty = Math.max(0.1, Math.min(1.0, state.difficulty + 0.01));
+      state.difficulty = Math.max(0, state.difficulty - 0.02);
     }
 
-    // Interval expansion calculation
-    if (state.intervalDays === 0) {
-      state.intervalDays = quality === 'easy' ? 3 : 1;
-    } else {
-      const multiplier = quality === 'easy' ? 2.5 : 1.8 * (1.1 - state.difficulty * 0.2);
-      state.intervalDays = Math.max(1, Math.round(state.intervalDays * multiplier));
-    }
+    // Interval expansion: advance along the ladder, then let difficulty
+    // stretch or compress the rung.
+    const currentRung = ladderIndexForInterval(state.intervalDays);
+    const step = quality === 'easy' ? 2 : 1;
+    const nextRung = Math.min(INTERVAL_LADDER.length - 1, currentRung + step);
+    state.intervalDays = Math.min(
+      MAX_INTERVAL_DAYS,
+      applyDifficultyModifier(INTERVAL_LADDER[nextRung], state.difficulty)
+    );
 
     // Mastery Score progression with evidence weighting
     const masteryGain = (quality === 'easy' ? 22 : 14) * weight;
@@ -127,20 +168,30 @@ export function computeNextReviewState(
         state.stage = state.consecutiveWrong >= 2 ? 'WEAK' : 'LEARNING';
       }
     } else {
-      // Hard (partially recalled or struggled)
-      state.intervalDays = Math.max(1, Math.round(state.intervalDays * 0.7));
+      // Hard (partially recalled or struggled): drop one rung rather than
+      // scaling the raw interval, so the schedule stays on the ladder.
+      const rung = ladderIndexForInterval(state.intervalDays);
+      const droppedRung = Math.max(0, rung - 1);
+      state.intervalDays = applyDifficultyModifier(INTERVAL_LADDER[droppedRung], state.difficulty);
       state.masteryScore = Math.max(0, Math.round(state.masteryScore - (10 * weight)));
       state.stage = state.consecutiveWrong >= 2 ? 'WEAK' : 'REVIEW';
     }
   }
 
-  // Calculate Next Review Date
-  const nextDate = new Date(now);
+  // Calculate Next Review Date.
+  //
+  // Multi-day intervals are anchored to the *start* of the target day. Adding
+  // days to the current timestamp instead would keep the clock time, so a word
+  // studied at 23:00 with a one-day interval would not come due until 23:00 the
+  // next evening -- the learner would open the app in the morning and be told
+  // there is nothing to review.
+  let nextDate: Date;
   if (state.intervalDays === 0) {
-    // Re-queue today (within same session or in a few hours)
+    // Re-queue within the same session.
+    nextDate = new Date(now);
     nextDate.setMinutes(nextDate.getMinutes() + 10);
   } else {
-    nextDate.setDate(nextDate.getDate() + state.intervalDays);
+    nextDate = addDaysToStartOfDay(state.intervalDays, now);
   }
   state.nextReviewAt = nextDate.toISOString();
 
@@ -148,14 +199,57 @@ export function computeNextReviewState(
 }
 
 /**
- * Checks if a word is currently due for review
+ * True when the word has never been studied (or was reset to NEW).
+ */
+export function isNewWord(state: LearningState | undefined): boolean {
+  return !state || state.stage === 'NEW';
+}
+
+/**
+ * True when a word the learner has already started is due to come back.
+ *
+ * This deliberately excludes untouched words. `isWordDueForReview` treats an
+ * unstudied word as "ready", which is right for a study queue but wrong for a
+ * counter: counting it made the dashboard report the entire Oxford dictionary
+ * (~3.900 entries) as "due today". Use this for anything the learner reads as
+ * a workload figure, and `isWordDueForReview` for building a queue.
+ */
+export function isReviewDue(state: LearningState | undefined, now: Date = new Date()): boolean {
+  if (isNewWord(state)) return false;
+  const reviewTime = new Date(state!.nextReviewAt).getTime();
+  if (Number.isNaN(reviewTime)) return true; // bozuk tarih -> tekrara al
+  return now.getTime() >= reviewTime;
+}
+
+/**
+ * Checks if a word is currently available to study: either never seen before
+ * or past its scheduled review time.
  */
 export function isWordDueForReview(state: LearningState | undefined): boolean {
-  if (!state) return true; // Unstudied is considered ready
-  if (state.stage === 'NEW') return true;
-  const now = new Date().getTime();
-  const reviewTime = new Date(state.nextReviewAt).getTime();
-  return now >= reviewTime;
+  if (isNewWord(state)) return true; // Unstudied is considered ready
+  return isReviewDue(state);
+}
+
+/**
+ * Splits a set of words into the two counts a learner actually cares about:
+ * how many reviews are waiting, and how many new words are still untouched.
+ */
+export function summarizeQueue(
+  wordIds: readonly string[],
+  learningStates: Record<string, LearningState>,
+  now: Date = new Date()
+): { dueCount: number; newCount: number } {
+  let dueCount = 0;
+  let newCount = 0;
+  for (const id of wordIds) {
+    const state = learningStates[id];
+    if (isNewWord(state)) {
+      newCount++;
+    } else if (isReviewDue(state, now)) {
+      dueCount++;
+    }
+  }
+  return { dueCount, newCount };
 }
 
 /**
@@ -177,16 +271,20 @@ export function calculateMemoryHealth(
 
   activeStates.forEach(s => {
     const dueTime = new Date(s.nextReviewAt).getTime();
-    if (now < dueTime || s.stage === 'MASTERED') {
+    if (Number.isNaN(dueTime)) return; // bozuk kayıt sağlığı etkilemesin
+    if (now < dueTime) {
       healthyCount += 1;
-    } else {
-      // Overdue by how much?
-      const overdueHours = (now - dueTime) / (1000 * 60 * 60);
-      if (overdueHours <= 24) {
-        healthyCount += 0.8; // Minor overdue penalty
-      } else if (overdueHours <= 72) {
-        healthyCount += 0.4;
-      }
+      return;
+    }
+    // Overdue: measured in whole days, matching how intervals are scheduled.
+    // A word that came due at 00:00 this morning is not "a day overdue".
+    const overdueDays = differenceInCalendarDays(now, dueTime);
+    if (overdueDays <= 0) {
+      healthyCount += 1;
+    } else if (overdueDays <= 1) {
+      healthyCount += 0.8; // Minor overdue penalty
+    } else if (overdueDays <= 3) {
+      healthyCount += 0.4;
     }
   });
 

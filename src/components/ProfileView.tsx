@@ -261,7 +261,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <div className="p-4 bg-[#EEECFA] rounded-xl border border-[#D7D2F4] text-center">
             <BrainCircuit className="w-5 h-5 text-[#4F46A5] mx-auto mb-1" />
             <div className="text-2xl font-bold text-[#4F46A5]">
-              {stats.quizzesCompleted || 0}
+              {stats.totalQuizzesTaken || 0}
             </div>
             <div className="text-[10px] font-bold text-[#4F46A5] uppercase mt-0.5">
               Çözülen Sınav

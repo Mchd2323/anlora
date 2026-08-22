@@ -14,11 +14,14 @@ import {
   UserSettings,
   UserStats,
   UserProfile,
+  BadgeProgressSnapshot,
   V2BackupPayload
 } from '../types';
 import { BADGES_DATA, OXFORD_3000_WORDS } from '../data/oxfordWords';
 import { createInitialLearningState, computeNextReviewState } from './srsEngine';
 import { normalizeWordString } from './lemmatizer';
+import { readJSON, writeJSON, readRaw, writeRaw, removeKey } from './safeStorage';
+import { differenceInCalendarDays, isValidDate } from './dateUtils';
 
 export const V2_KEYS = {
   MIGRATION_COMPLETED: 'lexiflow_v2_migration_done',
@@ -59,7 +62,7 @@ const MAX_REVIEW_LOGS_RETENTION = 500;
  */
 export function runV1toV2MigrationIfNeeded(oxfordWordsList: WordCard[] = []): void {
   try {
-    const isMigrated = localStorage.getItem(V2_KEYS.MIGRATION_COMPLETED);
+    const isMigrated = readRaw(V2_KEYS.MIGRATION_COMPLETED);
     if (isMigrated === 'true') {
       return;
     }
@@ -69,7 +72,7 @@ export function runV1toV2MigrationIfNeeded(oxfordWordsList: WordCard[] = []): vo
     let v1Learned: string[] = [];
     let v1Favorites: string[] = [];
     let v1Stats: any = null;
-    let v1Badges: string[] = ['first_step'];
+    let v1Badges: string[] = []; // rozetler koşula göre kazanılır, peşin verilmez
     let v1Profile: any = { email: null, isLoggedIn: false };
 
     try {
@@ -175,14 +178,14 @@ export function runV1toV2MigrationIfNeeded(oxfordWordsList: WordCard[] = []): vo
     });
 
     // 5. Save everything to V2 storage
-    localStorage.setItem(V2_KEYS.COLLECTIONS, JSON.stringify(collections));
-    localStorage.setItem(V2_KEYS.MEMBERSHIPS, JSON.stringify(memberships));
-    localStorage.setItem(V2_KEYS.CUSTOM_WORDS, JSON.stringify(customWords));
-    localStorage.setItem(V2_KEYS.LEARNING_STATES, JSON.stringify(learningStates));
-    localStorage.setItem(V2_KEYS.REVIEW_HISTORY, JSON.stringify([]));
-    localStorage.setItem(V2_KEYS.CONFUSION_PAIRS, JSON.stringify([]));
-    localStorage.setItem(V2_KEYS.SETTINGS, JSON.stringify(DEFAULT_SETTINGS));
-    localStorage.setItem(V2_KEYS.FAVORITES, JSON.stringify(v1Favorites));
+    writeJSON(V2_KEYS.COLLECTIONS, collections);
+    writeJSON(V2_KEYS.MEMBERSHIPS, memberships);
+    writeJSON(V2_KEYS.CUSTOM_WORDS, customWords);
+    writeJSON(V2_KEYS.LEARNING_STATES, learningStates);
+    writeJSON(V2_KEYS.REVIEW_HISTORY, []);
+    writeJSON(V2_KEYS.CONFUSION_PAIRS, []);
+    writeJSON(V2_KEYS.SETTINGS, DEFAULT_SETTINGS);
+    writeJSON(V2_KEYS.FAVORITES, v1Favorites);
 
     const finalStats: UserStats = v1Stats || {
       totalQuizzesTaken: 0,
@@ -195,11 +198,11 @@ export function runV1toV2MigrationIfNeeded(oxfordWordsList: WordCard[] = []): vo
       favoriteCount: v1Favorites.length,
       customCardsCount: customWords.length
     };
-    localStorage.setItem(V2_KEYS.STATS, JSON.stringify(finalStats));
-    localStorage.setItem(V2_KEYS.BADGES, JSON.stringify(v1Badges));
-    localStorage.setItem(V2_KEYS.PROFILE, JSON.stringify(v1Profile));
+    writeJSON(V2_KEYS.STATS, finalStats);
+    writeJSON(V2_KEYS.BADGES, v1Badges);
+    writeJSON(V2_KEYS.PROFILE, v1Profile);
 
-    localStorage.setItem(V2_KEYS.MIGRATION_COMPLETED, 'true');
+    writeRaw(V2_KEYS.MIGRATION_COMPLETED, 'true');
     console.log('✅ Version 2 Migration successfully completed.');
   } catch (err) {
     console.error('Migration error:', err);
@@ -210,16 +213,12 @@ export function runV1toV2MigrationIfNeeded(oxfordWordsList: WordCard[] = []): vo
 // COLLECTIONS
 // ----------------------------------------------------
 export function getCollections(): Collection[] {
-  try {
-    const d = localStorage.getItem(V2_KEYS.COLLECTIONS);
-    return d ? JSON.parse(d) : [];
-  } catch {
-    return [];
-  }
+  const value = readJSON<Collection[]>(V2_KEYS.COLLECTIONS, []);
+  return Array.isArray(value) ? value : [];
 }
 
 export function saveCollections(collections: Collection[]): void {
-  localStorage.setItem(V2_KEYS.COLLECTIONS, JSON.stringify(collections));
+  writeJSON(V2_KEYS.COLLECTIONS, collections);
 }
 
 export function addCollection(deck: Omit<Collection, 'id' | 'createdAt' | 'updatedAt'>): Collection {
@@ -278,16 +277,12 @@ export function deleteCollection(collectionId: string): Collection[] {
 // MEMBERSHIPS (Word <-> Collection Link)
 // ----------------------------------------------------
 export function getMemberships(): CollectionMembership[] {
-  try {
-    const d = localStorage.getItem(V2_KEYS.MEMBERSHIPS);
-    return d ? JSON.parse(d) : [];
-  } catch {
-    return [];
-  }
+  const value = readJSON<CollectionMembership[]>(V2_KEYS.MEMBERSHIPS, []);
+  return Array.isArray(value) ? value : [];
 }
 
 export function saveMemberships(memberships: CollectionMembership[]): void {
-  localStorage.setItem(V2_KEYS.MEMBERSHIPS, JSON.stringify(memberships));
+  writeJSON(V2_KEYS.MEMBERSHIPS, memberships);
 }
 
 export function addWordToCollection(
@@ -337,16 +332,11 @@ export function getWordMemberships(wordId: string): CollectionMembership[] {
 // CUSTOM WORDS (Word Entities)
 // ----------------------------------------------------
 export function getCustomWords(): WordCard[] {
-  try {
-    const d = localStorage.getItem(V2_KEYS.CUSTOM_WORDS);
-    return d ? JSON.parse(d) : [];
-  } catch {
-    return [];
-  }
+  return readJSON(V2_KEYS.CUSTOM_WORDS, []);
 }
 
 export function saveCustomWords(words: WordCard[]): void {
-  localStorage.setItem(V2_KEYS.CUSTOM_WORDS, JSON.stringify(words));
+  writeJSON(V2_KEYS.CUSTOM_WORDS, words);
 }
 
 export function addCustomWord(
@@ -408,16 +398,11 @@ export function permanentlyDeleteWord(wordId: string): WordCard[] {
 // LEARNING STATES (SRS)
 // ----------------------------------------------------
 export function getLearningStates(): Record<string, LearningState> {
-  try {
-    const d = localStorage.getItem(V2_KEYS.LEARNING_STATES);
-    return d ? JSON.parse(d) : {};
-  } catch {
-    return {};
-  }
+  return readJSON(V2_KEYS.LEARNING_STATES, {});
 }
 
 export function saveLearningStates(states: Record<string, LearningState>): void {
-  localStorage.setItem(V2_KEYS.LEARNING_STATES, JSON.stringify(states));
+  writeJSON(V2_KEYS.LEARNING_STATES, states);
 }
 
 export function getUserWordStatus(
@@ -504,6 +489,9 @@ export function recordStudyResult(
   states[wordId] = nextState;
   saveLearningStates(states);
 
+  // Kart çalışmak da seriyi ilerletir; seri yalnızca sınava bağlı olmamalı.
+  recordActivityForStreak();
+
   const isCorrect = quality === 'good' || quality === 'easy';
   addReviewEvent({
     id: `rev-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
@@ -522,19 +510,14 @@ export function recordStudyResult(
 // REVIEW HISTORY
 // ----------------------------------------------------
 export function getReviewHistory(): ReviewEvent[] {
-  try {
-    const d = localStorage.getItem(V2_KEYS.REVIEW_HISTORY);
-    return d ? JSON.parse(d) : [];
-  } catch {
-    return [];
-  }
+  return readJSON(V2_KEYS.REVIEW_HISTORY, []);
 }
 
 export function addReviewEvent(event: ReviewEvent): void {
   try {
     const history = getReviewHistory();
     const updated = [event, ...history.slice(0, MAX_REVIEW_LOGS_RETENTION - 1)];
-    localStorage.setItem(V2_KEYS.REVIEW_HISTORY, JSON.stringify(updated));
+    writeJSON(V2_KEYS.REVIEW_HISTORY, updated);
   } catch {}
 }
 
@@ -542,12 +525,7 @@ export function addReviewEvent(event: ReviewEvent): void {
 // CONFUSION PAIRS
 // ----------------------------------------------------
 export function getConfusionPairs(): ConfusionPair[] {
-  try {
-    const d = localStorage.getItem(V2_KEYS.CONFUSION_PAIRS);
-    return d ? JSON.parse(d) : [];
-  } catch {
-    return [];
-  }
+  return readJSON(V2_KEYS.CONFUSION_PAIRS, []);
 }
 
 export function recordConfusionPair(
@@ -577,7 +555,7 @@ export function recordConfusionPair(
     };
     updated = [newPair, ...pairs];
   }
-  localStorage.setItem(V2_KEYS.CONFUSION_PAIRS, JSON.stringify(updated));
+  writeJSON(V2_KEYS.CONFUSION_PAIRS, updated);
   return updated;
 }
 
@@ -585,16 +563,11 @@ export function recordConfusionPair(
 // FAVORITES & STATS & PROFILE & SETTINGS
 // ----------------------------------------------------
 export function getFavorites(): string[] {
-  try {
-    const d = localStorage.getItem(V2_KEYS.FAVORITES);
-    return d ? JSON.parse(d) : [];
-  } catch {
-    return [];
-  }
+  return readJSON(V2_KEYS.FAVORITES, []);
 }
 
 export function saveFavorites(favorites: string[]): void {
-  localStorage.setItem(V2_KEYS.FAVORITES, JSON.stringify(favorites));
+  writeJSON(V2_KEYS.FAVORITES, favorites);
 }
 
 export function toggleFavorite(wordId: string): string[] {
@@ -607,38 +580,76 @@ export function toggleFavorite(wordId: string): string[] {
 }
 
 export function getUserSettings(): UserSettings {
-  try {
-    const d = localStorage.getItem(V2_KEYS.SETTINGS);
-    return d ? { ...DEFAULT_SETTINGS, ...JSON.parse(d) } : DEFAULT_SETTINGS;
-  } catch {
-    return DEFAULT_SETTINGS;
-  }
+  const stored = readJSON<Partial<UserSettings> | null>(V2_KEYS.SETTINGS, null);
+  return stored ? { ...DEFAULT_SETTINGS, ...stored } : DEFAULT_SETTINGS;
 }
 
 export function saveUserSettings(settings: UserSettings): void {
-  localStorage.setItem(V2_KEYS.SETTINGS, JSON.stringify(settings));
+  writeJSON(V2_KEYS.SETTINGS, settings);
 }
 
-export function getUserStats(): UserStats {
-  try {
-    const d = localStorage.getItem(V2_KEYS.STATS);
-    if (d) return JSON.parse(d);
-  } catch {}
+export function createDefaultUserStats(): UserStats {
   return {
     totalQuizzesTaken: 0,
     totalCorrect: 0,
     totalWrong: 0,
-    streakDays: 1,
+    streakDays: 0,
     lastActiveDate: new Date().toISOString(),
     mistakesMap: {},
     learnedCount: 0,
     favoriteCount: 0,
-    customCardsCount: 0
+    customCardsCount: 0,
+    bestQuizAccuracy: 0
   };
 }
 
+export function getUserStats(): UserStats {
+  const stored = readJSON<Partial<UserStats> | null>(V2_KEYS.STATS, null);
+  if (!stored) return createDefaultUserStats();
+  // Merge over defaults so fields added in later versions are never undefined
+  // for someone upgrading from an older build.
+  return { ...createDefaultUserStats(), ...stored };
+}
+
+/**
+ * Günlük çalışma serisini günceller ve güncel seri uzunluğunu döner.
+ *
+ * Önceki sürümde `streakDays` hiçbir yerde artırılmıyordu: sabit 1 olarak
+ * yazılıyor, arayüzde "1 Gün" diye gösteriliyor ve "3 günlük seri" rozeti bu
+ * yüzden hiç açılamıyordu. Seri artık gerçek çalışma günlerinden hesaplanır:
+ *   - aynı gün içindeki ikinci çalışma seriyi artırmaz,
+ *   - dün çalışılmışsa seri bir artar,
+ *   - bir gün atlanmışsa seri 1'e döner,
+ *   - ileri tarihli bozuk kayıt varsa seri sıfırlanmadan korunur.
+ */
+export function recordActivityForStreak(now: Date = new Date()): UserStats {
+  const stats = getUserStats();
+  const previous = stats.lastActiveDate;
+
+  if (!isValidDate(previous)) {
+    stats.streakDays = 1;
+  } else {
+    const dayGap = differenceInCalendarDays(now, previous);
+    if (dayGap === 0) {
+      // Aynı gün tekrar çalışıldı: seri korunur, en az 1 olur.
+      stats.streakDays = Math.max(1, stats.streakDays || 1);
+    } else if (dayGap === 1) {
+      stats.streakDays = Math.max(1, stats.streakDays || 0) + 1;
+    } else if (dayGap > 1) {
+      stats.streakDays = 1;
+    } else {
+      // Saat farkı/cihaz saati nedeniyle geçmişe dönük kayıt: seriyi bozma.
+      stats.streakDays = Math.max(1, stats.streakDays || 1);
+    }
+  }
+
+  stats.lastActiveDate = now.toISOString();
+  saveUserStats(stats);
+  return stats;
+}
+
 export function saveUserStats(stats: UserStats): void {
-  localStorage.setItem(V2_KEYS.STATS, JSON.stringify(stats));
+  writeJSON(V2_KEYS.STATS, stats);
 }
 
 export function recordQuizResultV2(
@@ -646,11 +657,18 @@ export function recordQuizResultV2(
   wrongCount: number,
   mistakenWords: WordCard[] = []
 ): UserStats {
-  const stats = getUserStats();
+  // Sınav da bir çalışma etkinliğidir: önce günlük seriyi güncelle.
+  const stats = recordActivityForStreak();
   stats.totalQuizzesTaken += 1;
   stats.totalCorrect += correctCount;
   stats.totalWrong += wrongCount;
-  stats.lastActiveDate = new Date().toISOString();
+
+  // "Kusursuz Başarı" rozeti için bu sınavın doğruluk oranını sakla.
+  const answered = correctCount + wrongCount;
+  if (answered > 0) {
+    const accuracy = correctCount / answered;
+    stats.bestQuizAccuracy = Math.max(stats.bestQuizAccuracy || 0, accuracy);
+  }
 
   if (!stats.mistakesMap) {
     stats.mistakesMap = {};
@@ -678,75 +696,71 @@ export function clearMistakeV2(wordId: string): UserStats {
 }
 
 export function getUnlockedBadges(): string[] {
-  try {
-    const d = localStorage.getItem(V2_KEYS.BADGES);
-    return d ? JSON.parse(d) : ['first_step'];
-  } catch {
-    return ['first_step'];
-  }
+  const value = readJSON<string[]>(V2_KEYS.BADGES, []);
+  return Array.isArray(value) ? value : [];
 }
 
 export function saveUnlockedBadges(badgeIds: string[]): void {
-  localStorage.setItem(V2_KEYS.BADGES, JSON.stringify(badgeIds));
+  writeJSON(V2_KEYS.BADGES, badgeIds);
 }
 
+export function buildBadgeProgressSnapshot(): BadgeProgressSnapshot {
+  const stats = getUserStats();
+  const learningStates = getLearningStates();
+  return {
+    masteredCount: Object.values(learningStates).filter(st => st.stage === 'MASTERED').length,
+    favoritesCount: getFavorites().length,
+    customWordsCount: getCustomWords().length,
+    collectionsCount: getCollections().length,
+    streakDays: stats.streakDays || 0,
+    totalQuizzesTaken: stats.totalQuizzesTaken || 0,
+    totalCorrect: stats.totalCorrect || 0,
+    totalWrong: stats.totalWrong || 0,
+    bestQuizAccuracy: stats.bestQuizAccuracy || 0
+  };
+}
+
+/**
+ * Kazanılan rozetleri hesaplar ve yenilerini kaydeder.
+ *
+ * Koşullar `BADGES_DATA` içindeki `isEarned` fonksiyonlarından okunur; burada
+ * ayrı bir kimlik listesi tutulmaz. Böylece rozet tanımı ile kilit açma kuralı
+ * arasındaki kayma (eski sürümde altı rozetten beşini açılamaz hale getiren
+ * hata) tekrarlanamaz.
+ */
 export function checkAndUnlockBadgesV2(): string[] {
   const unlocked = getUnlockedBadges();
-  const stats = getUserStats();
-  const favorites = getFavorites();
-  const custom = getCustomWords();
-  const learningStates = getLearningStates();
+  const progress = buildBadgeProgressSnapshot();
+  const knownIds = new Set(BADGES_DATA.map(b => b.id));
 
-  const masteredCount = Object.values(learningStates).filter(s => s.stage === 'MASTERED').length;
-  const newlyUnlocked = [...unlocked];
+  // Tanımı kaldırılmış rozet kimliklerini ayıkla; aksi halde arayüzdeki
+  // "kazanılan / toplam" sayacı gerçekte görünmeyen rozetleri sayar.
+  const result = unlocked.filter(id => knownIds.has(id));
 
   BADGES_DATA.forEach(badge => {
-    if (newlyUnlocked.includes(badge.id)) return;
-
-    let conditionMet = false;
-
-    if (badge.id === 'first_step' && (masteredCount >= 1 || favorites.length >= 1 || custom.length >= 1)) {
-      conditionMet = true;
-    } else if (badge.id === 'a1_master' && masteredCount >= 5) {
-      conditionMet = true;
-    } else if (badge.id === 'vocab_wizard' && (masteredCount + favorites.length >= 25)) {
-      conditionMet = true;
-    } else if (badge.id === 'book_creator' && custom.length >= 1) {
-      conditionMet = true;
-    } else if (
-      badge.id === 'quiz_champ' &&
-      stats.totalQuizzesTaken >= 1 &&
-      stats.totalCorrect > 0 &&
-      stats.totalCorrect / (stats.totalCorrect + stats.totalWrong) >= 0.8
-    ) {
-      conditionMet = true;
-    } else if (badge.id === 'fav_collector' && favorites.length >= 10) {
-      conditionMet = true;
+    if (result.includes(badge.id)) return;
+    let earned = false;
+    try {
+      earned = badge.isEarned(progress);
+    } catch (err) {
+      console.error(`Rozet koşulu değerlendirilemedi: ${badge.id}`, err);
     }
-
-    if (conditionMet) {
-      newlyUnlocked.push(badge.id);
-    }
+    if (earned) result.push(badge.id);
   });
 
-  if (newlyUnlocked.length !== unlocked.length) {
-    saveUnlockedBadges(newlyUnlocked);
+  if (result.length !== unlocked.length || result.some((id, i) => id !== unlocked[i])) {
+    saveUnlockedBadges(result);
   }
 
-  return newlyUnlocked;
+  return result;
 }
 
 export function getUserProfile(): UserProfile {
-  try {
-    const d = localStorage.getItem(V2_KEYS.PROFILE);
-    return d ? JSON.parse(d) : { email: null, isLoggedIn: false };
-  } catch {
-    return { email: null, isLoggedIn: false };
-  }
+  return readJSON(V2_KEYS.PROFILE, { email: null, isLoggedIn: false });
 }
 
 export function saveUserProfile(profile: UserProfile): void {
-  localStorage.setItem(V2_KEYS.PROFILE, JSON.stringify(profile));
+  writeJSON(V2_KEYS.PROFILE, profile);
 }
 
 // Convenient V2 Aliases
@@ -765,6 +779,7 @@ export const recordStudyResultV2 = recordStudyResult;
 export const getFavoritesV2 = getFavorites;
 export const toggleFavoriteV2 = toggleFavorite;
 export const getUserStatsV2 = getUserStats;
+export const recordActivityForStreakV2 = recordActivityForStreak;
 export const getUnlockedBadgesV2 = getUnlockedBadges;
 export const getUserSettingsV2 = getUserSettings;
 export const saveUserSettingsV2 = saveUserSettings;
@@ -803,8 +818,8 @@ export function restoreFullV2Backup(payload: V2BackupPayload): boolean {
     if (Array.isArray(payload.memberships)) saveMemberships(payload.memberships);
     if (Array.isArray(payload.customWords)) saveCustomWords(payload.customWords);
     if (payload.learningStates && typeof payload.learningStates === 'object') saveLearningStates(payload.learningStates);
-    if (Array.isArray(payload.reviewHistory)) localStorage.setItem(V2_KEYS.REVIEW_HISTORY, JSON.stringify(payload.reviewHistory));
-    if (Array.isArray(payload.confusionPairs)) localStorage.setItem(V2_KEYS.CONFUSION_PAIRS, JSON.stringify(payload.confusionPairs));
+    if (Array.isArray(payload.reviewHistory)) writeJSON(V2_KEYS.REVIEW_HISTORY, payload.reviewHistory);
+    if (Array.isArray(payload.confusionPairs)) writeJSON(V2_KEYS.CONFUSION_PAIRS, payload.confusionPairs);
     if (Array.isArray(payload.favorites)) saveFavorites(payload.favorites);
     if (payload.userSettings) saveUserSettings(payload.userSettings);
     if (payload.stats) saveUserStats(payload.stats);

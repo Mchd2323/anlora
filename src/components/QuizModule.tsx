@@ -27,6 +27,13 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { speakText } from '../utils/speech';
+import {
+  QuizQuestion,
+  QuizMode,
+  MIN_POOL_SIZE,
+  generateQuiz,
+  normalizeTypedAnswer
+} from '../utils/quizGenerator';
 import { getUserWordStatus } from '../utils/storageV2';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { LearningStatusControl } from './ui/LearningStatusControl';
@@ -45,21 +52,20 @@ interface QuizModuleProps {
     mode: 'quiz',
     collectionId?: string
   ) => void;
+  /**
+   * Sınav bittiğinde çağrılır.
+   *
+   * Önceki sürümde bu prop `onFinishQuiz` adını taşıyor, `App.tsx` ise
+   * `onCompleteQuiz` gönderiyordu. İsimler tutmadığı için geri çağrı hiç
+   * bağlanmıyor ve sınav sonucu (istatistik, hata listesi, rozet kontrolü)
+   * hiçbir zaman kaydedilmiyordu. Tek isimde birleştirildi.
+   */
   onFinishQuiz?: (summary: QuizSessionSummary) => void;
+  onGoToMistakes?: () => void;
   onSetWordStatus?: (id: string, status: 'learned' | 'learning' | 'unseen') => void;
 }
 
-type QuizMode = 'MIXED' | 'MULTIPLE_CHOICE' | 'WRITING' | 'LISTENING';
 type StatusFilter = 'ALL' | 'LEARNING' | 'LEARNED';
-
-interface QuizQuestion {
-  id: string;
-  word: WordCard;
-  type: 'multiple-choice-tr' | 'multiple-choice-en' | 'writing' | 'fill-blank' | 'listening';
-  questionText: string;
-  options: string[];
-  correctAnswer: string;
-}
 
 export const QuizModule: React.FC<QuizModuleProps> = ({
   initialCollectionId,
@@ -70,6 +76,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
   learningStates,
   onRecordStudyResult,
   onFinishQuiz,
+  onGoToMistakes,
   onSetWordStatus
 }) => {
   const [quizState, setQuizState] = useState<'IDLE' | 'ACTIVE' | 'FINISHED'>('IDLE');
@@ -82,6 +89,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
   );
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
   const [questionCount, setQuestionCount] = useState<number>(10);
+  const [setupError, setSetupError] = useState<string | null>(null);
 
   // Active Quiz State
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
@@ -138,86 +146,19 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
   }, [selectedSources, statusFilter, allWords, customCards, memberships, learningStates]);
 
   const startQuiz = () => {
-    if (currentPool.length < 4) {
-      alert(
-        `Seçilen kaynak ve filtrede yeterli kelime bulunamadı (en az 4 kelime gerekli). Şu an ${currentPool.length} kelime var. Lütfen daha fazla seviye veya set seçin.`
+    if (currentPool.length < MIN_POOL_SIZE) {
+      setSetupError(
+        `Seçilen kaynak ve filtrede yeterli kelime bulunamadı (en az ${MIN_POOL_SIZE} kelime gerekli). ` +
+          `Şu an ${currentPool.length} kelime var. Lütfen daha fazla seviye veya set seçin.`
       );
       return;
     }
+    setSetupError(null);
 
-    const shuffledPool = [...currentPool].sort(() => 0.5 - Math.random());
-    const selectedWords = shuffledPool.slice(0, Math.min(questionCount, currentPool.length));
-    const combinedAll = [...allWords, ...customCards];
-
-    const generatedQuestions: QuizQuestion[] = selectedWords.map((wordCard, idx) => {
-      let qType: QuizQuestion['type'] = 'multiple-choice-tr';
-
-      if (quizMode === 'WRITING') {
-        qType = 'writing';
-      } else if (quizMode === 'LISTENING') {
-        qType = 'listening';
-      } else if (quizMode === 'MULTIPLE_CHOICE') {
-        qType = Math.random() > 0.5 ? 'multiple-choice-tr' : 'multiple-choice-en';
-      } else {
-        // MIXED
-        const types: QuizQuestion['type'][] = [
-          'multiple-choice-tr',
-          'multiple-choice-en',
-          'writing',
-          'fill-blank',
-          'listening'
-        ];
-        qType = types[Math.floor(Math.random() * types.length)];
-      }
-
-      const otherWords = combinedAll.filter((w) => w.id !== wordCard.id);
-      const shuffledOthers = [...otherWords].sort(() => 0.5 - Math.random());
-
-      let questionText = '';
-      let correctAnswer = '';
-      let options: string[] = [];
-
-      if (qType === 'multiple-choice-tr') {
-        questionText = `"${wordCard.word}" kelimesinin Türkçe anlamı nedir?`;
-        correctAnswer = wordCard.turkishMeaning;
-        const wrongOpts = shuffledOthers.slice(0, 3).map((w) => w.turkishMeaning);
-        options = [correctAnswer, ...wrongOpts].sort(() => 0.5 - Math.random());
-      } else if (qType === 'multiple-choice-en') {
-        questionText = `"${wordCard.turkishMeaning}" anlamına gelen İngilizce kelime hangisidir?`;
-        correctAnswer = wordCard.word;
-        const wrongOpts = shuffledOthers.slice(0, 3).map((w) => w.word);
-        options = [correctAnswer, ...wrongOpts].sort(() => 0.5 - Math.random());
-      } else if (qType === 'writing') {
-        questionText = `"${wordCard.turkishMeaning}" anlamına gelen İngilizce kelimeyi yazın:`;
-        correctAnswer = wordCard.word;
-      } else if (qType === 'fill-blank') {
-        const example =
-          wordCard.examples && wordCard.examples[0]
-            ? wordCard.examples[0]
-            : { en: `I need to use ${wordCard.word} in this sentence.`, tr: '' };
-        const regex = new RegExp(`\\b${wordCard.word}\\b`, 'gi');
-        const blankSentence = example.en.replace(regex, '_______');
-        questionText = `Cümledeki boşluğu doldurun:\n"${blankSentence}"`;
-        correctAnswer = wordCard.word;
-        const wrongOpts = shuffledOthers.slice(0, 3).map((w) => w.word);
-        options = [correctAnswer, ...wrongOpts].sort(() => 0.5 - Math.random());
-      } else {
-        // Listening
-        questionText = 'Sesli okunan İngilizce kelimeyi seçin:';
-        correctAnswer = wordCard.word;
-        const wrongOpts = shuffledOthers.slice(0, 3).map((w) => w.word);
-        options = [correctAnswer, ...wrongOpts].sort(() => 0.5 - Math.random());
-      }
-
-      return {
-        id: `q-${idx}`,
-        word: wordCard,
-        type: qType,
-        questionText,
-        options,
-        correctAnswer
-      };
-    });
+    // Çeldiriciler tüm kelime evreninden seçilir; soru üreticisi önce aynı
+    // seviye ve sözcük türündekileri tercih eder.
+    const distractorPool = [...allWords, ...customCards];
+    const generatedQuestions = generateQuiz(currentPool, distractorPool, quizMode, questionCount);
 
     setQuestions(generatedQuestions);
     setCurrentQuestionIndex(0);
@@ -256,9 +197,8 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
     if (isAnswered || !typedAnswer.trim()) return;
 
     const currentQ = questions[currentQuestionIndex];
-    const cleanTyped = typedAnswer.trim().toLowerCase();
-    const cleanCorrect = currentQ.correctAnswer.trim().toLowerCase();
-    const isCorrect = cleanTyped === cleanCorrect;
+    const isCorrect =
+      normalizeTypedAnswer(typedAnswer) === normalizeTypedAnswer(currentQ.correctAnswer);
 
     setSelectedAnswer(typedAnswer.trim());
     setIsAnswered(true);
@@ -508,9 +448,19 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
             </div>
           </div>
 
+          {setupError && (
+            <div
+              role="alert"
+              className="mb-3 px-4 py-3 rounded-xl bg-[#FAECEA] border border-[#F0CBC7] text-[#C65D55] text-xs font-medium leading-relaxed"
+            >
+              {setupError}
+            </div>
+          )}
+
           <button
             onClick={startQuiz}
-            className="w-full py-3.5 bg-[#4F46A5] hover:bg-[#433B91] active:scale-[0.98] text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+            disabled={currentPool.length < MIN_POOL_SIZE}
+            className="w-full py-3.5 bg-[#4F46A5] hover:bg-[#433B91] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <Sparkles className="w-4 h-4 text-[#FBF1DE]" />
             <span>Sınavı Başlat ({Math.min(questionCount, currentPool.length)} Soru)</span>
@@ -754,7 +704,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                     {onSetWordStatus && (
                       <LearningStatusControl
                         status={status}
-                        onChange={(newStatus) => onSetWordStatus(card.id, newStatus)}
+                        onSetStatus={(newStatus) => onSetWordStatus(card.id, newStatus)}
                         size="sm"
                       />
                     )}

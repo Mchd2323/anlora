@@ -11,5 +11,6 @@ coverage/
 __pycache__/
 *.pyc
 
-# Sunucu tarafı yerel veri
+# Sunucu tarafı yerel veri (kullanıcı hesapları ve bulut yedekleri)
+data/
 src/data/custom_cards_cloud.json

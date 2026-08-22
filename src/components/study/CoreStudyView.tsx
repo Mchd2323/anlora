@@ -24,6 +24,7 @@ import { StudyCard } from './StudyCard';
 import { WordListView } from './WordListView';
 import { CEFRBadge } from '../ui/CEFRBadge';
 import { getUserWordStatus } from '../../utils/storageV2';
+import { shuffle } from '../../utils/random';
 
 interface CoreStudyViewProps {
   title: string;
@@ -66,7 +67,7 @@ export const CoreStudyView: React.FC<CoreStudyViewProps> = ({
   // Active word order list
   const activeWordList = useMemo(() => {
     if (!isShuffled) return words;
-    return [...words].sort(() => Math.random() - 0.5);
+    return shuffle(words);
   }, [words, isShuffled]);
 
   // Persistent Progress Key

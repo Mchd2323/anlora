@@ -23,6 +23,7 @@ import {
   Flame,
   Award
 } from 'lucide-react';
+import { sample } from '../utils/random';
 import { speakText } from '../utils/speech';
 import { checkTypedAnswerCorrectness, normalizeWordString } from '../utils/lemmatizer';
 import { isWordDueForReview } from '../utils/srsEngine';
@@ -126,7 +127,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
       return;
     }
 
-    const shuffled = [...candidateWordIds].sort(() => Math.random() - 0.5).slice(0, 25);
+    const shuffled = sample(candidateWordIds, 25);
 
     const items: SessionQueueItem[] = (shuffled
       .map(id => {
