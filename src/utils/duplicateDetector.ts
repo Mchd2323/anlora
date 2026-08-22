@@ -10,6 +10,42 @@
 import { WordCard, Collection, CollectionMembership, DuplicateCheckResult } from '../types';
 import { normalizeWordString, findLemmaCandidate } from './lemmatizer';
 
+/**
+ * Normalize edilmiş kelime -> kart indeksi (önbellekli).
+ *
+ * Önceki sürüm her tekrar kontrolünde 3.900 kelimeyi düz tarıyor ve HER
+ * karşılaştırmada `normalizeWordString` (beş ayrı düzenli ifade) çağırıyordu.
+ * Toplu kelime ekleme ekranında 50 kelimelik bir liste ~200.000 regex işlemi
+ * demekti ve orta seviye bir telefonda arayüz donuyordu.
+ *
+ * İndeks dizi kimliğine göre önbelleklenir: Oxford listesi uygulama boyunca
+ * aynı donmuş dizidir, dolayısıyla bir kez kurulur. Özel kelimeler listesi
+ * değiştiğinde yeni bir dizi referansı geldiği için indeks kendiliğinden
+ * yenilenir.
+ */
+const indexCache = new WeakMap<readonly WordCard[], Map<string, WordCard>>();
+
+function getWordIndex(words: readonly WordCard[]): Map<string, WordCard> {
+  const cached = indexCache.get(words);
+  if (cached) return cached;
+
+  const index = new Map<string, WordCard>();
+  for (const word of words) {
+    const key = normalizeWordString(word.word);
+    // İlk kayıt kazanır; aynı yazımın birden çok maddesi varsa (homograf)
+    // hangisinin döneceği zaten belirsizdi, davranış korunuyor.
+    if (key && !index.has(key)) index.set(key, word);
+
+    if (word.canonicalWord) {
+      const canonicalKey = normalizeWordString(word.canonicalWord);
+      if (canonicalKey && !index.has(canonicalKey)) index.set(canonicalKey, word);
+    }
+  }
+
+  indexCache.set(words, index);
+  return index;
+}
+
 interface DuplicateCheckParams {
   rawWord: string;
   targetCollectionId?: string;
@@ -50,15 +86,11 @@ export function detectWordDuplicate(params: DuplicateCheckParams): DuplicateChec
     wordToCollectionsMap.get(m.wordId)!.add(m.collectionId);
   });
 
-  // Find matches in custom words
-  const matchedCustomWord = customWords.find(
-    w => normalizeWordString(w.word) === normalized || (w.canonicalWord && normalizeWordString(w.canonicalWord) === normalized)
-  );
+  const customIndex = getWordIndex(customWords);
+  const oxfordIndex = getWordIndex(oxfordWords);
 
-  // Find matches in Oxford words
-  const matchedOxfordWord = oxfordWords.find(
-    w => normalizeWordString(w.word) === normalized
-  );
+  const matchedCustomWord = customIndex.get(normalized);
+  const matchedOxfordWord = oxfordIndex.get(normalized);
 
   const matchedWord = matchedCustomWord || matchedOxfordWord;
 
@@ -111,12 +143,16 @@ export function detectWordDuplicate(params: DuplicateCheckParams): DuplicateChec
     };
   }
 
-  // 4. Check for inflected lemma candidate
-  const lemmaInfo = findLemmaCandidate(normalized);
+  // 4. Check for inflected lemma candidate.
+  //
+  // Taban biçim adayı sözlüğe karşı doğrulanır; böylece "stopp" gibi uydurma
+  // tabanlar üretilip boşuna aranmaz.
+  const isKnownWord = (candidate: string) =>
+    oxfordIndex.has(candidate) || customIndex.has(candidate);
+  const lemmaInfo = findLemmaCandidate(normalized, isKnownWord);
   if (lemmaInfo) {
-    // Check if the base form exists in Oxford or custom words
-    const baseMatchedOxford = oxfordWords.find(w => normalizeWordString(w.word) === lemmaInfo.baseForm);
-    const baseMatchedCustom = customWords.find(w => normalizeWordString(w.word) === lemmaInfo.baseForm);
+    const baseMatchedOxford = oxfordIndex.get(lemmaInfo.baseForm);
+    const baseMatchedCustom = customIndex.get(lemmaInfo.baseForm);
     const baseCard = baseMatchedCustom || baseMatchedOxford;
 
     if (baseCard) {

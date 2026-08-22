@@ -246,6 +246,11 @@ export default function App() {
     setUnlockedBadges(checkAndUnlockBadgesV2());
   };
 
+  const handleUpdateSettings = (updated: UserSettings) => {
+    saveUserSettingsV2(updated);
+    setSettings(updated);
+  };
+
   const handleLogout = () => {
     // Sunucudaki oturum jetonunu da geçersiz kıl; yalnızca yerel profili
     // temizlemek jetonu geçerli bırakırdı.
@@ -437,6 +442,8 @@ export default function App() {
           <ProfileView
             profile={profile}
             stats={stats}
+            settings={settings}
+            onUpdateSettings={handleUpdateSettings}
             learningStates={learningStates}
             customWords={customWords}
             oxfordWords={OXFORD_3000_WORDS}

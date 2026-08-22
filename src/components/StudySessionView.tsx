@@ -73,7 +73,11 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
 }) => {
   // Session Configuration State
   const [selectedSource, setSelectedSource] = useState<string>(initialCollectionId || 'DUE_TODAY');
-  const [studyMode, setStudyMode] = useState<'mixed' | 'flashcard' | 'typed' | 'listening' | 'cloze'>('mixed');
+  // Oturum modu kullanıcının kayıtlı tercihinden başlar; oturum ekranından
+  // yine değiştirilebilir. Bu ayar saklanıyordu ama hiçbir yerde okunmuyordu.
+  const [studyMode, setStudyMode] = useState<'mixed' | 'flashcard' | 'typed' | 'listening' | 'cloze'>(
+    settings?.preferredStudyMode || 'mixed'
+  );
   const [isSessionStarted, setIsSessionStarted] = useState(false);
 
   // Active Session Queue
@@ -204,6 +208,19 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
         return 'flashcard';
     }
   }, [studyMode, currentIndex, currentItem]);
+
+  // Kart değiştiğinde telaffuzu otomatik çal.
+  //
+  // `autoPlayAudioOnCard` ayarı en baştan beri saklanıyordu ama hiçbir yerde
+  // okunmuyordu; ayar açık olsa bile hiçbir şey olmuyordu.
+  useEffect(() => {
+    if (!settings?.autoPlayAudioOnCard) return;
+    if (!isSessionStarted || !currentItem) return;
+    // Dinleme modu cevabı zaten sesle veriyor; burada tekrar çalmak
+    // soruyu baştan ele verirdi.
+    if (currentMode === 'listening') return;
+    speakText(currentItem.card.word);
+  }, [settings?.autoPlayAudioOnCard, isSessionStarted, currentItem, currentMode]);
 
   // Check typed input
   const handleCheckTypedAnswer = (e: React.FormEvent) => {

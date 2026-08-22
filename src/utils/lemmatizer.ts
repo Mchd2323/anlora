@@ -289,6 +289,13 @@ export function findLemmaCandidate(
   // sürümdeki erken dönüş bunların hepsini çözülemez hale getiriyordu.
   const irregular = IRREGULAR_INFLECTIONS[normalizedWord];
   if (irregular) {
+    // Taban biçim sözlükte yoksa ama kelimenin kendisi varsa, çekimi
+    // uygulamak eşleşmeyi kaybettirir. Örnek: "people" -> "person"
+    // dilbilgisel olarak doğru, ama sözlükte madde başı "people" ise
+    // "person"a çevirmek kelimeyi bulunamaz hale getirir.
+    if (isKnownWord && !isKnownWord(irregular.base) && isKnownWord(normalizedWord)) {
+      return null;
+    }
     return {
       baseForm: irregular.base,
       explanation: `"${normalizedWord}", "${irregular.base}" kelimesinin çekimli (${irregular.type}) biçimidir.`

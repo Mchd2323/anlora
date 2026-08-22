@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { UserProfile, UserStats, WordCard, LearningState, Level } from '../types';
+import { UserProfile, UserStats, WordCard, LearningState, Level, UserSettings } from '../types';
 import {
   User,
   LogOut,
@@ -10,6 +10,7 @@ import {
   Layers,
   Award,
   Download,
+  Upload,
   Trash2,
   Settings,
   Sparkles,
@@ -20,10 +21,14 @@ import {
 } from 'lucide-react';
 import { getUserWordStatus } from '../utils/storageV2';
 import { CEFRBadge } from './ui/CEFRBadge';
+import { generateFullV2Backup, restoreFullV2Backup } from '../utils/storageV2';
+import { SettingsPanel } from './SettingsPanel';
 
 interface ProfileViewProps {
   profile: UserProfile;
   stats: UserStats;
+  settings: UserSettings;
+  onUpdateSettings: (settings: UserSettings) => void;
   learningStates: Record<string, LearningState>;
   customWords: WordCard[];
   oxfordWords: WordCard[];
@@ -38,6 +43,8 @@ interface ProfileViewProps {
 export const ProfileView: React.FC<ProfileViewProps> = ({
   profile,
   stats,
+  settings,
+  onUpdateSettings,
   learningStates,
   customWords,
   oxfordWords,
@@ -48,6 +55,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onSelectLevel
 }) => {
   const [showExportSuccess, setShowExportSuccess] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const importInputRef = React.useRef<HTMLInputElement>(null);
 
   // Compute total status across all words
   const learningSummary = useMemo(() => {
@@ -97,23 +106,25 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     };
   }, [customWords, oxfordWords, learningStates]);
 
+  /**
+   * Tam yedek indirir.
+   *
+   * Önceki sürüm kendi uydurma biçimini yazıyordu ve KOLEKSİYONLARI hiç
+   * içermiyordu: kullanıcı "yedeğim var" sanıyor, kelime setlerini kaybediyordu.
+   * Üstelik üretilen dosya `restoreFullV2Backup`'ın beklediği
+   * `schemaVersion: 2` biçiminde olmadığı için geri de yüklenemiyordu; yedek
+   * alma özelliği çıkışı olmayan bir yoldu.
+   */
   const handleExportData = () => {
     try {
-      const dataToExport = {
-        exportDate: new Date().toISOString(),
-        profile,
-        stats,
-        customWords,
-        learningStates,
-        favorites
-      };
-      const blob = new Blob([JSON.stringify(dataToExport, null, 2)], {
+      const payload = generateFullV2Backup();
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {
         type: 'application/json'
       });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `kelime_verilerim_${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `anlora_yedek_${new Date().toISOString().slice(0, 10)}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -122,8 +133,55 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       setTimeout(() => setShowExportSuccess(false), 4000);
     } catch (e) {
       console.error(e);
-      alert('Yedek dosyası oluşturulurken hata oluştu.');
+      setImportError('Yedek dosyası oluşturulurken hata oluştu.');
     }
+  };
+
+  /** Yedek dosyasından geri yükler. */
+  const handleImportFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    // Aynı dosya art arda seçilebilsin diye girdi sıfırlanır.
+    event.target.value = '';
+    if (!file) return;
+
+    setImportError(null);
+    const reader = new FileReader();
+
+    reader.onerror = () => setImportError('Dosya okunamadı.');
+    reader.onload = () => {
+      try {
+        const payload = JSON.parse(String(reader.result));
+        if (!payload || payload.schemaVersion !== 2) {
+          setImportError(
+            'Bu dosya Anlora yedeği değil ya da eski bir sürümden. Profil ekranından yeni bir yedek alabilirsin.'
+          );
+          return;
+        }
+
+        const counts = {
+          collections: Array.isArray(payload.collections) ? payload.collections.length : 0,
+          customWords: Array.isArray(payload.customWords) ? payload.customWords.length : 0
+        };
+
+        const confirmed = window.confirm(
+          `Yedek geri yüklenecek: ${counts.collections} kelime seti, ${counts.customWords} özel kart.\n\n` +
+            'Mevcut yerel verilerin bu yedekle DEĞİŞTİRİLECEK. Devam edilsin mi?'
+        );
+        if (!confirmed) return;
+
+        if (restoreFullV2Backup(payload)) {
+          // Geri yükleme tüm depolama anahtarlarını değiştirdiği için en
+          // temiz yol sayfayı yeniden yüklemek; kısmi durum kalmaz.
+          window.location.reload();
+        } else {
+          setImportError('Yedek geri yüklenemedi. Dosya bozuk olabilir.');
+        }
+      } catch {
+        setImportError('Dosya geçerli bir JSON değil.');
+      }
+    };
+
+    reader.readAsText(file);
   };
 
   const handleResetData = () => {
@@ -341,7 +399,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         </div>
       </div>
 
-      {/* 4. Veri Yönetimi & Ayarlar */}
+      {/* 4. Çalışma Ayarları */}
+      <SettingsPanel settings={settings} onChange={onUpdateSettings} />
+
+      {/* 5. Veri Yönetimi & Yedekleme */}
       <div className="bg-[#FFFFFF] rounded-2xl p-6 sm:p-7 border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-4">
         <h3 className="text-sm font-bold text-[#1E2430] flex items-center gap-1.5">
           <Settings className="w-4 h-4 text-[#687080]" />
@@ -355,6 +416,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           </div>
         )}
 
+        {importError && (
+          <div
+            role="alert"
+            className="p-3 bg-[#FAECEA] text-[#C65D55] text-xs font-medium rounded-xl border border-[#F0CBC7]"
+          >
+            {importError}
+          </div>
+        )}
+
         <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={handleExportData}
@@ -362,6 +432,23 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           >
             <Download className="w-3.5 h-3.5 text-[#4F46A5]" />
             <span>Verilerimi Yedekle (JSON İndir)</span>
+          </button>
+
+          <input
+            ref={importInputRef}
+            type="file"
+            accept="application/json,.json"
+            onChange={handleImportFile}
+            className="hidden"
+            aria-hidden="true"
+            tabIndex={-1}
+          />
+          <button
+            onClick={() => importInputRef.current?.click()}
+            className="px-3.5 py-2 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#1E2430] text-xs font-semibold rounded-xl border border-[#E4E1D9] transition-colors flex items-center gap-1.5 cursor-pointer"
+          >
+            <Upload className="w-3.5 h-3.5 text-[#4F46A5]" />
+            <span>Yedekten Geri Yükle</span>
           </button>
 
           <button

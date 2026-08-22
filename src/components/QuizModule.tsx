@@ -134,7 +134,11 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
       }
     });
 
-    let list = Array.from(wordSet);
+    // Anlamı henüz doldurulmamış kartlar sınava girmez.
+    //
+    // Metinden yakalanan kelimeler anlamı boş olarak eklenir; bunlardan soru
+    // üretmek boş şıklı ya da cevabı boş bir soru demektir.
+    let list = Array.from(wordSet).filter(w => (w.turkishMeaning || '').trim().length > 0);
 
     if (statusFilter === 'LEARNING') {
       list = list.filter((w) => getUserWordStatus(w.id, learningStates) === 'learning');

@@ -1178,20 +1178,33 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
         onAddMinedWordsToCollection={(items, targetColId) => {
           items.forEach((item) => {
             if (item.matchedCard) {
-              onAddWordToCollection(item.matchedCard.id, targetColId);
+              // Kelimenin metinde geçtiği cümle karta iliştirilir; "metinden
+              // yakala" özelliğinin asıl değeri bu bağlamdır.
+              onAddWordToCollection(
+                item.matchedCard.id,
+                targetColId,
+                item.contextSentence
+              );
             } else {
               const newCard: WordCard = {
                 id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
                 word: item.lemma || item.rawWord,
-                partOfSpeech: 'n.',
-                turkishMeaning: item.suggestedMeaning || item.rawWord,
+                // Sözcük türü bilinmiyor; "n." varsaymak kartın yarısını
+                // baştan yanlış doldurur.
+                partOfSpeech: '',
+                // Anlam boş bırakılır. Önceki sürüm buraya İNGİLİZCE kelimenin
+                // kendisini yazıyordu ("run" -> turkishMeaning: "run"); bu,
+                // sunucudaki doğrulayıcının bile reddettiği bir durum ve
+                // öğrenciye hiçbir şey öğretmez.
+                turkishMeaning: '',
                 examples: [],
                 isCustom: true,
                 sourceType: 'custom',
-                dateAdded: new Date().toISOString().slice(0, 10),
-                isAiGenerated: true
+                sourceContext: item.contextSentence,
+                dateAdded: new Date().toISOString().slice(0, 10)
+                // isAiGenerated işaretlenmez: bu kartı yapay zekâ üretmedi.
               };
-              onAddCustomWord(newCard, targetColId);
+              onAddCustomWord(newCard, targetColId, item.contextSentence);
             }
           });
         }}

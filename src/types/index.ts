@@ -250,6 +250,17 @@ export interface MinedWordItem {
   level?: Level;
   matchedCard?: WordCard;
   suggestedMeaning?: string;
+  /**
+   * Kelimenin metinde geçtiği cümle.
+   *
+   * "Metinden kelime yakala" özelliğinin asıl değeri, kelimeyi gördüğün
+   * cümleyle birlikte hatırlamaktır; bağlamsız bir kelime listesi sözlükten
+   * farksızdır. `addWordToCollection` zaten `sourceContext` parametresi
+   * alıyordu ama madenci bu bilgiyi hiç toplamıyordu.
+   */
+  contextSentence?: string;
+  /** Metinde rastlanan yazımlar (ör. "run", "running", "ran"). */
+  observedForms?: string[];
 }
 
 // Study Session Types
