@@ -42,6 +42,20 @@ ALL_ENTRIES.forEach((entry) => {
   ENTRY_MAP.set(entry.id, entry);
 });
 
+/**
+ * Sözlükte geçen tüm yazımlar (küçük harfe indirgenmiş).
+ *
+ * Bir dizeyi "gerçek bir İngilizce kelime mi?" diye sormak için kullanılır:
+ * yazım toleransının başka bir kelimeyi doğru sayması ve lemmatizer'ın
+ * var olmayan taban biçimler uydurması bu kümeyle önlenir. Bir kez kurulur;
+ * her sorgu O(1)'dir.
+ */
+const KNOWN_WORDS = new Set<string>();
+ALL_ENTRIES.forEach((entry) => {
+  KNOWN_WORDS.add(entry.word.trim().toLowerCase());
+  if (entry.lemma) KNOWN_WORDS.add(entry.lemma.trim().toLowerCase());
+});
+
 export const oxfordRepository = {
   /**
    * Get metadata regarding the Oxford Core Dataset
@@ -51,6 +65,14 @@ export const oxfordRepository = {
       ...OXFORD_METADATA,
       totalEntries: ALL_ENTRIES.length
     };
+  },
+
+  /**
+   * Verilen dize sözlükte bir madde başı olarak geçiyor mu?
+   * Yazım toleransı ve lemmatizer doğrulaması bunu kullanır.
+   */
+  isKnownWord(candidate: string): boolean {
+    return KNOWN_WORDS.has((candidate || '').trim().toLowerCase());
   },
 
   /**

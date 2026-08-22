@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { speakText } from '../utils/speech';
 import { CEFRBadge } from './ui/CEFRBadge';
+import { BRAND } from '../config/brand';
 import { LearningStatusControl } from './ui/LearningStatusControl';
 
 interface WordCardProps {
@@ -325,8 +326,16 @@ export const WordCardComponent: React.FC<WordCardProps> = ({
                   </div>
                 ))
               ) : (
-                <p className="text-[#8E95A2] italic text-center py-2 text-xs">
-                  Örnek cümle bulunamadı.
+                /*
+                 * Bu maddenin örnekleri şablondan üretildiği ve dilbilgisi
+                 * dışı olduğu için veriden çıkarıldı. Uydurma bir cümle
+                 * göstermektense durumu açıkça söylüyoruz: yanlış kalıp
+                 * öğretmek, örnek göstermemekten kötüdür.
+                 */
+                <p className="text-[#8E95A2] text-center py-3 text-[11px] leading-relaxed">
+                  Bu kelime için doğrulanmış örnek cümle henüz yok.
+                  <br />
+                  Kendi kartını oluşturup {BRAND.aiName} ile örnek cümle hazırlatabilirsin.
                 </p>
               )}
             </div>

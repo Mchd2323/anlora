@@ -5,6 +5,7 @@ import {
   Collection,
   CollectionMembership,
   ResponseQuality,
+  UserSettings,
   StudySessionSummary
 } from '../types';
 import {
@@ -27,6 +28,8 @@ import { sample } from '../utils/random';
 import { speakText } from '../utils/speech';
 import { checkTypedAnswerCorrectness, normalizeWordString } from '../utils/lemmatizer';
 import { isWordDueForReview } from '../utils/srsEngine';
+import { blankOutWord } from '../utils/quizGenerator';
+import { oxfordRepository } from '../services/oxfordRepository';
 import { CEFRBadge } from './ui/CEFRBadge';
 
 interface StudySessionViewProps {
@@ -36,6 +39,8 @@ interface StudySessionViewProps {
   customWords: WordCard[];
   oxfordWords: WordCard[];
   learningStates: Record<string, LearningState>;
+  /** Kullanıcı ayarları: yazım toleransı, tercih edilen mod, otomatik ses. */
+  settings?: UserSettings;
   onRecordStudyResult: (
     wordId: string,
     quality: ResponseQuality,
@@ -61,6 +66,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
   customWords,
   oxfordWords,
   learningStates,
+  settings,
   onRecordStudyResult,
   onFinishSession,
   onExitSession
@@ -160,19 +166,58 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
 
   const currentItem = queue[currentIndex];
 
-  // Determine current mode
+  // Çalışma modunu belirle.
+  //
+  // Önceki sürümde mod yalnızca sıra numarasına bakıyordu
+  // (`modes[currentIndex % modes.length]`). Bu, kelimenin öğrenme aşamasını
+  // tamamen yok sayıyordu: öğrencinin hayatında ilk kez gördüğü ikinci kelime
+  // ona yazdırılıyordu. Görmediğin bir kelimeyi yazamazsın; bu bir öğrenme
+  // adımı değil, garantili bir başarısızlıktır.
+  //
+  // Mod artık hatırlama zorluğuna göre kademeleniyor:
+  //   NEW/LEARNING -> tanıma (kart çevirme)
+  //   REVIEW       -> bağlamdan hatırlama (boşluk doldurma) veya dinleme
+  //   WEAK         -> dinleme (yeniden tanıma desteği)
+  //   MASTERED     -> üretim (yazarak hatırlama)
   const currentMode = useMemo(() => {
     if (studyMode !== 'mixed') return studyMode;
-    const modes: ('flashcard' | 'typed' | 'listening' | 'cloze')[] = ['flashcard', 'typed', 'listening', 'cloze'];
-    return modes[currentIndex % modes.length];
-  }, [studyMode, currentIndex]);
+    if (!currentItem) return 'flashcard';
+
+    const stage = currentItem.state?.stage;
+    const hasUsableExample = (currentItem.card.examples || []).some(
+      ex => blankOutWord(ex?.en || '', currentItem.card.word) !== null
+    );
+
+    switch (stage) {
+      case 'MASTERED':
+        return 'typed';
+      case 'WEAK':
+      case 'RELEARNING':
+        return 'listening';
+      case 'REVIEW':
+        // Boşluk doldurma yalnızca kelimenin gerçekten geçtiği bir örnek
+        // varsa anlamlıdır; yoksa cevabı açıkta bırakırdı.
+        return hasUsableExample ? 'cloze' : 'listening';
+      case 'LEARNING':
+        return currentIndex % 2 === 0 ? 'flashcard' : 'listening';
+      default:
+        return 'flashcard';
+    }
+  }, [studyMode, currentIndex, currentItem]);
 
   // Check typed input
   const handleCheckTypedAnswer = (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentItem || !typedInput.trim()) return;
 
-    const result = checkTypedAnswerCorrectness(typedInput, currentItem.card.word);
+    // Sözlük kontrolü geçilir ki bir harflik fark başka bir gerçek kelimeye
+    // denk geldiğinde (though / thought) tolerans uygulanmasın.
+    const result = checkTypedAnswerCorrectness(
+      typedInput,
+      currentItem.card.word,
+      settings?.enableTypoTolerance !== false,
+      oxfordRepository.isKnownWord
+    );
     setTypedResult(result);
     setIsAnswerSubmitted(true);
 
@@ -402,6 +447,18 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
   if (!currentItem) return null;
 
   const card = currentItem.card;
+
+  // Boşluk doldurma cümlesi. `blankOutWord` düzenli ifade meta karakterlerini
+  // kaçırır ve kelimenin çekimli biçimlerini de yakalar; eski kod hem "C++"
+  // gibi kelimelerde çöküyor hem de kelime cümlede çekimli geçtiğinde hiçbir
+  // şeyi boşluğa çevirmeden cevabı açıkta bırakıyordu.
+  const clozeSentence = (() => {
+    for (const example of card.examples || []) {
+      const blanked = blankOutWord(example?.en || '', card.word);
+      if (blanked) return { blanked, tr: example.tr };
+    }
+    return null;
+  })();
   const progressPercent = Math.round(((currentIndex) / queue.length) * 100);
 
   return (
@@ -586,11 +643,11 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
                 CÜMLEDEKİ BOŞLUĞU TAMAMLA:
               </span>
 
-              {card.examples && card.examples[0] ? (
+              {clozeSentence ? (
                 <div className="p-4 bg-[#F8F7F3] rounded-xl border border-[#E4E1D9] text-xs font-medium text-[#1E2430] leading-relaxed max-w-lg mx-auto">
-                  {card.examples[0].en.replace(new RegExp(`\\b${card.word}\\b`, 'gi'), '_____')}
+                  {clozeSentence.blanked}
                   <p className="text-[11px] text-[#687080] italic mt-1.5">
-                    "{card.examples[0].tr}"
+                    "{clozeSentence.tr}"
                   </p>
                 </div>
               ) : (

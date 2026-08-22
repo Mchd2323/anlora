@@ -98,6 +98,17 @@ export interface WordCard {
   otherMeanings?: string[]; // other common meanings
   phonetic?: string;
   examples: ExampleSentence[];
+  /**
+   * `examples` dizisindeki cümlelerin doğrulanmış olup olmadığı.
+   *
+   * Çekirdek sözlükteki cümlelerin %88'i sabit kalıplardan üretilmişti ve
+   * dilbilgisi dışıydı ("I want to ago today because it is very important").
+   * Bunlar veriden çıkarıldı; etkilenen maddelerde bu alan `false` olur ve
+   * `examples` boş kalır. Arayüz bu maddelerde "örnek yok" durumunu dürüstçe
+   * gösterir, uydurma cümle sunmaz. Yeniden üretim için:
+   * `scripts/data-repair/repair_examples.ts`
+   */
+  examplesVerified?: boolean;
   level?: Level;
   senses?: WordSense[]; // multi-POS / multi-sense breakdown (unlimited senses)
   isCustom?: boolean;

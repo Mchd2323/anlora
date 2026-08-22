@@ -388,6 +388,7 @@ export default function App() {
             customWords={customWords}
             oxfordWords={OXFORD_3000_WORDS}
             learningStates={learningStates}
+            settings={settings}
             onRecordStudyResult={handleRecordStudyResult}
             onFinishSession={handleFinishStudySession}
             onExitSession={() => setActiveTab('today')}

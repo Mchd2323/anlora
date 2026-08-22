@@ -114,6 +114,51 @@ function validateGeneratedWordCard(card: any, targetWord: string): boolean {
 
   if (allExamples.length === 0) return false;
 
+  // Çekirdek sözlüğü bozan şablonlar.
+  //
+  // Oxford 3000 verisindeki 9.678 örnek cümlenin 8.515'i (%88) aşağıdaki
+  // yirmi bir kalıptan üretilmişti. Kelime sözcük türüne bakılmaksızın kalıbın
+  // içine yerleştirildiği için dilbilgisi dışı cümleler çıkıyordu
+  // ("I want to ago today because it is very important"). Cümleler veriden
+  // çıkarıldı; bu liste yapay zekânın aynı kalıpları üretip veriye geri
+  // sokmasını engeller. Kelimenin geçtiği yer <W> ile temsil edilir.
+  const templateSkeletons = [
+    'A thorough understanding of this <W> is required for the exam.',
+    'Can you help me <W> this properly?',
+    'Experts highlighted the most <W> factors in their recent report.',
+    'Have you seen the new <W> in our local neighborhood?',
+    'I want to <W> today because it is very important.',
+    'Please remember to sign the form <W> leaving the building.',
+    'Recent developments in <W> have attracted widespread attention.',
+    'Research shows how organizations <W> during challenging times.',
+    'She decided to <W> after talking with her family.',
+    'She gave a <W> answer that helped everyone understand.',
+    'The committee analyzed the impact of the <W> on future growth.',
+    'The manager instructed the team to <W> the process carefully.',
+    'The path leads <W> the quiet village and into the hills.',
+    'The situation requires a <W> approach from both sides.',
+    'The teacher asked a question about the <W> in class.',
+    'The weather today felt unusually <W> and pleasant.',
+    'They observed a <W> difference in performance across groups.',
+    'They were able to <W> the issue before it caused problems.',
+    'This is a very <W> example for beginners to study.',
+    'We need more information about this <W> before making a decision.',
+    'We stayed inside <W> the storm passed over the valley.',
+  ];
+
+  const matchesTemplate = (sentence: string): boolean => {
+    const normalized = sentence.trim().toLowerCase().replace(/\s+/g, ' ');
+    return templateSkeletons.some(skeleton => {
+      const [head, tail] = skeleton.toLowerCase().split('<w>');
+      if (tail === undefined) return normalized === head.trim();
+      const headPart = head.trim();
+      const tailPart = tail.trim();
+      const headOk = headPart.length === 0 || normalized.startsWith(headPart);
+      const tailOk = tailPart.length === 0 || normalized.endsWith(tailPart);
+      return headOk && tailOk;
+    });
+  };
+
   const badExPatterns = [
     'i learned',
     'learning the word',
@@ -129,6 +174,8 @@ function validateGeneratedWordCard(card: any, targetWord: string): boolean {
     'kelimesini öğrenmek çok faydalıdır'
   ];
 
+  const escapeForRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
   for (const ex of allExamples) {
     const en = (ex.en || '').toLowerCase();
     const tr = (ex.tr || '').toLowerCase();
@@ -136,6 +183,13 @@ function validateGeneratedWordCard(card: any, targetWord: string): boolean {
       if (en.includes(pat) || tr.includes(pat)) {
         return false;
       }
+    }
+    if (matchesTemplate(ex.en || '')) {
+      return false;
+    }
+    // Örnek cümle hedef kelimeyi gerçekten içermeli; içermiyorsa örnek değildir.
+    if (word && !new RegExp(escapeForRegExp(word), 'i').test(ex.en || '')) {
+      return false;
     }
   }
 

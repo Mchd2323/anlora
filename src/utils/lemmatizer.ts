@@ -90,6 +90,84 @@ export const IRREGULAR_INFLECTIONS: Record<string, { base: string; type: string 
   halves: { base: 'half', type: 'plural of half' },
   leaves: { base: 'leaf', type: 'plural of leaf' },
 
+  // "be" fiilinin çekimleri
+  is: { base: 'be', type: '3rd person singular of be' },
+  am: { base: 'be', type: '1st person singular of be' },
+  are: { base: 'be', type: 'present plural of be' },
+  was: { base: 'be', type: 'past singular of be' },
+  were: { base: 'be', type: 'past plural of be' },
+  being: { base: 'be', type: 'present participle of be' },
+
+  // "have" / "do" çekimleri
+  has: { base: 'have', type: '3rd person singular of have' },
+  had: { base: 'have', type: 'past form of have' },
+  having: { base: 'have', type: 'present participle of have' },
+  does: { base: 'do', type: '3rd person singular of do' },
+  doing: { base: 'do', type: 'present participle of do' },
+  done: { base: 'do', type: 'past participle of do' },
+
+  // Veri denetiminde eksik olduğu tespit edilen düzensiz fiiller
+  sprang: { base: 'spring', type: 'past form of spring' },
+  sprung: { base: 'spring', type: 'past participle of spring' },
+  bore: { base: 'bear', type: 'past form of bear' },
+  borne: { base: 'bear', type: 'past participle of bear' },
+  mistook: { base: 'mistake', type: 'past form of mistake' },
+  mistaken: { base: 'mistake', type: 'past participle of mistake' },
+  tore: { base: 'tear', type: 'past form of tear' },
+  torn: { base: 'tear', type: 'past participle of tear' },
+  wound: { base: 'wind', type: 'past form of wind' },
+  built: { base: 'build', type: 'past form of build' },
+  burnt: { base: 'burn', type: 'past form of burn' },
+  bent: { base: 'bend', type: 'past form of bend' },
+  bit: { base: 'bite', type: 'past form of bite' },
+  bitten: { base: 'bite', type: 'past participle of bite' },
+  blew: { base: 'blow', type: 'past form of blow' },
+  blown: { base: 'blow', type: 'past participle of blow' },
+  broke: { base: 'break', type: 'past form of break' },
+  broken: { base: 'break', type: 'past participle of break' },
+  cut: { base: 'cut', type: 'past form of cut' },
+  dealt: { base: 'deal', type: 'past form of deal' },
+  drew: { base: 'draw', type: 'past form of draw' },
+  drawn: { base: 'draw', type: 'past participle of draw' },
+  fought: { base: 'fight', type: 'past form of fight' },
+  fed: { base: 'feed', type: 'past form of feed' },
+  froze: { base: 'freeze', type: 'past form of freeze' },
+  frozen: { base: 'freeze', type: 'past participle of freeze' },
+  hid: { base: 'hide', type: 'past form of hide' },
+  hidden: { base: 'hide', type: 'past participle of hide' },
+  held: { base: 'hold', type: 'past form of hold' },
+  hung: { base: 'hang', type: 'past form of hang' },
+  hurt: { base: 'hurt', type: 'past form of hurt' },
+  laid: { base: 'lay', type: 'past form of lay' },
+  led: { base: 'lead', type: 'past form of lead' },
+  lent: { base: 'lend', type: 'past form of lend' },
+  lay: { base: 'lie', type: 'past form of lie' },
+  lain: { base: 'lie', type: 'past participle of lie' },
+  lit: { base: 'light', type: 'past form of light' },
+  meant: { base: 'mean', type: 'past form of mean' },
+  rode: { base: 'ride', type: 'past form of ride' },
+  ridden: { base: 'ride', type: 'past participle of ride' },
+  rang: { base: 'ring', type: 'past form of ring' },
+  rung: { base: 'ring', type: 'past participle of ring' },
+  rose: { base: 'rise', type: 'past form of rise' },
+  risen: { base: 'rise', type: 'past participle of rise' },
+  shot: { base: 'shoot', type: 'past form of shoot' },
+  shone: { base: 'shine', type: 'past form of shine' },
+  shook: { base: 'shake', type: 'past form of shake' },
+  shaken: { base: 'shake', type: 'past participle of shake' },
+  sang: { base: 'sing', type: 'past form of sing' },
+  sung: { base: 'sing', type: 'past participle of sing' },
+  sank: { base: 'sink', type: 'past form of sink' },
+  spent: { base: 'spend', type: 'past form of spend' },
+  spread: { base: 'spread', type: 'past form of spread' },
+  stole: { base: 'steal', type: 'past form of steal' },
+  stolen: { base: 'steal', type: 'past participle of steal' },
+  struck: { base: 'strike', type: 'past form of strike' },
+  swept: { base: 'sweep', type: 'past form of sweep' },
+  threw: { base: 'throw', type: 'past form of throw' },
+  thrown: { base: 'throw', type: 'past participle of throw' },
+  wept: { base: 'weep', type: 'past form of weep' },
+
   // Common irregular comparatives / superlatives
   better: { base: 'good', type: 'comparative of good / well' },
   best: { base: 'good', type: 'superlative of good / well' },
@@ -124,114 +202,181 @@ export function normalizeWordString(input: string): string {
 }
 
 /**
- * Detects base lemma candidates for an English word
+ * Bir kelimenin sözlükte var olup olmadığını söyleyen fonksiyon.
+ *
+ * Lemmatizer sözlüğe doğrudan bağlanmaz (dairesel bağımlılık olurdu); çağıran
+ * taraf bu kontrolü enjekte eder. Böylece üretilen taban biçim uydurma bir
+ * kelime olduğunda ("beed", "stopp") kabul edilmez.
  */
-export function findLemmaCandidate(normalizedWord: string): { baseForm: string; explanation: string } | null {
-  if (!normalizedWord || normalizedWord.length < 3) return null;
+export type KnownWordCheck = (candidate: string) => boolean;
 
-  // 1. Direct dictionary match
-  if (IRREGULAR_INFLECTIONS[normalizedWord]) {
-    const item = IRREGULAR_INFLECTIONS[normalizedWord];
-    return {
-      baseForm: item.base,
-      explanation: `"${normalizedWord}", "${item.base}" kelimesinin çekimli (${item.type}) biçimidir.`
-    };
+/** Yaygın İngilizce çekim eklerini çıkarmak için aday üreticiler. */
+function regularLemmaCandidates(word: string): { baseForm: string; explanation: string }[] {
+  const candidates: { baseForm: string; explanation: string }[] = [];
+  const add = (baseForm: string, explanation: string) => {
+    if (baseForm && baseForm.length >= 2) candidates.push({ baseForm, explanation });
+  };
+
+  // -ies -> -y (studies -> study, carries -> carry)
+  if (word.endsWith('ies') && word.length > 4) {
+    add(word.slice(0, -3) + 'y', `"${word}", "${word.slice(0, -3)}y" kelimesinin çoğul veya 3. şahıs halidir.`);
   }
 
-  // 2. Regular suffix heuristic rules
-  // -ies -> -y (e.g. studies -> study, carries -> carry)
-  if (normalizedWord.endsWith('ies') && normalizedWord.length > 4) {
-    const candidate = normalizedWord.slice(0, -3) + 'y';
-    return {
-      baseForm: candidate,
-      explanation: `"${normalizedWord}", muhtemelen "${candidate}" kelimesinin çoğul veya 3. şahıs halidir.`
-    };
+  // -ied -> -y (studied -> study, tried -> try)
+  if (word.endsWith('ied') && word.length > 4) {
+    add(word.slice(0, -3) + 'y', `"${word}", "${word.slice(0, -3)}y" kelimesinin geçmiş zaman halidir.`);
   }
 
-  // -ied -> -y (e.g. studied -> study, tried -> try)
-  if (normalizedWord.endsWith('ied') && normalizedWord.length > 4) {
-    const candidate = normalizedWord.slice(0, -3) + 'y';
-    return {
-      baseForm: candidate,
-      explanation: `"${normalizedWord}", muhtemelen "${candidate}" kelimesinin geçmiş zaman halidir.`
-    };
+  // -es (watches -> watch, boxes -> box, buzzes -> buzz)
+  if (/(ches|shes|xes|sses|zes|ses)$/.test(word) && word.length > 4) {
+    add(word.slice(0, -2), `"${word}", "${word.slice(0, -2)}" kelimesinin -es takılı biçimidir.`);
   }
 
-  // -ing (e.g. running -> run, writing -> write, playing -> play)
-  if (normalizedWord.endsWith('ing') && normalizedWord.length > 5) {
-    const withoutIng = normalizedWord.slice(0, -3);
-    // Double consonant: running -> run, swimming -> swim
-    if (withoutIng.length >= 3 && withoutIng[withoutIng.length - 1] === withoutIng[withoutIng.length - 2]) {
-      const candidate = withoutIng.slice(0, -1);
-      return {
-        baseForm: candidate,
-        explanation: `"${normalizedWord}", "${candidate}" fiilinin -ing biçimidir.`
-      };
+  // Düz -s çoğulu / 3. şahıs (books -> book, runs -> run).
+  //
+  // Bu kural önceki sürümde hiç yoktu: İngilizcenin EN yaygın çekimi
+  // lemmatize edilemiyordu. Metin madencisi "books" ile "book" kelimesini
+  // ayrı iki madde sayıyor, tekrar tespiti de eşleştiremiyordu.
+  if (word.endsWith('s') && !word.endsWith('ss') && !word.endsWith('us') && word.length > 3) {
+    add(word.slice(0, -1), `"${word}", "${word.slice(0, -1)}" kelimesinin çoğul veya 3. şahıs halidir.`);
+  }
+
+  // -ing (playing -> play, running -> run, writing -> write)
+  if (word.endsWith('ing') && word.length > 5) {
+    const stem = word.slice(0, -3);
+    add(stem, `"${word}", "${stem}" fiilinin -ing biçimidir.`);
+    // Ünsüz ikizlenmesi: running -> run
+    if (stem.length >= 3 && stem[stem.length - 1] === stem[stem.length - 2]) {
+      add(stem.slice(0, -1), `"${word}", "${stem.slice(0, -1)}" fiilinin -ing biçimidir.`);
     }
-    // Normal: playing -> play
-    return {
-      baseForm: withoutIng,
-      explanation: `"${normalizedWord}", "${withoutIng}" fiilinin -ing biçimidir.`
-    };
+    // Düşen "e": writing -> write, making -> make
+    add(stem + 'e', `"${word}", "${stem}e" fiilinin -ing biçimidir.`);
   }
 
-  // -ed (e.g. played -> play, looked -> look)
-  if (normalizedWord.endsWith('ed') && normalizedWord.length > 4) {
-    const withoutEd = normalizedWord.slice(0, -2);
-    return {
-      baseForm: withoutEd,
-      explanation: `"${normalizedWord}", "${withoutEd}" fiilinin geçmiş zaman ekidir.`
-    };
+  // -ed (played -> play, hoped -> hope, stopped -> stop)
+  //
+  // Önceki sürüm yalnızca son iki harfi atıyordu; "hoped" -> "hop" ve
+  // "stopped" -> "stopp" gibi yanlış tabanlar üretiyordu. -ing kuralındaki
+  // ikizlenme ve düşen "e" işlemleri burada da uygulanıyor.
+  if (word.endsWith('ed') && word.length > 4) {
+    const stem = word.slice(0, -2);
+    add(stem, `"${word}", "${stem}" fiilinin geçmiş zaman biçimidir.`);
+    add(stem + 'e', `"${word}", "${stem}e" fiilinin geçmiş zaman biçimidir.`);
+    if (stem.length >= 3 && stem[stem.length - 1] === stem[stem.length - 2]) {
+      add(stem.slice(0, -1), `"${word}", "${stem.slice(0, -1)}" fiilinin geçmiş zaman biçimidir.`);
+    }
   }
 
-  // -es (e.g. watches -> watch, boxes -> box, buzzes -> buzz)
-  if ((normalizedWord.endsWith('ches') || normalizedWord.endsWith('shes') || normalizedWord.endsWith('xes') || normalizedWord.endsWith('sses')) && normalizedWord.length > 4) {
-    const candidate = normalizedWord.slice(0, -2);
-    return {
-      baseForm: candidate,
-      explanation: `"${normalizedWord}", "${candidate}" kelimesinin -es takılı biçimidir.`
-    };
-  }
-
-  return null;
+  return candidates;
 }
 
 /**
- * Levenshtein distance for fuzzy matching / typo tolerance
+ * Bir İngilizce kelimenin taban (sözlük) biçimini bulmaya çalışır.
+ *
+ * `isKnownWord` verildiğinde yalnızca sözlükte gerçekten bulunan adaylar
+ * döner. Verilmediğinde ilk makul aday döner (geriye dönük uyumluluk).
  */
-export function calculateLevenshteinDistance(a: string, b: string): number {
-  const matrix: number[][] = [];
+export function findLemmaCandidate(
+  normalizedWord: string,
+  isKnownWord?: KnownWordCheck
+): { baseForm: string; explanation: string } | null {
+  if (!normalizedWord) return null;
 
-  for (let i = 0; i <= b.length; i++) {
-    matrix[i] = [i];
+  // 1. Düzensiz çekim sözlüğü — en güvenilir kaynak.
+  //
+  // Uzunluk sınırı bu adımdan SONRA uygulanır: "is", "am", "was", "ate",
+  // "saw", "ran" gibi düzensiz biçimlerin çoğu üç harften kısadır ve önceki
+  // sürümdeki erken dönüş bunların hepsini çözülemez hale getiriyordu.
+  const irregular = IRREGULAR_INFLECTIONS[normalizedWord];
+  if (irregular) {
+    return {
+      baseForm: irregular.base,
+      explanation: `"${normalizedWord}", "${irregular.base}" kelimesinin çekimli (${irregular.type}) biçimidir.`
+    };
   }
 
-  for (let j = 0; j <= a.length; j++) {
+  // Düzenli ek kuralları çok kısa kelimelerde güvenilir değil.
+  if (normalizedWord.length < 3) return null;
+
+  // 2. Düzenli ek kuralları.
+  const candidates = regularLemmaCandidates(normalizedWord);
+  if (candidates.length === 0) return null;
+
+  if (isKnownWord) {
+    // Sözlükte gerçekten var olan ilk adayı seç; hiçbiri yoksa taban üretme.
+    const verified = candidates.find(c => c.baseForm !== normalizedWord && isKnownWord(c.baseForm));
+    return verified || null;
+  }
+
+  return candidates[0];
+}
+
+/**
+ * Damerau-Levenshtein (optimal dizi hizalama) mesafesi.
+ *
+ * Düz Levenshtein'dan farkı, yan yana iki harfin yer değiştirmesini tek
+ * işlem saymasıdır. Bu fark yazım toleransı için belirleyici: klavyede en sık
+ * yapılan hata harf transpozisyonudur ("lihgt" / "light", "teh" / "the").
+ * Düz Levenshtein bunu 2 mesafe sayar, dolayısıyla önceki sürümde en yaygın
+ * yazım hatası türü hiç affedilmiyordu.
+ */
+export function calculateLevenshteinDistance(a: string, b: string): number {
+  const rows = b.length;
+  const cols = a.length;
+  if (rows === 0) return cols;
+  if (cols === 0) return rows;
+
+  const matrix: number[][] = [];
+  for (let i = 0; i <= rows; i++) {
+    matrix[i] = new Array(cols + 1).fill(0);
+    matrix[i][0] = i;
+  }
+  for (let j = 0; j <= cols; j++) {
     matrix[0][j] = j;
   }
 
-  for (let i = 1; i <= b.length; i++) {
-    for (let j = 1; j <= a.length; j++) {
-      if (b.charAt(i - 1) === a.charAt(j - 1)) {
-        matrix[i][j] = matrix[i - 1][j - 1];
-      } else {
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j - 1] + 1, // substitution
-          matrix[i][j - 1] + 1,     // insertion
-          matrix[i - 1][j] + 1      // deletion
-        );
+  for (let i = 1; i <= rows; i++) {
+    for (let j = 1; j <= cols; j++) {
+      const cost = b.charAt(i - 1) === a.charAt(j - 1) ? 0 : 1;
+
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j - 1] + cost, // değiştirme
+        matrix[i][j - 1] + 1,        // ekleme
+        matrix[i - 1][j] + 1         // silme
+      );
+
+      // Yan yana harflerin yer değiştirmesi tek işlemdir.
+      if (
+        i > 1 &&
+        j > 1 &&
+        b.charAt(i - 1) === a.charAt(j - 2) &&
+        b.charAt(i - 2) === a.charAt(j - 1)
+      ) {
+        matrix[i][j] = Math.min(matrix[i][j], matrix[i - 2][j - 2] + cost);
       }
     }
   }
 
-  return matrix[b.length][a.length];
+  return matrix[rows][cols];
 }
 
 /**
- * Checks if user typed answer is acceptable:
- * Allows 1 minor typo if word length is >= 5, 0 typos for shorter words.
+ * Kullanıcının yazdığı cevabı değerlendirir.
+ *
+ * Bir harflik yazım hatası, kelime 5 harf veya daha uzunsa hoş görülür. Ancak
+ * `isKnownWord` verildiğinde, yazılan şeyin kendisi sözlükte var olan BAŞKA
+ * bir kelimeyse tolerans uygulanmaz.
+ *
+ * Bu ayrım önemli: önceki sürümde "though" sorulduğunda "thought" yazmak
+ * (Levenshtein mesafesi 1) doğru sayılıyordu. Öğrenciye yanlış bilgiyi
+ * onaylamak, yazım hatasını affetmekten çok daha zararlıdır.
  */
-export function checkTypedAnswerCorrectness(userAnswer: string, expectedAnswer: string, allowTypoTolerance = true): { isCorrect: boolean; isTypo: boolean } {
+export function checkTypedAnswerCorrectness(
+  userAnswer: string,
+  expectedAnswer: string,
+  allowTypoTolerance = true,
+  isKnownWord?: KnownWordCheck
+): { isCorrect: boolean; isTypo: boolean } {
   const normUser = normalizeWordString(userAnswer);
   const normExpected = normalizeWordString(expectedAnswer);
 
@@ -239,7 +384,13 @@ export function checkTypedAnswerCorrectness(userAnswer: string, expectedAnswer: 
     return { isCorrect: true, isTypo: false };
   }
 
-  if (allowTypoTolerance && normExpected.length >= 5) {
+  if (allowTypoTolerance && normExpected.length >= 5 && normUser.length > 0) {
+    // Yazılan şey başlı başına geçerli bir kelimeyse bu yazım hatası değil,
+    // farklı bir kelimedir.
+    if (isKnownWord && isKnownWord(normUser)) {
+      return { isCorrect: false, isTypo: false };
+    }
+
     const dist = calculateLevenshteinDistance(normUser, normExpected);
     if (dist === 1) {
       return { isCorrect: true, isTypo: true };
