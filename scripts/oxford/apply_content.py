@@ -46,10 +46,21 @@ with open('src/data/irregularInflections.json', encoding='utf-8') as _h:
     IRREGULAR = json.load(_h)
 
 
+# Tipografik kesme işaretleri düz kesmeye indirgenir: kaynak listede
+# "o’clock" (U+2019) geçiyor, örnek cümlelerde de öyle. Normalize edilmezse
+# sözcük sınırı araması bunları "o" ve "clock" diye ikiye böler ve eşleşme
+# hiçbir zaman tutmaz. Aynı normalizasyon uygulama tarafında da yapılıyor
+# (`normalizeWordString`).
+CURLY_APOSTROPHES = str.maketrans({
+    '\u2018': "'", '\u2019': "'", '\u201a': "'", '\u201b': "'",
+    '\u2032': "'", '\u02bc': "'", '`': "'",
+})
+
+
 def sentence_contains(sentence, headword):
     """Örnek cümle hedef kelimeyi (çekimleriyle) içeriyor mu?"""
-    target = (headword or '').strip().lower()
-    lowered = (sentence or '').lower()
+    target = (headword or '').strip().lower().translate(CURLY_APOSTROPHES)
+    lowered = (sentence or '').lower().translate(CURLY_APOSTROPHES)
     if ('-' in target or ' ' in target) and target in lowered:
         return True
     target = target.split()[0]
