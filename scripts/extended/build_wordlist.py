@@ -109,6 +109,18 @@ NOISE = {
     'whimpering', 'wheezing', 'clanking', 'rustling', 'sniffling', 'gasping',
     'snoring', 'slurping', 'squealing', 'screeching', 'whirring', 'beeping',
     'clattering', 'thudding', 'clanging', 'crackling', 'sizzling', 'gurgling',
+    'humming', 'chanting', 'roaring', 'rumbling', 'coughing', 'buzzing',
+    'wailing', 'muffled', 'indistinctly', 'whistling',
+    # Kural tabanli suzgecin kaciridiklari: -ed/-ing/-s bicimleri ve
+    # Amerikan yazimlari. Kurali genellestirmek `hammer`->`ham`,
+    # `supper`->`sup` gibi yanlis eslesmeler uretiyor, bu yuzden tek tek.
+    'realised', 'colors', 'honored', 'favored', 'labored', 'flavored',
+    'neighbors', 'behaviors', 'rumors', 'humors', 'odors', 'vapors',
+    # Kurgu ve marka adlari
+    'batman', 'superman', 'spiderman', 'godzilla', 'tarzan',
+    # Ozel ad suzgecinin kaciridiklari
+    'marshall', 'graham', 'murphy', 'harper', 'troy', 'khan', 'franklin',
+    'yang', 'soviet', 'nazi', 'brazil', 'catholic', 'protestant',
 }
 
 # Ad veritabanında geçen ama günlük İngilizcede gerçek bir sözcük olanlar.
