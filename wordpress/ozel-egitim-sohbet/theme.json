@@ -4,22 +4,70 @@
 	"settings": {
 		"appearanceTools": true,
 		"useRootPaddingAwareAlignments": false,
-		"layout": { "contentSize": "840px", "wideSize": "1340px" },
+		"layout": {
+			"contentSize": "840px",
+			"wideSize": "1340px"
+		},
 		"color": {
 			"defaultPalette": false,
 			"defaultGradients": false,
 			"defaultDuotone": false,
 			"palette": [
-				{ "slug": "ink", "name": "Koyu Yazı", "color": "#163b33" },
-				{ "slug": "muted", "name": "Soluk Yazı", "color": "#687a74" },
-				{ "slug": "teal", "name": "Ana Turkuaz", "color": "#176b5b" },
-				{ "slug": "deep", "name": "Koyu Turkuaz", "color": "#123f36" },
-				{ "slug": "mint", "name": "Nane Yeşili", "color": "#dff1e9" },
-				{ "slug": "peach", "name": "Şeftali", "color": "#f7d9c1" },
-				{ "slug": "sand", "name": "Uyarı Sarısı", "color": "#fff8e9" },
-				{ "slug": "cream", "name": "Krem", "color": "#faf8f1" },
-				{ "slug": "line", "name": "Çizgi", "color": "#e0e6e1" },
-				{ "slug": "white", "name": "Beyaz", "color": "#ffffff" }
+				{
+					"slug": "ink",
+					"name": "Koyu Yazı",
+					"color": "#10312a"
+				},
+				{
+					"slug": "body",
+					"name": "Gövde Yazısı",
+					"color": "#4b5f58"
+				},
+				{
+					"slug": "muted",
+					"name": "Soluk Yazı",
+					"color": "#5e706a"
+				},
+				{
+					"slug": "primary",
+					"name": "Ana Yeşil",
+					"color": "#1c6b58"
+				},
+				{
+					"slug": "deep",
+					"name": "Koyu Yeşil",
+					"color": "#0c3229"
+				},
+				{
+					"slug": "mint",
+					"name": "Nane",
+					"color": "#e7f2ec"
+				},
+				{
+					"slug": "accent",
+					"name": "Pirinç Vurgu",
+					"color": "#a06a2c"
+				},
+				{
+					"slug": "accent-soft",
+					"name": "Açık Pirinç",
+					"color": "#f6e7d2"
+				},
+				{
+					"slug": "surface",
+					"name": "Fildişi Zemin",
+					"color": "#f7f4ed"
+				},
+				{
+					"slug": "line",
+					"name": "Çizgi",
+					"color": "#e3e9e4"
+				},
+				{
+					"slug": "white",
+					"name": "Beyaz",
+					"color": "#ffffff"
+				}
 			]
 		},
 		"typography": {
@@ -37,68 +85,179 @@
 				}
 			],
 			"fontSizes": [
-				{ "slug": "small", "size": "0.82rem", "name": "Küçük" },
-				{ "slug": "medium", "size": "1rem", "name": "Normal" },
-				{ "slug": "large", "size": "1.35rem", "name": "Büyük" },
-				{ "slug": "x-large", "size": "2.2rem", "name": "Çok Büyük" }
+				{
+					"slug": "small",
+					"size": "0.82rem",
+					"name": "Küçük"
+				},
+				{
+					"slug": "medium",
+					"size": "1rem",
+					"name": "Normal"
+				},
+				{
+					"slug": "large",
+					"size": "1.35rem",
+					"name": "Büyük"
+				},
+				{
+					"slug": "x-large",
+					"size": "2.2rem",
+					"name": "Çok Büyük"
+				}
 			]
 		},
 		"spacing": {
-			"units": [ "px", "rem", "em", "vw", "%" ],
+			"units": [
+				"px",
+				"rem",
+				"em",
+				"vw",
+				"%"
+			],
 			"spacingSizes": [
-				{ "slug": "20", "size": "0.75rem", "name": "Dar" },
-				{ "slug": "40", "size": "1.5rem", "name": "Normal" },
-				{ "slug": "60", "size": "3rem", "name": "Geniş" },
-				{ "slug": "80", "size": "5rem", "name": "Çok Geniş" }
+				{
+					"slug": "20",
+					"size": "0.75rem",
+					"name": "Dar"
+				},
+				{
+					"slug": "40",
+					"size": "1.5rem",
+					"name": "Normal"
+				},
+				{
+					"slug": "60",
+					"size": "3rem",
+					"name": "Geniş"
+				},
+				{
+					"slug": "80",
+					"size": "5rem",
+					"name": "Çok Geniş"
+				}
 			]
 		}
 	},
 	"styles": {
-		"color": { "background": "#faf8f1", "text": "#163b33" },
+		"color": {
+			"background": "#f7f4ed",
+			"text": "#4b5f58"
+		},
 		"typography": {
 			"fontFamily": "var(--wp--preset--font-family--body)",
 			"fontSize": "16px",
-			"lineHeight": "1.55"
+			"lineHeight": "1.6"
 		},
 		"elements": {
 			"heading": {
-				"color": { "text": "#163b33" },
+				"color": {
+					"text": "#10312a"
+				},
 				"typography": {
 					"fontFamily": "var(--wp--preset--font-family--heading)",
 					"fontWeight": "700",
-					"lineHeight": "1.1"
+					"lineHeight": "1.1",
+					"letterSpacing": "-0.018em"
 				}
 			},
 			"link": {
-				"color": { "text": "#176b5b" },
-				"typography": { "textDecoration": "none" },
-				":hover": { "color": { "text": "#123f36" }, "typography": { "textDecoration": "underline" } },
-				":focus": { "outline": { "color": "#176b5b", "style": "solid", "width": "2px", "offset": "2px" } }
+				"color": {
+					"text": "#1c6b58"
+				},
+				"typography": {
+					"textDecoration": "none"
+				},
+				":hover": {
+					"color": {
+						"text": "#0f4638"
+					},
+					"typography": {
+						"textDecoration": "underline"
+					}
+				},
+				":focus": {
+					"outline": {
+						"color": "#1c6b58",
+						"style": "solid",
+						"width": "2px",
+						"offset": "3px"
+					}
+				}
 			},
 			"button": {
-				"border": { "radius": "10px" },
-				"color": { "background": "#176b5b", "text": "#ffffff" },
-				"typography": { "fontWeight": "700" },
-				"spacing": { "padding": { "top": "0.72rem", "bottom": "0.72rem", "left": "1.1rem", "right": "1.1rem" } },
-				":hover": { "color": { "background": "#123f36", "text": "#ffffff" } },
-				":focus": { "color": { "background": "#123f36", "text": "#ffffff" } }
+				"border": {
+					"radius": "10px"
+				},
+				"color": {
+					"background": "#1c6b58",
+					"text": "#ffffff"
+				},
+				"typography": {
+					"fontWeight": "700"
+				},
+				"spacing": {
+					"padding": {
+						"top": "0.74rem",
+						"bottom": "0.74rem",
+						"left": "1.15rem",
+						"right": "1.15rem"
+					}
+				},
+				":hover": {
+					"color": {
+						"background": "#0f4638",
+						"text": "#ffffff"
+					}
+				},
+				":focus": {
+					"color": {
+						"background": "#0f4638",
+						"text": "#ffffff"
+					}
+				}
 			}
 		},
 		"blocks": {
-			"core/button": { "spacing": { "blockGap": "0.5rem" } },
-			"core/separator": { "color": { "background": "#e0e6e1" } },
-			"core/site-tagline": { "color": { "text": "#687a74" }, "typography": { "fontSize": "0.68rem" } }
+			"core/button": {
+				"spacing": {
+					"blockGap": "0.5rem"
+				}
+			},
+			"core/separator": {
+				"color": {
+					"background": "#e3e9e4"
+				}
+			},
+			"core/site-tagline": {
+				"color": {
+					"text": "#5e706a"
+				},
+				"typography": {
+					"fontSize": "0.64rem"
+				}
+			}
 		}
 	},
 	"templateParts": [
-		{ "name": "header", "title": "Üst Menü", "area": "header" },
-		{ "name": "footer", "title": "Alt Bilgi", "area": "footer" }
+		{
+			"name": "header",
+			"title": "Üst Menü",
+			"area": "header"
+		},
+		{
+			"name": "footer",
+			"title": "Alt Bilgi",
+			"area": "footer"
+		}
 	],
 	"customTemplates": [
 		{
 			"name": "page-topluluk",
 			"title": "Topluluk sayfası (tam genişlik)",
-			"postTypes": [ "page" ]
+			"postTypes": [
+				"page"
+			]
 		}
 	]
 }

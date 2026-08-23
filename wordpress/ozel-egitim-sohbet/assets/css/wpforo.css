@@ -8,21 +8,21 @@
 
 #wpforo,
 #wpforo-wrap {
-	--wpf-primary-color: #176b5b !important;
-	--wpf-secondary-color: #123f36 !important;
-	--wpf-head-color: #163b33 !important;
-	--wpf-text-color: #536a63 !important;
+	--wpf-primary-color: #1c6b58 !important;
+	--wpf-secondary-color: #0f4638 !important;
+	--wpf-head-color: #10312a !important;
+	--wpf-text-color: #4b5f58 !important;
 	--wpf-bg-color: #fff !important;
 	font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
-	color: #536a63 !important;
+	color: #4b5f58 !important;
 }
 
 #wpforo-wrap {
 	background: #fff !important;
-	border: 1px solid #e0e6e1 !important;
+	border: 1px solid #e3e9e4 !important;
 	border-radius: 19px !important;
 	overflow: hidden !important;
-	box-shadow: 0 12px 36px rgba(22, 59, 51, .07);
+	box-shadow: 0 12px 36px rgba(12, 50, 41, .07);
 }
 
 /* Forum sayfası kabuk genişliğini kullansın. */
@@ -32,20 +32,20 @@
 #wpforo-wrap .wpforo-forum,
 #wpforo-wrap .wpforo-topic,
 #wpforo-wrap .wpforo-post,
-#wpforo-wrap .wpf-field { border-color: #e4e9e5 !important; }
+#wpforo-wrap .wpf-field { border-color: #e3e9e4 !important; }
 
 #wpforo-wrap .wpforo-category-title,
 #wpforo-wrap .wpforo-forum-title,
 #wpforo-wrap .wpforo-topic-title,
-#wpforo-wrap .wpforo-post-title { color: #163b33 !important; font-weight: 700 !important; }
+#wpforo-wrap .wpforo-post-title { color: #10312a !important; font-weight: 700 !important; }
 
 #wpforo-wrap .wpf-button,
 #wpforo-wrap button,
 #wpforo-wrap input[type="submit"],
 #wpforo-wrap input[type="button"],
 #wpforo-wrap .wpforo-active {
-	background: #176b5b !important;
-	border-color: #176b5b !important;
+	background: #1c6b58 !important;
+	border-color: #1c6b58 !important;
 	color: #fff !important;
 	border-radius: 9px !important;
 	box-shadow: none !important;
@@ -53,7 +53,7 @@
 
 #wpforo-wrap .wpf-button:hover,
 #wpforo-wrap button:hover,
-#wpforo-wrap input[type="submit"]:hover { background: #123f36 !important; border-color: #123f36 !important; }
+#wpforo-wrap input[type="submit"]:hover { background: #0f4638 !important; border-color: #0f4638 !important; }
 
 #wpforo-wrap input[type="text"],
 #wpforo-wrap input[type="email"],
@@ -61,24 +61,24 @@
 #wpforo-wrap input[type="search"],
 #wpforo-wrap select,
 #wpforo-wrap textarea {
-	background: #fbfcfa !important;
-	border: 1px solid #d8e1dc !important;
+	background: #fbfbf7 !important;
+	border: 1px solid #dbe4de !important;
 	border-radius: 9px !important;
-	color: #163b33 !important;
+	color: #10312a !important;
 	box-shadow: none !important;
 }
 
-#wpforo-wrap a { color: #176b5b !important; }
-#wpforo-wrap a:hover { color: #123f36 !important; }
+#wpforo-wrap a { color: #1c6b58 !important; }
+#wpforo-wrap a:hover { color: #0f4638 !important; }
 
-#wpforo-wrap :focus-visible { outline: 2px solid #176b5b !important; outline-offset: 2px !important; }
+#wpforo-wrap :focus-visible { outline: 2px solid #1c6b58 !important; outline-offset: 2px !important; }
 
 #wpforo-wrap .wpf-head-bar,
 #wpforo-wrap .wpforo-forum-head,
 #wpforo-wrap .wpforo-topic-head {
-	background: #edf6f2 !important;
-	color: #163b33 !important;
-	border-color: #d8e8e1 !important;
+	background: #eaf4ee !important;
+	color: #10312a !important;
+	border-color: #d3e8de !important;
 }
 
 #wpforo-wrap .wpforo-member-profile,
@@ -87,16 +87,16 @@
 #wpforo-wrap .wpforo-register-wrap { border-radius: 16px !important; overflow: hidden !important; }
 
 #wpforo-wrap .wpf-tag,
-#wpforo-wrap .wpforo-topic-badge { background: #dff1e9 !important; color: #176b5b !important; border-radius: 8px !important; }
+#wpforo-wrap .wpforo-topic-badge { background: #e7f2ec !important; color: #1c6b58 !important; border-radius: 8px !important; }
 
 #wpforo-wrap .wpf-avatar img,
 #wpforo-wrap .wpforo-member-avatar img { border-radius: 12px !important; }
 
-#wpforo-wrap .wpforo-post:nth-child(even) { background: #fbfcfa !important; }
+#wpforo-wrap .wpforo-post:nth-child(even) { background: #fbfbf7 !important; }
 
 #wpforo-wrap .wpforo-last-post-title,
 #wpforo-wrap .wpforo-topic-stat,
-#wpforo-wrap .wpforo-forum-stat { color: #71817c !important; }
+#wpforo-wrap .wpforo-forum-stat { color: #5e706a !important; }
 
 /* --- Nextend Social Login (Google) --- */
 #wpforo-wrap .nsl-container,
@@ -115,4 +115,33 @@
 	#wpforo-wrap .wpforo-category,
 	#wpforo-wrap .wpforo-forum,
 	#wpforo-wrap .wpforo-topic { padding-left: 10px !important; padding-right: 10px !important; }
+}
+
+/* --- Q&A düzeni: oylama sütunu, en iyi yanıt işareti --- */
+#wpforo-wrap .wpf-qa-votes,
+#wpforo-wrap .wpforo-votes,
+#wpforo-wrap .wpf-vote-wrap {
+	background: #fbfbf7 !important;
+	border: 1px solid #e3e9e4 !important;
+	border-radius: 12px !important;
+	color: #4b5f58 !important;
+}
+
+#wpforo-wrap .wpf-vote-up:hover,
+#wpforo-wrap .wpf-vote-down:hover { color: #1c6b58 !important; }
+
+#wpforo-wrap .wpf-answer-selected,
+#wpforo-wrap .wpforo-post.answered,
+#wpforo-wrap .wpf-is-answer {
+	background: #f2f9f5 !important;
+	box-shadow: inset 3px 0 0 #1c6b58 !important;
+}
+
+#wpforo-wrap .wpf-solved,
+#wpforo-wrap .wpforo-topic-solved {
+	background: #f6e7d2 !important;
+	color: #7a4f18 !important;
+	border-radius: 999px !important;
+	padding: 2px 10px !important;
+	font-weight: 700 !important;
 }

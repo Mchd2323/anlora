@@ -182,12 +182,15 @@ function oec_public_forum_ids() {
 }
 
 /**
- * Forum and category list with topic counts.
+ * Raw forum rows straight from wpForo, ordered the way wpForo orders them.
  *
- * @param int $limit Maximum number of forums returned.
+ * This is the single source of truth for the theme's category rail: the theme
+ * stores no forum list of its own, so anything added, renamed, reordered or
+ * deleted in wpForo shows up here on the next request.
+ *
  * @return array
  */
-function oec_get_forums( $limit = 8 ) {
+function oec_get_forum_rows() {
 	global $wpdb;
 
 	$table = oec_wpforo_table( 'forums' );
@@ -195,45 +198,194 @@ function oec_get_forums( $limit = 8 ) {
 		return array();
 	}
 
-	$limit = max( 1, (int) $limit );
-	$cache = 'oec_forums_' . $limit;
-	$rows  = get_transient( $cache );
-
-	if ( false === $rows ) {
-		$where = array();
-		if ( oec_wpforo_has_column( 'forums', 'private' ) ) {
-			$where[] = 'private = 0';
-		}
-		if ( oec_wpforo_has_column( 'forums', 'status' ) ) {
-			$where[] = 'status = 0';
-		}
-		$where_sql = $where ? 'WHERE ' . implode( ' AND ', $where ) : '';
-
-		$order = oec_wpforo_has_column( 'forums', 'orderid' ) ? 'orderid ASC, forumid ASC' : 'forumid ASC';
-
-		// phpcs:ignore WordPress.DB.PreparedSQL -- whitelisted table, generated clauses.
-		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `{$table}` {$where_sql} ORDER BY {$order} LIMIT %d", $limit ), ARRAY_A );
-		$rows = is_array( $rows ) ? $rows : array();
-
-		set_transient( $cache, $rows, 5 * MINUTE_IN_SECONDS );
+	$rows = get_transient( 'oec_forum_rows' );
+	if ( is_array( $rows ) ) {
+		return $rows;
 	}
 
-	$forums = array();
+	$where = array();
+	if ( oec_wpforo_has_column( 'forums', 'private' ) ) {
+		$where[] = 'private = 0';
+	}
+	if ( oec_wpforo_has_column( 'forums', 'status' ) ) {
+		$where[] = 'status = 0';
+	}
+	$where_sql = $where ? 'WHERE ' . implode( ' AND ', $where ) : '';
+
+	$order = oec_wpforo_has_column( 'forums', 'orderid' ) ? 'orderid ASC, forumid ASC' : 'forumid ASC';
+
+	// phpcs:ignore WordPress.DB.PreparedSQL -- whitelisted table, generated clauses.
+	$rows = $wpdb->get_results( "SELECT * FROM `{$table}` {$where_sql} ORDER BY {$order}", ARRAY_A );
+	$rows = is_array( $rows ) ? $rows : array();
+
+	// Short lifetime so the rail follows wpForo even if a CRUD hook name
+	// changes between wpForo versions; the hooks below usually beat it.
+	set_transient( 'oec_forum_rows', $rows, MINUTE_IN_SECONDS );
+
+	return $rows;
+}
+
+/**
+ * Forum tree: categories, each carrying the forums beneath it.
+ *
+ * Forums that sit outside a category are collected under a synthetic group
+ * with an empty title, so nothing configured in wpForo goes missing.
+ *
+ * @return array List of groups: title, slug, url, forumid, count, forums[].
+ */
+function oec_get_forum_tree() {
+	$rows = oec_get_forum_rows();
+	if ( ! $rows ) {
+		return array();
+	}
+
+	$categories = array();
+	$forums     = array();
+
 	foreach ( $rows as $row ) {
-		// Categories are containers in wpForo; only forums hold topics.
-		if ( isset( $row['is_cat'] ) && (int) $row['is_cat'] === 1 ) {
+		$id = isset( $row['forumid'] ) ? (int) $row['forumid'] : 0;
+		if ( ! $id ) {
 			continue;
 		}
 
-		$forums[] = array(
-			'forumid' => isset( $row['forumid'] ) ? (int) $row['forumid'] : 0,
-			'title'   => isset( $row['title'] ) ? (string) $row['title'] : '',
-			'slug'    => isset( $row['slug'] ) ? (string) $row['slug'] : '',
-			'topics'  => isset( $row['topics'] ) ? (int) $row['topics'] : 0,
+		$item = array(
+			'forumid'  => $id,
+			'parentid' => isset( $row['parentid'] ) ? (int) $row['parentid'] : 0,
+			'title'    => isset( $row['title'] ) ? (string) $row['title'] : '',
+			'slug'     => isset( $row['slug'] ) ? (string) $row['slug'] : '',
+			'topics'   => isset( $row['topics'] ) ? (int) $row['topics'] : 0,
+			'posts'    => isset( $row['posts'] ) ? (int) $row['posts'] : 0,
+			'layout'   => isset( $row['layout'] ) ? (int) $row['layout'] : -1,
+		);
+
+		if ( ! empty( $row['is_cat'] ) ) {
+			$item['forums']       = array();
+			$item['count']        = 0;
+			$categories[ $id ]    = $item;
+		} else {
+			$forums[] = $item;
+		}
+	}
+
+	$loose = array();
+	foreach ( $forums as $forum ) {
+		$parent = $forum['parentid'];
+		if ( $parent && isset( $categories[ $parent ] ) ) {
+			$categories[ $parent ]['forums'][] = $forum;
+			$categories[ $parent ]['count']   += $forum['topics'];
+		} else {
+			$loose[] = $forum;
+		}
+	}
+
+	$tree = array_values( $categories );
+
+	if ( $loose ) {
+		$count = 0;
+		foreach ( $loose as $forum ) {
+			$count += $forum['topics'];
+		}
+		$tree[] = array(
+			'forumid' => 0,
+			'title'   => '',
+			'slug'    => '',
+			'topics'  => 0,
+			'count'   => $count,
+			'forums'  => $loose,
 		);
 	}
 
-	return $forums;
+	// Categories with no forums under them cannot hold topics, so drop them
+	// rather than render an empty heading.
+	return array_values(
+		array_filter(
+			$tree,
+			static function ( $group ) {
+				return ! empty( $group['forums'] );
+			}
+		)
+	);
+}
+
+/**
+ * Flat forum list (no categories), used where a simple list is enough.
+ *
+ * @param int $limit Maximum number of forums returned.
+ * @return array
+ */
+function oec_get_forums( $limit = 20 ) {
+	$limit = max( 1, (int) $limit );
+	$flat  = array();
+
+	foreach ( oec_get_forum_tree() as $group ) {
+		foreach ( $group['forums'] as $forum ) {
+			$flat[] = $forum;
+			if ( count( $flat ) >= $limit ) {
+				return $flat;
+			}
+		}
+	}
+
+	return $flat;
+}
+
+/**
+ * Total number of topics across every public forum.
+ *
+ * @return int
+ */
+function oec_get_forum_topic_total() {
+	$total = 0;
+
+	foreach ( oec_get_forum_tree() as $group ) {
+		$total += (int) $group['count'];
+	}
+
+	return $total;
+}
+
+/**
+ * One forum row by ID, or an empty array.
+ *
+ * @param int $forum_id Forum ID.
+ * @return array
+ */
+function oec_get_forum( $forum_id ) {
+	$forum_id = (int) $forum_id;
+
+	foreach ( oec_get_forum_tree() as $group ) {
+		foreach ( $group['forums'] as $forum ) {
+			if ( $forum['forumid'] === $forum_id ) {
+				return $forum;
+			}
+		}
+	}
+
+	return array();
+}
+
+/**
+ * Whether at least one forum runs wpForo's Q&A layout.
+ *
+ * wpForo numbers its layouts 0 Extended, 1 Simplified, 2 Threaded, 3 Q&A.
+ * Used only for admin guidance, never to change what visitors see.
+ *
+ * @return bool|null True, false, or null when the layout column is unknown.
+ */
+function oec_qa_layout_active() {
+	if ( ! oec_wpforo_has_column( 'forums', 'layout' ) ) {
+		return null;
+	}
+
+	foreach ( oec_get_forum_tree() as $group ) {
+		foreach ( $group['forums'] as $forum ) {
+			if ( 3 === (int) $forum['layout'] ) {
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 /**
@@ -283,7 +435,14 @@ function oec_get_topics( $args = array() ) {
 
 	if ( $posts_table && oec_wpforo_has_column( 'topics', 'first_postid' ) ) {
 		$select[] = 'p.body AS oec_body';
-		$join    .= " LEFT JOIN `{$posts_table}` p ON p.postid = t.first_postid";
+		// wpForo's Q&A layout keeps the question's score on the first post.
+		// Column names differ between versions, so take whichever exists.
+		foreach ( array( 'votes', 'likes' ) as $vote_column ) {
+			if ( oec_wpforo_has_column( 'posts', $vote_column ) ) {
+				$select[] = "p.{$vote_column} AS oec_post_{$vote_column}";
+			}
+		}
+		$join .= " LEFT JOIN `{$posts_table}` p ON p.postid = t.first_postid";
 	}
 	if ( $forums_table ) {
 		$select[] = 'f.slug AS forum_slug';
@@ -350,6 +509,24 @@ function oec_get_topics( $args = array() ) {
 		$posts   = isset( $row['posts'] ) ? (int) $row['posts'] : 0;
 		$answers = isset( $row['answers'] ) ? (int) $row['answers'] : max( 0, $posts - 1 );
 
+		// "Helpful" score: the Q&A vote count when the forum runs that
+		// layout, the like count on a classic forum, whichever is present.
+		$votes = 0;
+		foreach ( array( 'votes', 'oec_post_votes', 'likes', 'oec_post_likes' ) as $vote_key ) {
+			if ( isset( $row[ $vote_key ] ) && (int) $row[ $vote_key ] > 0 ) {
+				$votes = (int) $row[ $vote_key ];
+				break;
+			}
+		}
+
+		$solved = false;
+		foreach ( array( 'solved', 'is_solved', 'answered' ) as $solved_key ) {
+			if ( ! empty( $row[ $solved_key ] ) ) {
+				$solved = true;
+				break;
+			}
+		}
+
 		$topics[] = array(
 			'topicid'     => isset( $row['topicid'] ) ? (int) $row['topicid'] : 0,
 			'title'       => isset( $row['title'] ) ? (string) $row['title'] : '',
@@ -358,12 +535,12 @@ function oec_get_topics( $args = array() ) {
 			'created'     => isset( $row['created'] ) ? (string) $row['created'] : '',
 			'answers'     => $answers,
 			'views'       => isset( $row['views'] ) ? (int) $row['views'] : 0,
-			'likes'       => isset( $row['likes'] ) ? (int) $row['likes'] : 0,
+			'votes'       => $votes,
 			'excerpt'     => isset( $row['oec_body'] ) ? (string) $row['oec_body'] : '',
 			'forumid'     => isset( $row['forumid'] ) ? (int) $row['forumid'] : 0,
 			'forum_slug'  => isset( $row['forum_slug'] ) ? (string) $row['forum_slug'] : '',
 			'forum_title' => isset( $row['forum_title'] ) ? (string) $row['forum_title'] : '',
-			'solved'      => ! empty( $row['solved'] ),
+			'solved'      => $solved,
 		);
 	}
 

@@ -167,6 +167,9 @@ function oec_theme_setup_page() {
 			<li><?php esc_html_e( 'Görünüm → Düzenleyici bölümünden renkleri, üst menüyü, footerı ve tüm sabit metinleri değiştirebilirsiniz.', 'ozel-egitim-sohbet' ); ?></li>
 		</ol>
 
+		<h2><?php esc_html_e( 'Forum ↔ Tema bağlantısı', 'ozel-egitim-sohbet' ); ?></h2>
+		<?php oec_render_forum_binding_panel(); ?>
+
 		<h2><?php esc_html_e( 'Tema kısa kodları', 'ozel-egitim-sohbet' ); ?></h2>
 		<p><?php esc_html_e( 'Bu kısa kodları Düzenleyici içinde herhangi bir şablona ekleyebilirsiniz:', 'ozel-egitim-sohbet' ); ?></p>
 		<ul style="list-style:disc;margin-left:20px">
@@ -220,3 +223,94 @@ function oec_theme_missing_plugins_notice() {
 	);
 }
 add_action( 'admin_notices', 'oec_theme_missing_plugins_notice' );
+
+/**
+ * Live view of the wpForo forum tree exactly as the theme reads it.
+ *
+ * The point of this panel is to make the binding visible: what you see here
+ * is what the site's category rail shows, because both come from the same
+ * wpForo query. There is no second list to keep in step.
+ */
+function oec_render_forum_binding_panel() {
+	if ( ! oec_wpforo_active() || ! oec_wpforo_table( 'forums' ) ) {
+		?>
+		<p><?php esc_html_e( 'wpForo kurulduktan sonra forum kategorileriniz burada ve sitenin sol tarafındaki listede kendiliğinden görünür.', 'ozel-egitim-sohbet' ); ?></p>
+		<?php
+		return;
+	}
+
+	$tree = oec_get_forum_tree();
+	$qa   = oec_qa_layout_active();
+	?>
+	<p>
+		<?php esc_html_e( 'Sitedeki kategori listesi ayrı bir yerde tutulmaz; doğrudan aşağıdaki wpForo yapısından okunur. wpForo\'da kategori veya forum eklediğinizde, adını değiştirdiğinizde, sırasını değiştirdiğinizde ya da sildiğinizde site anında aynısını gösterir.', 'ozel-egitim-sohbet' ); ?>
+	</p>
+
+	<?php if ( false === $qa ) : ?>
+		<div class="notice notice-info inline" style="margin:12px 0;max-width:900px">
+			<p>
+				<strong><?php esc_html_e( 'Öneri:', 'ozel-egitim-sohbet' ); ?></strong>
+				<?php esc_html_e( 'Forumlarınız klasik düzende. wpForo → Forumlar bölümünde her forumu düzenleyip "Layout" ayarını Q&A yaparsanız soru–yanıt yapısı, oylama ve "en iyi yanıt" işaretlemesi açılır; ana sayfadaki "yararlı" ve "Çözüldü" göstergeleri de bu veriyle dolar.', 'ozel-egitim-sohbet' ); ?>
+			</p>
+		</div>
+	<?php endif; ?>
+
+	<?php if ( ! $tree ) : ?>
+		<p><em><?php esc_html_e( 'Henüz forum yok. wpForo → Forumlar bölümünden bir kategori ve altına en az bir forum ekleyin; boş kategoriler sitede görünmez.', 'ozel-egitim-sohbet' ); ?></em></p>
+	<?php else : ?>
+		<table class="widefat striped" style="max-width:900px">
+			<thead>
+				<tr>
+					<th><?php esc_html_e( 'Kategori / Forum', 'ozel-egitim-sohbet' ); ?></th>
+					<th style="width:110px"><?php esc_html_e( 'Konu', 'ozel-egitim-sohbet' ); ?></th>
+					<th style="width:130px"><?php esc_html_e( 'Düzen', 'ozel-egitim-sohbet' ); ?></th>
+					<th style="width:150px"><?php esc_html_e( 'Sitede', 'ozel-egitim-sohbet' ); ?></th>
+				</tr>
+			</thead>
+			<tbody>
+			<?php foreach ( $tree as $group ) : ?>
+				<?php if ( $group['title'] ) : ?>
+					<tr>
+						<td colspan="4" style="background:#f2f6f3"><strong><?php echo esc_html( $group['title'] ); ?></strong></td>
+					</tr>
+				<?php endif; ?>
+				<?php foreach ( $group['forums'] as $forum ) : ?>
+					<tr>
+						<td style="padding-left:24px"><?php echo esc_html( $forum['title'] ); ?></td>
+						<td><?php echo esc_html( number_format_i18n( $forum['topics'] ) ); ?></td>
+						<td><?php echo esc_html( oec_layout_label( $forum['layout'] ) ); ?></td>
+						<td>
+							<a href="<?php echo esc_url( home_url( '/?forum=' . $forum['forumid'] . '#konusmalar' ) ); ?>"><?php esc_html_e( 'Listede gör', 'ozel-egitim-sohbet' ); ?></a>
+						</td>
+					</tr>
+				<?php endforeach; ?>
+			<?php endforeach; ?>
+			</tbody>
+		</table>
+	<?php endif; ?>
+
+	<p>
+		<a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=wpforo-forums' ) ); ?>"><?php esc_html_e( 'wpForo → Forumlar', 'ozel-egitim-sohbet' ); ?></a>
+		<a class="button" href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'Siteyi görüntüle', 'ozel-egitim-sohbet' ); ?></a>
+	</p>
+	<?php
+}
+
+/**
+ * Human readable wpForo layout name.
+ *
+ * @param int $layout Layout id, or -1 when unknown.
+ * @return string
+ */
+function oec_layout_label( $layout ) {
+	$layouts = array(
+		0 => __( 'Genişletilmiş', 'ozel-egitim-sohbet' ),
+		1 => __( 'Sade', 'ozel-egitim-sohbet' ),
+		2 => __( 'İç içe', 'ozel-egitim-sohbet' ),
+		3 => __( 'Q&A', 'ozel-egitim-sohbet' ),
+	);
+
+	$layout = (int) $layout;
+
+	return isset( $layouts[ $layout ] ) ? $layouts[ $layout ] : '—';
+}

@@ -62,9 +62,11 @@ function oec_login_styles() {
 add_action( 'login_enqueue_scripts', 'oec_login_styles' );
 
 /**
- * Create the profile page once, when the theme is activated.
+ * Set up the pages the theme expects, once, when the theme is activated.
  */
 function oec_theme_after_switch() {
+	oec_assign_board_template();
+
 	if ( get_page_by_path( 'profilim' ) ) {
 		return;
 	}
@@ -81,6 +83,67 @@ function oec_theme_after_switch() {
 	);
 }
 add_action( 'after_switch_theme', 'oec_theme_after_switch' );
+
+/**
+ * Give the wpForo board page the theme's community layout, so the forum sits
+ * inside the same shell (category rail on the left, guidance on the right)
+ * instead of a bare content column.
+ *
+ * Only ever sets a template when the page has none, so a template you pick
+ * by hand is never overwritten.
+ */
+function oec_assign_board_template() {
+	$page = null;
+
+	if ( function_exists( 'wpforo_setting' ) ) {
+		$page_id = (int) wpforo_setting( 'general', 'pageid' );
+		if ( $page_id ) {
+			$page = get_post( $page_id );
+		}
+	}
+
+	if ( ! $page ) {
+		$page = get_page_by_path( 'community' );
+	}
+
+	if ( ! $page ) {
+		$found = get_posts(
+			array(
+				'post_type'      => 'page',
+				'post_status'    => 'publish',
+				's'              => '[wpforo',
+				'posts_per_page' => 1,
+			)
+		);
+		$page = $found ? $found[0] : null;
+	}
+
+	if ( ! $page || 'page' !== $page->post_type ) {
+		return;
+	}
+
+	if ( ! get_post_meta( $page->ID, '_wp_page_template', true ) ) {
+		update_post_meta( $page->ID, '_wp_page_template', 'page-topluluk' );
+	}
+}
+
+/**
+ * Run the board template assignment once wpForo exists, whichever was
+ * installed first — the theme or the plugin.
+ */
+function oec_maybe_assign_board_template() {
+	if ( ! is_admin() || ! oec_wpforo_active() ) {
+		return;
+	}
+
+	if ( get_option( 'oec_board_template_done' ) ) {
+		return;
+	}
+
+	oec_assign_board_template();
+	update_option( 'oec_board_template_done', 1, false );
+}
+add_action( 'admin_init', 'oec_maybe_assign_board_template' );
 
 /**
  * Sign in URL, preferring wpForo's own login screen.
@@ -133,17 +196,20 @@ function oec_profile_url() {
 }
 
 /**
- * Drop the cached board data whenever wpForo writes a topic or a post, so the
- * front page never lags behind the forum.
+ * Drop every cached read of the wpForo tables.
+ *
+ * The theme owns no copy of the forum structure, so "syncing" only means
+ * throwing this cache away; the next page load reads wpForo again.
  */
 function oec_flush_board_cache() {
 	global $wpdb;
 
+	delete_transient( 'oec_forum_rows' );
 	delete_transient( 'oec_stats' );
 
-	// Listing and forum caches are keyed by their filters, so clear them by
-	// prefix. Harmless no-op on installs with a persistent object cache,
-	// where the short expiry does the work instead.
+	// Listing caches are keyed by their filters, so clear them by prefix.
+	// Harmless no-op on installs with a persistent object cache, where the
+	// short expiry does the work instead.
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- targeted transient cleanup.
 	$wpdb->query(
 		$wpdb->prepare(
@@ -153,10 +219,64 @@ function oec_flush_board_cache() {
 		)
 	);
 }
-foreach ( array( 'wpforo_after_add_topic', 'wpforo_after_add_post', 'wpforo_after_delete_topic', 'wpforo_after_delete_post' ) as $oec_hook ) {
-	add_action( $oec_hook, 'oec_flush_board_cache' );
+
+/**
+ * Keep the theme in step with wpForo.
+ *
+ * Adding, editing, reordering or deleting a category or forum in wpForo, and
+ * every new topic or reply, invalidates the theme's cache straight away.
+ * wpForo has renamed some of these actions across versions, so the list is
+ * deliberately generous — an action that does not exist simply never fires,
+ * and the short cache lifetime covers anything the hooks miss.
+ */
+function oec_register_sync_hooks() {
+	$hooks = array(
+		// Categories and forums.
+		'wpforo_after_add_forum',
+		'wpforo_after_edit_forum',
+		'wpforo_after_delete_forum',
+		'wpforo_after_forum_add',
+		'wpforo_after_forum_edit',
+		'wpforo_after_forum_delete',
+		'wpforo_after_save_forum',
+		'wpforo_forum_rebuild',
+		'wpforo_after_rebuild_forums',
+		'wpforo_reset_forums_cache',
+		// Topics and posts, which move the counters.
+		'wpforo_after_add_topic',
+		'wpforo_after_edit_topic',
+		'wpforo_after_delete_topic',
+		'wpforo_after_move_topic',
+		'wpforo_after_add_post',
+		'wpforo_after_edit_post',
+		'wpforo_after_delete_post',
+		'wpforo_after_approve_topic',
+		'wpforo_after_approve_post',
+	);
+
+	foreach ( $hooks as $hook ) {
+		add_action( $hook, 'oec_flush_board_cache', 20 );
+	}
 }
-unset( $oec_hook );
+add_action( 'init', 'oec_register_sync_hooks', 5 );
+
+/**
+ * An administrator who just saved something on a wpForo admin screen should
+ * see the change on the site immediately, whichever hook wpForo fired.
+ */
+function oec_flush_cache_in_wpforo_admin() {
+	if ( ! is_admin() || ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- reading the admin screen name only.
+	$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+
+	if ( 0 === strpos( $page, 'wpforo' ) ) {
+		oec_flush_board_cache();
+	}
+}
+add_action( 'admin_init', 'oec_flush_cache_in_wpforo_admin' );
 
 /**
  * The community board needs the full width of the shell, so opt the wpForo

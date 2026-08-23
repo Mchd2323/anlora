@@ -82,7 +82,11 @@ function oec_shortcode_privacy_warning() {
 }
 
 /**
- * Topic rail: wpForo forums with their topic counts.
+ * Category rail, rendered straight from the wpForo forum tree.
+ *
+ * The theme keeps no forum list of its own: categories, forums, their order
+ * and their topic counts all come from wpForo, so adding, renaming,
+ * reordering or deleting a forum there changes this rail too.
  *
  * @param array $atts Shortcode attributes.
  * @return string
@@ -90,49 +94,130 @@ function oec_shortcode_privacy_warning() {
 function oec_shortcode_topics( $atts = array() ) {
 	$atts = shortcode_atts(
 		array(
-			'limit' => 8,
+			'limit'      => 0,
+			'show_empty' => 'yes',
 		),
 		$atts,
 		'oec_topics'
 	);
 
-	$forums  = oec_get_forums( (int) $atts['limit'] );
+	$tree    = oec_get_forum_tree();
 	$current = isset( $_GET['forum'] ) ? (int) $_GET['forum'] : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only listing filter.
+	$hide    = ( 'no' === $atts['show_empty'] );
+	$limit   = (int) $atts['limit'];
 
-	$html = '<nav class="oec-topic-list" aria-label="' . esc_attr__( 'Topluluk konuları', 'ozel-egitim-sohbet' ) . '">';
+	if ( ! $tree ) {
+		return oec_forum_rail_placeholder();
+	}
 
-	if ( ! $forums ) {
-		// wpForo is missing or has no forums yet: link to the board so the
-		// rail never becomes a dead end.
-		$html .= '<a href="' . esc_url( oec_board_url() ) . '"><span>' . esc_html__( 'Tüm sorular', 'ozel-egitim-sohbet' ) . '</span><b aria-hidden="true">&rarr;</b></a>';
-		$html .= '</nav>';
+	$html  = '<nav class="oec-forum-nav" aria-label="' . esc_attr__( 'Forum kategorileri', 'ozel-egitim-sohbet' ) . '">';
+	$html .= oec_forum_rail_item(
+		array(
+			'label'  => __( 'Tümü', 'ozel-egitim-sohbet' ),
+			'count'  => oec_get_forum_topic_total(),
+			'url'    => oec_topics_filter_url( array( 'forum' => 0 ) ),
+			'active' => ( 0 === $current ),
+			'class'  => 'oec-forum-item--all',
+		)
+	);
 
-		if ( current_user_can( 'manage_options' ) ) {
-			$html .= '<p class="oec-hint">' . esc_html__( 'Konu başlıkları wpForo forumlarından gelir. wpForo → Forumlar bölümünden kategori ve forum ekleyin.', 'ozel-egitim-sohbet' ) . '</p>';
+	$shown = 0;
+	foreach ( $tree as $group ) {
+		$items = '';
+
+		foreach ( $group['forums'] as $forum ) {
+			if ( $hide && $forum['topics'] < 1 ) {
+				continue;
+			}
+			if ( $limit > 0 && $shown >= $limit ) {
+				break 2;
+			}
+
+			$items .= oec_forum_rail_item(
+				array(
+					'label'  => $forum['title'],
+					'count'  => $forum['topics'],
+					'url'    => oec_topics_filter_url( array( 'forum' => $forum['forumid'] ) ),
+					'active' => ( $current === $forum['forumid'] ),
+				)
+			);
+			$shown++;
 		}
 
-		return $html;
-	}
+		if ( '' === $items ) {
+			continue;
+		}
 
-	$total = 0;
-	foreach ( $forums as $forum ) {
-		$total += $forum['topics'];
-	}
-
-	$all_class = $current ? '' : ' class="is-active"';
-	$html     .= '<a' . $all_class . ' href="' . esc_url( oec_topics_filter_url( array( 'forum' => 0 ) ) ) . '"><span>' . esc_html__( 'Tümü', 'ozel-egitim-sohbet' ) . '</span><b>' . esc_html( number_format_i18n( $total ) ) . '</b></a>';
-
-	foreach ( $forums as $forum ) {
-		$class = ( $current === $forum['forumid'] ) ? ' class="is-active"' : '';
-		$html .= '<a' . $class . ' href="' . esc_url( oec_topics_filter_url( array( 'forum' => $forum['forumid'] ) ) ) . '">';
-		$html .= '<span>' . esc_html( $forum['title'] ) . '</span>';
-		$html .= '<b>' . esc_html( number_format_i18n( $forum['topics'] ) ) . '</b>';
-		$html .= '</a>';
+		$html .= '<div class="oec-forum-group">';
+		if ( $group['title'] ) {
+			$html .= '<p class="oec-forum-cat"><a href="' . esc_url( oec_forum_url( $group ) ) . '">' . esc_html( $group['title'] ) . '</a></p>';
+		}
+		$html .= $items;
+		$html .= '</div>';
 	}
 
 	$html .= '</nav>';
+	$html .= oec_forum_rail_admin_link();
 
 	return $html;
+}
+
+/**
+ * One rail row.
+ *
+ * @param array $args label, count, url, active, class.
+ * @return string
+ */
+function oec_forum_rail_item( $args ) {
+	$class = 'oec-forum-item';
+	if ( ! empty( $args['class'] ) ) {
+		$class .= ' ' . $args['class'];
+	}
+	if ( ! empty( $args['active'] ) ) {
+		$class .= ' is-active';
+	}
+
+	$html  = '<a class="' . esc_attr( $class ) . '" href="' . esc_url( $args['url'] ) . '"';
+	$html .= ! empty( $args['active'] ) ? ' aria-current="true"' : '';
+	$html .= '><span>' . esc_html( $args['label'] ) . '</span>';
+	$html .= '<b>' . esc_html( number_format_i18n( (int) $args['count'] ) ) . '</b></a>';
+
+	return $html;
+}
+
+/**
+ * Rail fallback when wpForo has no forums yet.
+ *
+ * @return string
+ */
+function oec_forum_rail_placeholder() {
+	$html  = '<nav class="oec-forum-nav" aria-label="' . esc_attr__( 'Forum kategorileri', 'ozel-egitim-sohbet' ) . '">';
+	$html .= '<a class="oec-forum-item" href="' . esc_url( oec_board_url() ) . '"><span>' . esc_html__( 'Tüm sorular', 'ozel-egitim-sohbet' ) . '</span><b aria-hidden="true">&rarr;</b></a>';
+	$html .= '</nav>';
+
+	if ( current_user_can( 'manage_options' ) ) {
+		$html .= '<p class="oec-hint">' . esc_html__( 'Bu liste doğrudan wpForo forumlarından gelir. Henüz forum yok.', 'ozel-egitim-sohbet' ) . '</p>';
+		$html .= oec_forum_rail_admin_link( __( 'Forum ekle', 'ozel-egitim-sohbet' ) );
+	}
+
+	return $html;
+}
+
+/**
+ * Link that takes an administrator from the rail to the wpForo screen where
+ * these categories are actually managed.
+ *
+ * @param string $label Optional link label.
+ * @return string
+ */
+function oec_forum_rail_admin_link( $label = '' ) {
+	if ( ! current_user_can( 'manage_options' ) || ! oec_wpforo_active() ) {
+		return '';
+	}
+
+	$label = $label ? $label : __( 'Kategorileri düzenle', 'ozel-egitim-sohbet' );
+
+	return '<p class="oec-forum-admin"><a href="' . esc_url( admin_url( 'admin.php?page=wpforo-forums' ) ) . '">' . esc_html( $label ) . ' &rarr;</a></p>';
 }
 
 /**
@@ -353,9 +438,9 @@ function oec_render_thread_card( $topic ) {
 	}
 
 	$html .= '<div class="oec-thread-foot">';
-	if ( $topic['likes'] > 0 ) {
-		/* translators: %s: number of likes. */
-		$html .= '<span class="oec-thread-stat">' . oec_icon( 'heart' ) . esc_html( sprintf( _n( '%s yararlı', '%s yararlı', $topic['likes'], 'ozel-egitim-sohbet' ), number_format_i18n( $topic['likes'] ) ) ) . '</span>';
+	if ( $topic['votes'] > 0 ) {
+		/* translators: %s: number of helpful votes. */
+		$html .= '<span class="oec-thread-stat">' . oec_icon( 'heart' ) . esc_html( sprintf( _n( '%s yararlı', '%s yararlı', $topic['votes'], 'ozel-egitim-sohbet' ), number_format_i18n( $topic['votes'] ) ) ) . '</span>';
 	}
 	/* translators: %s: number of replies. */
 	$html .= '<span class="oec-thread-stat">' . oec_icon( 'reply' ) . esc_html( sprintf( _n( '%s yanıt', '%s yanıt', $topic['answers'], 'ozel-egitim-sohbet' ), number_format_i18n( $topic['answers'] ) ) ) . '</span>';
