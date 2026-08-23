@@ -11,6 +11,9 @@ coverage/
 __pycache__/
 *.pyc
 
-# Sunucu tarafı yerel veri (kullanıcı hesapları ve bulut yedekleri)
-data/
+# Sunucu tarafı yerel veri (kullanıcı hesapları ve bulut yedekleri).
+# Kök ile sınırlıdır: server.ts yalnızca <kök>/data altına yazar. Başında
+# eğik çizgi olmadan bu desen src/data/ altındaki Oxford veri kümesini de
+# yoksayıyordu.
+/data/
 src/data/custom_cards_cloud.json

@@ -1,0 +1,802 @@
+{
+  "went": {
+    "base": "go",
+    "type": "past form of go"
+  },
+  "gone": {
+    "base": "go",
+    "type": "past participle of go"
+  },
+  "goes": {
+    "base": "go",
+    "type": "3rd person singular of go"
+  },
+  "came": {
+    "base": "come",
+    "type": "past form of come"
+  },
+  "comes": {
+    "base": "come",
+    "type": "3rd person singular of come"
+  },
+  "saw": {
+    "base": "see",
+    "type": "past form of see"
+  },
+  "seen": {
+    "base": "see",
+    "type": "past participle of see"
+  },
+  "took": {
+    "base": "take",
+    "type": "past form of take"
+  },
+  "taken": {
+    "base": "take",
+    "type": "past participle of take"
+  },
+  "got": {
+    "base": "get",
+    "type": "past form of get"
+  },
+  "gotten": {
+    "base": "get",
+    "type": "past participle of get"
+  },
+  "made": {
+    "base": "make",
+    "type": "past form of make"
+  },
+  "knew": {
+    "base": "know",
+    "type": "past form of know"
+  },
+  "known": {
+    "base": "know",
+    "type": "past participle of know"
+  },
+  "thought": {
+    "base": "think",
+    "type": "past form of think"
+  },
+  "bought": {
+    "base": "buy",
+    "type": "past form of buy"
+  },
+  "brought": {
+    "base": "bring",
+    "type": "past form of bring"
+  },
+  "caught": {
+    "base": "catch",
+    "type": "past form of catch"
+  },
+  "taught": {
+    "base": "teach",
+    "type": "past form of teach"
+  },
+  "felt": {
+    "base": "feel",
+    "type": "past form of feel"
+  },
+  "found": {
+    "base": "find",
+    "type": "past form of find"
+  },
+  "gave": {
+    "base": "give",
+    "type": "past form of give"
+  },
+  "given": {
+    "base": "give",
+    "type": "past participle of give"
+  },
+  "told": {
+    "base": "tell",
+    "type": "past form of tell"
+  },
+  "became": {
+    "base": "become",
+    "type": "past form of become"
+  },
+  "began": {
+    "base": "begin",
+    "type": "past form of begin"
+  },
+  "begun": {
+    "base": "begin",
+    "type": "past participle of begin"
+  },
+  "wrote": {
+    "base": "write",
+    "type": "past form of write"
+  },
+  "written": {
+    "base": "write",
+    "type": "past participle of write"
+  },
+  "spoke": {
+    "base": "speak",
+    "type": "past form of speak"
+  },
+  "spoken": {
+    "base": "speak",
+    "type": "past participle of speak"
+  },
+  "chose": {
+    "base": "choose",
+    "type": "past form of choose"
+  },
+  "chosen": {
+    "base": "choose",
+    "type": "past participle of choose"
+  },
+  "drank": {
+    "base": "drink",
+    "type": "past form of drink"
+  },
+  "drunk": {
+    "base": "drink",
+    "type": "past participle of drink"
+  },
+  "drove": {
+    "base": "drive",
+    "type": "past form of drive"
+  },
+  "driven": {
+    "base": "drive",
+    "type": "past participle of drive"
+  },
+  "ate": {
+    "base": "eat",
+    "type": "past form of eat"
+  },
+  "eaten": {
+    "base": "eat",
+    "type": "past participle of eat"
+  },
+  "fell": {
+    "base": "fall",
+    "type": "past form of fall"
+  },
+  "fallen": {
+    "base": "fall",
+    "type": "past participle of fall"
+  },
+  "flew": {
+    "base": "fly",
+    "type": "past form of fly"
+  },
+  "flown": {
+    "base": "fly",
+    "type": "past participle of fly"
+  },
+  "forgot": {
+    "base": "forget",
+    "type": "past form of forget"
+  },
+  "forgotten": {
+    "base": "forget",
+    "type": "past participle of forget"
+  },
+  "grew": {
+    "base": "grow",
+    "type": "past form of grow"
+  },
+  "grown": {
+    "base": "grow",
+    "type": "past participle of grow"
+  },
+  "heard": {
+    "base": "hear",
+    "type": "past form of hear"
+  },
+  "kept": {
+    "base": "keep",
+    "type": "past form of keep"
+  },
+  "left": {
+    "base": "leave",
+    "type": "past form of leave"
+  },
+  "lost": {
+    "base": "lose",
+    "type": "past form of lose"
+  },
+  "met": {
+    "base": "meet",
+    "type": "past form of meet"
+  },
+  "paid": {
+    "base": "pay",
+    "type": "past form of pay"
+  },
+  "ran": {
+    "base": "run",
+    "type": "past form of run"
+  },
+  "said": {
+    "base": "say",
+    "type": "past form of say"
+  },
+  "sold": {
+    "base": "sell",
+    "type": "past form of sell"
+  },
+  "sent": {
+    "base": "send",
+    "type": "past form of send"
+  },
+  "sat": {
+    "base": "sit",
+    "type": "past form of sit"
+  },
+  "slept": {
+    "base": "sleep",
+    "type": "past form of sleep"
+  },
+  "stood": {
+    "base": "stand",
+    "type": "past form of stand"
+  },
+  "swam": {
+    "base": "swim",
+    "type": "past form of swim"
+  },
+  "swum": {
+    "base": "swim",
+    "type": "past participle of swim"
+  },
+  "understood": {
+    "base": "understand",
+    "type": "past form of understand"
+  },
+  "woke": {
+    "base": "wake",
+    "type": "past form of wake"
+  },
+  "woken": {
+    "base": "wake",
+    "type": "past participle of wake"
+  },
+  "wore": {
+    "base": "wear",
+    "type": "past form of wear"
+  },
+  "worn": {
+    "base": "wear",
+    "type": "past participle of wear"
+  },
+  "won": {
+    "base": "win",
+    "type": "past form of win"
+  },
+  "children": {
+    "base": "child",
+    "type": "plural of child"
+  },
+  "people": {
+    "base": "person",
+    "type": "plural of person"
+  },
+  "men": {
+    "base": "man",
+    "type": "plural of man"
+  },
+  "women": {
+    "base": "woman",
+    "type": "plural of woman"
+  },
+  "teeth": {
+    "base": "tooth",
+    "type": "plural of tooth"
+  },
+  "feet": {
+    "base": "foot",
+    "type": "plural of foot"
+  },
+  "mice": {
+    "base": "mouse",
+    "type": "plural of mouse"
+  },
+  "geese": {
+    "base": "goose",
+    "type": "plural of goose"
+  },
+  "lives": {
+    "base": "life",
+    "type": "plural of life"
+  },
+  "knives": {
+    "base": "knife",
+    "type": "plural of knife"
+  },
+  "halves": {
+    "base": "half",
+    "type": "plural of half"
+  },
+  "leaves": {
+    "base": "leaf",
+    "type": "plural of leaf"
+  },
+  "is": {
+    "base": "be",
+    "type": "3rd person singular of be"
+  },
+  "am": {
+    "base": "be",
+    "type": "1st person singular of be"
+  },
+  "are": {
+    "base": "be",
+    "type": "present plural of be"
+  },
+  "was": {
+    "base": "be",
+    "type": "past singular of be"
+  },
+  "were": {
+    "base": "be",
+    "type": "past plural of be"
+  },
+  "being": {
+    "base": "be",
+    "type": "present participle of be"
+  },
+  "has": {
+    "base": "have",
+    "type": "3rd person singular of have"
+  },
+  "had": {
+    "base": "have",
+    "type": "past form of have"
+  },
+  "having": {
+    "base": "have",
+    "type": "present participle of have"
+  },
+  "does": {
+    "base": "do",
+    "type": "3rd person singular of do"
+  },
+  "doing": {
+    "base": "do",
+    "type": "present participle of do"
+  },
+  "done": {
+    "base": "do",
+    "type": "past participle of do"
+  },
+  "sprang": {
+    "base": "spring",
+    "type": "past form of spring"
+  },
+  "sprung": {
+    "base": "spring",
+    "type": "past participle of spring"
+  },
+  "bore": {
+    "base": "bear",
+    "type": "past form of bear"
+  },
+  "borne": {
+    "base": "bear",
+    "type": "past participle of bear"
+  },
+  "mistook": {
+    "base": "mistake",
+    "type": "past form of mistake"
+  },
+  "mistaken": {
+    "base": "mistake",
+    "type": "past participle of mistake"
+  },
+  "tore": {
+    "base": "tear",
+    "type": "past form of tear"
+  },
+  "torn": {
+    "base": "tear",
+    "type": "past participle of tear"
+  },
+  "wound": {
+    "base": "wind",
+    "type": "past form of wind"
+  },
+  "built": {
+    "base": "build",
+    "type": "past form of build"
+  },
+  "burnt": {
+    "base": "burn",
+    "type": "past form of burn"
+  },
+  "bent": {
+    "base": "bend",
+    "type": "past form of bend"
+  },
+  "bit": {
+    "base": "bite",
+    "type": "past form of bite"
+  },
+  "bitten": {
+    "base": "bite",
+    "type": "past participle of bite"
+  },
+  "blew": {
+    "base": "blow",
+    "type": "past form of blow"
+  },
+  "blown": {
+    "base": "blow",
+    "type": "past participle of blow"
+  },
+  "broke": {
+    "base": "break",
+    "type": "past form of break"
+  },
+  "broken": {
+    "base": "break",
+    "type": "past participle of break"
+  },
+  "cut": {
+    "base": "cut",
+    "type": "past form of cut"
+  },
+  "dealt": {
+    "base": "deal",
+    "type": "past form of deal"
+  },
+  "drew": {
+    "base": "draw",
+    "type": "past form of draw"
+  },
+  "drawn": {
+    "base": "draw",
+    "type": "past participle of draw"
+  },
+  "fought": {
+    "base": "fight",
+    "type": "past form of fight"
+  },
+  "fed": {
+    "base": "feed",
+    "type": "past form of feed"
+  },
+  "froze": {
+    "base": "freeze",
+    "type": "past form of freeze"
+  },
+  "frozen": {
+    "base": "freeze",
+    "type": "past participle of freeze"
+  },
+  "hid": {
+    "base": "hide",
+    "type": "past form of hide"
+  },
+  "hidden": {
+    "base": "hide",
+    "type": "past participle of hide"
+  },
+  "held": {
+    "base": "hold",
+    "type": "past form of hold"
+  },
+  "hung": {
+    "base": "hang",
+    "type": "past form of hang"
+  },
+  "hurt": {
+    "base": "hurt",
+    "type": "past form of hurt"
+  },
+  "laid": {
+    "base": "lay",
+    "type": "past form of lay"
+  },
+  "led": {
+    "base": "lead",
+    "type": "past form of lead"
+  },
+  "lent": {
+    "base": "lend",
+    "type": "past form of lend"
+  },
+  "lay": {
+    "base": "lie",
+    "type": "past form of lie"
+  },
+  "lain": {
+    "base": "lie",
+    "type": "past participle of lie"
+  },
+  "lit": {
+    "base": "light",
+    "type": "past form of light"
+  },
+  "meant": {
+    "base": "mean",
+    "type": "past form of mean"
+  },
+  "rode": {
+    "base": "ride",
+    "type": "past form of ride"
+  },
+  "ridden": {
+    "base": "ride",
+    "type": "past participle of ride"
+  },
+  "rang": {
+    "base": "ring",
+    "type": "past form of ring"
+  },
+  "rung": {
+    "base": "ring",
+    "type": "past participle of ring"
+  },
+  "rose": {
+    "base": "rise",
+    "type": "past form of rise"
+  },
+  "risen": {
+    "base": "rise",
+    "type": "past participle of rise"
+  },
+  "shot": {
+    "base": "shoot",
+    "type": "past form of shoot"
+  },
+  "shone": {
+    "base": "shine",
+    "type": "past form of shine"
+  },
+  "shook": {
+    "base": "shake",
+    "type": "past form of shake"
+  },
+  "shaken": {
+    "base": "shake",
+    "type": "past participle of shake"
+  },
+  "sang": {
+    "base": "sing",
+    "type": "past form of sing"
+  },
+  "sung": {
+    "base": "sing",
+    "type": "past participle of sing"
+  },
+  "sank": {
+    "base": "sink",
+    "type": "past form of sink"
+  },
+  "spent": {
+    "base": "spend",
+    "type": "past form of spend"
+  },
+  "spread": {
+    "base": "spread",
+    "type": "past form of spread"
+  },
+  "stole": {
+    "base": "steal",
+    "type": "past form of steal"
+  },
+  "stolen": {
+    "base": "steal",
+    "type": "past participle of steal"
+  },
+  "struck": {
+    "base": "strike",
+    "type": "past form of strike"
+  },
+  "swept": {
+    "base": "sweep",
+    "type": "past form of sweep"
+  },
+  "threw": {
+    "base": "throw",
+    "type": "past form of throw"
+  },
+  "thrown": {
+    "base": "throw",
+    "type": "past participle of throw"
+  },
+  "wept": {
+    "base": "weep",
+    "type": "past form of weep"
+  },
+  "better": {
+    "base": "good",
+    "type": "comparative of good / well"
+  },
+  "best": {
+    "base": "good",
+    "type": "superlative of good / well"
+  },
+  "worse": {
+    "base": "bad",
+    "type": "comparative of bad"
+  },
+  "worst": {
+    "base": "bad",
+    "type": "superlative of bad"
+  },
+  "farther": {
+    "base": "far",
+    "type": "comparative of far"
+  },
+  "further": {
+    "base": "far",
+    "type": "comparative of far"
+  },
+  "farthest": {
+    "base": "far",
+    "type": "superlative of far"
+  },
+  "furthest": {
+    "base": "far",
+    "type": "superlative of far"
+  },
+  "less": {
+    "base": "little",
+    "type": "comparative of little"
+  },
+  "least": {
+    "base": "little",
+    "type": "superlative of little"
+  },
+  "more": {
+    "base": "much",
+    "type": "comparative of much / many"
+  },
+  "most": {
+    "base": "much",
+    "type": "superlative of much / many"
+  },
+  "overcame": {
+    "base": "overcome",
+    "type": "past form of overcome"
+  },
+  "undertook": {
+    "base": "undertake",
+    "type": "past form of undertake"
+  },
+  "undertaken": {
+    "base": "undertake",
+    "type": "past participle of undertake"
+  },
+  "withdrew": {
+    "base": "withdraw",
+    "type": "past form of withdraw"
+  },
+  "withdrawn": {
+    "base": "withdraw",
+    "type": "past participle of withdraw"
+  },
+  "foresaw": {
+    "base": "foresee",
+    "type": "past form of foresee"
+  },
+  "foreseen": {
+    "base": "foresee",
+    "type": "past participle of foresee"
+  },
+  "arose": {
+    "base": "arise",
+    "type": "past form of arise"
+  },
+  "arisen": {
+    "base": "arise",
+    "type": "past participle of arise"
+  },
+  "sought": {
+    "base": "seek",
+    "type": "past form of seek"
+  },
+  "dug": {
+    "base": "dig",
+    "type": "past form of dig"
+  },
+  "sworn": {
+    "base": "swear",
+    "type": "past participle of swear"
+  },
+  "swore": {
+    "base": "swear",
+    "type": "past form of swear"
+  },
+  "did": {
+    "base": "do",
+    "type": "past form of do"
+  },
+  "been": {
+    "base": "be",
+    "type": "past participle of be"
+  },
+  "gentlemen": {
+    "base": "gentleman",
+    "type": "plural of gentleman"
+  },
+  "businessmen": {
+    "base": "businessman",
+    "type": "plural of businessman"
+  },
+  "stuck": {
+    "base": "stick",
+    "type": "past form of stick"
+  },
+  "forgave": {
+    "base": "forgive",
+    "type": "past form of forgive"
+  },
+  "forgiven": {
+    "base": "forgive",
+    "type": "past participle of forgive"
+  },
+  "sped": {
+    "base": "speed",
+    "type": "past form of speed"
+  },
+  "bound": {
+    "base": "bind",
+    "type": "past form of bind"
+  },
+  "bled": {
+    "base": "bleed",
+    "type": "past form of bleed"
+  },
+  "clung": {
+    "base": "cling",
+    "type": "past form of cling"
+  },
+  "crept": {
+    "base": "creep",
+    "type": "past form of creep"
+  },
+  "oversaw": {
+    "base": "oversee",
+    "type": "past form of oversee"
+  },
+  "overseen": {
+    "base": "oversee",
+    "type": "past participle of oversee"
+  },
+  "shrank": {
+    "base": "shrink",
+    "type": "past form of shrink"
+  },
+  "shrunk": {
+    "base": "shrink",
+    "type": "past participle of shrink"
+  },
+  "spun": {
+    "base": "spin",
+    "type": "past form of spin"
+  },
+  "strove": {
+    "base": "strive",
+    "type": "past form of strive"
+  },
+  "striven": {
+    "base": "strive",
+    "type": "past participle of strive"
+  },
+  "swung": {
+    "base": "swing",
+    "type": "past form of swing"
+  },
+  "upheld": {
+    "base": "uphold",
+    "type": "past form of uphold"
+  },
+  "wove": {
+    "base": "weave",
+    "type": "past form of weave"
+  },
+  "woven": {
+    "base": "weave",
+    "type": "past participle of weave"
+  }
+}
