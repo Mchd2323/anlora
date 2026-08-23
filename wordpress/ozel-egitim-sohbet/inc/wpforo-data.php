@@ -203,26 +203,68 @@ function oec_get_forum_rows() {
 		return $rows;
 	}
 
-	$where = array();
+	// wpForo does not mean the same thing by `status` and `private` in every
+	// version — on some installs a visible forum carries status = 1. Filtering
+	// blindly would empty the category rail while forums plainly exist, so
+	// try the strictest query first and relax it until rows come back.
+	$optional = array();
 	if ( oec_wpforo_has_column( 'forums', 'private' ) ) {
-		$where[] = 'private = 0';
+		$optional[] = 'private = 0';
 	}
 	if ( oec_wpforo_has_column( 'forums', 'status' ) ) {
-		$where[] = 'status = 0';
+		$optional[] = 'status = 0';
 	}
-	$where_sql = $where ? 'WHERE ' . implode( ' AND ', $where ) : '';
 
 	$order = oec_wpforo_has_column( 'forums', 'orderid' ) ? 'orderid ASC, forumid ASC' : 'forumid ASC';
 
-	// phpcs:ignore WordPress.DB.PreparedSQL -- whitelisted table, generated clauses.
-	$rows = $wpdb->get_results( "SELECT * FROM `{$table}` {$where_sql} ORDER BY {$order}", ARRAY_A );
-	$rows = is_array( $rows ) ? $rows : array();
+	$rows    = array();
+	$applied = array();
+
+	for ( $depth = count( $optional ); $depth >= 0; $depth-- ) {
+		$where     = array_slice( $optional, 0, $depth );
+		$where_sql = $where ? 'WHERE ' . implode( ' AND ', $where ) : '';
+
+		// phpcs:ignore WordPress.DB.PreparedSQL -- whitelisted table, generated clauses.
+		$found = $wpdb->get_results( "SELECT * FROM `{$table}` {$where_sql} ORDER BY {$order}", ARRAY_A );
+
+		if ( is_array( $found ) && $found ) {
+			$rows    = $found;
+			$applied = $where;
+			break;
+		}
+	}
+
+	oec_forum_diagnostics(
+		array(
+			'table'    => $table,
+			'optional' => $optional,
+			'applied'  => $applied,
+			'rows'     => count( $rows ),
+		)
+	);
 
 	// Short lifetime so the rail follows wpForo even if a CRUD hook name
-	// changes between wpForo versions; the hooks below usually beat it.
+	// changes between wpForo versions; the hooks usually beat it.
 	set_transient( 'oec_forum_rows', $rows, MINUTE_IN_SECONDS );
 
 	return $rows;
+}
+
+/**
+ * Remember what the last forum query actually did, so the admin screen can
+ * show why the rail looks the way it does instead of leaving you guessing.
+ *
+ * @param array|null $set Values to store, or null to read them back.
+ * @return array
+ */
+function oec_forum_diagnostics( $set = null ) {
+	static $data = array();
+
+	if ( is_array( $set ) ) {
+		$data = $set;
+	}
+
+	return $data;
 }
 
 /**
@@ -242,6 +284,20 @@ function oec_get_forum_tree() {
 	$categories = array();
 	$forums     = array();
 
+	// Which rows are containers? Prefer wpForo's own is_cat flag; if that
+	// column is missing, infer it — a row that other rows point at with
+	// parentid is a category.
+	$has_is_cat = oec_wpforo_has_column( 'forums', 'is_cat' );
+	$parents    = array();
+	if ( ! $has_is_cat ) {
+		foreach ( $rows as $row ) {
+			$parent = isset( $row['parentid'] ) ? (int) $row['parentid'] : 0;
+			if ( $parent ) {
+				$parents[ $parent ] = true;
+			}
+		}
+	}
+
 	foreach ( $rows as $row ) {
 		$id = isset( $row['forumid'] ) ? (int) $row['forumid'] : 0;
 		if ( ! $id ) {
@@ -258,7 +314,9 @@ function oec_get_forum_tree() {
 			'layout'   => isset( $row['layout'] ) ? (int) $row['layout'] : -1,
 		);
 
-		if ( ! empty( $row['is_cat'] ) ) {
+		$is_category = $has_is_cat ? ! empty( $row['is_cat'] ) : isset( $parents[ $id ] );
+
+		if ( $is_category ) {
 			$item['forums']       = array();
 			$item['count']        = 0;
 			$categories[ $id ]    = $item;

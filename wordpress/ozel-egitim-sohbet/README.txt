@@ -1,4 +1,4 @@
-ÖZEL EĞİTİM SOHBET — WORDPRESS BLOK TEMASI 1.2.0
+ÖZEL EĞİTİM SOHBET — WORDPRESS BLOK TEMASI 1.3.0
 ================================================
 
 Özel eğitim öğretmenleri ve ebeveynlerinin soru, deneyim ve çözüm paylaştığı
@@ -43,6 +43,10 @@ sürece yönetim panelinde uyarı görünür.
    Console'dan aldığınız istemci kimliği ile gizli anahtarı girin.
 6. Görünüm > Düzenleyici: renkler, üst menü, ana sayfa metinleri, sağ-sol
    kartlar ve footer buradan değiştirilir.
+7. İsteğe bağlı: wpForo'nun kendi kenar çubuğu (Ara / Recent Posts / Recent
+   Comments) temanın kendi kartlarıyla işlevi çakışır. wpForo > Ayarlar >
+   Forum Kenar Çubuğu bölümünden kapatırsanız pano daha ferah görünür.
+   Açık bırakırsanız da sorun olmaz; dar ekranlarda panonun altına iner.
 
 
 FORUM İLE BAĞLANTI
@@ -85,18 +89,34 @@ rozeti ise en iyi yanıt işaretinden gelir. Klasik düzende de tema çalışır
 o zaman bu göstergeler beğeni sayısına düşer veya hiç görünmez.
 
 
+SAYFA DÜZENİ
+------------
+Ana sayfa ve forum sayfası aynı iskeleti kullanır:
+
+  Manşet (yalnızca ana sayfada)
+  ├─ Mahremiyet uyarısı            │  Daha iyi yanıt için
+  └─ Sol sütun                     │  Forum / konuşma listesi
+       Konular (kategoriler)       │
+       Önemli not                  │
+       Bugün toplulukta            │
+       Önce anlayalım              │
+
+Forum tek geniş sütunda durur; yanında yalnızca bir dar sütun vardır, bu
+yüzden pano sıkışmaz.
+
+
 EKRAN BOYUTLARI
 ---------------
-  Masaüstü (1280 px ve üzeri)   Üç sütun: kategoriler | konuşmalar | kartlar
-  Küçük masaüstü (1024-1279)    İki sütun; sağdaki kartlar listenin altına
-                                iner ve yan yana dizilir
-  Tablet (768-1023)             Tek sütun; kategoriler yatay kaydırılan
-                                sekme şeridine dönüşür
+  Masaüstü (1024 px ve üzeri)   İki sütun: sol sütun | forum
+  Tablet (768-1023)             Tek sütun. Konular üstte yatay kaydırılan
+                                sekme şeridi, hemen altında forum, kalan
+                                kartlar forumun altında ikişerli
   Mobil (768 px altı)           Tek sütun; menü hamburger olur
   Dar mobil (560 px altı)       Üst menü iki satıra bölünür
 
 Hiçbir boyutta içerik gizlenmez, yalnızca yer değiştirir. 345-1425 px
-aralığında yatay kaydırma oluşmadığı tarayıcıda ölçülerek doğrulandı.
+aralığında, hem ana sayfada hem forum sayfasında yatay kaydırma oluşmadığı
+tarayıcıda ölçülerek doğrulandı.
 
 
 TEMA KISA KODLARI
@@ -169,6 +189,33 @@ TEKNİK NOTLAR
 
 SÜRÜM NOTLARI
 -------------
+1.3.0
+- Sayfa düzeni tek sol sütuna indirildi: sağdaki sütun kaldırıldı, kartları
+  sola alındı. Sıra: Konular, Önemli not, Bugün toplulukta, Önce anlayalım.
+- "Daha iyi yanıt için" kartı manşetin altına, mahremiyet uyarısının sağına
+  taşındı. Bu ikili hem ana sayfada hem forum sayfasında görünür.
+- Forum artık tek geniş sütunda; yanında yalnızca bir dar sütun olduğu için
+  pano sıkışmıyor.
+- Ana sayfa listesi 6 yerine 8 konuşma gösteriyor (sütun genişlediği için).
+- Tabletde Konular şeridi ve forum üstte kalıyor, diğer kartlar forumun
+  altına ikişerli diziliyor.
+
+1.2.1
+- HATA: Kategori listesi, forumlar var olduğu hâlde "Henüz forum yok"
+  diyordu. Sorgudaki "status = 0" süzgeci bazı wpForo kurulumlarında görünür
+  forumları da eliyordu. Sorgu artık kademeli: en dar süzgeçle başlar, hiç
+  satır dönmezse süzgeci gevşetir. Kategori tespiti de sağlamlaştırıldı;
+  is_cat sütunu yoksa ebeveyn ilişkisinden çıkarılıyor.
+- HATA: Forum sayfasında sütunlar ters yerleşiyordu. Ana sayfa ızgarasına ait
+  grid-area kuralları kapsamlandırılmamıştı ve forum sayfası ızgarasına
+  sızıyordu.
+- Forum sayfası düzeni yeniden kuruldu: pano artık tek dar rayla yan yana,
+  rehber ve sayaç kartları panonun altında. wpForo'nun kendi kenar çubuğu
+  açıksa dar ekranlarda panonun altına iniyor, yanına sıkışmıyor.
+- Yönetim ekranındaki "Forum ↔ Tema bağlantısı" bölümüne "Teknik ayrıntı"
+  paneli eklendi: hangi tablodan kaç satır okunduğu, hangi süzgecin
+  uygulandığı ve süzgecin gevşetilip gevşetilmediği görülebiliyor.
+
 1.2.0
 - Kategori listesi wpForo forum ağacına tam bağlandı: kategoriler başlık,
   forumlar alt satır olarak, konu sayılarıyla birlikte gelir. Boş

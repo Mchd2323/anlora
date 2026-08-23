@@ -30,8 +30,18 @@
 </div>
 <!-- /wp:group -->
 
-<!-- wp:group {"className":"oec-shell oec-privacy-wrap","layout":{"type":"default"}} -->
-<div class="wp-block-group oec-shell oec-privacy-wrap"><!-- wp:shortcode -->[oec_privacy_warning]<!-- /wp:shortcode --></div>
+<!-- wp:group {"className":"oec-shell oec-intro-row","layout":{"type":"default"}} -->
+<div class="wp-block-group oec-shell oec-intro-row">
+<!-- wp:shortcode -->[oec_privacy_warning]<!-- /wp:shortcode -->
+<!-- wp:group {"className":"oec-card oec-guide","layout":{"type":"default"}} -->
+<div class="wp-block-group oec-card oec-guide">
+<!-- wp:html --><span class="oec-icon" aria-hidden="true">✦</span><!-- /wp:html -->
+<!-- wp:heading {"level":2,"textColor":"white","fontSize":"large"} --><h2 class="wp-block-heading has-white-color has-text-color has-large-font-size">Daha iyi yanıt için</h2><!-- /wp:heading -->
+<!-- wp:paragraph --><p>Çocuğun yaşını, gözlediğiniz davranışı ve şimdiye kadar ne denediğinizi yazın.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p><a href="/community/">Soru yazma rehberi →</a></p><!-- /wp:paragraph -->
+</div>
+<!-- /wp:group -->
+</div>
 <!-- /wp:group -->
 
 <!-- wp:group {"className":"oec-shell oec-workspace","layout":{"type":"default"}} -->
@@ -39,12 +49,28 @@
 
 <!-- wp:group {"className":"oec-rail oec-rail--start","layout":{"type":"default"}} -->
 <div class="wp-block-group oec-rail oec-rail--start">
+
 <!-- wp:group {"className":"oec-card oec-topic-card","layout":{"type":"default"}} -->
 <div class="wp-block-group oec-card oec-topic-card">
 <!-- wp:heading {"level":2,"fontSize":"medium"} --><h2 class="wp-block-heading has-medium-font-size">Konular</h2><!-- /wp:heading -->
 <!-- wp:shortcode -->[oec_topics]<!-- /wp:shortcode -->
 </div>
 <!-- /wp:group -->
+
+<!-- wp:group {"className":"oec-card oec-warning-card","layout":{"type":"default"}} -->
+<div class="wp-block-group oec-card oec-warning-card">
+<!-- wp:heading {"level":2,"fontSize":"medium"} --><h2 class="wp-block-heading has-medium-font-size">Önemli not</h2><!-- /wp:heading -->
+<!-- wp:paragraph --><p>Buradaki paylaşımlar eğitim deneyimidir; tıbbi tanı veya acil destek yerine geçmez.</p><!-- /wp:paragraph -->
+</div>
+<!-- /wp:group -->
+
+<!-- wp:group {"className":"oec-card oec-stat-card","layout":{"type":"default"}} -->
+<div class="wp-block-group oec-card oec-stat-card">
+<!-- wp:heading {"level":2,"fontSize":"medium"} --><h2 class="wp-block-heading has-medium-font-size">Bugün toplulukta</h2><!-- /wp:heading -->
+<!-- wp:shortcode -->[oec_stats]<!-- /wp:shortcode -->
+</div>
+<!-- /wp:group -->
+
 <!-- wp:group {"anchor":"ilkeler","className":"oec-card oec-principle","layout":{"type":"default"}} -->
 <div id="ilkeler" class="wp-block-group oec-card oec-principle">
 <!-- wp:html --><span class="oec-icon" aria-hidden="true">🤝</span><!-- /wp:html -->
@@ -52,6 +78,7 @@
 <!-- wp:paragraph --><p>Yargılamadan dinler, çocukların mahremiyetini korur ve kesin tanı koymayız.</p><!-- /wp:paragraph -->
 </div>
 <!-- /wp:group -->
+
 </div>
 <!-- /wp:group -->
 
@@ -68,32 +95,7 @@
 <!-- wp:shortcode -->[oec_ask_button]<!-- /wp:shortcode -->
 </div>
 <!-- /wp:group -->
-<!-- wp:shortcode -->[oec_discussions limit="6"]<!-- /wp:shortcode -->
-</div>
-<!-- /wp:group -->
-
-<!-- wp:group {"className":"oec-rail oec-rail--end","layout":{"type":"default"}} -->
-<div class="wp-block-group oec-rail oec-rail--end">
-<!-- wp:group {"className":"oec-card oec-guide","layout":{"type":"default"}} -->
-<div class="wp-block-group oec-card oec-guide">
-<!-- wp:html --><span class="oec-icon" aria-hidden="true">✦</span><!-- /wp:html -->
-<!-- wp:heading {"level":2,"textColor":"white","fontSize":"large"} --><h2 class="wp-block-heading has-white-color has-text-color has-large-font-size">Daha iyi yanıt için</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Çocuğun yaşını, gözlediğiniz davranışı ve şimdiye kadar ne denediğinizi yazın.</p><!-- /wp:paragraph -->
-<!-- wp:paragraph --><p><a href="/community/">Soru yazma rehberi →</a></p><!-- /wp:paragraph -->
-</div>
-<!-- /wp:group -->
-<!-- wp:group {"className":"oec-card oec-stat-card","layout":{"type":"default"}} -->
-<div class="wp-block-group oec-card oec-stat-card">
-<!-- wp:heading {"level":2,"fontSize":"medium"} --><h2 class="wp-block-heading has-medium-font-size">Bugün toplulukta</h2><!-- /wp:heading -->
-<!-- wp:shortcode -->[oec_stats]<!-- /wp:shortcode -->
-</div>
-<!-- /wp:group -->
-<!-- wp:group {"className":"oec-card oec-warning-card","layout":{"type":"default"}} -->
-<div class="wp-block-group oec-card oec-warning-card">
-<!-- wp:heading {"level":2,"fontSize":"medium"} --><h2 class="wp-block-heading has-medium-font-size">Önemli not</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Buradaki paylaşımlar eğitim deneyimidir; tıbbi tanı veya acil destek yerine geçmez.</p><!-- /wp:paragraph -->
-</div>
-<!-- /wp:group -->
+<!-- wp:shortcode -->[oec_discussions limit="8"]<!-- /wp:shortcode -->
 </div>
 <!-- /wp:group -->
 

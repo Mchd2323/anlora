@@ -293,6 +293,76 @@ function oec_render_forum_binding_panel() {
 		<a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=wpforo-forums' ) ); ?>"><?php esc_html_e( 'wpForo → Forumlar', 'ozel-egitim-sohbet' ); ?></a>
 		<a class="button" href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'Siteyi görüntüle', 'ozel-egitim-sohbet' ); ?></a>
 	</p>
+
+	<?php oec_render_forum_diagnostics( $tree ); ?>
+	<?php
+}
+
+/**
+ * What the theme actually read from the wpForo tables.
+ *
+ * Shown so a mismatch between wpForo and the site's category rail can be
+ * diagnosed from the admin screen rather than by guessing.
+ *
+ * @param array $tree Forum tree as rendered.
+ */
+function oec_render_forum_diagnostics( $tree ) {
+	$info = oec_forum_diagnostics();
+	if ( ! $info ) {
+		// Nothing queried yet this request (a cached read); force one.
+		delete_transient( 'oec_forum_rows' );
+		oec_get_forum_rows();
+		$info = oec_forum_diagnostics();
+	}
+
+	$forum_count = 0;
+	foreach ( (array) $tree as $group ) {
+		$forum_count += count( $group['forums'] );
+	}
+
+	$applied = ! empty( $info['applied'] ) ? implode( ', ', $info['applied'] ) : __( 'yok', 'ozel-egitim-sohbet' );
+	$relaxed = ! empty( $info['optional'] ) && count( $info['optional'] ) !== count( (array) ( $info['applied'] ?? array() ) );
+	?>
+	<details style="margin-top:18px;max-width:900px">
+		<summary style="cursor:pointer;font-weight:600"><?php esc_html_e( 'Teknik ayrıntı — tema veritabanında ne görüyor?', 'ozel-egitim-sohbet' ); ?></summary>
+		<table class="widefat striped" style="margin-top:10px">
+			<tbody>
+				<tr>
+					<td style="width:280px"><?php esc_html_e( 'Okunan tablo', 'ozel-egitim-sohbet' ); ?></td>
+					<td><code><?php echo esc_html( $info['table'] ?? '—' ); ?></code></td>
+				</tr>
+				<tr>
+					<td><?php esc_html_e( 'Tablodan dönen satır', 'ozel-egitim-sohbet' ); ?></td>
+					<td><?php echo esc_html( (string) ( $info['rows'] ?? 0 ) ); ?></td>
+				</tr>
+				<tr>
+					<td><?php esc_html_e( 'Uygulanan süzgeç', 'ozel-egitim-sohbet' ); ?></td>
+					<td>
+						<code><?php echo esc_html( $applied ); ?></code>
+						<?php if ( $relaxed ) : ?>
+							<br><em><?php esc_html_e( 'Not: daha dar süzgeç hiç satır döndürmediği için gevşetildi. Bu, wpForo sürümünüzde status/private sütunlarının farklı anlamda kullanıldığını gösterir; tema bunu kendiliğinden telafi etti.', 'ozel-egitim-sohbet' ); ?></em>
+						<?php endif; ?>
+					</td>
+				</tr>
+				<tr>
+					<td><?php esc_html_e( 'Sitede görünen', 'ozel-egitim-sohbet' ); ?></td>
+					<td>
+						<?php
+						printf(
+							/* translators: 1: category count, 2: forum count. */
+							esc_html__( '%1$s kategori, %2$s forum', 'ozel-egitim-sohbet' ),
+							esc_html( number_format_i18n( count( (array) $tree ) ) ),
+							esc_html( number_format_i18n( $forum_count ) )
+						);
+						?>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<p style="margin-top:8px">
+			<?php esc_html_e( 'Buradaki forum sayısı wpForo → Forumlar ekranındakinden azsa bize bu tabloyu iletin.', 'ozel-egitim-sohbet' ); ?>
+		</p>
+	</details>
 	<?php
 }
 

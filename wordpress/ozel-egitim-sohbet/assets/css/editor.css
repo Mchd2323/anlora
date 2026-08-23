@@ -48,7 +48,7 @@
 
 .editor-styles-wrapper .oec-workspace {
 	display: grid;
-	grid-template-columns: 240px minmax(0, 1fr) 280px;
+	grid-template-columns: 240px minmax(0, 1fr);
 	gap: 22px;
 	align-items: start;
 }
@@ -73,3 +73,10 @@
 
 .editor-styles-wrapper .oec-footer h2,
 .editor-styles-wrapper .oec-footer .wp-block-site-title a { color: #fff; }
+
+.editor-styles-wrapper .oec-intro-row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 320px;
+	gap: 14px;
+	align-items: stretch;
+}
