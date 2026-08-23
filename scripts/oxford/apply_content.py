@@ -42,46 +42,8 @@ def build_self_referential(headword):
         re.I,
     )
 
-with open('src/data/irregularInflections.json', encoding='utf-8') as _h:
-    IRREGULAR = json.load(_h)
-
-
-# Tipografik kesme işaretleri düz kesmeye indirgenir: kaynak listede
-# "o’clock" (U+2019) geçiyor, örnek cümlelerde de öyle. Normalize edilmezse
-# sözcük sınırı araması bunları "o" ve "clock" diye ikiye böler ve eşleşme
-# hiçbir zaman tutmaz. Aynı normalizasyon uygulama tarafında da yapılıyor
-# (`normalizeWordString`).
-CURLY_APOSTROPHES = str.maketrans({
-    '\u2018': "'", '\u2019': "'", '\u201a': "'", '\u201b': "'",
-    '\u2032': "'", '\u02bc': "'", '`': "'",
-})
-
-
-def sentence_contains(sentence, headword):
-    """Örnek cümle hedef kelimeyi (çekimleriyle) içeriyor mu?"""
-    target = (headword or '').strip().lower().translate(CURLY_APOSTROPHES)
-    lowered = (sentence or '').lower().translate(CURLY_APOSTROPHES)
-    if ('-' in target or ' ' in target) and target in lowered:
-        return True
-    target = target.split()[0]
-
-    for token in re.findall(r"[a-z'\-]+", lowered):
-        if token == target:
-            return True
-        info = IRREGULAR.get(token)
-        if info and info.get('base') == target:
-            return True
-        if token.startswith(target) and len(token) - len(target) <= 3:
-            return True
-        if target.endswith('e') and token.startswith(target[:-1]):
-            return True
-        if target.endswith('y') and token.startswith(target[:-1] + 'i'):
-            return True
-        if token.startswith(target + target[-1]):
-            return True
-        if '-' in token and target in token.split('-'):
-            return True
-    return False
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from word_match import sentence_contains  # noqa: E402
 
 
 def validate(patch, headword, sense_pos):

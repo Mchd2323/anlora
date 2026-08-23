@@ -51,50 +51,9 @@ def is_placeholder(text):
     return any(pattern in value for pattern in PLACEHOLDER_PATTERNS)
 
 
-# Düzensiz çekimler uygulamayla AYNI dosyadan okunur; iki ayrı kopya tutmak
-# listelerin zamanla birbirinden kayması demektir.
-with open('src/data/irregularInflections.json', encoding='utf-8') as _handle:
-    IRREGULAR = json.load(_handle)
-
-
-def sentence_contains(sentence, word):
-    """
-    Örnek cümle hedef kelimeyi içeriyor mu?
-
-    Basit gövde araması yetmez: "become" için "It quickly became cold outside."
-    geçerli bir örnektir. Düzenli ekler ve düzensiz çekimler birlikte kontrol
-    edilir.
-    """
-    target = (word or '').strip().lower()
-    if not target:
-        return True
-
-    lowered = (sentence or '').lower()
-    # Tireli ya da çok sözcüklü madde başları ("make-up", "ice cream") olduğu
-    # gibi aranır; kelime kelime bölmek bunları kaçırır.
-    if ('-' in target or ' ' in target) and target in lowered:
-        return True
-    target = target.split()[0]
-
-    for token in re.findall(r"[a-z'\-]+", lowered):
-        if token == target:
-            return True
-        info = IRREGULAR.get(token)
-        if info and info.get('base') == target:
-            return True
-        if token.startswith(target) and len(token) - len(target) <= 3:
-            return True
-        if target.endswith('e') and token.startswith(target[:-1]):
-            return True
-        if target.endswith('y') and token.startswith(target[:-1] + 'i'):
-            return True
-        if token.startswith(target + target[-1]):
-            return True
-        # Bileşik sözcüğün parçası: "self-awareness" içinde "awareness",
-        # "heart-shaped" içinde "shaped".
-        if '-' in token and target in token.split('-'):
-            return True
-    return False
+import sys as _sys, os as _os
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from word_match import sentence_contains  # noqa: E402
 
 
 def main():

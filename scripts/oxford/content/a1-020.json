@@ -1,0 +1,562 @@
+{
+  "ox3k-a1-video-n": {
+    "turkishMeanings": ["video", "görüntü kaydı"],
+    "examples": [
+      { "en": "She watched a video about cooking.", "tr": "Yemek yapmakla ilgili bir video izledi." },
+      { "en": "He made a short video of the trip.", "tr": "Gezinin kısa bir videosunu çekti." },
+      { "en": "The video is only two minutes long.", "tr": "Video sadece iki dakika." }
+    ]
+  },
+  "ox3k-a1-walk-n": {
+    "turkishMeanings": ["yürüyüş", "gezinti"],
+    "examples": [
+      { "en": "Let's go for a walk in the park.", "tr": "Parkta yürüyüşe çıkalım." },
+      { "en": "It is a ten-minute walk from here.", "tr": "Buradan on dakikalık bir yürüyüş." },
+      { "en": "We had a long walk by the sea.", "tr": "Deniz kenarında uzun bir yürüyüş yaptık." }
+    ]
+  },
+  "ox3k-a1-walk-v": {
+    "turkishMeanings": ["yürümek"],
+    "examples": [
+      { "en": "I walk to school every day.", "tr": "Her gün okula yürüyerek giderim." },
+      { "en": "She walked slowly along the street.", "tr": "Cadde boyunca yavaşça yürüdü." },
+      { "en": "We walked for two hours in the forest.", "tr": "Ormanda iki saat yürüdük." }
+    ]
+  },
+  "ox3k-a1-wall-n": {
+    "turkishMeanings": ["duvar"],
+    "examples": [
+      { "en": "There is a picture on the wall.", "tr": "Duvarda bir resim var." },
+      { "en": "They painted the walls white.", "tr": "Duvarları beyaza boyadılar." },
+      { "en": "The garden has a low stone wall.", "tr": "Bahçenin alçak bir taş duvarı var." }
+    ]
+  },
+  "ox3k-a1-want-v": {
+    "turkishMeanings": ["istemek"],
+    "examples": [
+      { "en": "I want a glass of water.", "tr": "Bir bardak su istiyorum." },
+      { "en": "She wants to become a doctor.", "tr": "Doktor olmak istiyor." },
+      { "en": "What do you want for your birthday?", "tr": "Doğum günün için ne istiyorsun?" }
+    ]
+  },
+  "ox3k-a1-warm-adj": {
+    "turkishMeanings": ["ılık", "sıcak"],
+    "examples": [
+      { "en": "The water is nice and warm.", "tr": "Su güzel ve ılık." },
+      { "en": "Wear a warm coat today.", "tr": "Bugün sıcak bir palto giy." },
+      { "en": "It was a warm spring morning.", "tr": "Ilık bir ilkbahar sabahıydı." }
+    ]
+  },
+  "ox3k-a1-wash-v": {
+    "turkishMeanings": ["yıkamak", "yıkanmak"],
+    "examples": [
+      { "en": "Wash your hands before dinner.", "tr": "Yemekten önce ellerini yıka." },
+      { "en": "She washed the dishes after lunch.", "tr": "Öğle yemeğinden sonra bulaşıkları yıkadı." },
+      { "en": "I wash my car every Sunday.", "tr": "Arabamı her pazar yıkarım." }
+    ]
+  },
+  "ox3k-a1-watch-n": {
+    "turkishMeanings": ["kol saati"],
+    "examples": [
+      { "en": "My watch is five minutes fast.", "tr": "Saatim beş dakika ileri." },
+      { "en": "He bought a new watch yesterday.", "tr": "Dün yeni bir kol saati aldı." },
+      { "en": "She looked at her watch and stood up.", "tr": "Saatine baktı ve ayağa kalktı." }
+    ]
+  },
+  "ox3k-a1-watch-v": {
+    "turkishMeanings": ["izlemek", "seyretmek"],
+    "examples": [
+      { "en": "We watch a film every Friday.", "tr": "Her cuma bir film izleriz." },
+      { "en": "She watched the children in the garden.", "tr": "Bahçedeki çocukları izledi." },
+      { "en": "Please watch carefully.", "tr": "Lütfen dikkatle izle." }
+    ]
+  },
+  "ox3k-a1-water-n": {
+    "turkishMeanings": ["su"],
+    "examples": [
+      { "en": "Please give me a glass of water.", "tr": "Lütfen bana bir bardak su ver." },
+      { "en": "The water in the lake is very cold.", "tr": "Göldeki su çok soğuk." },
+      { "en": "You should drink more water.", "tr": "Daha çok su içmelisin." }
+    ]
+  },
+  "ox3k-a1-way-n": {
+    "turkishMeanings": ["yol", "yöntem", "şekil"],
+    "examples": [
+      { "en": "Can you show me the way to the station?", "tr": "Bana istasyonun yolunu gösterebilir misin?" },
+      { "en": "This is the best way to learn English.", "tr": "İngilizce öğrenmenin en iyi yolu bu." },
+      { "en": "She smiled in a friendly way.", "tr": "Dostça bir şekilde gülümsedi." }
+    ]
+  },
+  "ox3k-a1-we-pron": {
+    "turkishMeanings": ["biz"],
+    "examples": [
+      { "en": "We live in the same street.", "tr": "Aynı sokakta oturuyoruz." },
+      { "en": "We are going to the cinema tonight.", "tr": "Bu akşam sinemaya gidiyoruz." },
+      { "en": "We do not have much time.", "tr": "Fazla vaktimiz yok." }
+    ]
+  },
+  "ox3k-a1-wear-v": {
+    "turkishMeanings": ["giymek", "takmak"],
+    "examples": [
+      { "en": "She wears glasses for reading.", "tr": "Okumak için gözlük takıyor." },
+      { "en": "He wore a black suit to the wedding.", "tr": "Düğüne siyah bir takım giydi." },
+      { "en": "What are you going to wear tonight?", "tr": "Bu akşam ne giyeceksin?" }
+    ]
+  },
+  "ox3k-a1-weather-n": {
+    "turkishMeanings": ["hava", "hava durumu"],
+    "examples": [
+      { "en": "The weather is very nice today.", "tr": "Bugün hava çok güzel." },
+      { "en": "We stayed at home because of the weather.", "tr": "Hava yüzünden evde kaldık." },
+      { "en": "What is the weather like in Ankara?", "tr": "Ankara'da hava nasıl?" }
+    ]
+  },
+  "ox3k-a1-website-n": {
+    "turkishMeanings": ["web sitesi", "internet sitesi"],
+    "examples": [
+      { "en": "You can find the prices on their website.", "tr": "Fiyatları web sitelerinde bulabilirsin." },
+      { "en": "She built a website for her shop.", "tr": "Dükkânı için bir web sitesi kurdu." },
+      { "en": "The website is easy to use.", "tr": "Sitenin kullanımı kolay." }
+    ]
+  },
+  "ox3k-a1-week-n": {
+    "turkishMeanings": ["hafta"],
+    "examples": [
+      { "en": "I work five days a week.", "tr": "Haftada beş gün çalışıyorum." },
+      { "en": "We are going to Izmir next week.", "tr": "Gelecek hafta İzmir'e gidiyoruz." },
+      { "en": "She was ill for a week.", "tr": "Bir hafta hastaydı." }
+    ]
+  },
+  "ox3k-a1-weekend-n": {
+    "turkishMeanings": ["hafta sonu"],
+    "examples": [
+      { "en": "What did you do at the weekend?", "tr": "Hafta sonu ne yaptın?" },
+      { "en": "We are visiting my parents this weekend.", "tr": "Bu hafta sonu aileme gidiyoruz." },
+      { "en": "The shop is closed at the weekend.", "tr": "Dükkân hafta sonu kapalı." }
+    ]
+  },
+  "ox3k-a1-welcome-exclam": {
+    "turkishMeanings": ["hoş geldin", "hoş geldiniz"],
+    "examples": [
+      { "en": "Welcome to our home!", "tr": "Evimize hoş geldiniz!" },
+      { "en": "Welcome back, we missed you.", "tr": "Tekrar hoş geldin, seni özledik." },
+      { "en": "Welcome to Turkey!", "tr": "Türkiye'ye hoş geldiniz!" }
+    ]
+  },
+  "ox3k-a1-welcome-v": {
+    "turkishMeanings": ["karşılamak", "hoş karşılamak"],
+    "examples": [
+      { "en": "She welcomed us at the door.", "tr": "Bizi kapıda karşıladı." },
+      { "en": "The school welcomes new students in September.", "tr": "Okul eylülde yeni öğrencileri karşılıyor." },
+      { "en": "They welcomed the idea with a smile.", "tr": "Fikri gülümseyerek karşıladılar." }
+    ]
+  },
+  "ox3k-a1-welcome-adj": {
+    "turkishMeanings": ["hoş karşılanan", "memnuniyet verici"],
+    "examples": [
+      { "en": "You are always welcome here.", "tr": "Burada her zaman baş tacısın." },
+      { "en": "The rain was a welcome change.", "tr": "Yağmur hoş bir değişiklik oldu." },
+      { "en": "Her help was very welcome.", "tr": "Yardımı çok makbule geçti." }
+    ]
+  },
+  "ox3k-a1-well-adv": {
+    "turkishMeanings": ["iyi", "güzel bir şekilde"],
+    "examples": [
+      { "en": "She speaks English very well.", "tr": "Çok iyi İngilizce konuşuyor." },
+      { "en": "The children played well together.", "tr": "Çocuklar birlikte güzel oynadı." },
+      { "en": "He did well in the exam.", "tr": "Sınavda iyi yaptı." }
+    ]
+  },
+  "ox3k-a1-well-adj": {
+    "turkishMeanings": ["iyi", "sağlıklı"],
+    "examples": [
+      { "en": "I hope you are well.", "tr": "Umarım iyisindir." },
+      { "en": "She does not feel well today.", "tr": "Bugün kendini iyi hissetmiyor." },
+      { "en": "He is not well enough to travel.", "tr": "Seyahat edecek kadar iyi değil." }
+    ]
+  },
+  "ox3k-a1-well-exclam": {
+    "turkishMeanings": ["peki", "şey", "eh"],
+    "examples": [
+      { "en": "Well, what shall we do now?", "tr": "Peki, şimdi ne yapalım?" },
+      { "en": "Well, I am not sure about that.", "tr": "Şey, bundan pek emin değilim." },
+      { "en": "Well, it is getting late.", "tr": "Eh, geç oluyor." }
+    ]
+  },
+  "ox3k-a1-west-n": {
+    "turkishMeanings": ["batı"],
+    "examples": [
+      { "en": "The sun sets in the west.", "tr": "Güneş batıdan batar." },
+      { "en": "They live in the west of the country.", "tr": "Ülkenin batısında yaşıyorlar." },
+      { "en": "The wind comes from the west.", "tr": "Rüzgâr batıdan geliyor." }
+    ]
+  },
+  "ox3k-a1-west-adj": {
+    "turkishMeanings": ["batı (yönünde)", "batıdaki"],
+    "examples": [
+      { "en": "We stayed on the west coast.", "tr": "Batı kıyısında kaldık." },
+      { "en": "The west side of the house is warmer.", "tr": "Evin batı tarafı daha sıcak." },
+      { "en": "There is a west entrance to the museum.", "tr": "Müzenin batı girişi var." }
+    ]
+  },
+  "ox3k-a1-west-adv": {
+    "turkishMeanings": ["batıya", "batıya doğru"],
+    "examples": [
+      { "en": "We drove west for two hours.", "tr": "İki saat boyunca batıya doğru sürdük." },
+      { "en": "Go west until you see the river.", "tr": "Nehri görene kadar batıya git." },
+      { "en": "The birds flew west in the evening.", "tr": "Kuşlar akşam batıya uçtu." }
+    ]
+  },
+  "ox3k-a1-what-pron": {
+    "turkishMeanings": ["ne"],
+    "examples": [
+      { "en": "What is your name?", "tr": "Adın ne?" },
+      { "en": "I do not know what to do.", "tr": "Ne yapacağımı bilmiyorum." },
+      { "en": "What did she say?", "tr": "Ne dedi?" }
+    ]
+  },
+  "ox3k-a1-what-det": {
+    "turkishMeanings": ["ne", "hangi"],
+    "examples": [
+      { "en": "What time does the film start?", "tr": "Film saat kaçta başlıyor?" },
+      { "en": "What colour is your car?", "tr": "Araban ne renk?" },
+      { "en": "What kind of music do you like?", "tr": "Ne tür müzik seversin?" }
+    ]
+  },
+  "ox3k-a1-when-adv": {
+    "turkishMeanings": ["ne zaman"],
+    "examples": [
+      { "en": "When does the shop open?", "tr": "Dükkân ne zaman açılıyor?" },
+      { "en": "When did you arrive?", "tr": "Ne zaman geldin?" },
+      { "en": "I do not know when she will come.", "tr": "Ne zaman geleceğini bilmiyorum." }
+    ]
+  },
+  "ox3k-a1-when-conj": {
+    "turkishMeanings": ["-dığında", "-ken"],
+    "examples": [
+      { "en": "Call me when you arrive.", "tr": "Vardığında beni ara." },
+      { "en": "When I was young, I lived in a village.", "tr": "Gençken bir köyde yaşıyordum." },
+      { "en": "She smiled when she saw the present.", "tr": "Hediyeyi görünce gülümsedi." }
+    ]
+  },
+  "ox3k-a1-when-pron": {
+    "turkishMeanings": ["ne zaman (olduğu)"],
+    "examples": [
+      { "en": "Since when have you been waiting?", "tr": "Ne zamandır bekliyorsun?" },
+      { "en": "Tell me when to start.", "tr": "Ne zaman başlayacağımı söyle." },
+      { "en": "That was when I met her.", "tr": "Onunla o zaman tanıştım." }
+    ]
+  },
+  "ox3k-a1-where-adv": {
+    "turkishMeanings": ["nerede", "nereye"],
+    "examples": [
+      { "en": "Where do you live?", "tr": "Nerede oturuyorsun?" },
+      { "en": "Where did you buy that bag?", "tr": "O çantayı nereden aldın?" },
+      { "en": "Where are you going?", "tr": "Nereye gidiyorsun?" }
+    ]
+  },
+  "ox3k-a1-where-conj": {
+    "turkishMeanings": ["-dığı yerde"],
+    "examples": [
+      { "en": "This is the house where I was born.", "tr": "Burası doğduğum ev." },
+      { "en": "Put it back where you found it.", "tr": "Onu bulduğun yere geri koy." },
+      { "en": "I do not know where she works.", "tr": "Nerede çalıştığını bilmiyorum." }
+    ]
+  },
+  "ox3k-a1-which-det": {
+    "turkishMeanings": ["hangi"],
+    "examples": [
+      { "en": "Which bus goes to the centre?", "tr": "Hangi otobüs merkeze gidiyor?" },
+      { "en": "Which colour do you prefer?", "tr": "Hangi rengi tercih edersin?" },
+      { "en": "Which day is best for you?", "tr": "Hangi gün sana uygun?" }
+    ]
+  },
+  "ox3k-a1-which-pron": {
+    "turkishMeanings": ["hangisi", "ki o"],
+    "examples": [
+      { "en": "Which of these bags is yours?", "tr": "Bu çantalardan hangisi senin?" },
+      { "en": "The book, which I bought yesterday, is very good.", "tr": "Dün aldığım kitap çok iyi." },
+      { "en": "Which do you want, tea or coffee?", "tr": "Hangisini istersin, çay mı kahve mi?" }
+    ]
+  },
+  "ox3k-a1-white-adj": {
+    "turkishMeanings": ["beyaz", "ak"],
+    "examples": [
+      { "en": "He is wearing a white shirt.", "tr": "Beyaz bir gömlek giyiyor." },
+      { "en": "The walls are painted white.", "tr": "Duvarlar beyaza boyanmış." },
+      { "en": "I would like a white coffee, please.", "tr": "Sütlü bir kahve istiyorum lütfen." }
+    ]
+  },
+  "ox3k-a1-white-n": {
+    "turkishMeanings": ["beyaz (renk)"],
+    "examples": [
+      { "en": "White is a clean, simple colour.", "tr": "Beyaz temiz ve sade bir renktir." },
+      { "en": "She always wears white in summer.", "tr": "Yazın hep beyaz giyer." },
+      { "en": "The photo is in black and white.", "tr": "Fotoğraf siyah beyaz." }
+    ]
+  },
+  "ox3k-a1-who-pron": {
+    "turkishMeanings": ["kim", "ki o"],
+    "examples": [
+      { "en": "Who is that man?", "tr": "Şu adam kim?" },
+      { "en": "The woman who called is my aunt.", "tr": "Arayan kadın teyzem." },
+      { "en": "Who wants some tea?", "tr": "Kim çay ister?" }
+    ]
+  },
+  "ox3k-a1-why-adv": {
+    "turkishMeanings": ["neden", "niçin"],
+    "examples": [
+      { "en": "Why are you late?", "tr": "Neden geç kaldın?" },
+      { "en": "I do not know why she left.", "tr": "Neden ayrıldığını bilmiyorum." },
+      { "en": "Why do you like this song?", "tr": "Bu şarkıyı neden seviyorsun?" }
+    ]
+  },
+  "ox3k-a1-wife-n": {
+    "turkishMeanings": ["eş", "karı"],
+    "examples": [
+      { "en": "His wife is a teacher.", "tr": "Eşi öğretmen." },
+      { "en": "He went to the cinema with his wife.", "tr": "Eşiyle sinemaya gitti." },
+      { "en": "My wife works at the hospital.", "tr": "Eşim hastanede çalışıyor." }
+    ]
+  },
+  "ox3k-a1-will-modal": {
+    "turkishMeanings": ["-ecek", "-acak"],
+    "examples": [
+      { "en": "I will call you tomorrow.", "tr": "Yarın seni arayacağım." },
+      { "en": "She will be here in ten minutes.", "tr": "On dakikaya burada olacak." },
+      { "en": "It will rain this afternoon.", "tr": "Bu öğleden sonra yağmur yağacak." }
+    ]
+  },
+  "ox3k-a1-win-v": {
+    "turkishMeanings": ["kazanmak"],
+    "examples": [
+      { "en": "Our team won the match.", "tr": "Takımımız maçı kazandı." },
+      { "en": "She won first prize in the competition.", "tr": "Yarışmada birincilik ödülünü kazandı." },
+      { "en": "I hope we win tonight.", "tr": "Umarım bu gece kazanırız." }
+    ]
+  },
+  "ox3k-a1-window-n": {
+    "turkishMeanings": ["pencere"],
+    "examples": [
+      { "en": "Please open the window.", "tr": "Lütfen pencereyi aç." },
+      { "en": "She looked out of the window.", "tr": "Pencereden dışarı baktı." },
+      { "en": "The window in my room is very big.", "tr": "Odamdaki pencere çok büyük." }
+    ]
+  },
+  "ox3k-a1-wine-n": {
+    "turkishMeanings": ["şarap"],
+    "examples": [
+      { "en": "They ordered a bottle of red wine.", "tr": "Bir şişe kırmızı şarap söylediler." },
+      { "en": "This region is famous for its wine.", "tr": "Bu bölge şarabıyla ünlüdür." },
+      { "en": "She does not drink wine.", "tr": "Şarap içmiyor." }
+    ]
+  },
+  "ox3k-a1-winter-n": {
+    "turkishMeanings": ["kış"],
+    "examples": [
+      { "en": "Winter is very cold in this city.", "tr": "Bu şehirde kış çok soğuk olur." },
+      { "en": "We go skiing every winter.", "tr": "Her kış kayağa gideriz." },
+      { "en": "The days are short in winter.", "tr": "Kışın günler kısadır." }
+    ]
+  },
+  "ox3k-a1-with-prep": {
+    "turkishMeanings": ["ile", "-li"],
+    "examples": [
+      { "en": "I went to the cinema with my friends.", "tr": "Arkadaşlarımla sinemaya gittim." },
+      { "en": "She cut the bread with a knife.", "tr": "Ekmeği bıçakla kesti." },
+      { "en": "A girl with long hair opened the door.", "tr": "Uzun saçlı bir kız kapıyı açtı." }
+    ]
+  },
+  "ox3k-a1-without-prep": {
+    "turkishMeanings": ["-siz", "olmadan"],
+    "examples": [
+      { "en": "I drink my coffee without sugar.", "tr": "Kahvemi şekersiz içerim." },
+      { "en": "She left without saying goodbye.", "tr": "Veda etmeden gitti." },
+      { "en": "We cannot start without him.", "tr": "O olmadan başlayamayız." }
+    ]
+  },
+  "ox3k-a1-woman-n": {
+    "turkishMeanings": ["kadın"],
+    "examples": [
+      { "en": "A young woman was waiting outside.", "tr": "Genç bir kadın dışarıda bekliyordu." },
+      { "en": "She is a very strong woman.", "tr": "Çok güçlü bir kadın." },
+      { "en": "Two women were talking at the door.", "tr": "İki kadın kapıda konuşuyordu." }
+    ]
+  },
+  "ox3k-a1-wonderful-adj": {
+    "turkishMeanings": ["harika", "muhteşem"],
+    "examples": [
+      { "en": "We had a wonderful holiday.", "tr": "Harika bir tatil geçirdik." },
+      { "en": "That is wonderful news!", "tr": "Bu muhteşem bir haber!" },
+      { "en": "The food was absolutely wonderful.", "tr": "Yemek kesinlikle harikaydı." }
+    ]
+  },
+  "ox3k-a1-word-n": {
+    "turkishMeanings": ["kelime", "sözcük"],
+    "examples": [
+      { "en": "I do not know this word.", "tr": "Bu kelimeyi bilmiyorum." },
+      { "en": "Write five words about your family.", "tr": "Ailen hakkında beş kelime yaz." },
+      { "en": "She said a few kind words.", "tr": "Birkaç güzel söz söyledi." }
+    ]
+  },
+  "ox3k-a1-work-n": {
+    "turkishMeanings": ["iş", "çalışma", "eser"],
+    "examples": [
+      { "en": "I go to work by bus.", "tr": "İşe otobüsle giderim." },
+      { "en": "She has a lot of work today.", "tr": "Bugün çok işi var." },
+      { "en": "The museum shows the work of young artists.", "tr": "Müze genç sanatçıların eserlerini sergiliyor." }
+    ]
+  },
+  "ox3k-a1-work-v": {
+    "turkishMeanings": ["çalışmak", "işlemek"],
+    "examples": [
+      { "en": "She works in a hospital.", "tr": "Bir hastanede çalışıyor." },
+      { "en": "This machine does not work.", "tr": "Bu makine çalışmıyor." },
+      { "en": "He works from nine to five.", "tr": "Dokuzdan beşe kadar çalışıyor." }
+    ]
+  },
+  "ox3k-a1-worker-n": {
+    "turkishMeanings": ["işçi", "çalışan"],
+    "examples": [
+      { "en": "The workers finished the road last week.", "tr": "İşçiler yolu geçen hafta bitirdi." },
+      { "en": "She is a hard worker.", "tr": "Çalışkan biri." },
+      { "en": "The factory has two hundred workers.", "tr": "Fabrikanın iki yüz işçisi var." }
+    ]
+  },
+  "ox3k-a1-world-n": {
+    "turkishMeanings": ["dünya"],
+    "examples": [
+      { "en": "She wants to travel around the world.", "tr": "Dünyayı gezmek istiyor." },
+      { "en": "It is one of the biggest cities in the world.", "tr": "Dünyanın en büyük şehirlerinden biri." },
+      { "en": "The whole world watched the match.", "tr": "Bütün dünya maçı izledi." }
+    ]
+  },
+  "ox3k-a1-would-modal": {
+    "turkishMeanings": ["-erdi", "-ir miydiniz (kibar istek)"],
+    "examples": [
+      { "en": "Would you like some tea?", "tr": "Biraz çay ister misiniz?" },
+      { "en": "I would go, but I am busy.", "tr": "Giderdim ama meşgulüm." },
+      { "en": "She said she would call later.", "tr": "Sonra arayacağını söyledi." }
+    ]
+  },
+  "ox3k-a1-write-v": {
+    "turkishMeanings": ["yazmak"],
+    "examples": [
+      { "en": "Please write your name here.", "tr": "Lütfen adını buraya yaz." },
+      { "en": "She wrote a letter to her friend.", "tr": "Arkadaşına bir mektup yazdı." },
+      { "en": "He writes for a local newspaper.", "tr": "Yerel bir gazeteye yazıyor." }
+    ]
+  },
+  "ox3k-a1-writer-n": {
+    "turkishMeanings": ["yazar"],
+    "examples": [
+      { "en": "She is a famous writer in Turkey.", "tr": "Türkiye'de ünlü bir yazar." },
+      { "en": "The writer signed my book.", "tr": "Yazar kitabımı imzaladı." },
+      { "en": "He wants to be a writer one day.", "tr": "Bir gün yazar olmak istiyor." }
+    ]
+  },
+  "ox3k-a1-writing-n": {
+    "turkishMeanings": ["yazma", "yazı"],
+    "examples": [
+      { "en": "Her writing is very clear.", "tr": "Yazısı çok net." },
+      { "en": "We have a writing test tomorrow.", "tr": "Yarın yazma sınavımız var." },
+      { "en": "Writing is her favourite part of the lesson.", "tr": "Yazma dersin en sevdiği bölümü." }
+    ]
+  },
+  "ox3k-a1-wrong-adj": {
+    "turkishMeanings": ["yanlış", "hatalı"],
+    "examples": [
+      { "en": "That is the wrong answer.", "tr": "Bu yanlış cevap." },
+      { "en": "I took the wrong bus.", "tr": "Yanlış otobüse bindim." },
+      { "en": "There is something wrong with the car.", "tr": "Arabada bir sorun var." }
+    ]
+  },
+  "ox3k-a1-yeah-exclam": {
+    "turkishMeanings": ["evet", "he ya"],
+    "examples": [
+      { "en": "Yeah, that sounds like a good idea.", "tr": "Evet, bu kulağa iyi bir fikir gibi geliyor." },
+      { "en": "Yeah, I saw her yesterday.", "tr": "Evet, onu dün gördüm." },
+      { "en": "Yeah, you are right about that.", "tr": "Evet, bu konuda haklısın." }
+    ]
+  },
+  "ox3k-a1-year-n": {
+    "turkishMeanings": ["yıl", "sene"],
+    "examples": [
+      { "en": "We moved here two years ago.", "tr": "Buraya iki yıl önce taşındık." },
+      { "en": "She is ten years old.", "tr": "On yaşında." },
+      { "en": "Next year I will start university.", "tr": "Gelecek yıl üniversiteye başlayacağım." }
+    ]
+  },
+  "ox3k-a1-yellow-adj": {
+    "turkishMeanings": ["sarı"],
+    "examples": [
+      { "en": "She was wearing a yellow dress.", "tr": "Sarı bir elbise giyiyordu." },
+      { "en": "The leaves turn yellow in autumn.", "tr": "Yapraklar sonbaharda sararır." },
+      { "en": "There is a yellow car outside.", "tr": "Dışarıda sarı bir araba var." }
+    ]
+  },
+  "ox3k-a1-yellow-n": {
+    "turkishMeanings": ["sarı (renk)"],
+    "examples": [
+      { "en": "Yellow is a bright, happy colour.", "tr": "Sarı parlak, neşeli bir renktir." },
+      { "en": "She painted the kitchen a soft yellow.", "tr": "Mutfağı yumuşak bir sarıya boyadı." },
+      { "en": "I do not often wear yellow.", "tr": "Sık sık sarı giymem." }
+    ]
+  },
+  "ox3k-a1-yes-exclam": {
+    "turkishMeanings": ["evet"],
+    "examples": [
+      { "en": "Yes, I would love to come.", "tr": "Evet, gelmeyi çok isterim." },
+      { "en": "Yes, that is correct.", "tr": "Evet, bu doğru." },
+      { "en": "Yes, please, a little more tea.", "tr": "Evet lütfen, biraz daha çay." }
+    ]
+  },
+  "ox3k-a1-yesterday-adv": {
+    "turkishMeanings": ["dün"],
+    "examples": [
+      { "en": "I saw her yesterday.", "tr": "Onu dün gördüm." },
+      { "en": "It rained a lot yesterday.", "tr": "Dün çok yağmur yağdı." },
+      { "en": "We finished the work yesterday.", "tr": "İşi dün bitirdik." }
+    ]
+  },
+  "ox3k-a1-yesterday-n": {
+    "turkishMeanings": ["dün", "dünkü gün"],
+    "examples": [
+      { "en": "Yesterday was a very long day.", "tr": "Dün çok uzun bir gündü." },
+      { "en": "Yesterday's meeting was useful.", "tr": "Dünkü toplantı faydalıydı." },
+      { "en": "I still remember yesterday clearly.", "tr": "Dünü hâlâ net hatırlıyorum." }
+    ]
+  },
+  "ox3k-a1-you-pron": {
+    "turkishMeanings": ["sen", "siz"],
+    "examples": [
+      { "en": "You are my best friend.", "tr": "Sen benim en iyi arkadaşımsın." },
+      { "en": "Can you help me, please?", "tr": "Bana yardım edebilir misin?" },
+      { "en": "I will call you tonight.", "tr": "Bu akşam seni arayacağım." }
+    ]
+  },
+  "ox3k-a1-young-adj": {
+    "turkishMeanings": ["genç"],
+    "examples": [
+      { "en": "She is too young to drive.", "tr": "Araba kullanmak için çok genç." },
+      { "en": "A young man asked for directions.", "tr": "Genç bir adam yol sordu." },
+      { "en": "My parents were young in the eighties.", "tr": "Ailem seksenlerde gençti." }
+    ]
+  },
+  "ox3k-a1-your-det": {
+    "turkishMeanings": ["senin", "sizin"],
+    "examples": [
+      { "en": "What is your name?", "tr": "Adın ne?" },
+      { "en": "Your bag is on the chair.", "tr": "Çantan sandalyede." },
+      { "en": "Please write your address here.", "tr": "Lütfen adresini buraya yaz." }
+    ]
+  },
+  "ox3k-a1-yourself-pron": {
+    "turkishMeanings": ["kendin", "kendiniz"],
+    "examples": [
+      { "en": "Did you make this cake yourself?", "tr": "Bu keki kendin mi yaptın?" },
+      { "en": "Please help yourself to some tea.", "tr": "Lütfen kendine çay al." },
+      { "en": "Be careful and look after yourself.", "tr": "Dikkatli ol ve kendine iyi bak." }
+    ]
+  }
+}
