@@ -1,0 +1,370 @@
+{
+  "ox3k-a1-orange-n": {
+    "turkishMeanings": ["portakal", "turuncu (renk)"],
+    "examples": [
+      { "en": "I eat an orange every morning.", "tr": "Her sabah bir portakal yerim." },
+      { "en": "She bought a kilo of oranges.", "tr": "Bir kilo portakal aldı." },
+      { "en": "Orange is a warm, bright colour.", "tr": "Turuncu sıcak ve parlak bir renktir." }
+    ]
+  },
+  "ox3k-a1-orange-adj": {
+    "turkishMeanings": ["turuncu"],
+    "examples": [
+      { "en": "She was wearing an orange dress.", "tr": "Turuncu bir elbise giyiyordu." },
+      { "en": "The sky turned orange at sunset.", "tr": "Gün batımında gökyüzü turuncuya döndü." },
+      { "en": "I painted the door orange.", "tr": "Kapıyı turuncuya boyadım." }
+    ]
+  },
+  "ox3k-a1-order-n": {
+    "turkishMeanings": ["sipariş", "düzen", "sıra"],
+    "examples": [
+      { "en": "The waiter took our order.", "tr": "Garson siparişimizi aldı." },
+      { "en": "Please put the books in order.", "tr": "Lütfen kitapları sıraya koy." },
+      { "en": "My order arrived yesterday.", "tr": "Siparişim dün geldi." }
+    ]
+  },
+  "ox3k-a1-order-v": {
+    "turkishMeanings": ["sipariş vermek", "emretmek"],
+    "examples": [
+      { "en": "I ordered a pizza for dinner.", "tr": "Akşam yemeği için pizza söyledim." },
+      { "en": "She ordered a coffee and a cake.", "tr": "Bir kahve ve bir pasta sipariş etti." },
+      { "en": "The officer ordered them to stop.", "tr": "Memur onlara durmalarını emretti." }
+    ]
+  },
+  "ox3k-a1-other-adj": {
+    "turkishMeanings": ["diğer", "öteki", "başka"],
+    "examples": [
+      { "en": "The other students are in the garden.", "tr": "Diğer öğrenciler bahçede." },
+      { "en": "My other shoes are dirty.", "tr": "Öteki ayakkabılarım kirli." },
+      { "en": "Do you have any other questions?", "tr": "Başka sorunuz var mı?" }
+    ]
+  },
+  "ox3k-a1-other-pron": {
+    "turkishMeanings": ["diğeri", "ötekiler"],
+    "examples": [
+      { "en": "One book is mine; the other is hers.", "tr": "Bir kitap benim, diğeri onun." },
+      { "en": "Some came early, others came late.", "tr": "Bazıları erken geldi, diğerleri geç." },
+      { "en": "Where are the others?", "tr": "Ötekiler nerede?" }
+    ]
+  },
+  "ox3k-a1-our-det": {
+    "turkishMeanings": ["bizim"],
+    "examples": [
+      { "en": "Our house is near the park.", "tr": "Evimiz parkın yakınında." },
+      { "en": "This is our new teacher.", "tr": "Bu bizim yeni öğretmenimiz." },
+      { "en": "We finished our homework early.", "tr": "Ödevimizi erken bitirdik." }
+    ]
+  },
+  "ox3k-a1-out-adv": {
+    "turkishMeanings": ["dışarı", "dışarıda"],
+    "examples": [
+      { "en": "Let's go out for dinner tonight.", "tr": "Bu akşam dışarıda yemek yiyelim." },
+      { "en": "She is out at the moment.", "tr": "Şu anda dışarıda." },
+      { "en": "Take the milk out of the fridge.", "tr": "Sütü buzdolabından çıkar." }
+    ]
+  },
+  "ox3k-a1-out-prep": {
+    "turkishMeanings": ["-in dışına", "-den dışarı"],
+    "examples": [
+      { "en": "She looked out the window.", "tr": "Pencereden dışarı baktı." },
+      { "en": "He ran out the door.", "tr": "Kapıdan dışarı koştu." },
+      { "en": "The cat jumped out the window.", "tr": "Kedi pencereden dışarı atladı." }
+    ]
+  },
+  "ox3k-a1-outside-adv": {
+    "turkishMeanings": ["dışarıda", "dışarıya"],
+    "examples": [
+      { "en": "The children are playing outside.", "tr": "Çocuklar dışarıda oynuyor." },
+      { "en": "It is very cold outside today.", "tr": "Bugün dışarısı çok soğuk." },
+      { "en": "Let's eat outside in the garden.", "tr": "Bahçede, dışarıda yiyelim." }
+    ]
+  },
+  "ox3k-a1-over-prep": {
+    "turkishMeanings": ["-in üzerinde", "-den fazla"],
+    "examples": [
+      { "en": "There is a lamp over the table.", "tr": "Masanın üzerinde bir lamba var." },
+      { "en": "The bird flew over the house.", "tr": "Kuş evin üzerinden uçtu." },
+      { "en": "It costs over a hundred lira.", "tr": "Yüz liradan fazla tutuyor." }
+    ]
+  },
+  "ox3k-a1-over-adv": {
+    "turkishMeanings": ["bitmiş", "karşıya", "tekrar"],
+    "examples": [
+      { "en": "The lesson is over now.", "tr": "Ders artık bitti." },
+      { "en": "Come over to our house tonight.", "tr": "Bu akşam bize gel." },
+      { "en": "Please read the text over again.", "tr": "Lütfen metni bir daha oku." }
+    ]
+  },
+  "ox3k-a1-own-adj": {
+    "turkishMeanings": ["kendi"],
+    "examples": [
+      { "en": "She has her own room now.", "tr": "Artık kendi odası var." },
+      { "en": "I want to start my own business.", "tr": "Kendi işimi kurmak istiyorum." },
+      { "en": "He cooks his own meals.", "tr": "Kendi yemeğini kendi yapıyor." }
+    ]
+  },
+  "ox3k-a1-own-pron": {
+    "turkishMeanings": ["kendisininki", "kendine ait olan"],
+    "examples": [
+      { "en": "This bag is my own.", "tr": "Bu çanta benim kendi çantam." },
+      { "en": "She lives on her own in the city.", "tr": "Şehirde kendi başına yaşıyor." },
+      { "en": "He made the table on his own.", "tr": "Masayı kendi başına yaptı." }
+    ]
+  },
+  "ox3k-a1-o-clock-adv": {
+    "turkishMeanings": ["saat (tam saat)"],
+    "examples": [
+      { "en": "The film starts at eight o’clock.", "tr": "Film saat sekizde başlıyor." },
+      { "en": "I get up at six o’clock every day.", "tr": "Her gün saat altıda kalkarım." },
+      { "en": "The shop closes at nine o’clock.", "tr": "Dükkân saat dokuzda kapanıyor." }
+    ]
+  },
+  "ox3k-a1-page-n": {
+    "turkishMeanings": ["sayfa"],
+    "examples": [
+      { "en": "Please open your book at page twelve.", "tr": "Lütfen kitabınızı on ikinci sayfadan açın." },
+      { "en": "The last page is missing.", "tr": "Son sayfa eksik." },
+      { "en": "I read ten pages before bed.", "tr": "Yatmadan önce on sayfa okudum." }
+    ]
+  },
+  "ox3k-a1-paint-n": {
+    "turkishMeanings": ["boya"],
+    "examples": [
+      { "en": "We bought white paint for the walls.", "tr": "Duvarlar için beyaz boya aldık." },
+      { "en": "The paint is still wet.", "tr": "Boya hâlâ ıslak." },
+      { "en": "She used red paint for the flowers.", "tr": "Çiçekler için kırmızı boya kullandı." }
+    ]
+  },
+  "ox3k-a1-paint-v": {
+    "turkishMeanings": ["boyamak", "resim yapmak"],
+    "examples": [
+      { "en": "We painted the kitchen last week.", "tr": "Geçen hafta mutfağı boyadık." },
+      { "en": "She paints beautiful pictures.", "tr": "Güzel resimler yapıyor." },
+      { "en": "He painted the door green.", "tr": "Kapıyı yeşile boyadı." }
+    ]
+  },
+  "ox3k-a1-painting-n": {
+    "turkishMeanings": ["resim", "tablo"],
+    "examples": [
+      { "en": "There is a large painting on the wall.", "tr": "Duvarda büyük bir tablo var." },
+      { "en": "She sold her first painting last year.", "tr": "İlk tablosunu geçen yıl sattı." },
+      { "en": "This painting is very old.", "tr": "Bu tablo çok eski." }
+    ]
+  },
+  "ox3k-a1-pair-n": {
+    "turkishMeanings": ["çift"],
+    "examples": [
+      { "en": "I need a new pair of shoes.", "tr": "Yeni bir çift ayakkabıya ihtiyacım var." },
+      { "en": "She bought two pairs of socks.", "tr": "İki çift çorap aldı." },
+      { "en": "Work in pairs, please.", "tr": "Lütfen ikişerli çalışın." }
+    ]
+  },
+  "ox3k-a1-paper-n": {
+    "turkishMeanings": ["kâğıt", "gazete"],
+    "examples": [
+      { "en": "Please give me a piece of paper.", "tr": "Lütfen bana bir parça kâğıt ver." },
+      { "en": "He reads the paper every morning.", "tr": "Her sabah gazete okur." },
+      { "en": "Write your name on the paper.", "tr": "Adını kâğıda yaz." }
+    ]
+  },
+  "ox3k-a1-paragraph-n": {
+    "turkishMeanings": ["paragraf"],
+    "examples": [
+      { "en": "Read the first paragraph again.", "tr": "İlk paragrafı tekrar oku." },
+      { "en": "Write a short paragraph about your family.", "tr": "Ailen hakkında kısa bir paragraf yaz." },
+      { "en": "This paragraph is too long.", "tr": "Bu paragraf çok uzun." }
+    ]
+  },
+  "ox3k-a1-parent-n": {
+    "turkishMeanings": ["ebeveyn", "anne veya baba"],
+    "examples": [
+      { "en": "My parents live in Izmir.", "tr": "Ailem İzmir'de yaşıyor." },
+      { "en": "Every parent wants the best for their child.", "tr": "Her ebeveyn çocuğu için en iyisini ister." },
+      { "en": "The parents waited outside the classroom.", "tr": "Veliler sınıfın dışında bekledi." }
+    ]
+  },
+  "ox3k-a1-park-n": {
+    "turkishMeanings": ["park", "yeşil alan"],
+    "examples": [
+      { "en": "We walk in the park every evening.", "tr": "Her akşam parkta yürürüz." },
+      { "en": "The children are playing in the park.", "tr": "Çocuklar parkta oynuyor." },
+      { "en": "There is a small park near our house.", "tr": "Evimizin yakınında küçük bir park var." }
+    ]
+  },
+  "ox3k-a1-park-v": {
+    "turkishMeanings": ["park etmek"],
+    "examples": [
+      { "en": "You cannot park here.", "tr": "Buraya park edemezsin." },
+      { "en": "He parked the car near the shop.", "tr": "Arabayı dükkânın yanına park etti." },
+      { "en": "Where did you park?", "tr": "Nereye park ettin?" }
+    ]
+  },
+  "ox3k-a1-part-n": {
+    "turkishMeanings": ["parça", "bölüm", "kısım"],
+    "examples": [
+      { "en": "This is the best part of the film.", "tr": "Bu, filmin en güzel bölümü." },
+      { "en": "Music is an important part of my life.", "tr": "Müzik hayatımın önemli bir parçası." },
+      { "en": "I only read the first part of the book.", "tr": "Kitabın sadece ilk kısmını okudum." }
+    ]
+  },
+  "ox3k-a1-partner-n": {
+    "turkishMeanings": ["ortak", "eş", "partner"],
+    "examples": [
+      { "en": "Work with your partner on this exercise.", "tr": "Bu alıştırmayı eşinle birlikte yap." },
+      { "en": "She is my business partner.", "tr": "O benim iş ortağım." },
+      { "en": "He came to the party with his partner.", "tr": "Partiye eşiyle geldi." }
+    ]
+  },
+  "ox3k-a1-party-n": {
+    "turkishMeanings": ["parti", "eğlence"],
+    "examples": [
+      { "en": "We are having a party on Saturday.", "tr": "Cumartesi günü parti veriyoruz." },
+      { "en": "There were forty people at the party.", "tr": "Partide kırk kişi vardı." },
+      { "en": "Thank you for inviting me to your party.", "tr": "Beni partine davet ettiğin için teşekkürler." }
+    ]
+  },
+  "ox3k-a1-passport-n": {
+    "turkishMeanings": ["pasaport"],
+    "examples": [
+      { "en": "Do not forget your passport.", "tr": "Pasaportunu unutma." },
+      { "en": "My passport is valid for five years.", "tr": "Pasaportum beş yıl geçerli." },
+      { "en": "Please show me your passport.", "tr": "Lütfen pasaportunuzu gösterin." }
+    ]
+  },
+  "ox3k-a1-past-n": {
+    "turkishMeanings": ["geçmiş", "mazi"],
+    "examples": [
+      { "en": "We should learn from the past.", "tr": "Geçmişten ders almalıyız." },
+      { "en": "In the past, this town was very small.", "tr": "Geçmişte bu kasaba çok küçüktü." },
+      { "en": "She never talks about her past.", "tr": "Geçmişinden hiç bahsetmez." }
+    ]
+  },
+  "ox3k-a1-past-adj": {
+    "turkishMeanings": ["geçmiş", "geçen"],
+    "examples": [
+      { "en": "I have been busy for the past two weeks.", "tr": "Geçen iki haftadır meşguldüm." },
+      { "en": "We studied the past tense today.", "tr": "Bugün geçmiş zamanı çalıştık." },
+      { "en": "Those days are past now.", "tr": "O günler artık geçmişte kaldı." }
+    ]
+  },
+  "ox3k-a1-past-prep": {
+    "turkishMeanings": ["geçe", "-in önünden"],
+    "examples": [
+      { "en": "It is ten past three.", "tr": "Saat üçü on geçiyor." },
+      { "en": "She walked past the shop without stopping.", "tr": "Durmadan dükkânın önünden geçti." },
+      { "en": "The bus goes past our school.", "tr": "Otobüs okulumuzun önünden geçiyor." }
+    ]
+  },
+  "ox3k-a1-pay-v": {
+    "turkishMeanings": ["ödemek"],
+    "examples": [
+      { "en": "I paid for the tickets yesterday.", "tr": "Biletlerin parasını dün ödedim." },
+      { "en": "Can I pay by card?", "tr": "Kartla ödeyebilir miyim?" },
+      { "en": "She pays the rent every month.", "tr": "Kirayı her ay ödüyor." }
+    ]
+  },
+  "ox3k-a1-pen-n": {
+    "turkishMeanings": ["tükenmez kalem", "kalem"],
+    "examples": [
+      { "en": "Can I borrow your pen?", "tr": "Kalemini ödünç alabilir miyim?" },
+      { "en": "Write the answer in pen, not pencil.", "tr": "Cevabı kurşun kalemle değil, tükenmezle yaz." },
+      { "en": "My pen is not working.", "tr": "Kalemim yazmıyor." }
+    ]
+  },
+  "ox3k-a1-pencil-n": {
+    "turkishMeanings": ["kurşun kalem"],
+    "examples": [
+      { "en": "Draw the picture with a pencil.", "tr": "Resmi kurşun kalemle çiz." },
+      { "en": "I need to sharpen my pencil.", "tr": "Kalemimi açmam gerek." },
+      { "en": "She has a box of coloured pencils.", "tr": "Bir kutu kuru boya kalemi var." }
+    ]
+  },
+  "ox3k-a1-people-n": {
+    "turkishMeanings": ["insanlar", "halk"],
+    "examples": [
+      { "en": "Many people came to the concert.", "tr": "Konsere birçok insan geldi." },
+      { "en": "The people here are very friendly.", "tr": "Buradaki insanlar çok cana yakın." },
+      { "en": "How many people live in this city?", "tr": "Bu şehirde kaç kişi yaşıyor?" }
+    ]
+  },
+  "ox3k-a1-pepper-n": {
+    "turkishMeanings": ["biber", "karabiber"],
+    "examples": [
+      { "en": "Please pass me the salt and pepper.", "tr": "Lütfen tuz ve karabiberi uzat." },
+      { "en": "I bought two green peppers.", "tr": "İki yeşil biber aldım." },
+      { "en": "Add a little pepper to the soup.", "tr": "Çorbaya biraz karabiber ekle." }
+    ]
+  },
+  "ox3k-a1-perfect-adj": {
+    "turkishMeanings": ["mükemmel", "kusursuz"],
+    "examples": [
+      { "en": "The weather was perfect for a picnic.", "tr": "Hava piknik için mükemmeldi." },
+      { "en": "Her English is almost perfect.", "tr": "İngilizcesi neredeyse kusursuz." },
+      { "en": "This is a perfect place to rest.", "tr": "Burası dinlenmek için mükemmel bir yer." }
+    ]
+  },
+  "ox3k-a1-period-n": {
+    "turkishMeanings": ["dönem", "süre", "devir"],
+    "examples": [
+      { "en": "She lived in Ankara for a short period.", "tr": "Kısa bir süre Ankara'da yaşadı." },
+      { "en": "This was an important period in history.", "tr": "Bu, tarihte önemli bir dönemdi." },
+      { "en": "The rainy period starts in November.", "tr": "Yağmurlu dönem kasımda başlar." }
+    ]
+  },
+  "ox3k-a1-person-n": {
+    "turkishMeanings": ["kişi", "insan"],
+    "examples": [
+      { "en": "She is a very kind person.", "tr": "Çok iyi kalpli bir insan." },
+      { "en": "Only one person was waiting.", "tr": "Sadece bir kişi bekliyordu." },
+      { "en": "He is the right person for this job.", "tr": "Bu iş için doğru kişi o." }
+    ]
+  },
+  "ox3k-a1-personal-adj": {
+    "turkishMeanings": ["kişisel", "özel"],
+    "examples": [
+      { "en": "This is a personal question.", "tr": "Bu kişisel bir soru." },
+      { "en": "Please keep your personal things with you.", "tr": "Lütfen kişisel eşyalarınızı yanınızda tutun." },
+      { "en": "She gave me her personal opinion.", "tr": "Bana kişisel görüşünü söyledi." }
+    ]
+  },
+  "ox3k-a1-phone-n": {
+    "turkishMeanings": ["telefon"],
+    "examples": [
+      { "en": "My phone is on the table.", "tr": "Telefonum masanın üstünde." },
+      { "en": "She bought a new phone last week.", "tr": "Geçen hafta yeni bir telefon aldı." },
+      { "en": "Please turn off your phone in class.", "tr": "Lütfen sınıfta telefonunu kapat." }
+    ]
+  },
+  "ox3k-a1-phone-v": {
+    "turkishMeanings": ["telefon etmek", "aramak"],
+    "examples": [
+      { "en": "I will phone you tomorrow morning.", "tr": "Yarın sabah seni ararım." },
+      { "en": "She phoned the doctor yesterday.", "tr": "Dün doktoru aradı." },
+      { "en": "Please phone me when you arrive.", "tr": "Vardığında lütfen beni ara." }
+    ]
+  },
+  "ox3k-a1-photo-n": {
+    "turkishMeanings": ["fotoğraf"],
+    "examples": [
+      { "en": "Let me take a photo of you.", "tr": "Senin bir fotoğrafını çekeyim." },
+      { "en": "This photo is from our holiday.", "tr": "Bu fotoğraf tatilimizden." },
+      { "en": "She showed me photos of her children.", "tr": "Bana çocuklarının fotoğraflarını gösterdi." }
+    ]
+  },
+  "ox3k-a1-photograph-n": {
+    "turkishMeanings": ["fotoğraf"],
+    "examples": [
+      { "en": "There is an old photograph on the wall.", "tr": "Duvarda eski bir fotoğraf var." },
+      { "en": "He took a photograph of the bridge.", "tr": "Köprünün fotoğrafını çekti." },
+      { "en": "This photograph is over fifty years old.", "tr": "Bu fotoğraf elli yıldan eski." }
+    ]
+  },
+  "ox3k-a1-phrase-n": {
+    "turkishMeanings": ["ifade", "söz öbeği"],
+    "examples": [
+      { "en": "Learn this phrase for the exam.", "tr": "Sınav için bu ifadeyi öğren." },
+      { "en": "It is a common phrase in English.", "tr": "İngilizcede yaygın bir ifadedir." },
+      { "en": "She used a polite phrase to say no.", "tr": "Hayır demek için kibar bir ifade kullandı." }
+    ]
+  }
+}
