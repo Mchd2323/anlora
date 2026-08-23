@@ -29,9 +29,18 @@ DATA_FILES = ['src/data/oxford3000.json', 'src/data/oxford5000extra.json']
 CONTENT_GLOB = 'scripts/oxford/content/*.json'
 
 PLACEHOLDER = re.compile(r'\((isim|fiil|sıfat|zarf|anlam)\)|otomatik anlam|kelimesi', re.I)
-SELF_REFERENTIAL = re.compile(
-    r'\b(the word|learning the word|is an important english word|i learned)\b', re.I
-)
+# Kelimenin KENDİSİ hakkında konuşan sahte örnekler (talimat 12).
+#
+# Kalıp hedefe bağlı kurulur: "Look up the word in a dictionary." geçerli bir
+# örnektir, "Learning the word absorb is useful." değildir. Sabit bir
+# "the word" kalıbı ikisini ayıramaz.
+def build_self_referential(headword):
+    escaped = re.escape(headword.strip())
+    return re.compile(
+        r'\b(learning the word|the word\s+["\']?' + escaped + r'|'
+        + escaped + r'\s+is an important english word|i learned\s+' + escaped + r')\b',
+        re.I,
+    )
 
 with open('src/data/irregularInflections.json', encoding='utf-8') as _h:
     IRREGULAR = json.load(_h)
@@ -93,7 +102,7 @@ def validate(patch, headword, sense_pos):
             continue
         if len(english) < 10:
             problems.append(f'çok kısa örnek: {english}')
-        if SELF_REFERENTIAL.search(english):
+        if build_self_referential(headword).search(english):
             problems.append(f'kelimenin kendisi hakkında örnek: {english}')
         if not sentence_contains(english, headword):
             problems.append(f'örnek kelimeyi içermiyor: {english}')
