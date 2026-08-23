@@ -14,3 +14,6 @@ __pycache__/
 # Sunucu tarafı yerel veri (kullanıcı hesapları ve bulut yedekleri)
 data/
 src/data/custom_cards_cloud.json
+
+# WordPress teması paketleri
+wordpress/*.zip

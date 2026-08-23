@@ -1,0 +1,118 @@
+/*
+ * Özel Eğitim Sohbet — wpForo ve Nextend Social Login görsel uyumu.
+ *
+ * wpForo kendi stillerini yüksek özgüllükle yazdığı için burada !important
+ * kullanmak gerekiyor. Dosya yalnızca wpForo etkinken (ve wp-login.php
+ * ekranında, Google düğmesi için) yüklenir.
+ */
+
+#wpforo,
+#wpforo-wrap {
+	--wpf-primary-color: #176b5b !important;
+	--wpf-secondary-color: #123f36 !important;
+	--wpf-head-color: #163b33 !important;
+	--wpf-text-color: #536a63 !important;
+	--wpf-bg-color: #fff !important;
+	font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+	color: #536a63 !important;
+}
+
+#wpforo-wrap {
+	background: #fff !important;
+	border: 1px solid #e0e6e1 !important;
+	border-radius: 19px !important;
+	overflow: hidden !important;
+	box-shadow: 0 12px 36px rgba(22, 59, 51, .07);
+}
+
+/* Forum sayfası kabuk genişliğini kullansın. */
+.oec-board-page .oec-page-main { max-width: none; }
+
+#wpforo-wrap .wpforo-category,
+#wpforo-wrap .wpforo-forum,
+#wpforo-wrap .wpforo-topic,
+#wpforo-wrap .wpforo-post,
+#wpforo-wrap .wpf-field { border-color: #e4e9e5 !important; }
+
+#wpforo-wrap .wpforo-category-title,
+#wpforo-wrap .wpforo-forum-title,
+#wpforo-wrap .wpforo-topic-title,
+#wpforo-wrap .wpforo-post-title { color: #163b33 !important; font-weight: 700 !important; }
+
+#wpforo-wrap .wpf-button,
+#wpforo-wrap button,
+#wpforo-wrap input[type="submit"],
+#wpforo-wrap input[type="button"],
+#wpforo-wrap .wpforo-active {
+	background: #176b5b !important;
+	border-color: #176b5b !important;
+	color: #fff !important;
+	border-radius: 9px !important;
+	box-shadow: none !important;
+}
+
+#wpforo-wrap .wpf-button:hover,
+#wpforo-wrap button:hover,
+#wpforo-wrap input[type="submit"]:hover { background: #123f36 !important; border-color: #123f36 !important; }
+
+#wpforo-wrap input[type="text"],
+#wpforo-wrap input[type="email"],
+#wpforo-wrap input[type="password"],
+#wpforo-wrap input[type="search"],
+#wpforo-wrap select,
+#wpforo-wrap textarea {
+	background: #fbfcfa !important;
+	border: 1px solid #d8e1dc !important;
+	border-radius: 9px !important;
+	color: #163b33 !important;
+	box-shadow: none !important;
+}
+
+#wpforo-wrap a { color: #176b5b !important; }
+#wpforo-wrap a:hover { color: #123f36 !important; }
+
+#wpforo-wrap :focus-visible { outline: 2px solid #176b5b !important; outline-offset: 2px !important; }
+
+#wpforo-wrap .wpf-head-bar,
+#wpforo-wrap .wpforo-forum-head,
+#wpforo-wrap .wpforo-topic-head {
+	background: #edf6f2 !important;
+	color: #163b33 !important;
+	border-color: #d8e8e1 !important;
+}
+
+#wpforo-wrap .wpforo-member-profile,
+#wpforo-wrap .wpforo-profile-wrap,
+#wpforo-wrap .wpforo-login-wrap,
+#wpforo-wrap .wpforo-register-wrap { border-radius: 16px !important; overflow: hidden !important; }
+
+#wpforo-wrap .wpf-tag,
+#wpforo-wrap .wpforo-topic-badge { background: #dff1e9 !important; color: #176b5b !important; border-radius: 8px !important; }
+
+#wpforo-wrap .wpf-avatar img,
+#wpforo-wrap .wpforo-member-avatar img { border-radius: 12px !important; }
+
+#wpforo-wrap .wpforo-post:nth-child(even) { background: #fbfcfa !important; }
+
+#wpforo-wrap .wpforo-last-post-title,
+#wpforo-wrap .wpforo-topic-stat,
+#wpforo-wrap .wpforo-forum-stat { color: #71817c !important; }
+
+/* --- Nextend Social Login (Google) --- */
+#wpforo-wrap .nsl-container,
+.login .nsl-container { margin: 18px auto !important; max-width: 420px !important; }
+
+#wpforo-wrap .nsl-container-buttons,
+.login .nsl-container-buttons { display: grid !important; gap: 8px !important; }
+
+#wpforo-wrap .nsl-button,
+.login .nsl-button { border-radius: 9px !important; overflow: hidden !important; box-shadow: none !important; }
+
+.login .nsl-container-block .nsl-container-buttons { justify-items: stretch !important; }
+
+@media (max-width: 782px) {
+	#wpforo-wrap { border-radius: 14px !important; }
+	#wpforo-wrap .wpforo-category,
+	#wpforo-wrap .wpforo-forum,
+	#wpforo-wrap .wpforo-topic { padding-left: 10px !important; padding-right: 10px !important; }
+}

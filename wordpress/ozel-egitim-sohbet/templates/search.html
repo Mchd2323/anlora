@@ -1,0 +1,23 @@
+<!-- wp:template-part {"slug":"header","tagName":"header"} /-->
+<!-- wp:group {"tagName":"main","className":"oec-shell oec-page-main","layout":{"type":"constrained"}} -->
+<main class="wp-block-group oec-shell oec-page-main">
+<!-- wp:query-title {"type":"search","showPrefix":false} /-->
+<!-- wp:search {"label":"Ara","showLabel":false,"placeholder":"Sitede ara…","buttonText":"Ara","className":"oec-site-search"} /-->
+<!-- wp:query {"queryId":0,"query":{"perPage":10,"pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"","inherit":true},"layout":{"type":"default"}} -->
+<div class="wp-block-query">
+<!-- wp:post-template -->
+<!-- wp:group {"className":"oec-post-card","layout":{"type":"default"}} -->
+<div class="wp-block-group oec-post-card"><!-- wp:post-title {"level":2,"isLink":true} /--><!-- wp:post-date {"fontSize":"small"} /--><!-- wp:post-excerpt /--></div>
+<!-- /wp:group -->
+<!-- /wp:post-template -->
+<!-- wp:query-no-results -->
+<!-- wp:paragraph --><p>Aramanıza uygun bir sonuç bulunamadı. Topluluk sorularında aramak için <a href="/community/">forumu</a> kullanabilirsiniz.</p><!-- /wp:paragraph -->
+<!-- /wp:query-no-results -->
+<!-- wp:query-pagination {"layout":{"type":"flex","justifyContent":"space-between"}} -->
+<!-- wp:query-pagination-previous /--><!-- wp:query-pagination-numbers /--><!-- wp:query-pagination-next /-->
+<!-- /wp:query-pagination -->
+</div>
+<!-- /wp:query -->
+</main>
+<!-- /wp:group -->
+<!-- wp:template-part {"slug":"footer","tagName":"footer"} /-->

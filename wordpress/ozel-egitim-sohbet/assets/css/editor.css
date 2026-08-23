@@ -1,0 +1,58 @@
+/*
+ * Düzenleyici (editor) görünümü.
+ *
+ * Kısa kodlar düzenleyicide çalışmadığı için, kart ve raylar en azından
+ * doğru boşluk ve renkte görünsün diye küçük bir düzeltme katmanı.
+ */
+.editor-styles-wrapper .oec-card,
+.editor-styles-wrapper .oec-hero-card,
+.editor-styles-wrapper .oec-post-card {
+	border: 1px solid #e0e6e1;
+	border-radius: 18px;
+	padding: 20px;
+	background: #fff;
+}
+
+.editor-styles-wrapper .oec-principle {
+	background: #123f36;
+	color: #fff;
+}
+
+.editor-styles-wrapper .oec-guide {
+	background: #176b5b;
+	color: #fff;
+}
+
+.editor-styles-wrapper .oec-warning-card {
+	background: #fff8e9;
+}
+
+.editor-styles-wrapper .oec-workspace {
+	display: grid;
+	grid-template-columns: 220px minmax(0, 1fr) 260px;
+	gap: 22px;
+	align-items: start;
+}
+
+.editor-styles-wrapper .oec-rail {
+	display: grid;
+	gap: 14px;
+}
+
+.editor-styles-wrapper .oec-hero {
+	background: linear-gradient(135deg, #dff1e9, #faf8f1);
+	padding: 32px;
+	border-radius: 20px;
+}
+
+.editor-styles-wrapper .oec-footer {
+	background: #123f36;
+	color: #fff;
+	padding: 32px;
+	border-radius: 20px;
+}
+
+.editor-styles-wrapper .oec-footer a,
+.editor-styles-wrapper .oec-footer p {
+	color: #b9d5ce;
+}
