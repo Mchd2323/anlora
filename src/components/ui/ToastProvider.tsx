@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { ToastContainer, ToastMessage } from './Toast';
 import { onStorageError } from '../../utils/safeStorage';
+import { onSpeechError } from '../../utils/speech';
 
 type ToastType = ToastMessage['type'];
 
@@ -42,6 +43,26 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         'Tarayıcı depolama alanı dolu veya kapalı; son değişiklik kaydedilemedi.',
         'error'
       );
+    });
+  }, [showToast]);
+
+  // Telaffuz çalışmadığında sessiz kalmak yerine sebebini söyle: kullanıcı
+  // düğmenin bozuk olduğunu mu yoksa cihazda ses paketi eksik olduğunu mu
+  // bilmeden aynı düğmeye basmayı sürdürüyor.
+  useEffect(() => {
+    return onSpeechError(reason => {
+      if (reason === 'no-voice') {
+        showToast(
+          'Cihazda İngilizce seslendirme paketi bulunamadı. Ayarlar → Diller ve giriş → Metin okuma bölümünden ekleyebilirsin.',
+          'error'
+        );
+        return;
+      }
+      if (reason === 'unsupported') {
+        showToast('Bu cihazda sesli okuma desteklenmiyor.', 'error');
+        return;
+      }
+      showToast('Telaffuz çalınamadı, tekrar dener misin?', 'error');
     });
   }, [showToast]);
 

@@ -19,17 +19,31 @@ const RAW_BASE = (import.meta.env.VITE_API_BASE_URL || '').trim();
 /** Sondaki eğik çizgi tekrarlı `//api` üretmesin. */
 export const API_BASE = RAW_BASE.replace(/\/+$/, '');
 
-/** Sunucuya bağlı özellikler kullanılabilir mi? */
-export const HAS_REMOTE_API = API_BASE.length > 0 || !isNativeShell();
+/**
+ * Sunucuya bağlı özellikler (hesap, bulut yedeği, Anlora AI) kullanılabilir mi?
+ *
+ * Web'de arayüz sunucusuyla aynı kökendedir, taban boş olsa da göreli yol
+ * çalışır. Yerel kabukta ise ancak tam bir adres verilmişse çalışır.
+ */
+export async function hasRemoteApi(): Promise<boolean> {
+  if (API_BASE.length > 0) return true;
+  return !(await isNativeShell());
+}
 
 /**
  * Uygulama yerel bir pakete gömülü olarak mı çalışıyor?
- * Capacitor WebView'ında köken `capacitor://` ya da `https://localhost` olur.
+ *
+ * Kökene bakmak yanıltıcıdır: Capacitor Android varsayılan olarak
+ * `https://localhost` adresinden servis eder, yani şema tarayıcıdakiyle
+ * aynıdır. Capacitor'ın kendi bildirimi tek güvenilir kaynaktır.
  */
-export function isNativeShell(): boolean {
-  if (typeof window === 'undefined') return false;
-  const proto = window.location.protocol;
-  return proto === 'capacitor:' || proto === 'file:';
+export async function isNativeShell(): Promise<boolean> {
+  try {
+    const { Capacitor } = await import('@capacitor/core');
+    return Capacitor.isNativePlatform();
+  } catch {
+    return false;
+  }
 }
 
 /** Göreli bir API yolunu çağrılabilir tam adrese çevirir. */
