@@ -3,9 +3,12 @@
 Anlora – Genel Dağarcık kelime listesini üretir.
 
 Oxford çekirdeği (4.952 kelime) resmî listelerden geliyor ve dokunulmaz.
-Bu betik onun üstüne, uygulamayı 20.000 kelimeye taşıyan ikinci bir katman
+Bu betik onun üstüne, uygulamayı 10.000 kelimeye taşıyan ikinci bir katman
 kurar. Amaç kapsamı büyütmek: kullanıcı kendi kelimesini eklediğinde çoğu
 zaman zaten listede bulunsun, yapay zekâya ihtiyaç istisna olsun.
+
+Kelimeler sıklık sırasına göre seçilir; yani listeye giren 5.048 kelime,
+Oxford'da bulunmayanlar arasında günlük İngilizcede en sık geçenlerdir.
 
 KAYNAKLAR (ikisi de yeniden dağıtıma izin veriyor)
 
@@ -57,7 +60,7 @@ import re
 import sys
 from collections import Counter
 
-TARGET = 15048          # 4.952 Oxford + 15.048 = 20.000
+TARGET = 5048           # 4.952 Oxford + 5.048 = 10.000
 BAND_SIZE = 2000        # Uygulama bantları tembel yükler; bkz. src/services
 
 CORE_FILES = [

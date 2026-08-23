@@ -1,8 +1,11 @@
-# Genel Dağarcık (20.000 kelime katmanı)
+# Genel Dağarcık (10.000 kelime katmanı)
 
 Oxford çekirdeği (4.952 kelime / 5.947 anlam) resmî listelerden gelir ve
-dokunulmaz. Bu klasör onun üstüne, uygulamayı **20.000 kelimeye** taşıyan
-ikinci katmanı üretir: 15.048 kelime, 18.088 anlam.
+dokunulmaz. Bu klasör onun üstüne, uygulamayı **10.000 kelimeye** taşıyan
+ikinci katmanı üretir: 5.048 kelime, 6.638 anlam.
+
+Kelimeler sıklık sırasına göre seçilir: listeye giren 5.048 kelime,
+Oxford'da bulunmayanlar arasında günlük İngilizcede en sık geçenlerdir.
 
 Amaç kapsam: kullanıcı kendi kelimesini eklediğinde çoğu zaman zaten
 listede bulunsun, yapay zekâya başvurmak istisna olsun. Veri pakete
@@ -22,7 +25,7 @@ kaynaklardan alınmaz; `content/` altında elle yazılır.
 ## Akış
 
 ```
-source/wordlist.json          15.048 kelime: yazım, POS, sıklık sırası, bant, IPA
+source/wordlist.json           5.048 kelime: yazım, POS, sıklık sırası, bant, IPA
       +
 content/*.json                elle yazılan Türkçe anlamlar ve örnek cümleler
       ↓  build_bands.py
@@ -49,7 +52,7 @@ python3 scripts/extended/build_bands.py --strict   # kusur varsa hata kodu
 
 ## Bantlar
 
-Kelimeler sıklığa göre 2.000'erlik bantlara ayrılır (son bant 1.048).
+Kelimeler sıklığa göre 2.000'erlik üç banda ayrılır (son bant 1.048).
 Uygulama bantları `import()` ile tembel yükler: bellekte yalnızca çalışılan
 bant durur. Tek dosya olsaydı 14 MB'lık sözlük açılışta baştan sona
 ayrıştırılır, zayıf telefonlarda açılışı yavaşlatırdı.
@@ -61,13 +64,13 @@ Elenenler:
 
 | Süzgeç | Adet | Örnek |
 |---|---:|---|
-| Zaten Oxford'da var | 4.799 | `about`, `people` |
-| Mevcut kelimenin çekimi | 2.471 | `going`→`go`, `bigger`→`big` |
-| Özel ad | 479 | `john`, `mike` |
-| Üç harften kısa | 95 | `em`, `ya` |
-| Müstehcen / aşağılayıcı | 88 | öğrenci hedefli uygulama |
-| Amerikan/İngiliz yazım ikizi | 46 | `color`→`colour` |
-| Ünlem, altyazı ses notu | 32 | `ooh`, `[panting]` |
+| Zaten Oxford'da var | 4.542 | `about`, `people` |
+| Mevcut kelimenin çekimi | 1.846 | `going`→`go`, `bigger`→`big` |
+| Özel ad | 333 | `john`, `mike` |
+| Üç harften kısa | 73 | `em`, `ya` |
+| Müstehcen / aşağılayıcı | 75 | öğrenci hedefli uygulama |
+| Ünlem, altyazı ses notu | 60 | `ooh`, `[panting]` |
+| Amerikan/İngiliz yazım ikizi | 40 | `color`→`colour` |
 
 `NAME_BUT_REAL` listesi, ad veritabanında geçen ama gerçek sözcük olan
 kelimeleri korur (`wolf`, `sheriff`, `fairy`, `clay`).
