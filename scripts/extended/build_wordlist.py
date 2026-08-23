@@ -89,7 +89,8 @@ VULGAR = {
 SLUR = {
     'nigger', 'faggot', 'fag', 'coon', 'wop', 'kike', 'chink', 'gook', 'spic',
     'honky', 'retard', 'retarded', 'cripple', 'midget', 'tranny', 'dyke',
-    'negro', 'mulatto', 'savage',
+    'negro', 'mulatto', 'savage', 'nigga', 'niggas', 'niggaz', 'jap', 'paki',
+    'raghead', 'towelhead', 'wetback', 'gyp', 'gypped', 'spaz', 'mong',
 }
 
 # Ünlem, ses taklidi, konuşma dili kısaltmaları ve altyazı artıkları.
@@ -290,6 +291,7 @@ def main():
 
     dropped = Counter()
     selected = []
+    chosen = set()          # seçilenler; kendi içinde çekim tekrarını önler
     for word in ranked:
         if len(selected) >= TARGET:
             break
@@ -305,12 +307,17 @@ def main():
             dropped['gurultu'] += 1
         elif word in names and word not in NAME_BUT_REAL:
             dropped['ozel_ad'] += 1
-        elif any(base in core for base in inflection_bases(word, irregular)):
+        elif any(base in core or base in chosen
+                 for base in inflection_bases(word, irregular)):
+            # Kök ya Oxford'da ya da bu listede zaten seçilmiş. `hum` seçildiyse
+            # `humming` ikinci bir kart olarak girmemeli.
             dropped['cekim'] += 1
-        elif any(variant in core for variant in spelling_variants(word)):
+        elif any(variant in core or variant in chosen
+                 for variant in spelling_variants(word)):
             dropped['yazim_varyanti'] += 1
         else:
             selected.append(word)
+            chosen.add(word)
 
     if len(selected) < TARGET:
         sys.exit(f'Yalnızca {len(selected)} kelime seçilebildi, {TARGET} gerekli.')
