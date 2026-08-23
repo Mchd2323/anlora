@@ -1,5 +1,11 @@
 {
- "bands": [],
+ "bands": [
+  {
+   "band": 1,
+   "entryCount": 64,
+   "senseCount": 78
+  }
+ ],
  "plannedWordsPerBand": {
   "1": 2000,
   "2": 2000,
