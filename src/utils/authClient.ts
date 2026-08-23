@@ -8,6 +8,7 @@
  */
 
 import { readRaw, writeRaw, removeKey } from './safeStorage';
+import { apiUrl } from '../config/api';
 
 const TOKEN_KEY = 'anlora_session_token';
 const TOKEN_EXPIRY_KEY = 'anlora_session_expires_at';
@@ -68,7 +69,7 @@ export async function apiFetch<T = any>(
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const response = await fetch(path, { ...init, headers });
+  const response = await fetch(apiUrl(path), { ...init, headers });
 
   let data: any = null;
   try {

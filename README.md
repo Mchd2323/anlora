@@ -166,11 +166,48 @@ ANLORA_AUDIT_STRICT=true npx tsx scripts/auditOxford3000.ts   # CI için: kusur 
 
 Önceki veri kümesinde 9.678 örnek cümlenin 8.515'i (%88) yirmi bir sabit kalıptan üretilmişti ve kelime sözcük türüne bakılmaksızın kalıba yerleştirildiği için dilbilgisi dışıydı (`ago` zarfı için *"I want to ago today because it is very important."*). Veri kümesi resmî kaynaklardan yeniden kurulurken bu cümleler alınmadı; sunucudaki `validateGeneratedWordCard` ve `validate_oxford.py` aynı kalıpların geri girmesini engeller.
 
+## Android uygulaması
+
+Arayüz, [Capacitor](https://capacitorjs.com) ile bir Android paketine sarılır. Web derlemesi (`dist/`) cihaza gömülür ve WebView'da yerel dosyalardan açılır; Oxford çekirdeği de paketin içinde olduğu için sözlük, kartlar ve ilerleme **tamamen çevrimdışı** çalışır.
+
+| | |
+|---|---|
+| Paket kimliği | `com.anlora.app` |
+| En düşük Android | 6.0 (API 23) |
+| Hedef Android | 15 (API 35) |
+
+```bash
+npm run android:icons   # marka ikonunu ve açılış ekranını üret (bir kez)
+npm run android:sync    # web paketini derle ve android/ içine kopyala
+npm run android:open    # Android Studio'da aç
+cd android && ./gradlew assembleDebug   # APK: app/build/outputs/apk/debug/
+```
+
+### Sunucuya bağlı özellikler
+
+APK'da arayüzün kökeni `https://localhost`'tur, yani göreli `/api/...` yolları sunucuya değil paketin kendisine gider. Bu yüzden hesap, bulut yedeği ve Anlora AI için derleme sırasında sunucunun tam adresi verilmelidir:
+
+```bash
+VITE_API_BASE_URL="https://alan-adiniz.com" npm run android:sync
+```
+
+Adres verilmezse uygulama çevrimdışı kipte derlenir: çalışma akışının tamamı çalışır, yalnızca sunucuya bağlı üç özellik kapalı kalır (bkz. `src/config/api.ts`).
+
+### APK üretimi
+
+`.github/workflows/android-apk.yml` APK'yı CI'da derler. Actions sekmesinden elle çalıştırıldığında paket koşunun artefaktı olur; `v*` biçiminde bir etiket gönderildiğinde ise kalıcı bir Release'e eklenir:
+
+```bash
+git tag v1.0.0 && git push origin v1.0.0
+```
+
+APK, Android SDK'nın hata ayıklama anahtarıyla imzalanır: doğrudan kurulabilir ama Play Store'a yüklenemez. Mağaza dağıtımı için kendi anahtarınızla imzalanmış bir `assembleRelease` derlemesi ve `android/app/build.gradle` içinde bir `signingConfig` gerekir.
+
 ## Notlar ve bilinen sınırlar
 
 - Kullanıcı ilerlemesi öncelikle tarayıcıda `localStorage` üzerinde tutulur; ilk açılışta V1 şemasından V2'ye otomatik göç çalışır. Depolama yazımları hata durumunda uygulamayı çökertmez; kota dolduğunda kullanıcıya bildirim gösterilir.
 - Oxford sözlüğü açılışta bütün olarak yüklenir. Ayrı bir derleme parçasına alındığı için önbelleklenebilir, ancak kalıcı çözüm `oxfordCoreRepository`'yi grup başına dinamik `import()` ile tembel yüklemeye çevirmektir.
-- Kayıtların 4.408'i (%83) `needsReview` taşır: yapısal bilgi eksiksizdir ama Türkçe anlam ve/veya örnek cümleler henüz üretilmemiştir. `enrich_oxford.ts` bir API anahtarıyla bu boşluğu doldurur; en büyük açık iş kalemi budur.
+- Sözlük içeriği tamamlanmıştır: 5.323 kaydın 5.947 anlamının tamamı Türkçe karşılık ve üçer örnek cümle taşır (17.841 cümle). `validate_oxford.py` sıfır kusur bildirir ve `needs_review` kuyruğu boştur.
 - Fonetik yazım Genel Amerikan İngilizcesindedir (CMUdict kaynaklı), çünkü uygulama kelimeleri `en-US` sesiyle okur.
 - Kullanıcı hesapları düz bir JSON dosyasında tutulur ve oturumlar süreç belleğindedir: tek sunucu örneği için yeterli, yatay ölçeklenen bir dağıtım için değil. Gerçek bir dağıtımda bir veritabanı ve paylaşımlı oturum deposu gerekir.
 - Doğrulama kodları e-posta ile gönderilmez, sunucu günlüğüne yazılır. Üretim için `deliverVerificationCode` bir e-posta sağlayıcısına bağlanmalıdır.

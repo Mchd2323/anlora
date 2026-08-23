@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { WordCard } from '../types';
+import { apiUrl } from '../config/api';
 import { WordCardComponent } from './WordCard';
 import { EditCardModal } from './EditCardModal';
 import {
@@ -57,7 +58,7 @@ export const CustomNotebook: React.FC<CustomNotebookProps> = ({
     setErrorMessage('');
 
     try {
-      const response = await fetch('/api/ai/generate-word', {
+      const response = await fetch(apiUrl('/api/ai/generate-word'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

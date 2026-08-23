@@ -1,4 +1,5 @@
 import { WordCard, WordSense, ExampleSentence } from '../types';
+import { apiUrl } from '../config/api';
 
 export interface ValidatedSenseResult {
   validatedSenses: WordSense[];
@@ -7,7 +8,7 @@ export interface ValidatedSenseResult {
 }
 
 export async function generateWordCardWithAi(word: string, context?: string): Promise<WordCard> {
-  const response = await fetch('/api/ai/generate-word', {
+  const response = await fetch(apiUrl('/api/ai/generate-word'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ word, context })
@@ -27,7 +28,7 @@ export async function validateSensesWithAi(
   userSenses: Array<{ id: string; meaningTr: string; partOfSpeech?: string }>,
   contextSentence?: string
 ): Promise<ValidatedSenseResult> {
-  const response = await fetch('/api/ai/validate-senses', {
+  const response = await fetch(apiUrl('/api/ai/validate-senses'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ word, contextSentence, userSenses })
@@ -48,7 +49,7 @@ export async function generateSenseExamplesWithAi(
   partOfSpeech?: string,
   context?: string
 ): Promise<ExampleSentence[]> {
-  const response = await fetch('/api/ai/generate-examples', {
+  const response = await fetch(apiUrl('/api/ai/generate-examples'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ word, turkishMeaning, partOfSpeech, context })

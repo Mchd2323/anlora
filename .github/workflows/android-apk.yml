@@ -1,0 +1,105 @@
+name: Android APK
+
+# Anlora'nın Android paketini üretir.
+#
+# İki tetikleyici vardır:
+#   * workflow_dispatch — Actions sekmesinden elle çalıştırılır. APK, koşunun
+#     artefaktı olarak indirilir (bağlantı 90 gün yaşar, GitHub oturumu gerekir).
+#   * v* etiketi — kalıcı bir Release oluşturur ve APK'yı ona ekler. Herkese
+#     açık, süresiz bir indirme bağlantısı isteniyorsa yol budur.
+#
+# APK hata ayıklama (debug) anahtarıyla imzalanır. Bu anahtar Android SDK ile
+# birlikte gelir ve herkeste aynıdır: paket doğrudan kurulabilir, ama Play
+# Store'a yüklenemez ve kimliği doğrulanmış bir yayıncıya ait değildir.
+# Mağazaya çıkarken kendi anahtarınızla imzalanmış bir release derlemesi
+# gerekir (README'deki "Android" bölümü).
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_base_url:
+        description: 'Sunucu adresi (boş bırakılırsa uygulama yalnızca çevrimdışı çalışır)'
+        required: false
+        default: ''
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Bağımlılıkları kur
+        run: npm ci
+
+      - name: Testler ve tip denetimi
+        run: |
+          npm run lint
+          npm test
+
+      - name: Web paketini derle
+        env:
+          # Elle çalıştırmada giriş kutusu, etiketle çalıştırmada depo
+          # değişkeni kullanılır. İkisi de boşsa uygulama çevrimdışı kipte
+          # derlenir: Oxford çekirdeği çalışır, sunucuya bağlı özellikler
+          # (hesap, bulut yedeği, Anlora AI) kapalı olur.
+          VITE_API_BASE_URL: ${{ github.event.inputs.api_base_url || vars.API_BASE_URL }}
+        run: npx vite build
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Android SDK kur
+        uses: android-actions/setup-android@v3
+
+      - name: Web varlıklarını Android projesine kopyala
+        run: npx cap sync android
+
+      - name: APK derle
+        run: ./gradlew assembleDebug --no-daemon
+        working-directory: android
+
+      - name: APK'yı adlandır
+        id: apk
+        run: |
+          SRC=android/app/build/outputs/apk/debug/app-debug.apk
+          DEST="anlora-${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}.apk"
+          cp "$SRC" "$DEST"
+          echo "path=$DEST" >> "$GITHUB_OUTPUT"
+          ls -lh "$DEST"
+
+      - name: Artefakt olarak yükle
+        uses: actions/upload-artifact@v4
+        with:
+          name: anlora-apk
+          path: ${{ steps.apk.outputs.path }}
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Etiketliyse Release'e ekle
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.apk.outputs.path }}
+          body: |
+            Anlora ${{ github.ref_name }} — Android paketi.
+
+            Kurulum: APK'yı telefona indirin ve açın. Android "bilinmeyen
+            kaynak" uyarısı verirse, uyarıdaki bağlantıdan tarayıcınıza bir
+            kereliğine kurulum izni verin.
+
+            Uygulama çevrimdışı çalışır: 5.323 Oxford kaydı, 5.947 anlam ve
+            17.841 örnek cümle paketin içindedir.

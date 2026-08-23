@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Navbar, TabType } from './components/Navbar';
 import { TodayDashboard } from './components/TodayDashboard';
 import { CollectionsView } from './components/CollectionsView';
@@ -58,10 +58,16 @@ import { apiFetch, logout } from './utils/authClient';
 import { runOxfordIdMigrationIfNeeded } from './utils/oxfordIdMigration';
 import { OxfordGroupKey } from './types/oxford';
 import { useToast } from './components/ui/ToastProvider';
+import { useAndroidBackButton } from './hooks/useAndroidBackButton';
 
 export default function App() {
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<TabType>('today');
+
+  // Android donanım geri tuşu: uygulamadan çıkmak yerine önce modali kapatır,
+  // sonra ana sekmeye döner.
+  const goToRootTab = useCallback(() => setActiveTab('today'), []);
+  useAndroidBackButton(activeTab === 'today', goToRootTab);
   // Seviye seçimi Oxford 3000 (A1–B2 + Tümü) ve Oxford 5000 Ek (B2 Ek, C1)
   // gruplarını birlikte kapsar.
   const [selectedLevel, setSelectedLevel] = useState<Level | 'ALL' | OxfordGroupKey>('ALL');

@@ -55,6 +55,22 @@
     --cefr-b2: #795F87;
     --cefr-b2-soft: #F5EFF8;
     --cefr-b2-border: #DCBEDE;
+
+    /* Yükseklik ölçeği: kâğıt hissi için renkli değil, yumuşak ve alçak
+       gölgeler. Her basamak bir anlam taşır — 1 dinlenen yüzey, 2 üstteki
+       kart, 3 sürüklenen kart, 4 açılır katman. */
+    --elev-1: 0 1px 2px rgba(30, 36, 48, 0.04);
+    --elev-2: 0 2px 8px rgba(30, 36, 48, 0.05), 0 12px 28px rgba(30, 36, 48, 0.05);
+    --elev-3: 0 6px 16px rgba(30, 36, 48, 0.08), 0 24px 48px rgba(30, 36, 48, 0.09);
+    --elev-4: 0 8px 32px rgba(30, 36, 48, 0.14);
+
+    /* Hareket belirteçleri: tek bir yavaşlama eğrisi tüm arayüzde
+       kullanılır, böylece geçişler aynı elden çıkmış gibi hissettirir. */
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-spring: cubic-bezier(0.22, 1.2, 0.36, 1);
+    --dur-fast: 140ms;
+    --dur-base: 200ms;
+    --dur-slow: 320ms;
   }
 
   body {
@@ -113,6 +129,79 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: #BEB9AE;
+}
+
+/* ==========================================================================
+   Kaydırmalı kart destesi
+   ========================================================================== */
+
+/* Sürükleme yüzeyi. `pan-y` yatay hareketi bize, dikeyi sayfaya bırakır;
+   böylece kaydırma sırasında tarayıcı sayfayı kaydırmaya kalkmaz. */
+.deck-surface {
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Üstteki kart. Sürükleme sırasında geçiş kapatılır (parmakla birebir
+   hareket etmeli), bırakıldığında yayla yerine döner. */
+.deck-card {
+  transition: transform var(--dur-slow) var(--ease-spring), box-shadow var(--dur-base) var(--ease-out);
+  will-change: transform;
+}
+
+.deck-card--dragging {
+  transition: box-shadow var(--dur-base) var(--ease-out);
+  cursor: grabbing;
+}
+
+.deck-card--exiting {
+  transition: transform 200ms var(--ease-out), opacity 200ms var(--ease-out);
+}
+
+/* Arkadaki kartlar: destenin devam ettiğini gösteren ince katmanlar. */
+.deck-stack-card {
+  transition: transform var(--dur-slow) var(--ease-out), opacity var(--dur-slow) var(--ease-out);
+  will-change: transform;
+}
+
+/* Kenar ipuçları ("← Önceki" / "Sonraki →") eşiğe yaklaşıldıkça belirir. */
+.deck-hint {
+  transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+  pointer-events: none;
+}
+
+/* Anlam açılırken içerik alttan yumuşakça yerleşir. */
+.animate-riseIn {
+  animation: riseIn var(--dur-slow) var(--ease-out) forwards;
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hareket duyarlılığı olan kullanıcılar için tüm geçişleri sadeleştir.
+   Kaydırma yine çalışır, yalnızca animasyonu anlık olur. */
+@media (prefers-reduced-motion: reduce) {
+  .deck-card,
+  .deck-stack-card,
+  .deck-hint,
+  .card-flip-inner {
+    transition-duration: 1ms !important;
+  }
+
+  .animate-fadeIn,
+  .animate-riseIn {
+    animation-duration: 1ms !important;
+  }
 }
 
 /* English Word Typography Class */

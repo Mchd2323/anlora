@@ -4,6 +4,7 @@ import { Layers, Sparkles, ArrowRight, X, Loader2 } from 'lucide-react';
 import { normalizeWordString } from '../utils/lemmatizer';
 import { detectWordDuplicate } from '../utils/duplicateDetector';
 import { useModalA11y } from '../hooks/useModalA11y';
+import { apiUrl } from '../config/api';
 
 interface BatchWordModalProps {
   isOpen: boolean;
@@ -119,7 +120,7 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
         linkedCount++;
       } else {
         try {
-          const res = await fetch('/api/ai/generate-word', {
+          const res = await fetch(apiUrl('/api/ai/generate-word'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ word: item.raw })

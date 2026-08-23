@@ -39,6 +39,7 @@ import { detectWordDuplicate } from '../utils/duplicateDetector';
 import { speakText } from '../utils/speech';
 import { getUserWordStatus } from '../utils/storageV2';
 import { UserProfile } from '../types';
+import { apiUrl } from '../config/api';
 
 interface CollectionsViewProps {
   collections: Collection[];
@@ -208,7 +209,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     setAiError(null);
 
     try {
-      const response = await fetch('/api/ai/generate-card', {
+      const response = await fetch(apiUrl('/api/ai/generate-card'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
