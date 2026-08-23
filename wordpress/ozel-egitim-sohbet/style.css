@@ -4,7 +4,7 @@ Theme URI: https://example.com/ozel-egitim-sohbet
 Author: Özel Eğitim Çözüm Topluluğu
 Author URI: https://example.com/
 Description: Özel eğitim öğretmenleri ve ebeveynleri için wpForo uyumlu, soru-cevap odaklı, düzenlenebilir topluluk blok teması.
-Version: 1.4.0
+Version: 1.4.1
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 8.0
@@ -325,7 +325,8 @@ textarea:focus-visible,
 
 /* Manşet görseli: sağa yaslanır, sola doğru manşetin arka planına
    karışarak silikleşir. Konumu mutlak olduğu için görsel ne kadar büyük
-   olursa olsun yerleşimi itmez; taşan kısmı kırpılır. */
+   olursa olsun yerleşimi itmez; taşan kısmı kırpılır.
+   Fotoğraf konulmadığında hiçbir boşluk bırakmaz. */
 .oec-hero-media {
 	position: absolute;
 	top: 0;
@@ -343,9 +344,25 @@ textarea:focus-visible,
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
-	object-position: 62% 82%;
+	object-position: 62% 50%;
 	display: block;
 	border-radius: 0;
+	/* Canlı renkli bir fotoğraf temanın soluk paletiyle çarpışmasın diye
+	   çok hafif bir yumuşatma. */
+	filter: saturate(.94);
+}
+
+/* Fotoğraf konulmadıysa alan hiç var olmasın. */
+.oec-hero-media:not(:has(img)) { display: none; }
+
+/* Solda, silikleşmenin başladığı yerde ince bir nane yıkaması: fotoğraf
+   manşet arka planına daha yumuşak karışır. */
+.oec-hero-media:has(img)::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(to right, rgba(231, 242, 236, .5) 0%, rgba(231, 242, 236, 0) 52%);
+	pointer-events: none;
 }
 
 .oec-hero-copy { position: relative; z-index: 1; }

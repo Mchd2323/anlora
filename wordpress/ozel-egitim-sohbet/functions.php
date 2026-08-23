@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'OEC_THEME_VERSION', '1.4.0' );
+define( 'OEC_THEME_VERSION', '1.4.1' );
 
 require_once get_theme_file_path( 'inc/wpforo-data.php' );
 require_once get_theme_file_path( 'inc/shortcodes.php' );

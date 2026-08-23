@@ -1,4 +1,4 @@
-ÖZEL EĞİTİM SOHBET — WORDPRESS BLOK TEMASI 1.4.0
+ÖZEL EĞİTİM SOHBET — WORDPRESS BLOK TEMASI 1.4.1
 ================================================
 
 Özel eğitim öğretmenleri ve ebeveynlerinin soru, deneyim ve çözüm paylaştığı
@@ -96,12 +96,14 @@ doğru, manşet başlığının arka planına karışarak silikleşir. Konumu mu
 olduğu için görsel ne kadar büyük olursa olsun yerleşimi bozmaz; taşan
 kısmı kırpılır.
 
-Temayla birlikte gelen görsel bir ÇİZİMDİR (assets/img/hero.svg), fotoğraf
-değildir. Kendi fotoğrafınızla değiştirmek için:
+Görsel alanı temayla birlikte BOŞ gelir; fotoğrafı siz koyarsınız. Fotoğraf
+konulmadığı sürece ön yüzde hiçbir boşluk görünmez, manşet normal durur.
+
+Fotoğraf eklemek için:
 
   1. Görünüm > Düzenleyici > Şablonlar > Ana Sayfa
-  2. Manşetteki görsele tıklayın
-  3. Araç çubuğunda "Değiştir" > "Ortam kitaplığından seç" veya "Yükle"
+  2. Manşetin sağındaki boş görsel bloğuna tıklayın
+  3. "Yükle" veya "Ortam kitaplığı" ile fotoğrafınızı seçin
 
 Sağa yaslama, silikleşme ve ekran boyutuna uyum temadan gelir; fotoğraf
 değişince de aynen çalışır. Yatay (manzara) oranlı, en az 1200 px genişlikte
@@ -109,9 +111,11 @@ bir görsel seçin; sağ tarafında ana özne, sol tarafında sade bir alan olan
 kareler bu düzende en iyi sonucu verir.
 
 Fotoğraf seçerken:
-- Telif durumunu kendiniz doğrulayın. Pexels, Unsplash ve Pixabay ticari
-  kullanıma açık ücretsiz görseller sunar; yine de indirdiğiniz her görselin
-  lisans metnini okuyun.
+- Telif: Bir fotoğrafın internette görünüyor olması onu serbest yapmaz.
+  Google Görseller bir arama dizinidir, lisans kaynağı değildir; oradaki
+  görsellerin neredeyse tamamı telif altındadır. Ücretsiz ve ticari
+  kullanıma açık görseller için Pexels, Unsplash veya Pixabay kullanın ve
+  indirdiğiniz her görselin lisans metnini yine de okuyun.
 - Bu sitenin kendi uyarısı "çocuğun fotoğrafını paylaşmayın" diyor. Manşette
   tanınabilir çocuk yüzü kullanmak bu mesajla çelişir ve ziyaretçilere
   yanlış örnek olur. Yüz göstermeyen kareler hem daha güvenli hem de
@@ -220,6 +224,14 @@ TEKNİK NOTLAR
 
 SÜRÜM NOTLARI
 -------------
+1.4.1
+- Geçici çizim kaldırıldı. Manşet görsel alanı boş geliyor; fotoğraf
+  konulmadığında ön yüzde hiç görünmüyor, manşet normal duruyor.
+- Düzenleyicide alan "Yükle / Ortam kitaplığı" seçenekleriyle görünüyor.
+- Renkli fotoğrafların temanın soluk paletiyle çarpışmaması için hafif
+  doygunluk yumuşatması ve silikleşme tarafında ince bir nane yıkaması
+  eklendi.
+
 1.4.0
 - Manşetteki "S M A D / Öğretmenler ve ebeveynler" kutusu kaldırıldı.
 - Yerine sağa yaslanan, sola doğru manşet arka planına karışarak silikleşen
