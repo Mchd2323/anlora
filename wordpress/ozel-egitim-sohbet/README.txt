@@ -1,4 +1,4 @@
-ÖZEL EĞİTİM SOHBET — WORDPRESS BLOK TEMASI 1.3.0
+ÖZEL EĞİTİM SOHBET — WORDPRESS BLOK TEMASI 1.4.0
 ================================================
 
 Özel eğitim öğretmenleri ve ebeveynlerinin soru, deneyim ve çözüm paylaştığı
@@ -87,6 +87,37 @@ forumu düzenleyip "Layout" ayarını Q&A yapmanız önerilir. Böylece:
 Ana sayfadaki kartlarda görünen "yararlı" sayısı bu oylardan, "Çözüldü"
 rozeti ise en iyi yanıt işaretinden gelir. Klasik düzende de tema çalışır;
 o zaman bu göstergeler beğeni sayısına düşer veya hiç görünmez.
+
+
+MANŞET GÖRSELİ
+--------------
+Manşetin sağında bir görsel alanı vardır. Görsel sağa yaslanır ve sola
+doğru, manşet başlığının arka planına karışarak silikleşir. Konumu mutlak
+olduğu için görsel ne kadar büyük olursa olsun yerleşimi bozmaz; taşan
+kısmı kırpılır.
+
+Temayla birlikte gelen görsel bir ÇİZİMDİR (assets/img/hero.svg), fotoğraf
+değildir. Kendi fotoğrafınızla değiştirmek için:
+
+  1. Görünüm > Düzenleyici > Şablonlar > Ana Sayfa
+  2. Manşetteki görsele tıklayın
+  3. Araç çubuğunda "Değiştir" > "Ortam kitaplığından seç" veya "Yükle"
+
+Sağa yaslama, silikleşme ve ekran boyutuna uyum temadan gelir; fotoğraf
+değişince de aynen çalışır. Yatay (manzara) oranlı, en az 1200 px genişlikte
+bir görsel seçin; sağ tarafında ana özne, sol tarafında sade bir alan olan
+kareler bu düzende en iyi sonucu verir.
+
+Fotoğraf seçerken:
+- Telif durumunu kendiniz doğrulayın. Pexels, Unsplash ve Pixabay ticari
+  kullanıma açık ücretsiz görseller sunar; yine de indirdiğiniz her görselin
+  lisans metnini okuyun.
+- Bu sitenin kendi uyarısı "çocuğun fotoğrafını paylaşmayın" diyor. Manşette
+  tanınabilir çocuk yüzü kullanmak bu mesajla çelişir ve ziyaretçilere
+  yanlış örnek olur. Yüz göstermeyen kareler hem daha güvenli hem de
+  genellikle daha güçlü durur: eller ve materyaller, arkadan çekilmiş bir
+  çocuk, bir öğretmenin masası, oyun ve öğrenme nesneleri.
+- Model izni (release) olmayan gerçek öğrenci fotoğraflarını kullanmayın.
 
 
 SAYFA DÜZENİ
@@ -189,6 +220,19 @@ TEKNİK NOTLAR
 
 SÜRÜM NOTLARI
 -------------
+1.4.0
+- Manşetteki "S M A D / Öğretmenler ve ebeveynler" kutusu kaldırıldı.
+- Yerine sağa yaslanan, sola doğru manşet arka planına karışarak silikleşen
+  bir görsel alanı eklendi. Görsel mutlak konumlu olduğu için yerleşimi
+  itmez; büyük görsellerin taşan kısmı kırpılır.
+- Görsel WordPress Düzenleyici'den değiştirilebilir (Ana Sayfa şablonu >
+  görsele tıkla > Değiştir). Efektler temadan geldiği için yeni fotoğrafta
+  da aynen çalışır.
+- Geçici görsel olarak temanın renklerinde, yüz içermeyen bir çizim eklendi
+  (assets/img/hero.svg). Yerine kendi fotoğrafınızı koyun.
+- Ekran boyutuna göre çerçeveleme: masaüstünde sağ yarıda, tabletde dar
+  sütunda, mobilde manşetin altında kendi en-boy oranıyla (kırpılmadan).
+
 1.3.0
 - Sayfa düzeni tek sol sütuna indirildi: sağdaki sütun kaldırıldı, kartları
   sola alındı. Sıra: Konular, Önemli not, Bugün toplulukta, Önce anlayalım.

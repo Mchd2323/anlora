@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="80 352 664 416" width="664" height="416" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="oecHeroTitle">
+	<title id="oecHeroTitle">Bir yetişkin ve bir çocuk birlikte kitap okuyor</title>
+	<defs>
+		<linearGradient id="oecSky" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#e7f2ec"/>
+			<stop offset="1" stop-color="#f2efe6"/>
+		</linearGradient>
+		<linearGradient id="oecAdult" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#1c6b58"/>
+			<stop offset="1" stop-color="#0f4638"/>
+		</linearGradient>
+		<linearGradient id="oecChild" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#c08a4a"/>
+			<stop offset="1" stop-color="#a06a2c"/>
+		</linearGradient>
+	</defs>
+
+	<circle cx="470" cy="330" r="290" fill="url(#oecSky)"/>
+	<circle cx="655" cy="150" r="74" fill="#f6e7d2" opacity=".85"/>
+
+	<g opacity=".5" fill="none" stroke="#1c6b58" stroke-width="3" stroke-linecap="round">
+		<path d="M150 700c40-26 84-26 124 0"/>
+		<path d="M596 726c36-22 74-22 110 0"/>
+	</g>
+
+	<!-- yer çizgisi -->
+	<path d="M96 742h590" stroke="#d3e8de" stroke-width="4" stroke-linecap="round" fill="none"/>
+
+	<!-- yetişkin -->
+	<g>
+		<path d="M250 742V596c0-62 40-104 96-104s96 42 96 104v146z" fill="url(#oecAdult)"/>
+		<circle cx="346" cy="452" r="52" fill="url(#oecAdult)"/>
+		<path d="M262 618c30 34 62 52 96 54" stroke="#cfe4dc" stroke-width="12" stroke-linecap="round" fill="none" opacity=".55"/>
+	</g>
+
+	<!-- çocuk -->
+	<g>
+		<path d="M452 742V648c0-44 28-74 66-74s66 30 66 74v94z" fill="url(#oecChild)"/>
+		<circle cx="518" cy="540" r="40" fill="url(#oecChild)"/>
+		<path d="M462 664c22 24 44 38 68 40" stroke="#f6e7d2" stroke-width="10" stroke-linecap="round" fill="none" opacity=".6"/>
+	</g>
+
+	<!-- ortak kitap -->
+	<g>
+		<path d="M330 664h146v88H330z" fill="#ffffff"/>
+		<path d="M330 664h146v88H330z" fill="none" stroke="#d3e8de" stroke-width="4"/>
+		<path d="M403 664v88" stroke="#d3e8de" stroke-width="4"/>
+		<g stroke="#c8d9d1" stroke-width="5" stroke-linecap="round">
+			<path d="M348 692h38M348 712h30M420 692h38M420 712h30"/>
+		</g>
+	</g>
+
+	<!-- öğrenme nesneleri -->
+	<g>
+		<rect x="120" y="672" width="56" height="56" rx="14" fill="#1c6b58" opacity=".9"/>
+		<rect x="136" y="620" width="40" height="40" rx="11" fill="#f6e7d2"/>
+		<circle cx="640" cy="700" r="30" fill="#d3e8de"/>
+		<path d="M626 700h28M640 686v28" stroke="#1c6b58" stroke-width="5" stroke-linecap="round"/>
+	</g>
+
+	<!-- yapraklar -->
+	<g fill="#1c6b58" opacity=".22">
+		<path d="M628 262c34-10 60 6 66 40-34 10-58-6-66-40z"/>
+		<path d="M212 372c-30-16-38-46-20-74 30 16 38 44 20 74z"/>
+	</g>
+</svg>
