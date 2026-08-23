@@ -51,9 +51,17 @@ POS_SLUG = {
 }
 
 PLACEHOLDER_PATTERNS = [
-    'otomatik anlam', '(anlam)', 'todo', 'anlam giriniz', 'undefined', 'null',
+    'otomatik anlam', '(anlam)', 'anlam giriniz',
     '(isim)', '(fiil)', '(sıfat)', '(zarf)', 'kelimesi',
 ]
+
+# Bu işaretler ancak tek başına bir sözcük olarak geçtiğinde placeholder
+# sayılır; alt dize olarak aranırlarsa "metodoloji" içindeki "todo" gibi
+# yanlış alarm üretirler. validate_oxford.py ile aynı kuralı taşır.
+PLACEHOLDER_WORDS = ['todo', 'undefined', 'null']
+PLACEHOLDER_WORD_RE = re.compile(
+    r'(?<![0-9a-zçğıiöşü])(?:%s)(?![0-9a-zçğıiöşü])' % '|'.join(PLACEHOLDER_WORDS)
+)
 
 
 def load(path):
@@ -94,6 +102,8 @@ def split_meanings(value):
 def is_placeholder(meaning):
     text = (meaning or '').strip().lower()
     if not text:
+        return True
+    if PLACEHOLDER_WORD_RE.search(text):
         return True
     return any(pattern in text for pattern in PLACEHOLDER_PATTERNS)
 

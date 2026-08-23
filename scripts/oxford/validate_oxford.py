@@ -34,9 +34,17 @@ SOURCE_FILES = [
 VALID_CEFR = {'A1', 'A2', 'B1', 'B2', 'C1'}
 
 PLACEHOLDER_PATTERNS = [
-    'otomatik anlam', '(anlam)', 'todo', 'anlam giriniz', 'undefined', 'null',
+    'otomatik anlam', '(anlam)', 'anlam giriniz',
     '(isim)', '(fiil)', '(sıfat)', '(zarf)', 'kelimesi',
 ]
+
+# Bu işaretler ancak tek başına bir sözcük olarak geçtiğinde placeholder
+# sayılır. Alt dize olarak aranırlarsa "metodoloji" içindeki "todo" gibi
+# yanlış alarm üretirler.
+PLACEHOLDER_WORDS = ['todo', 'undefined', 'null']
+PLACEHOLDER_WORD_RE = re.compile(
+    r'(?<![0-9a-zçğıiöşü])(?:%s)(?![0-9a-zçğıiöşü])' % '|'.join(PLACEHOLDER_WORDS)
+)
 
 
 def load(path):
@@ -48,6 +56,8 @@ def is_placeholder(text):
     value = (text or '').strip().lower()
     if not value:
         return False
+    if PLACEHOLDER_WORD_RE.search(value):
+        return True
     return any(pattern in value for pattern in PLACEHOLDER_PATTERNS)
 
 
