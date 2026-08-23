@@ -86,8 +86,17 @@ def validate(patch, headword, sense_pos):
             problems.append('boş anlam')
         elif PLACEHOLDER.search(text):
             problems.append(f'placeholder anlam: {text}')
-        elif text.lower() == headword.lower():
-            problems.append(f'anlam kelimenin kendisi: {text}')
+
+    # Anlamın kelimenin kendisi olması tek başına kusur değildir: Türkçeye
+    # aynen geçmiş kelimeler var (festival, film, radyo, doktor). Kusur, HİÇBİR
+    # karşılığın kelimeden farklı olmamasıdır — o zaman kart öğrenciye hiçbir
+    # şey öğretmez.
+    if meanings and all(
+        (m or '').strip().lower() == headword.strip().lower() for m in meanings
+    ):
+        problems.append(
+            f'tüm anlamlar kelimenin kendisi ({headword}); ayırt edici bir karşılık ekleyin'
+        )
 
     examples = patch.get('examples') or []
     if len(examples) < 3:
