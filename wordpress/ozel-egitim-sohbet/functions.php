@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'OEC_THEME_VERSION', '1.4.1' );
+define( 'OEC_THEME_VERSION', '1.5.0' );
 
 require_once get_theme_file_path( 'inc/wpforo-data.php' );
 require_once get_theme_file_path( 'inc/shortcodes.php' );
@@ -288,6 +288,12 @@ add_action( 'admin_init', 'oec_flush_cache_in_wpforo_admin' );
 function oec_body_class( $classes ) {
 	if ( function_exists( 'is_wpforo_page' ) && is_wpforo_page() ) {
 		$classes[] = 'oec-board-page';
+	}
+
+	// Tema Kurulumu ekranındaki anahtar açıksa wpForo'nun kendi bileşen
+	// sütununu forum sayfasında gizle.
+	if ( function_exists( 'oec_hide_forum_sidebar_enabled' ) && oec_hide_forum_sidebar_enabled() ) {
+		$classes[] = 'oec-hide-forum-sidebar';
 	}
 
 	return $classes;

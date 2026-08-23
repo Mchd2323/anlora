@@ -1,4 +1,4 @@
-ÖZEL EĞİTİM SOHBET — WORDPRESS BLOK TEMASI 1.4.1
+ÖZEL EĞİTİM SOHBET — WORDPRESS BLOK TEMASI 1.5.0
 ================================================
 
 Özel eğitim öğretmenleri ve ebeveynlerinin soru, deneyim ve çözüm paylaştığı
@@ -43,10 +43,8 @@ sürece yönetim panelinde uyarı görünür.
    Console'dan aldığınız istemci kimliği ile gizli anahtarı girin.
 6. Görünüm > Düzenleyici: renkler, üst menü, ana sayfa metinleri, sağ-sol
    kartlar ve footer buradan değiştirilir.
-7. İsteğe bağlı: wpForo'nun kendi kenar çubuğu (Ara / Recent Posts / Recent
-   Comments) temanın kendi kartlarıyla işlevi çakışır. wpForo > Ayarlar >
-   Forum Kenar Çubuğu bölümünden kapatırsanız pano daha ferah görünür.
-   Açık bırakırsanız da sorun olmaz; dar ekranlarda panonun altına iner.
+7. İsteğe bağlı: wpForo'nun kendi kenar çubuğunu gizleyin. Aşağıdaki
+   "wpForo kenar çubuğu" bölümüne bakın.
 
 
 FORUM İLE BAĞLANTI
@@ -73,6 +71,33 @@ birlikte görebilir; her satırdan sitedeki karşılığına atlayabilirsiniz.
 
 Kategori listesinden bir foruma tıklandığında ana sayfadaki konuşma listesi
 o foruma göre süzülür (adres satırında ?forum=... olarak görünür).
+
+
+wpFORO KENAR ÇUBUĞU
+-------------------
+Forum panosunun yanında "Ara / Son Yazılar / Son Yorumlar" sütunu
+görüyorsanız bu wpForo'nun kendi BİLEŞEN (widget) alanıdır. wpForo
+ayarlarında değil, WordPress'in bileşen ekranında yönetilir; içindeki
+"Son Yazılar" ve "Son Yorumlar" foruma değil bloga aittir, yani temanın
+kartlarıyla işlev olarak çakışır.
+
+En kolay yol — temanın kendi anahtarı:
+
+  Görünüm > Tema Kurulumu > Forum görünümü
+  [x] wpForo'nun kendi kenar çubuğunu forum sayfasında gizle
+
+Bu kutu yalnızca forum sayfasında sütunu gizler; bileşenleriniz silinmez,
+kutuyu kaldırdığınızda geri gelir. Varsayılan olarak KAPALIDIR, yani tema
+siz istemeden hiçbir şeyi kaldırmaz.
+
+Bileşenleri tamamen kaldırmak isterseniz:
+
+  Görünüm > Bileşenler  (doğrudan adres: /wp-admin/widgets.php)
+
+Bu ekranda "wpForo Sidebar" adlı alanı bulup içindeki bileşenleri silin.
+Not: Blok temalarda Görünüm menüsünde "Bileşenler" bağlantısı yalnızca bir
+eklenti bileşen alanı tanımladığında görünür; göremiyorsanız yukarıdaki
+doğrudan adresi kullanın.
 
 
 Q&A (SORU-CEVAP) DÜZENİ
@@ -224,6 +249,14 @@ TEKNİK NOTLAR
 
 SÜRÜM NOTLARI
 -------------
+1.5.0
+- Görünüm > Tema Kurulumu ekranına "wpForo'nun kendi kenar çubuğunu gizle"
+  anahtarı eklendi. Varsayılan kapalı; açıldığında sütun yalnızca forum
+  sayfasında gizlenir, bileşenler silinmez.
+- DÜZELTME: Önceki README'de kenar çubuğunun "wpForo > Ayarlar > Forum
+  Kenar Çubuğu" altında olduğu yazıyordu. Böyle bir ayar yok; kenar çubuğu
+  WordPress'in bileşen (widget) ekranında yönetiliyor. Doğru yol yazıldı.
+
 1.4.1
 - Geçici çizim kaldırıldı. Manşet görsel alanı boş geliyor; fotoğraf
   konulmadığında ön yüzde hiç görünmüyor, manşet normal duruyor.

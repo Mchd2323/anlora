@@ -145,3 +145,16 @@
 	padding: 2px 10px !important;
 	font-weight: 700 !important;
 }
+
+/* --- Tema Kurulumu > "wpForo kenar çubuğunu gizle" anahtarı açıkken --- */
+.oec-hide-forum-sidebar #wpforo-sidebar,
+.oec-hide-forum-sidebar .wpforo-sidebar,
+.oec-hide-forum-sidebar #wpforo .wpf-sidebar { display: none !important; }
+
+.oec-hide-forum-sidebar #wpforo-content,
+.oec-hide-forum-sidebar .wpforo-content {
+	width: 100% !important;
+	max-width: none !important;
+	float: none !important;
+	margin-right: 0 !important;
+}

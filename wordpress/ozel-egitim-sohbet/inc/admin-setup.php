@@ -86,6 +86,38 @@ function oec_activate_plugin_url( $plugin_file ) {
 }
 
 /**
+ * Whether wpForo's own widget sidebar should be hidden on the board page.
+ *
+ * The theme already provides a category rail and guidance cards, so wpForo's
+ * sidebar usually duplicates them. Off by default: the theme does not take
+ * anything away until you ask it to.
+ *
+ * @return bool
+ */
+function oec_hide_forum_sidebar_enabled() {
+	return (bool) get_option( 'oec_hide_forum_sidebar', 0 );
+}
+
+/**
+ * Save the setup screen's own options.
+ */
+function oec_handle_setup_form() {
+	if ( ! isset( $_POST['oec_setup_nonce'] ) ) {
+		return;
+	}
+
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_die( esc_html__( 'Bu ayarı değiştirme yetkiniz yok.', 'ozel-egitim-sohbet' ) );
+	}
+
+	check_admin_referer( 'oec_setup_save', 'oec_setup_nonce' );
+
+	update_option( 'oec_hide_forum_sidebar', isset( $_POST['oec_hide_forum_sidebar'] ) ? 1 : 0 );
+
+	add_settings_error( 'oec_setup', 'oec_saved', __( 'Ayar kaydedildi.', 'ozel-egitim-sohbet' ), 'success' );
+}
+
+/**
  * Register the Appearance › Theme setup screen.
  */
 function oec_theme_admin_menu() {
@@ -107,11 +139,14 @@ function oec_theme_setup_page() {
 		wp_die( esc_html__( 'Bu sayfayı görüntüleme yetkiniz yok.', 'ozel-egitim-sohbet' ) );
 	}
 
-	$plugins   = oec_required_plugins();
+	oec_handle_setup_form();
+
+	$plugins     = oec_required_plugins();
 	$can_install = current_user_can( 'install_plugins' );
 	?>
 	<div class="wrap">
 		<h1><?php esc_html_e( 'Özel Eğitim Sohbet — Tema Kurulumu', 'ozel-egitim-sohbet' ); ?></h1>
+		<?php settings_errors( 'oec_setup' ); ?>
 		<p><?php esc_html_e( 'Temanın gerçek soru–yanıt, üyelik, profil ve Google giriş özellikleri için aşağıdaki eklentileri kurun.', 'ozel-egitim-sohbet' ); ?></p>
 
 		<table class="widefat striped" style="max-width:900px">
@@ -169,6 +204,35 @@ function oec_theme_setup_page() {
 
 		<h2><?php esc_html_e( 'Forum ↔ Tema bağlantısı', 'ozel-egitim-sohbet' ); ?></h2>
 		<?php oec_render_forum_binding_panel(); ?>
+
+		<h2><?php esc_html_e( 'Forum görünümü', 'ozel-egitim-sohbet' ); ?></h2>
+		<form method="post">
+			<?php wp_nonce_field( 'oec_setup_save', 'oec_setup_nonce' ); ?>
+			<table class="form-table" role="presentation" style="max-width:900px">
+				<tr>
+					<th scope="row"><?php esc_html_e( 'wpForo kenar çubuğu', 'ozel-egitim-sohbet' ); ?></th>
+					<td>
+						<label>
+							<input type="checkbox" name="oec_hide_forum_sidebar" value="1" <?php checked( oec_hide_forum_sidebar_enabled() ); ?>>
+							<?php esc_html_e( 'wpForo\'nun kendi kenar çubuğunu forum sayfasında gizle', 'ozel-egitim-sohbet' ); ?>
+						</label>
+						<p class="description">
+							<?php esc_html_e( 'Forum panosunun yanındaki "Ara / Son Yazılar / Son Yorumlar" sütunu wpForo\'nun bileşen (widget) alanıdır ve temanın kendi kartlarıyla işlev olarak çakışır. Bunu işaretlerseniz sütun yalnızca forum sayfasında gizlenir; bileşenleriniz silinmez, istediğinizde geri açarsınız.', 'ozel-egitim-sohbet' ); ?>
+						</p>
+						<p class="description">
+							<?php
+							printf(
+								/* translators: %s: link to the widgets screen. */
+								esc_html__( 'Bileşenleri tamamen kaldırmak isterseniz: %s', 'ozel-egitim-sohbet' ),
+								'<a href="' . esc_url( admin_url( 'widgets.php' ) ) . '">' . esc_html__( 'Görünüm → Bileşenler', 'ozel-egitim-sohbet' ) . '</a>'
+							);
+							?>
+						</p>
+					</td>
+				</tr>
+			</table>
+			<?php submit_button( __( 'Kaydet', 'ozel-egitim-sohbet' ) ); ?>
+		</form>
 
 		<h2><?php esc_html_e( 'Tema kısa kodları', 'ozel-egitim-sohbet' ); ?></h2>
 		<p><?php esc_html_e( 'Bu kısa kodları Düzenleyici içinde herhangi bir şablona ekleyebilirsiniz:', 'ozel-egitim-sohbet' ); ?></p>
