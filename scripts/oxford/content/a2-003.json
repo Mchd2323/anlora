@@ -1,0 +1,962 @@
+{
+  "ox3k-a2-certain-adj": {
+    "turkishMeanings": ["emin", "kesin", "belirli"],
+    "examples": [
+      { "en": "I am certain that she will come.", "tr": "Onun geleceğinden eminim." },
+      { "en": "There is no certain answer to this question.", "tr": "Bu sorunun kesin bir cevabı yok." },
+      { "en": "Certain foods are bad for your teeth.", "tr": "Bazı belirli yiyecekler dişlerin için kötüdür." }
+    ]
+  },
+  "ox3k-a2-certainly-adv": {
+    "turkishMeanings": ["kesinlikle", "elbette"],
+    "examples": [
+      { "en": "This is certainly the best restaurant here.", "tr": "Burası kesinlikle buradaki en iyi lokanta." },
+      { "en": "Certainly, I will help you.", "tr": "Elbette, sana yardım edeceğim." },
+      { "en": "She certainly knows a lot about music.", "tr": "Müzik hakkında kesinlikle çok şey biliyor." }
+    ]
+  },
+  "ox3k-a2-chance-n": {
+    "turkishMeanings": ["şans", "fırsat", "ihtimal"],
+    "examples": [
+      { "en": "This is a good chance to practise English.", "tr": "Bu, İngilizce pratik yapmak için iyi bir fırsat." },
+      { "en": "There is little chance of rain today.", "tr": "Bugün yağmur ihtimali az." },
+      { "en": "Give him another chance.", "tr": "Ona bir şans daha ver." }
+    ]
+  },
+  "ox3k-a2-character-n": {
+    "turkishMeanings": ["karakter", "kişilik", "kahraman"],
+    "examples": [
+      { "en": "My favourite character in the book is the doctor.", "tr": "Kitaptaki en sevdiğim karakter doktor." },
+      { "en": "She has a strong character.", "tr": "Güçlü bir kişiliği var." },
+      { "en": "The main character never gives up.", "tr": "Ana karakter asla pes etmiyor." }
+    ]
+  },
+  "ox3k-a2-charity-n": {
+    "turkishMeanings": ["hayır kurumu", "yardım", "bağış"],
+    "examples": [
+      { "en": "She works for a children's charity.", "tr": "Bir çocuk yardım kuruluşunda çalışıyor." },
+      { "en": "We gave the old clothes to charity.", "tr": "Eski kıyafetleri hayır kurumuna verdik." },
+      { "en": "The concert raised money for charity.", "tr": "Konser hayır işleri için para topladı." }
+    ]
+  },
+  "ox3k-a2-chat-n": {
+    "turkishMeanings": ["sohbet", "muhabbet"],
+    "examples": [
+      { "en": "We had a long chat about our holiday.", "tr": "Tatilimiz hakkında uzun bir sohbet ettik." },
+      { "en": "Come in for a quick chat.", "tr": "Kısa bir sohbet için içeri gel." },
+      { "en": "Their chat lasted until midnight.", "tr": "Sohbetleri gece yarısına kadar sürdü." }
+    ]
+  },
+  "ox3k-a2-chat-v": {
+    "turkishMeanings": ["sohbet etmek", "yazışmak"],
+    "examples": [
+      { "en": "They chatted for hours on the phone.", "tr": "Telefonda saatlerce sohbet ettiler." },
+      { "en": "I chat with my cousin online every evening.", "tr": "Her akşam kuzenimle internetten yazışırım." },
+      { "en": "Stop chatting and finish your work.", "tr": "Muhabbeti bırak da işini bitir." }
+    ]
+  },
+  "ox3k-a2-check-n": {
+    "turkishMeanings": ["kontrol", "denetim"],
+    "examples": [
+      { "en": "The doctor did a quick check.", "tr": "Doktor kısa bir kontrol yaptı." },
+      { "en": "There is a security check at the airport.", "tr": "Havalimanında güvenlik kontrolü var." },
+      { "en": "Keep a check on your spending.", "tr": "Harcamalarını kontrol altında tut." }
+    ]
+  },
+  "ox3k-a2-chef-n": {
+    "turkishMeanings": ["şef", "aşçıbaşı"],
+    "examples": [
+      { "en": "The chef prepared a special dish.", "tr": "Şef özel bir yemek hazırladı." },
+      { "en": "He works as a chef in a hotel.", "tr": "Bir otelde şef olarak çalışıyor." },
+      { "en": "A famous chef opened this restaurant.", "tr": "Ünlü bir şef bu lokantayı açtı." }
+    ]
+  },
+  "ox3k-a2-chemistry-n": {
+    "turkishMeanings": ["kimya"],
+    "examples": [
+      { "en": "We have chemistry on Tuesday morning.", "tr": "Salı sabahı kimya dersimiz var." },
+      { "en": "She studied chemistry at university.", "tr": "Üniversitede kimya okudu." },
+      { "en": "The chemistry lab is on the first floor.", "tr": "Kimya laboratuvarı birinci katta." }
+    ]
+  },
+  "ox3k-a2-chip-n": {
+    "turkishMeanings": ["patates kızartması", "cips", "çip"],
+    "examples": [
+      { "en": "We ordered fish and chips.", "tr": "Balık ve patates kızartması söyledik." },
+      { "en": "He ate a whole bag of chips.", "tr": "Koca bir paket cips yedi." },
+      { "en": "There is a tiny chip inside this card.", "tr": "Bu kartın içinde küçücük bir çip var." }
+    ]
+  },
+  "ox3k-a2-choice-n": {
+    "turkishMeanings": ["seçim", "tercih", "seçenek"],
+    "examples": [
+      { "en": "You have made a good choice.", "tr": "İyi bir seçim yaptın." },
+      { "en": "There is a wide choice of drinks.", "tr": "Geniş bir içecek seçeneği var." },
+      { "en": "I had no choice but to wait.", "tr": "Beklemekten başka seçeneğim yoktu." }
+    ]
+  },
+  "ox3k-a2-church-n": {
+    "turkishMeanings": ["kilise"],
+    "examples": [
+      { "en": "There is an old church in the village.", "tr": "Köyde eski bir kilise var." },
+      { "en": "They got married in a small church.", "tr": "Küçük bir kilisede evlendiler." },
+      { "en": "The church bells ring at noon.", "tr": "Kilise çanları öğlen çalıyor." }
+    ]
+  },
+  "ox3k-a2-cigarette-n": {
+    "turkishMeanings": ["sigara"],
+    "examples": [
+      { "en": "He smoked one cigarette after dinner.", "tr": "Akşam yemeğinden sonra bir sigara içti." },
+      { "en": "Cigarettes are very expensive now.", "tr": "Sigara artık çok pahalı." },
+      { "en": "You cannot smoke a cigarette inside.", "tr": "İçeride sigara içemezsiniz." }
+    ]
+  },
+  "ox3k-a2-circle-n": {
+    "turkishMeanings": ["daire", "çember", "halka"],
+    "examples": [
+      { "en": "Draw a circle around the correct answer.", "tr": "Doğru cevabın etrafına bir daire çiz." },
+      { "en": "The children sat in a circle.", "tr": "Çocuklar halka şeklinde oturdu." },
+      { "en": "She has a small circle of close friends.", "tr": "Küçük bir yakın arkadaş çevresi var." }
+    ]
+  },
+  "ox3k-a2-circle-v": {
+    "turkishMeanings": ["daire içine almak", "etrafında dönmek"],
+    "examples": [
+      { "en": "Circle the words you do not know.", "tr": "Bilmediğin kelimeleri daire içine al." },
+      { "en": "The plane circled above the airport.", "tr": "Uçak havalimanının üzerinde daireler çizdi." },
+      { "en": "Birds circled over the field.", "tr": "Kuşlar tarlanın üstünde döndü." }
+    ]
+  },
+  "ox3k-a2-classical-adj": {
+    "turkishMeanings": ["klasik"],
+    "examples": [
+      { "en": "She listens to classical music while working.", "tr": "Çalışırken klasik müzik dinliyor." },
+      { "en": "He studies classical languages.", "tr": "Klasik diller üzerine çalışıyor." },
+      { "en": "This is a classical style of building.", "tr": "Bu klasik bir yapı tarzı." }
+    ]
+  },
+  "ox3k-a2-clear-adj": {
+    "turkishMeanings": ["açık", "net", "berrak"],
+    "examples": [
+      { "en": "The instructions are very clear.", "tr": "Talimatlar çok açık." },
+      { "en": "The sky was clear all day.", "tr": "Gökyüzü bütün gün açıktı." },
+      { "en": "The water in the lake is clear.", "tr": "Göldeki su berrak." }
+    ]
+  },
+  "ox3k-a2-clearly-adv": {
+    "turkishMeanings": ["açıkça", "net bir şekilde"],
+    "examples": [
+      { "en": "Please speak more clearly.", "tr": "Lütfen daha net konuşun." },
+      { "en": "I can see the mountains clearly today.", "tr": "Bugün dağları net görebiliyorum." },
+      { "en": "She clearly does not want to go.", "tr": "Gitmek istemediği açıkça belli." }
+    ]
+  },
+  "ox3k-a2-clever-adj": {
+    "turkishMeanings": ["akıllı", "zeki", "becerikli"],
+    "examples": [
+      { "en": "She is a clever girl.", "tr": "Akıllı bir kız." },
+      { "en": "That was a clever answer.", "tr": "Zekice bir cevaptı." },
+      { "en": "He is clever with his hands.", "tr": "Elleri çok becerikli." }
+    ]
+  },
+  "ox3k-a2-climate-n": {
+    "turkishMeanings": ["iklim"],
+    "examples": [
+      { "en": "The climate here is warm and dry.", "tr": "Buranın iklimi sıcak ve kurudur." },
+      { "en": "Climate change affects everybody.", "tr": "İklim değişikliği herkesi etkiliyor." },
+      { "en": "She prefers a cooler climate.", "tr": "Daha serin bir iklimi tercih ediyor." }
+    ]
+  },
+  "ox3k-a2-closed-adj": {
+    "turkishMeanings": ["kapalı"],
+    "examples": [
+      { "en": "The shop is closed on Sundays.", "tr": "Dükkân pazar günleri kapalı." },
+      { "en": "Keep the door closed, please.", "tr": "Lütfen kapıyı kapalı tutun." },
+      { "en": "The road is closed because of snow.", "tr": "Yol kar yüzünden kapalı." }
+    ]
+  },
+  "ox3k-a2-clothing-n": {
+    "turkishMeanings": ["giyim", "kıyafet"],
+    "examples": [
+      { "en": "Take warm clothing for the mountains.", "tr": "Dağlar için kalın kıyafet al." },
+      { "en": "She works in a clothing shop.", "tr": "Bir giyim mağazasında çalışıyor." },
+      { "en": "Clothing prices went up this year.", "tr": "Giyim fiyatları bu yıl arttı." }
+    ]
+  },
+  "ox3k-a2-cloud-n": {
+    "turkishMeanings": ["bulut"],
+    "examples": [
+      { "en": "There is not a single cloud in the sky.", "tr": "Gökyüzünde tek bir bulut yok." },
+      { "en": "Dark clouds covered the sun.", "tr": "Kara bulutlar güneşi kapladı." },
+      { "en": "I save my photos in the cloud.", "tr": "Fotoğraflarımı bulutta saklıyorum." }
+    ]
+  },
+  "ox3k-a2-coach-n": {
+    "turkishMeanings": ["antrenör", "otobüs"],
+    "examples": [
+      { "en": "Our coach trains us three times a week.", "tr": "Antrenörümüz bize haftada üç kez çalıştırıyor." },
+      { "en": "We travelled to Bursa by coach.", "tr": "Bursa'ya otobüsle gittik." },
+      { "en": "The coach was proud of the team.", "tr": "Antrenör takımıyla gurur duydu." }
+    ]
+  },
+  "ox3k-a2-coast-n": {
+    "turkishMeanings": ["sahil", "kıyı"],
+    "examples": [
+      { "en": "They live on the west coast.", "tr": "Batı sahilinde yaşıyorlar." },
+      { "en": "We drove along the coast for two hours.", "tr": "İki saat boyunca sahil boyunca sürdük." },
+      { "en": "The coast is beautiful in autumn.", "tr": "Kıyı sonbaharda çok güzel." }
+    ]
+  },
+  "ox3k-a2-code-n": {
+    "turkishMeanings": ["kod", "şifre"],
+    "examples": [
+      { "en": "What is the code for the door?", "tr": "Kapının kodu nedir?" },
+      { "en": "The country code for Turkey is ninety.", "tr": "Türkiye'nin ülke kodu doksan." },
+      { "en": "He wrote the code for this website.", "tr": "Bu sitenin kodunu o yazdı." }
+    ]
+  },
+  "ox3k-a2-colleague-n": {
+    "turkishMeanings": ["meslektaş", "iş arkadaşı"],
+    "examples": [
+      { "en": "My colleague helped me with the report.", "tr": "İş arkadaşım rapor konusunda bana yardım etti." },
+      { "en": "She had lunch with two colleagues.", "tr": "İki iş arkadaşıyla öğle yemeği yedi." },
+      { "en": "A former colleague sent me an email.", "tr": "Eski bir meslektaşım bana e-posta gönderdi." }
+    ]
+  },
+  "ox3k-a2-collect-v": {
+    "turkishMeanings": ["toplamak", "biriktirmek", "almak"],
+    "examples": [
+      { "en": "He collects old coins.", "tr": "Eski para biriktiriyor." },
+      { "en": "Please collect the papers from each desk.", "tr": "Lütfen her sıradan kâğıtları topla." },
+      { "en": "I will collect the children from school.", "tr": "Çocukları okuldan ben alacağım." }
+    ]
+  },
+  "ox3k-a2-column-n": {
+    "turkishMeanings": ["sütun", "köşe yazısı"],
+    "examples": [
+      { "en": "Write the numbers in the first column.", "tr": "Sayıları ilk sütuna yaz." },
+      { "en": "She writes a weekly column for a newspaper.", "tr": "Bir gazete için haftalık köşe yazısı yazıyor." },
+      { "en": "The old building has stone columns.", "tr": "Eski binanın taş sütunları var." }
+    ]
+  },
+  "ox3k-a2-comedy-n": {
+    "turkishMeanings": ["komedi"],
+    "examples": [
+      { "en": "We watched a comedy last night.", "tr": "Dün gece bir komedi izledik." },
+      { "en": "She prefers comedy to horror.", "tr": "Komediyi korkudan daha çok seviyor." },
+      { "en": "This comedy made everyone laugh.", "tr": "Bu komedi herkesi güldürdü." }
+    ]
+  },
+  "ox3k-a2-comfortable-adj": {
+    "turkishMeanings": ["rahat", "konforlu"],
+    "examples": [
+      { "en": "This chair is very comfortable.", "tr": "Bu sandalye çok rahat." },
+      { "en": "Wear comfortable shoes for the walk.", "tr": "Yürüyüş için rahat ayakkabı giy." },
+      { "en": "The hotel room was clean and comfortable.", "tr": "Otel odası temiz ve konforluydu." }
+    ]
+  },
+  "ox3k-a2-comment-n": {
+    "turkishMeanings": ["yorum", "görüş"],
+    "examples": [
+      { "en": "She made a kind comment about my work.", "tr": "İşim hakkında nazik bir yorum yaptı." },
+      { "en": "Please leave a comment under the video.", "tr": "Lütfen videonun altına bir yorum bırakın." },
+      { "en": "He had no comment on the news.", "tr": "Haberle ilgili hiçbir yorumu yoktu." }
+    ]
+  },
+  "ox3k-a2-communicate-v": {
+    "turkishMeanings": ["iletişim kurmak", "anlaşmak"],
+    "examples": [
+      { "en": "We communicate by email every day.", "tr": "Her gün e-postayla iletişim kuruyoruz." },
+      { "en": "Babies communicate with their eyes.", "tr": "Bebekler gözleriyle iletişim kurar." },
+      { "en": "It is hard to communicate in a noisy room.", "tr": "Gürültülü bir odada anlaşmak zor." }
+    ]
+  },
+  "ox3k-a2-community-n": {
+    "turkishMeanings": ["topluluk", "toplum"],
+    "examples": [
+      { "en": "Our village is a small community.", "tr": "Köyümüz küçük bir topluluk." },
+      { "en": "The library is open to the whole community.", "tr": "Kütüphane bütün topluma açık." },
+      { "en": "She is active in the local community.", "tr": "Yerel toplulukta aktif." }
+    ]
+  },
+  "ox3k-a2-compete-v": {
+    "turkishMeanings": ["yarışmak", "rekabet etmek"],
+    "examples": [
+      { "en": "Ten teams competed in the tournament.", "tr": "Turnuvada on takım yarıştı." },
+      { "en": "She competes in swimming every year.", "tr": "Her yıl yüzmede yarışıyor." },
+      { "en": "Small shops cannot compete with big stores.", "tr": "Küçük dükkânlar büyük mağazalarla rekabet edemez." }
+    ]
+  },
+  "ox3k-a2-competition-n": {
+    "turkishMeanings": ["yarışma", "rekabet"],
+    "examples": [
+      { "en": "She won first prize in the competition.", "tr": "Yarışmada birincilik ödülünü kazandı." },
+      { "en": "There is a lot of competition for this job.", "tr": "Bu iş için çok rekabet var." },
+      { "en": "The school held a writing competition.", "tr": "Okul bir yazı yarışması düzenledi." }
+    ]
+  },
+  "ox3k-a2-complain-v": {
+    "turkishMeanings": ["şikâyet etmek", "yakınmak"],
+    "examples": [
+      { "en": "He complained about the cold soup.", "tr": "Soğuk çorbadan şikâyet etti." },
+      { "en": "She never complains about her work.", "tr": "İşinden asla şikâyet etmez." },
+      { "en": "The neighbours complained about the noise.", "tr": "Komşular gürültüden şikâyet etti." }
+    ]
+  },
+  "ox3k-a2-completely-adv": {
+    "turkishMeanings": ["tamamen", "büsbütün"],
+    "examples": [
+      { "en": "I completely forgot our meeting.", "tr": "Toplantımızı tamamen unuttum." },
+      { "en": "The room was completely empty.", "tr": "Oda tamamen boştu." },
+      { "en": "You are completely right.", "tr": "Tamamen haklısın." }
+    ]
+  },
+  "ox3k-a2-condition-n": {
+    "turkishMeanings": ["durum", "koşul", "şart"],
+    "examples": [
+      { "en": "The car is in good condition.", "tr": "Araba iyi durumda." },
+      { "en": "You can come on one condition.", "tr": "Tek bir şartla gelebilirsin." },
+      { "en": "Working conditions here are excellent.", "tr": "Buradaki çalışma koşulları mükemmel." }
+    ]
+  },
+  "ox3k-a2-conference-n": {
+    "turkishMeanings": ["konferans", "toplantı"],
+    "examples": [
+      { "en": "She spoke at a conference in Ankara.", "tr": "Ankara'daki bir konferansta konuştu." },
+      { "en": "The conference lasted three days.", "tr": "Konferans üç gün sürdü." },
+      { "en": "He is at a conference until Friday.", "tr": "Cumaya kadar bir konferansta." }
+    ]
+  },
+  "ox3k-a2-connect-v": {
+    "turkishMeanings": ["bağlamak", "bağlanmak"],
+    "examples": [
+      { "en": "Connect the printer to the computer.", "tr": "Yazıcıyı bilgisayara bağla." },
+      { "en": "This road connects the two towns.", "tr": "Bu yol iki kasabayı birbirine bağlıyor." },
+      { "en": "I cannot connect to the internet.", "tr": "İnternete bağlanamıyorum." }
+    ]
+  },
+  "ox3k-a2-connected-adj": {
+    "turkishMeanings": ["bağlı", "ilişkili"],
+    "examples": [
+      { "en": "The two problems are connected.", "tr": "İki sorun birbiriyle ilişkili." },
+      { "en": "My laptop is not connected to the printer.", "tr": "Dizüstüm yazıcıya bağlı değil." },
+      { "en": "These villages are connected by a small road.", "tr": "Bu köyler küçük bir yolla birbirine bağlı." }
+    ]
+  },
+  "ox3k-a2-consider-v": {
+    "turkishMeanings": ["düşünmek", "göz önünde bulundurmak", "saymak"],
+    "examples": [
+      { "en": "We are considering a move to Izmir.", "tr": "İzmir'e taşınmayı düşünüyoruz." },
+      { "en": "Please consider the cost before you buy.", "tr": "Satın almadan önce lütfen maliyeti düşün." },
+      { "en": "Many people consider him a hero.", "tr": "Birçok kişi onu kahraman sayıyor." }
+    ]
+  },
+  "ox3k-a2-contain-v": {
+    "turkishMeanings": ["içermek", "kapsamak"],
+    "examples": [
+      { "en": "This drink contains a lot of sugar.", "tr": "Bu içecek çok fazla şeker içeriyor." },
+      { "en": "The box contained old letters.", "tr": "Kutu eski mektuplar içeriyordu." },
+      { "en": "Does this dish contain nuts?", "tr": "Bu yemek fındık içeriyor mu?" }
+    ]
+  },
+  "ox3k-a2-context-n": {
+    "turkishMeanings": ["bağlam", "ortam"],
+    "examples": [
+      { "en": "Try to guess the word from the context.", "tr": "Kelimeyi bağlamdan tahmin etmeye çalış." },
+      { "en": "In this context, the answer makes sense.", "tr": "Bu bağlamda cevap mantıklı." },
+      { "en": "You need the historical context to understand it.", "tr": "Anlamak için tarihsel bağlama ihtiyacın var." }
+    ]
+  },
+  "ox3k-a2-continent-n": {
+    "turkishMeanings": ["kıta"],
+    "examples": [
+      { "en": "Africa is a huge continent.", "tr": "Afrika devasa bir kıtadır." },
+      { "en": "There are seven continents in the world.", "tr": "Dünyada yedi kıta vardır." },
+      { "en": "She has visited every continent.", "tr": "Her kıtayı ziyaret etti." }
+    ]
+  },
+  "ox3k-a2-continue-v": {
+    "turkishMeanings": ["devam etmek", "sürdürmek"],
+    "examples": [
+      { "en": "The rain continued all night.", "tr": "Yağmur bütün gece devam etti." },
+      { "en": "Please continue with your work.", "tr": "Lütfen işine devam et." },
+      { "en": "She continued to study after dinner.", "tr": "Akşam yemeğinden sonra çalışmaya devam etti." }
+    ]
+  },
+  "ox3k-a2-control-n": {
+    "turkishMeanings": ["kontrol", "denetim", "hâkimiyet"],
+    "examples": [
+      { "en": "The driver lost control of the car.", "tr": "Sürücü arabanın kontrolünü kaybetti." },
+      { "en": "She has good control of her class.", "tr": "Sınıfına iyi hâkim." },
+      { "en": "Everything is under control now.", "tr": "Şimdi her şey kontrol altında." }
+    ]
+  },
+  "ox3k-a2-control-v": {
+    "turkishMeanings": ["kontrol etmek", "denetlemek", "yönetmek"],
+    "examples": [
+      { "en": "This button controls the temperature.", "tr": "Bu düğme sıcaklığı kontrol ediyor." },
+      { "en": "He could not control his anger.", "tr": "Öfkesini kontrol edemedi." },
+      { "en": "One company controls the whole market.", "tr": "Bir şirket bütün pazarı kontrol ediyor." }
+    ]
+  },
+  "ox3k-a2-cook-n": {
+    "turkishMeanings": ["aşçı"],
+    "examples": [
+      { "en": "My mother is a very good cook.", "tr": "Annem çok iyi bir aşçıdır." },
+      { "en": "The cook made soup for everyone.", "tr": "Aşçı herkese çorba yaptı." },
+      { "en": "They need a cook for the summer.", "tr": "Yaz için bir aşçıya ihtiyaçları var." }
+    ]
+  },
+  "ox3k-a2-cooker-n": {
+    "turkishMeanings": ["ocak", "fırın"],
+    "examples": [
+      { "en": "The pot is on the cooker.", "tr": "Tencere ocağın üstünde." },
+      { "en": "We bought a new gas cooker.", "tr": "Yeni bir gazlı ocak aldık." },
+      { "en": "Turn off the cooker when you finish.", "tr": "Bitirince ocağı kapat." }
+    ]
+  },
+  "ox3k-a2-copy-n": {
+    "turkishMeanings": ["kopya", "nüsha"],
+    "examples": [
+      { "en": "Please make a copy of this page.", "tr": "Lütfen bu sayfanın bir kopyasını al." },
+      { "en": "I bought two copies of the book.", "tr": "Kitabın iki nüshasını aldım." },
+      { "en": "Keep a copy for yourself.", "tr": "Kendine bir kopya sakla." }
+    ]
+  },
+  "ox3k-a2-copy-v": {
+    "turkishMeanings": ["kopyalamak", "taklit etmek"],
+    "examples": [
+      { "en": "Copy the sentences into your notebook.", "tr": "Cümleleri defterine geçir." },
+      { "en": "Do not copy your friend's answers.", "tr": "Arkadaşının cevaplarını kopyalama." },
+      { "en": "Little children copy their parents.", "tr": "Küçük çocuklar ailelerini taklit eder." }
+    ]
+  },
+  "ox3k-a2-corner-n": {
+    "turkishMeanings": ["köşe"],
+    "examples": [
+      { "en": "The shop is on the corner of the street.", "tr": "Dükkân sokağın köşesinde." },
+      { "en": "He sat in the corner of the room.", "tr": "Odanın köşesinde oturdu." },
+      { "en": "Turn left at the next corner.", "tr": "Bir sonraki köşeden sola dön." }
+    ]
+  },
+  "ox3k-a2-correctly-adv": {
+    "turkishMeanings": ["doğru şekilde", "doğru olarak"],
+    "examples": [
+      { "en": "She answered all the questions correctly.", "tr": "Bütün soruları doğru cevapladı." },
+      { "en": "Spell your name correctly on the form.", "tr": "Formda adını doğru yaz." },
+      { "en": "The machine is not working correctly.", "tr": "Makine düzgün çalışmıyor." }
+    ]
+  },
+  "ox3k-a2-count-v": {
+    "turkishMeanings": ["saymak", "hesaba katmak"],
+    "examples": [
+      { "en": "The little boy can count to twenty.", "tr": "Küçük çocuk yirmiye kadar sayabiliyor." },
+      { "en": "Please count the chairs in the room.", "tr": "Lütfen odadaki sandalyeleri say." },
+      { "en": "Your opinion counts a lot to me.", "tr": "Senin fikrin benim için çok önemli." }
+    ]
+  },
+  "ox3k-a2-couple-n": {
+    "turkishMeanings": ["çift", "birkaç"],
+    "examples": [
+      { "en": "A young couple moved in next door.", "tr": "Yan eve genç bir çift taşındı." },
+      { "en": "I will be back in a couple of minutes.", "tr": "Birkaç dakikaya dönerim." },
+      { "en": "The couple have two children.", "tr": "Çiftin iki çocuğu var." }
+    ]
+  },
+  "ox3k-a2-cover-v": {
+    "turkishMeanings": ["örtmek", "kaplamak", "kapsamak"],
+    "examples": [
+      { "en": "Cover the pot with a lid.", "tr": "Tencereyi kapakla ört." },
+      { "en": "Snow covered the whole garden.", "tr": "Kar bütün bahçeyi kapladı." },
+      { "en": "This book covers the basic rules.", "tr": "Bu kitap temel kuralları kapsıyor." }
+    ]
+  },
+  "ox3k-a2-crazy-adj": {
+    "turkishMeanings": ["deli", "çılgın"],
+    "examples": [
+      { "en": "That is a crazy idea!", "tr": "Bu çılgınca bir fikir!" },
+      { "en": "He is crazy about football.", "tr": "Futbola deli oluyor." },
+      { "en": "The traffic this morning was crazy.", "tr": "Bu sabahki trafik çılgıncaydı." }
+    ]
+  },
+  "ox3k-a2-creative-adj": {
+    "turkishMeanings": ["yaratıcı"],
+    "examples": [
+      { "en": "She is a very creative writer.", "tr": "Çok yaratıcı bir yazar." },
+      { "en": "Children need creative activities.", "tr": "Çocukların yaratıcı etkinliklere ihtiyacı var." },
+      { "en": "We need a creative answer to this problem.", "tr": "Bu soruna yaratıcı bir çözüm gerek." }
+    ]
+  },
+  "ox3k-a2-credit-n": {
+    "turkishMeanings": ["kredi", "veresiye", "itibar"],
+    "examples": [
+      { "en": "She paid with a credit card.", "tr": "Kredi kartıyla ödedi." },
+      { "en": "The shop does not give credit.", "tr": "Dükkân veresiye vermiyor." },
+      { "en": "He deserves credit for his hard work.", "tr": "Sıkı çalışması takdiri hak ediyor." }
+    ]
+  },
+  "ox3k-a2-crime-n": {
+    "turkishMeanings": ["suç"],
+    "examples": [
+      { "en": "Crime has fallen in this city.", "tr": "Bu şehirde suç azaldı." },
+      { "en": "Stealing is a serious crime.", "tr": "Hırsızlık ciddi bir suçtur." },
+      { "en": "The police solved the crime quickly.", "tr": "Polis suçu hızla çözdü." }
+    ]
+  },
+  "ox3k-a2-criminal-n": {
+    "turkishMeanings": ["suçlu"],
+    "examples": [
+      { "en": "The criminal was caught last night.", "tr": "Suçlu dün gece yakalandı." },
+      { "en": "He is a dangerous criminal.", "tr": "Tehlikeli bir suçlu." },
+      { "en": "The film is about a young criminal.", "tr": "Film genç bir suçluyu anlatıyor." }
+    ]
+  },
+  "ox3k-a2-cross-n": {
+    "turkishMeanings": ["haç", "çarpı işareti"],
+    "examples": [
+      { "en": "Put a cross next to the wrong answers.", "tr": "Yanlış cevapların yanına çarpı koy." },
+      { "en": "There is a small cross on the wall.", "tr": "Duvarda küçük bir haç var." },
+      { "en": "She wears a gold cross around her neck.", "tr": "Boynunda altın bir haç takıyor." }
+    ]
+  },
+  "ox3k-a2-cross-v": {
+    "turkishMeanings": ["geçmek", "karşıya geçmek"],
+    "examples": [
+      { "en": "Look both ways before you cross the road.", "tr": "Yoldan karşıya geçmeden önce iki yana da bak." },
+      { "en": "We crossed the river by boat.", "tr": "Nehri tekneyle geçtik." },
+      { "en": "She crossed her arms and waited.", "tr": "Kollarını kavuşturup bekledi." }
+    ]
+  },
+  "ox3k-a2-crowd-n": {
+    "turkishMeanings": ["kalabalık"],
+    "examples": [
+      { "en": "A big crowd waited outside the stadium.", "tr": "Stadyumun önünde büyük bir kalabalık bekledi." },
+      { "en": "I lost my friend in the crowd.", "tr": "Kalabalıkta arkadaşımı kaybettim." },
+      { "en": "The crowd cheered loudly.", "tr": "Kalabalık yüksek sesle tezahürat yaptı." }
+    ]
+  },
+  "ox3k-a2-crowded-adj": {
+    "turkishMeanings": ["kalabalık"],
+    "examples": [
+      { "en": "The bus was very crowded this morning.", "tr": "Otobüs bu sabah çok kalabalıktı." },
+      { "en": "I do not like crowded places.", "tr": "Kalabalık yerleri sevmiyorum." },
+      { "en": "The beach gets crowded in August.", "tr": "Plaj ağustosta kalabalıklaşır." }
+    ]
+  },
+  "ox3k-a2-cry-v": {
+    "turkishMeanings": ["ağlamak", "bağırmak"],
+    "examples": [
+      { "en": "The baby cried all night.", "tr": "Bebek bütün gece ağladı." },
+      { "en": "She cried when she heard the news.", "tr": "Haberi duyunca ağladı." },
+      { "en": "Someone cried for help outside.", "tr": "Dışarıda biri yardım için bağırdı." }
+    ]
+  },
+  "ox3k-a2-cupboard-n": {
+    "turkishMeanings": ["dolap", "büfe"],
+    "examples": [
+      { "en": "The plates are in the kitchen cupboard.", "tr": "Tabaklar mutfak dolabında." },
+      { "en": "Please close the cupboard door.", "tr": "Lütfen dolabın kapağını kapat." },
+      { "en": "There is nothing in the cupboard.", "tr": "Dolapta hiçbir şey yok." }
+    ]
+  },
+  "ox3k-a2-curly-adj": {
+    "turkishMeanings": ["kıvırcık"],
+    "examples": [
+      { "en": "She has long curly hair.", "tr": "Uzun kıvırcık saçları var." },
+      { "en": "My brother's hair is curly like mine.", "tr": "Kardeşimin saçı da benimki gibi kıvırcık." },
+      { "en": "The dog has soft curly fur.", "tr": "Köpeğin yumuşak kıvırcık tüyleri var." }
+    ]
+  },
+  "ox3k-a2-cycle-n": {
+    "turkishMeanings": ["döngü", "devir", "bisiklet"],
+    "examples": [
+      { "en": "The washing machine has a short cycle.", "tr": "Çamaşır makinesinin kısa bir programı var." },
+      { "en": "This is a natural cycle of the seasons.", "tr": "Bu, mevsimlerin doğal bir döngüsüdür." },
+      { "en": "There is a cycle path next to the road.", "tr": "Yolun yanında bir bisiklet yolu var." }
+    ]
+  },
+  "ox3k-a2-cycle-v": {
+    "turkishMeanings": ["bisiklete binmek", "bisikletle gitmek"],
+    "examples": [
+      { "en": "I cycle to work every day.", "tr": "Her gün işe bisikletle giderim." },
+      { "en": "They cycled around the lake.", "tr": "Gölün etrafında bisiklet sürdüler." },
+      { "en": "She learned to cycle at the age of six.", "tr": "Altı yaşında bisiklete binmeyi öğrendi." }
+    ]
+  },
+  "ox3k-a2-daily-adj": {
+    "turkishMeanings": ["günlük", "her günkü"],
+    "examples": [
+      { "en": "Walking is part of my daily routine.", "tr": "Yürüyüş günlük rutinimin bir parçası." },
+      { "en": "He reads a daily newspaper.", "tr": "Günlük bir gazete okuyor." },
+      { "en": "The daily bus leaves at seven.", "tr": "Günlük otobüs yedide kalkıyor." }
+    ]
+  },
+  "ox3k-a2-danger-n": {
+    "turkishMeanings": ["tehlike"],
+    "examples": [
+      { "en": "The children were in danger.", "tr": "Çocuklar tehlikedeydi." },
+      { "en": "There is a danger of fire here.", "tr": "Burada yangın tehlikesi var." },
+      { "en": "He does not see the danger.", "tr": "Tehlikeyi görmüyor." }
+    ]
+  },
+  "ox3k-a2-dark-n": {
+    "turkishMeanings": ["karanlık"],
+    "examples": [
+      { "en": "The child is afraid of the dark.", "tr": "Çocuk karanlıktan korkuyor." },
+      { "en": "Cats can see in the dark.", "tr": "Kediler karanlıkta görebilir." },
+      { "en": "Come home before dark.", "tr": "Karanlık basmadan eve gel." }
+    ]
+  },
+  "ox3k-a2-data-n": {
+    "turkishMeanings": ["veri", "bilgi"],
+    "examples": [
+      { "en": "The data shows a clear increase.", "tr": "Veriler açık bir artış gösteriyor." },
+      { "en": "We lost all the data on the computer.", "tr": "Bilgisayardaki bütün verileri kaybettik." },
+      { "en": "She collects data for her research.", "tr": "Araştırması için veri topluyor." }
+    ]
+  },
+  "ox3k-a2-dead-adj": {
+    "turkishMeanings": ["ölü", "bitmiş"],
+    "examples": [
+      { "en": "The plant is dead.", "tr": "Bitki ölmüş." },
+      { "en": "My phone battery is dead.", "tr": "Telefonumun pili bitti." },
+      { "en": "The streets were dead at midnight.", "tr": "Gece yarısı sokaklar ölü gibiydi." }
+    ]
+  },
+  "ox3k-a2-deal-v": {
+    "turkishMeanings": ["ilgilenmek", "başa çıkmak", "dağıtmak"],
+    "examples": [
+      { "en": "I will deal with this problem tomorrow.", "tr": "Bu sorunla yarın ilgileneceğim." },
+      { "en": "She deals with customers all day.", "tr": "Bütün gün müşterilerle ilgileniyor." },
+      { "en": "He dealt the cards to each player.", "tr": "Kartları her oyuncuya dağıttı." }
+    ]
+  },
+  "ox3k-a2-dear-exclam": {
+    "turkishMeanings": ["aman", "eyvah"],
+    "examples": [
+      { "en": "Oh dear, I have lost my ticket!", "tr": "Eyvah, biletimi kaybettim!" },
+      { "en": "Dear me, what a mess!", "tr": "Aman Tanrım, ne dağınıklık!" },
+      { "en": "Oh dear, the milk is finished.", "tr": "Eyvah, süt bitmiş." }
+    ]
+  },
+  "ox3k-a2-death-n": {
+    "turkishMeanings": ["ölüm"],
+    "examples": [
+      { "en": "His death was a shock to everyone.", "tr": "Ölümü herkes için şok oldu." },
+      { "en": "She was very sad after her father's death.", "tr": "Babasının ölümünden sonra çok üzgündü." },
+      { "en": "Smoking causes many deaths every year.", "tr": "Sigara her yıl birçok ölüme sebep oluyor." }
+    ]
+  },
+  "ox3k-a2-decision-n": {
+    "turkishMeanings": ["karar"],
+    "examples": [
+      { "en": "It was a difficult decision.", "tr": "Zor bir karardı." },
+      { "en": "She made her decision quickly.", "tr": "Kararını hızlıca verdi." },
+      { "en": "The decision is yours.", "tr": "Karar senin." }
+    ]
+  },
+  "ox3k-a2-deep-adj": {
+    "turkishMeanings": ["derin"],
+    "examples": [
+      { "en": "The water here is very deep.", "tr": "Buradaki su çok derin." },
+      { "en": "She took a deep breath.", "tr": "Derin bir nefes aldı." },
+      { "en": "He fell into a deep sleep.", "tr": "Derin bir uykuya daldı." }
+    ]
+  },
+  "ox3k-a2-definitely-adv": {
+    "turkishMeanings": ["kesinlikle", "mutlaka"],
+    "examples": [
+      { "en": "I will definitely be there.", "tr": "Kesinlikle orada olacağım." },
+      { "en": "This is definitely the wrong road.", "tr": "Bu kesinlikle yanlış yol." },
+      { "en": "She definitely said seven o'clock.", "tr": "Kesinlikle saat yedi dedi." }
+    ]
+  },
+  "ox3k-a2-degree-n": {
+    "turkishMeanings": ["derece", "diploma"],
+    "examples": [
+      { "en": "It is thirty degrees outside.", "tr": "Dışarısı otuz derece." },
+      { "en": "She has a degree in history.", "tr": "Tarih diploması var." },
+      { "en": "Water boils at one hundred degrees.", "tr": "Su yüz derecede kaynar." }
+    ]
+  },
+  "ox3k-a2-dentist-n": {
+    "turkishMeanings": ["diş hekimi", "dişçi"],
+    "examples": [
+      { "en": "I have an appointment with the dentist.", "tr": "Diş hekiminden randevum var." },
+      { "en": "The dentist cleaned my teeth.", "tr": "Dişçi dişlerimi temizledi." },
+      { "en": "Children should see a dentist twice a year.", "tr": "Çocuklar yılda iki kez dişçiye gitmeli." }
+    ]
+  },
+  "ox3k-a2-department-n": {
+    "turkishMeanings": ["bölüm", "departman", "reyon"],
+    "examples": [
+      { "en": "She works in the sales department.", "tr": "Satış bölümünde çalışıyor." },
+      { "en": "The shoes are in another department.", "tr": "Ayakkabılar başka bir reyonda." },
+      { "en": "He is head of the history department.", "tr": "Tarih bölümünün başkanı." }
+    ]
+  },
+  "ox3k-a2-depend-v": {
+    "turkishMeanings": ["bağlı olmak", "güvenmek"],
+    "examples": [
+      { "en": "Our plans depend on the weather.", "tr": "Planlarımız havaya bağlı." },
+      { "en": "You can depend on her.", "tr": "Ona güvenebilirsin." },
+      { "en": "The price depends on the size.", "tr": "Fiyat boyuta bağlı." }
+    ]
+  },
+  "ox3k-a2-desert-n": {
+    "turkishMeanings": ["çöl"],
+    "examples": [
+      { "en": "It almost never rains in the desert.", "tr": "Çölde neredeyse hiç yağmur yağmaz." },
+      { "en": "They crossed the desert by camel.", "tr": "Çölü deveyle geçtiler." },
+      { "en": "The desert is very cold at night.", "tr": "Çöl geceleri çok soğuk olur." }
+    ]
+  },
+  "ox3k-a2-designer-n": {
+    "turkishMeanings": ["tasarımcı"],
+    "examples": [
+      { "en": "She works as a fashion designer.", "tr": "Moda tasarımcısı olarak çalışıyor." },
+      { "en": "The designer showed us three ideas.", "tr": "Tasarımcı bize üç fikir gösterdi." },
+      { "en": "He wants to be a game designer.", "tr": "Oyun tasarımcısı olmak istiyor." }
+    ]
+  },
+  "ox3k-a2-destroy-v": {
+    "turkishMeanings": ["yok etmek", "yıkmak", "mahvetmek"],
+    "examples": [
+      { "en": "The fire destroyed the old house.", "tr": "Yangın eski evi yok etti." },
+      { "en": "Please do not destroy these papers.", "tr": "Lütfen bu kâğıtları imha etme." },
+      { "en": "The storm destroyed many trees.", "tr": "Fırtına birçok ağacı yıktı." }
+    ]
+  },
+  "ox3k-a2-detective-n": {
+    "turkishMeanings": ["dedektif", "polis memuru"],
+    "examples": [
+      { "en": "The detective asked me many questions.", "tr": "Dedektif bana çok soru sordu." },
+      { "en": "She loves detective stories.", "tr": "Dedektif hikâyelerini çok sever." },
+      { "en": "A detective is working on the case.", "tr": "Bir dedektif olay üzerinde çalışıyor." }
+    ]
+  },
+  "ox3k-a2-develop-v": {
+    "turkishMeanings": ["geliştirmek", "gelişmek"],
+    "examples": [
+      { "en": "The company developed a new app.", "tr": "Şirket yeni bir uygulama geliştirdi." },
+      { "en": "Children develop quickly at this age.", "tr": "Çocuklar bu yaşta hızlı gelişir." },
+      { "en": "She wants to develop her writing skills.", "tr": "Yazma becerilerini geliştirmek istiyor." }
+    ]
+  },
+  "ox3k-a2-device-n": {
+    "turkishMeanings": ["cihaz", "alet"],
+    "examples": [
+      { "en": "This device measures the temperature.", "tr": "Bu cihaz sıcaklığı ölçüyor." },
+      { "en": "You can use the app on any device.", "tr": "Uygulamayı her cihazda kullanabilirsin." },
+      { "en": "He invented a small device for the kitchen.", "tr": "Mutfak için küçük bir alet icat etti." }
+    ]
+  },
+  "ox3k-a2-diary-n": {
+    "turkishMeanings": ["günlük", "ajanda"],
+    "examples": [
+      { "en": "She writes in her diary every night.", "tr": "Her gece günlüğüne yazıyor." },
+      { "en": "I wrote the date in my diary.", "tr": "Tarihi ajandama yazdım." },
+      { "en": "He kept a diary during the trip.", "tr": "Gezi boyunca günlük tuttu." }
+    ]
+  },
+  "ox3k-a2-differently-adv": {
+    "turkishMeanings": ["farklı şekilde", "başka türlü"],
+    "examples": [
+      { "en": "She sees the problem differently.", "tr": "Sorunu farklı görüyor." },
+      { "en": "This word is spelt differently in America.", "tr": "Bu kelime Amerika'da farklı yazılır." },
+      { "en": "I would have done it differently.", "tr": "Ben olsam başka türlü yapardım." }
+    ]
+  },
+  "ox3k-a2-digital-adj": {
+    "turkishMeanings": ["dijital", "sayısal"],
+    "examples": [
+      { "en": "He bought a digital camera.", "tr": "Dijital bir fotoğraf makinesi aldı." },
+      { "en": "The library has a digital catalogue.", "tr": "Kütüphanenin dijital bir kataloğu var." },
+      { "en": "Digital tickets are cheaper.", "tr": "Dijital biletler daha ucuz." }
+    ]
+  },
+  "ox3k-a2-direct-adj": {
+    "turkishMeanings": ["doğrudan", "direkt", "açık sözlü"],
+    "examples": [
+      { "en": "There is a direct flight to Rome.", "tr": "Roma'ya direkt uçuş var." },
+      { "en": "Take the direct road to the village.", "tr": "Köye giden doğrudan yolu kullan." },
+      { "en": "She gave me a direct answer.", "tr": "Bana doğrudan bir cevap verdi." }
+    ]
+  },
+  "ox3k-a2-direction-n": {
+    "turkishMeanings": ["yön", "tarif"],
+    "examples": [
+      { "en": "We walked in the wrong direction.", "tr": "Yanlış yöne yürüdük." },
+      { "en": "She asked a man for directions.", "tr": "Bir adamdan yol tarifi istedi." },
+      { "en": "The wind changed direction.", "tr": "Rüzgâr yön değiştirdi." }
+    ]
+  },
+  "ox3k-a2-director-n": {
+    "turkishMeanings": ["yönetmen", "müdür"],
+    "examples": [
+      { "en": "The director made three famous films.", "tr": "Yönetmen üç ünlü film yaptı." },
+      { "en": "She is the director of a small company.", "tr": "Küçük bir şirketin müdürü." },
+      { "en": "The new director starts on Monday.", "tr": "Yeni müdür pazartesi başlıyor." }
+    ]
+  },
+  "ox3k-a2-disagree-v": {
+    "turkishMeanings": ["katılmamak", "aynı fikirde olmamak"],
+    "examples": [
+      { "en": "I disagree with you about this.", "tr": "Bu konuda sana katılmıyorum." },
+      { "en": "The two experts disagree completely.", "tr": "İki uzman tamamen ayrı görüşte." },
+      { "en": "She disagreed but said nothing.", "tr": "Katılmadı ama bir şey söylemedi." }
+    ]
+  },
+  "ox3k-a2-disappear-v": {
+    "turkishMeanings": ["kaybolmak", "gözden kaybolmak"],
+    "examples": [
+      { "en": "My keys disappeared from the table.", "tr": "Anahtarlarım masadan kayboldu." },
+      { "en": "The sun disappeared behind a cloud.", "tr": "Güneş bir bulutun arkasında kayboldu." },
+      { "en": "The cat disappeared into the garden.", "tr": "Kedi bahçeye doğru kayboldu." }
+    ]
+  },
+  "ox3k-a2-disaster-n": {
+    "turkishMeanings": ["felaket", "afet"],
+    "examples": [
+      { "en": "The earthquake was a terrible disaster.", "tr": "Deprem korkunç bir felaketti." },
+      { "en": "The party was a complete disaster.", "tr": "Parti tam bir felaketti." },
+      { "en": "They sent help after the disaster.", "tr": "Felaketten sonra yardım gönderdiler." }
+    ]
+  },
+  "ox3k-a2-discover-v": {
+    "turkishMeanings": ["keşfetmek", "öğrenmek"],
+    "examples": [
+      { "en": "Scientists discovered a new planet.", "tr": "Bilim insanları yeni bir gezegen keşfetti." },
+      { "en": "I discovered a nice café near my office.", "tr": "Ofisimin yakınında güzel bir kafe keşfettim." },
+      { "en": "She discovered the truth too late.", "tr": "Gerçeği çok geç öğrendi." }
+    ]
+  },
+  "ox3k-a2-discovery-n": {
+    "turkishMeanings": ["keşif", "buluş"],
+    "examples": [
+      { "en": "It was an important scientific discovery.", "tr": "Önemli bir bilimsel keşifti." },
+      { "en": "They made a surprising discovery in the cave.", "tr": "Mağarada şaşırtıcı bir keşif yaptılar." },
+      { "en": "The discovery changed medicine forever.", "tr": "Bu keşif tıbbı sonsuza dek değiştirdi." }
+    ]
+  },
+  "ox3k-a2-discussion-n": {
+    "turkishMeanings": ["tartışma", "görüşme"],
+    "examples": [
+      { "en": "We had a long discussion about money.", "tr": "Para konusunda uzun bir görüşme yaptık." },
+      { "en": "The discussion continued after lunch.", "tr": "Tartışma öğle yemeğinden sonra devam etti." },
+      { "en": "Join the discussion in class.", "tr": "Sınıftaki tartışmaya katıl." }
+    ]
+  },
+  "ox3k-a2-disease-n": {
+    "turkishMeanings": ["hastalık"],
+    "examples": [
+      { "en": "Heart disease is very common.", "tr": "Kalp hastalığı çok yaygındır." },
+      { "en": "The disease spread through the village.", "tr": "Hastalık köye yayıldı." },
+      { "en": "Doctors are looking for a cure for this disease.", "tr": "Doktorlar bu hastalığa çare arıyor." }
+    ]
+  },
+  "ox3k-a2-distance-n": {
+    "turkishMeanings": ["mesafe", "uzaklık"],
+    "examples": [
+      { "en": "What is the distance between the two cities?", "tr": "İki şehir arasındaki mesafe ne kadar?" },
+      { "en": "We saw a light in the distance.", "tr": "Uzakta bir ışık gördük." },
+      { "en": "She walks a long distance every morning.", "tr": "Her sabah uzun bir mesafe yürüyor." }
+    ]
+  },
+  "ox3k-a2-divorced-adj": {
+    "turkishMeanings": ["boşanmış"],
+    "examples": [
+      { "en": "Her parents are divorced.", "tr": "Ailesi boşanmış." },
+      { "en": "He got divorced last year.", "tr": "Geçen yıl boşandı." },
+      { "en": "She is divorced with two children.", "tr": "Boşanmış ve iki çocuğu var." }
+    ]
+  },
+  "ox3k-a2-document-n": {
+    "turkishMeanings": ["belge", "doküman"],
+    "examples": [
+      { "en": "Please sign this document.", "tr": "Lütfen bu belgeyi imzalayın." },
+      { "en": "I saved the document on my computer.", "tr": "Belgeyi bilgisayarıma kaydettim." },
+      { "en": "Bring your travel documents to the airport.", "tr": "Seyahat belgelerini havalimanına getir." }
+    ]
+  },
+  "ox3k-a2-double-adj": {
+    "turkishMeanings": ["çift", "iki kişilik", "iki katı"],
+    "examples": [
+      { "en": "We booked a double room.", "tr": "Çift kişilik bir oda ayırttık." },
+      { "en": "The word has a double letter.", "tr": "Kelimede çift harf var." },
+      { "en": "She earns a double salary this month.", "tr": "Bu ay iki katı maaş alıyor." }
+    ]
+  },
+  "ox3k-a2-double-det": {
+    "turkishMeanings": ["iki katı", "iki kat"],
+    "examples": [
+      { "en": "He earns double the money I do.", "tr": "Benim kazandığımın iki katını kazanıyor." },
+      { "en": "This bag costs double the price.", "tr": "Bu çanta fiyatın iki katına mal oluyor." },
+      { "en": "They need double the time to finish.", "tr": "Bitirmek için iki kat zamana ihtiyaçları var." }
+    ]
+  },
+  "ox3k-a2-double-pron": {
+    "turkishMeanings": ["iki katı", "iki misli"],
+    "examples": [
+      { "en": "I paid ten lira, but she paid double.", "tr": "Ben on lira ödedim ama o iki katını ödedi." },
+      { "en": "The new house is big, but the old one was double.", "tr": "Yeni ev büyük ama eskisi iki katıydı." },
+      { "en": "One cup is enough; do not drink double.", "tr": "Bir fincan yeter, iki katını içme." }
+    ]
+  },
+  "ox3k-a2-double-v": {
+    "turkishMeanings": ["iki katına çıkmak", "ikiye katlamak"],
+    "examples": [
+      { "en": "Prices doubled in two years.", "tr": "Fiyatlar iki yılda ikiye katlandı." },
+      { "en": "The company doubled its staff.", "tr": "Şirket personelini ikiye katladı." },
+      { "en": "Double the recipe for eight people.", "tr": "Sekiz kişi için tarifi ikiye katla." }
+    ]
+  },
+  "ox3k-a2-download-n": {
+    "turkishMeanings": ["indirme", "indirilen dosya"],
+    "examples": [
+      { "en": "The download takes about ten minutes.", "tr": "İndirme yaklaşık on dakika sürüyor." },
+      { "en": "Check your downloads folder.", "tr": "İndirilenler klasörünü kontrol et." },
+      { "en": "The download failed twice.", "tr": "İndirme iki kez başarısız oldu." }
+    ]
+  },
+  "ox3k-a2-download-v": {
+    "turkishMeanings": ["indirmek"],
+    "examples": [
+      { "en": "I downloaded the file yesterday.", "tr": "Dosyayı dün indirdim." },
+      { "en": "You can download the map for free.", "tr": "Haritayı ücretsiz indirebilirsin." },
+      { "en": "She downloads music every week.", "tr": "Her hafta müzik indiriyor." }
+    ]
+  },
+  "ox3k-a2-downstairs-adj": {
+    "turkishMeanings": ["alt kattaki", "aşağıdaki"],
+    "examples": [
+      { "en": "The downstairs bathroom is small.", "tr": "Alt kattaki banyo küçük." },
+      { "en": "We use the downstairs room as an office.", "tr": "Alt kattaki odayı ofis olarak kullanıyoruz." },
+      { "en": "Our downstairs neighbours are very quiet.", "tr": "Alt kattaki komşularımız çok sessiz." }
+    ]
+  },
+  "ox3k-a2-drama-n": {
+    "turkishMeanings": ["dram", "tiyatro", "olay"],
+    "examples": [
+      { "en": "She studies drama at college.", "tr": "Yüksekokulda tiyatro okuyor." },
+      { "en": "It is a television drama about doctors.", "tr": "Doktorları anlatan bir televizyon draması." },
+      { "en": "There was a lot of drama at the meeting.", "tr": "Toplantıda büyük bir olay yaşandı." }
+    ]
+  },
+  "ox3k-a2-drawing-n": {
+    "turkishMeanings": ["çizim", "resim"],
+    "examples": [
+      { "en": "Her drawing of the cat is lovely.", "tr": "Kedi çizimi çok güzel." },
+      { "en": "He put his drawings on the wall.", "tr": "Çizimlerini duvara astı." },
+      { "en": "We had a drawing lesson today.", "tr": "Bugün resim dersimiz vardı." }
+    ]
+  },
+  "ox3k-a2-dream-n": {
+    "turkishMeanings": ["rüya", "hayal"],
+    "examples": [
+      { "en": "I had a strange dream last night.", "tr": "Dün gece garip bir rüya gördüm." },
+      { "en": "Her dream is to become a doctor.", "tr": "Hayali doktor olmak." },
+      { "en": "This house is a dream come true.", "tr": "Bu ev gerçek olmuş bir hayal." }
+    ]
+  }
+}
