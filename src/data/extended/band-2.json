@@ -2968,5 +2968,3085 @@
   "variants": [],
   "phonetic": null,
   "band": 2
+ },
+ {
+  "id": "gen-b2-beforehand",
+  "headword": "beforehand",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2066,
+  "sourceEntry": "beforehand adj., adv.",
+  "senses": [
+   {
+    "id": "gen-b2-beforehand-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "önceden hazırlanmış",
+     "erken davranmış"
+    ],
+    "examples": [
+     {
+      "en": "She was beforehand with her rent.",
+      "tr": "Kirasını erkenden ödemişti."
+     },
+     {
+      "en": "He is always beforehand with the news.",
+      "tr": "Haberleri hep önceden öğrenir."
+     },
+     {
+      "en": "They were beforehand in their planning.",
+      "tr": "Planlamada erken davranmışlardı."
+     }
+    ]
+   },
+   {
+    "id": "gen-b2-beforehand-adv",
+    "partOfSpeech": "adv.",
+    "turkishMeanings": [
+     "önceden",
+     "peşinen",
+     "vaktinden önce"
+    ],
+    "examples": [
+     {
+      "en": "Book your seat beforehand.",
+      "tr": "Yerini önceden ayırt."
+     },
+     {
+      "en": "He knew the answer beforehand.",
+      "tr": "Cevabı önceden biliyordu."
+     },
+     {
+      "en": "We paid beforehand to be safe.",
+      "tr": "Garanti olsun diye peşinen ödedik."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/bɪˈfɔːhænd/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-synthetic",
+  "headword": "synthetic",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2067,
+  "sourceEntry": "synthetic adj., n.",
+  "senses": [
+   {
+    "id": "gen-b2-synthetic-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "sentetik",
+     "yapay",
+     "suni"
+    ],
+    "examples": [
+     {
+      "en": "The jacket is made of synthetic fibre.",
+      "tr": "Ceket sentetik elyaftan yapılmış."
+     },
+     {
+      "en": "They use synthetic rubber.",
+      "tr": "Sentetik kauçuk kullanıyorlar."
+     },
+     {
+      "en": "The flavour is synthetic.",
+      "tr": "Aroma yapay."
+     }
+    ]
+   },
+   {
+    "id": "gen-b2-synthetic-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "sentetik madde",
+     "yapay ürün"
+    ],
+    "examples": [
+     {
+      "en": "This shirt is a synthetic.",
+      "tr": "Bu gömlek bir sentetik."
+     },
+     {
+      "en": "Synthetics dry faster than cotton.",
+      "tr": "Sentetikler pamuktan hızlı kurur."
+     },
+     {
+      "en": "The factory produces synthetics.",
+      "tr": "Fabrika sentetik ürün üretiyor."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/sɪnˈθɛtɪk/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-agitated",
+  "headword": "agitated",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2068,
+  "sourceEntry": "agitated adj.",
+  "senses": [
+   {
+    "id": "gen-b2-agitated-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "telaşlı",
+     "huzursuz",
+     "tedirgin"
+    ],
+    "examples": [
+     {
+      "en": "He became agitated at the question.",
+      "tr": "Soru karşısında telaşlandı."
+     },
+     {
+      "en": "She sounded agitated on the phone.",
+      "tr": "Telefonda tedirgin geliyordu."
+     },
+     {
+      "en": "The agitated crowd pushed forward.",
+      "tr": "Huzursuz kalabalık öne doğru itişti."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈæd͡ʒɪteɪtɪd/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-moan",
+  "headword": "moan",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2069,
+  "sourceEntry": "moan n., v.",
+  "senses": [
+   {
+    "id": "gen-b2-moan-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "inilti",
+     "sızlanma",
+     "yakınma"
+    ],
+    "examples": [
+     {
+      "en": "A low moan came from the room.",
+      "tr": "Odadan alçak bir inilti geldi."
+     },
+     {
+      "en": "He gave a moan of pain.",
+      "tr": "Acıyla bir inilti çıkardı."
+     },
+     {
+      "en": "Her moan about the weather never stops.",
+      "tr": "Hava hakkındaki yakınması hiç bitmiyor."
+     }
+    ]
+   },
+   {
+    "id": "gen-b2-moan-v",
+    "partOfSpeech": "v.",
+    "turkishMeanings": [
+     "inlemek",
+     "sızlanmak",
+     "yakınmak"
+    ],
+    "examples": [
+     {
+      "en": "The patient moaned in his sleep.",
+      "tr": "Hasta uykusunda inledi."
+     },
+     {
+      "en": "She moans about the traffic daily.",
+      "tr": "Her gün trafikten yakınıyor."
+     },
+     {
+      "en": "The wind moaned in the chimney.",
+      "tr": "Rüzgâr bacada inledi."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/məʊn/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-signor",
+  "headword": "signor",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2070,
+  "sourceEntry": "signor n.",
+  "senses": [
+   {
+    "id": "gen-b2-signor-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "bay",
+     "efendi (İtalyanca hitap)"
+    ],
+    "examples": [
+     {
+      "en": "Good evening, signor.",
+      "tr": "İyi akşamlar efendim."
+     },
+     {
+      "en": "The signor owns the vineyard.",
+      "tr": "Bay bağın sahibi."
+     },
+     {
+      "en": "A signor greeted us at the gate.",
+      "tr": "Kapıda bir beyefendi bizi karşıladı."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈsiːnjɔː/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-graffiti",
+  "headword": "graffiti",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2071,
+  "sourceEntry": "graffiti n.",
+  "senses": [
+   {
+    "id": "gen-b2-graffiti-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "duvar yazısı",
+     "grafiti"
+    ],
+    "examples": [
+     {
+      "en": "Graffiti covered the underpass.",
+      "tr": "Duvar yazıları alt geçidi kaplamıştı."
+     },
+     {
+      "en": "They cleaned the graffiti off the wall.",
+      "tr": "Duvardaki grafitiyi temizlediler."
+     },
+     {
+      "en": "The graffiti was colourful and clever.",
+      "tr": "Grafiti renkli ve zekiceydi."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ɡɹəˈfiːti/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-linen",
+  "headword": "linen",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2072,
+  "sourceEntry": "linen n.",
+  "senses": [
+   {
+    "id": "gen-b2-linen-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "keten",
+     "keten bezi",
+     "çamaşır"
+    ],
+    "examples": [
+     {
+      "en": "She wore a linen dress.",
+      "tr": "Keten bir elbise giymişti."
+     },
+     {
+      "en": "The linen needs washing.",
+      "tr": "Çamaşırların yıkanması gerekiyor."
+     },
+     {
+      "en": "Fresh linen was put on the bed.",
+      "tr": "Yatağa temiz çarşaf serildi."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈlɪnɪn/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-patriotic",
+  "headword": "patriotic",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2073,
+  "sourceEntry": "patriotic adj.",
+  "senses": [
+   {
+    "id": "gen-b2-patriotic-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "vatansever",
+     "yurtsever"
+    ],
+    "examples": [
+     {
+      "en": "They sang a patriotic song.",
+      "tr": "Vatansever bir şarkı söylediler."
+     },
+     {
+      "en": "He felt patriotic that day.",
+      "tr": "O gün vatansever hissetti."
+     },
+     {
+      "en": "The speech was deeply patriotic.",
+      "tr": "Konuşma derinden yurtseverdi."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈpæt.ɹi.ɒ.tɪk/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-pest",
+  "headword": "pest",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2074,
+  "sourceEntry": "pest n.",
+  "senses": [
+   {
+    "id": "gen-b2-pest-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "zararlı",
+     "haşere",
+     "baş belası"
+    ],
+    "examples": [
+     {
+      "en": "The beetle is a serious pest.",
+      "tr": "Böcek ciddi bir zararlıdır."
+     },
+     {
+      "en": "Farmers fight pests every summer.",
+      "tr": "Çiftçiler her yaz zararlılarla savaşıyor."
+     },
+     {
+      "en": "That child can be a real pest.",
+      "tr": "O çocuk gerçek bir baş belası olabiliyor."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/pɛst/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-mandarin",
+  "headword": "mandarin",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2075,
+  "sourceEntry": "mandarin n.",
+  "senses": [
+   {
+    "id": "gen-b2-mandarin-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "mandalina",
+     "üst düzey memur"
+    ],
+    "examples": [
+     {
+      "en": "He peeled a mandarin.",
+      "tr": "Bir mandalina soydu."
+     },
+     {
+      "en": "The mandarin is sweeter than an orange.",
+      "tr": "Mandalina portakaldan tatlıdır."
+     },
+     {
+      "en": "A senior mandarin blocked the reform.",
+      "tr": "Üst düzey bir bürokrat reformu engelledi."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈmæn.də.ɹɪn/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-rand",
+  "headword": "rand",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2076,
+  "sourceEntry": "rand n.",
+  "senses": [
+   {
+    "id": "gen-b2-rand-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "rand (Güney Afrika parası)"
+    ],
+    "examples": [
+     {
+      "en": "The book costs eighty rand.",
+      "tr": "Kitap seksen rand tutuyor."
+     },
+     {
+      "en": "The rand fell against the dollar.",
+      "tr": "Rand dolar karşısında düştü."
+     },
+     {
+      "en": "He paid in rand, not dollars.",
+      "tr": "Dolarla değil randla ödedi."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": null,
+  "band": 2
+ },
+ {
+  "id": "gen-b2-screwdriver",
+  "headword": "screwdriver",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2077,
+  "sourceEntry": "screwdriver n.",
+  "senses": [
+   {
+    "id": "gen-b2-screwdriver-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "tornavida"
+    ],
+    "examples": [
+     {
+      "en": "Pass me the small screwdriver.",
+      "tr": "Küçük tornavidayı uzat."
+     },
+     {
+      "en": "He opened the case with a screwdriver.",
+      "tr": "Kutuyu tornavidayla açtı."
+     },
+     {
+      "en": "The screwdriver slipped and scratched the wood.",
+      "tr": "Tornavida kaydı ve ahşabı çizdi."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": null,
+  "band": 2
+ },
+ {
+  "id": "gen-b2-mace",
+  "headword": "mace",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2078,
+  "sourceEntry": "mace n.",
+  "senses": [
+   {
+    "id": "gen-b2-mace-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "topuz",
+     "asa",
+     "biber gazı"
+    ],
+    "examples": [
+     {
+      "en": "The knight carried a heavy mace.",
+      "tr": "Şövalye ağır bir topuz taşıyordu."
+     },
+     {
+      "en": "The mace lies before the speaker.",
+      "tr": "Asa başkanın önünde durur."
+     },
+     {
+      "en": "She sprayed mace at the attacker.",
+      "tr": "Saldırgana biber gazı sıktı."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": null,
+  "band": 2
+ },
+ {
+  "id": "gen-b2-newborn",
+  "headword": "newborn",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2079,
+  "sourceEntry": "newborn adj., n.",
+  "senses": [
+   {
+    "id": "gen-b2-newborn-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "yeni doğmuş",
+     "yeni doğan"
+    ],
+    "examples": [
+     {
+      "en": "The newborn baby slept quietly.",
+      "tr": "Yeni doğan bebek sessizce uyudu."
+     },
+     {
+      "en": "Newborn lambs stood on the grass.",
+      "tr": "Yeni doğmuş kuzular çimende durdu."
+     },
+     {
+      "en": "She held her newborn son.",
+      "tr": "Yeni doğan oğlunu kucağına aldı."
+     }
+    ]
+   },
+   {
+    "id": "gen-b2-newborn-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "yenidoğan",
+     "yeni doğmuş bebek"
+    ],
+    "examples": [
+     {
+      "en": "The nurse weighed the newborn.",
+      "tr": "Hemşire yenidoğanı tarttı."
+     },
+     {
+      "en": "A newborn sleeps most of the day.",
+      "tr": "Bir yenidoğan günün çoğunu uyur."
+     },
+     {
+      "en": "The ward is full of newborns.",
+      "tr": "Servis yenidoğanlarla dolu."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": null,
+  "band": 2
+ },
+ {
+  "id": "gen-b2-shivering",
+  "headword": "shivering",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2080,
+  "sourceEntry": "shivering adj., n.",
+  "senses": [
+   {
+    "id": "gen-b2-shivering-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "titreyen",
+     "üşüyen"
+    ],
+    "examples": [
+     {
+      "en": "A shivering dog stood at the door.",
+      "tr": "Titreyen bir köpek kapıda duruyordu."
+     },
+     {
+      "en": "She wrapped the shivering child in a coat.",
+      "tr": "Titreyen çocuğu bir paltoya sardı."
+     },
+     {
+      "en": "The shivering man asked for tea.",
+      "tr": "Üşüyen adam çay istedi."
+     }
+    ]
+   },
+   {
+    "id": "gen-b2-shivering-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "titreme",
+     "ürperme"
+    ],
+    "examples": [
+     {
+      "en": "The shivering stopped near the fire.",
+      "tr": "Titreme ateşin yanında durdu."
+     },
+     {
+      "en": "Shivering is the body's way of warming up.",
+      "tr": "Titreme vücudun ısınma yoludur."
+     },
+     {
+      "en": "Her shivering worried the nurse.",
+      "tr": "Titremesi hemşireyi endişelendirdi."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈʃɪvəɹɪŋ/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-slime",
+  "headword": "slime",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2081,
+  "sourceEntry": "slime n., v.",
+  "senses": [
+   {
+    "id": "gen-b2-slime-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "balçık",
+     "sümüksü madde",
+     "yapışkan çamur"
+    ],
+    "examples": [
+     {
+      "en": "Green slime covered the pond.",
+      "tr": "Yeşil balçık göleti kapladı."
+     },
+     {
+      "en": "The snail left a trail of slime.",
+      "tr": "Salyangoz bir sümük izi bıraktı."
+     },
+     {
+      "en": "He slipped on the slime.",
+      "tr": "Balçıkta kaydı."
+     }
+    ]
+   },
+   {
+    "id": "gen-b2-slime-v",
+    "partOfSpeech": "v.",
+    "turkishMeanings": [
+     "balçıkla kaplamak",
+     "sümüklemek"
+    ],
+    "examples": [
+     {
+      "en": "Algae slimed the whole tank.",
+      "tr": "Yosun bütün tankı balçıkla kapladı."
+     },
+     {
+      "en": "The rocks were slimed by the tide.",
+      "tr": "Kayalar gelgitle balçıklandı."
+     },
+     {
+      "en": "Do not slime the table with that.",
+      "tr": "Masayı onunla sümükleme."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/slaɪm/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-lingerie",
+  "headword": "lingerie",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2082,
+  "sourceEntry": "lingerie n.",
+  "senses": [
+   {
+    "id": "gen-b2-lingerie-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "kadın iç çamaşırı"
+    ],
+    "examples": [
+     {
+      "en": "The shop sells lingerie.",
+      "tr": "Dükkân kadın iç çamaşırı satıyor."
+     },
+     {
+      "en": "She bought silk lingerie.",
+      "tr": "İpek iç çamaşırı aldı."
+     },
+     {
+      "en": "The lingerie section is upstairs.",
+      "tr": "İç çamaşırı reyonu üst katta."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈlæn.ʒə.ɹi/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-tug",
+  "headword": "tug",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2083,
+  "sourceEntry": "tug n., v.",
+  "senses": [
+   {
+    "id": "gen-b2-tug-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "çekiş",
+     "asılma",
+     "römorkör"
+    ],
+    "examples": [
+     {
+      "en": "He gave the rope a sharp tug.",
+      "tr": "İpe sert bir çekiş yaptı."
+     },
+     {
+      "en": "A tug pulled the ship into port.",
+      "tr": "Bir römorkör gemiyi limana çekti."
+     },
+     {
+      "en": "She felt a tug at her sleeve.",
+      "tr": "Kolunda bir çekiş hissetti."
+     }
+    ]
+   },
+   {
+    "id": "gen-b2-tug-v",
+    "partOfSpeech": "v.",
+    "turkishMeanings": [
+     "çekmek",
+     "asılmak",
+     "çekiştirmek"
+    ],
+    "examples": [
+     {
+      "en": "The child tugged at her coat.",
+      "tr": "Çocuk paltosuna asıldı."
+     },
+     {
+      "en": "He tugged the door until it opened.",
+      "tr": "Kapıyı açılana kadar çekti."
+     },
+     {
+      "en": "They tugged the boat onto the sand.",
+      "tr": "Tekneyi kuma çektiler."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/tʌɡ/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-uptown",
+  "headword": "uptown",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2084,
+  "sourceEntry": "uptown adj., adv., n.",
+  "senses": [
+   {
+    "id": "gen-b2-uptown-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "şehrin yukarısındaki",
+     "üst mahalleye ait"
+    ],
+    "examples": [
+     {
+      "en": "They live in an uptown flat.",
+      "tr": "Şehrin yukarı kesiminde bir dairede oturuyorlar."
+     },
+     {
+      "en": "The uptown shops are expensive.",
+      "tr": "Yukarı mahalledeki dükkânlar pahalı."
+     },
+     {
+      "en": "He has an uptown accent.",
+      "tr": "Üst mahalle aksanı var."
+     }
+    ]
+   },
+   {
+    "id": "gen-b2-uptown-adv",
+    "partOfSpeech": "adv.",
+    "turkishMeanings": [
+     "şehrin yukarısına",
+     "üst mahalleye"
+    ],
+    "examples": [
+     {
+      "en": "We walked uptown after dinner.",
+      "tr": "Yemekten sonra şehrin yukarısına yürüdük."
+     },
+     {
+      "en": "He moved uptown last year.",
+      "tr": "Geçen yıl üst mahalleye taşındı."
+     },
+     {
+      "en": "The bus goes uptown every hour.",
+      "tr": "Otobüs her saat yukarı mahalleye gidiyor."
+     }
+    ]
+   },
+   {
+    "id": "gen-b2-uptown-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "şehrin yukarı kesimi",
+     "üst mahalle"
+    ],
+    "examples": [
+     {
+      "en": "She grew up in the uptown.",
+      "tr": "Şehrin yukarı kesiminde büyüdü."
+     },
+     {
+      "en": "The uptown is quieter than the centre.",
+      "tr": "Üst mahalle merkezden sakindir."
+     },
+     {
+      "en": "Rents in the uptown are high.",
+      "tr": "Yukarı kesimde kiralar yüksek."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": null,
+  "band": 2
+ },
+ {
+  "id": "gen-b2-aerial",
+  "headword": "aerial",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2085,
+  "sourceEntry": "aerial adj., n.",
+  "senses": [
+   {
+    "id": "gen-b2-aerial-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "havadan",
+     "hava ile ilgili",
+     "havai"
+    ],
+    "examples": [
+     {
+      "en": "They took aerial photographs.",
+      "tr": "Havadan fotoğraf çektiler."
+     },
+     {
+      "en": "An aerial view shows the whole city.",
+      "tr": "Havadan görünüm bütün şehri gösteriyor."
+     },
+     {
+      "en": "Aerial roots hang from the tree.",
+      "tr": "Ağaçtan havai kökler sarkıyor."
+     }
+    ]
+   },
+   {
+    "id": "gen-b2-aerial-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "anten"
+    ],
+    "examples": [
+     {
+      "en": "The aerial broke in the storm.",
+      "tr": "Anten fırtınada kırıldı."
+     },
+     {
+      "en": "He fitted a new aerial on the roof.",
+      "tr": "Çatıya yeni bir anten taktı."
+     },
+     {
+      "en": "The aerial improves reception.",
+      "tr": "Anten sinyal alımını iyileştiriyor."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈɛɹ.i.əl/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-relentless",
+  "headword": "relentless",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2086,
+  "sourceEntry": "relentless adj.",
+  "senses": [
+   {
+    "id": "gen-b2-relentless-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "amansız",
+     "bitmek bilmeyen",
+     "acımasız"
+    ],
+    "examples": [
+     {
+      "en": "The rain was relentless.",
+      "tr": "Yağmur bitmek bilmiyordu."
+     },
+     {
+      "en": "She is relentless in her work.",
+      "tr": "İşinde amansızdır."
+     },
+     {
+      "en": "They faced relentless pressure.",
+      "tr": "Amansız bir baskıyla karşılaştılar."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ɹɪˈlɛntləs/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-continental",
+  "headword": "continental",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2087,
+  "sourceEntry": "continental adj.",
+  "senses": [
+   {
+    "id": "gen-b2-continental-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "kıtasal",
+     "kıtaya ait",
+     "Avrupa tarzı"
+    ],
+    "examples": [
+     {
+      "en": "The hotel serves a continental breakfast.",
+      "tr": "Otel Avrupa tarzı kahvaltı veriyor."
+     },
+     {
+      "en": "Continental climates have cold winters.",
+      "tr": "Karasal iklimlerde kışlar soğuktur."
+     },
+     {
+      "en": "They studied the continental shelf.",
+      "tr": "Kıta sahanlığını incelediler."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˌkɑntɪˈnɛntl̩/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-bookstore",
+  "headword": "bookstore",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2088,
+  "sourceEntry": "bookstore n.",
+  "senses": [
+   {
+    "id": "gen-b2-bookstore-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "kitapçı",
+     "kitap dükkânı"
+    ],
+    "examples": [
+     {
+      "en": "The bookstore closes at eight.",
+      "tr": "Kitapçı sekizde kapanıyor."
+     },
+     {
+      "en": "She works in a small bookstore.",
+      "tr": "Küçük bir kitapçıda çalışıyor."
+     },
+     {
+      "en": "We met outside the bookstore.",
+      "tr": "Kitapçının önünde buluştuk."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈbʊkstɔː/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-theta",
+  "headword": "theta",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2089,
+  "sourceEntry": "theta n.",
+  "senses": [
+   {
+    "id": "gen-b2-theta-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "teta (Yunan harfi)"
+    ],
+    "examples": [
+     {
+      "en": "The angle is marked with a theta.",
+      "tr": "Açı bir teta ile gösteriliyor."
+     },
+     {
+      "en": "Theta is the eighth Greek letter.",
+      "tr": "Teta sekizinci Yunan harfidir."
+     },
+     {
+      "en": "He wrote theta on the board.",
+      "tr": "Tahtaya teta yazdı."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈθiːtə/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-superstitious",
+  "headword": "superstitious",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2090,
+  "sourceEntry": "superstitious adj.",
+  "senses": [
+   {
+    "id": "gen-b2-superstitious-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "batıl inançlı",
+     "hurafeye inanan"
+    ],
+    "examples": [
+     {
+      "en": "He is superstitious about black cats.",
+      "tr": "Kara kediler konusunda batıl inançlıdır."
+     },
+     {
+      "en": "Sailors were often superstitious.",
+      "tr": "Denizciler çoğu zaman batıl inançlıydı."
+     },
+     {
+      "en": "It is a superstitious habit.",
+      "tr": "Batıl inanca dayalı bir alışkanlık."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˌs(j)uː.pəˈstɪ.ʃəs/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-fudge",
+  "headword": "fudge",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2091,
+  "sourceEntry": "fudge n., v.",
+  "senses": [
+   {
+    "id": "gen-b2-fudge-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "yumuşak şekerleme",
+     "geçiştirme"
+    ],
+    "examples": [
+     {
+      "en": "She made chocolate fudge.",
+      "tr": "Çikolatalı yumuşak şekerleme yaptı."
+     },
+     {
+      "en": "The answer was a political fudge.",
+      "tr": "Cevap siyasi bir geçiştirmeydi."
+     },
+     {
+      "en": "A piece of fudge melted in his hand.",
+      "tr": "Bir parça şekerleme elinde eridi."
+     }
+    ]
+   },
+   {
+    "id": "gen-b2-fudge-v",
+    "partOfSpeech": "v.",
+    "turkishMeanings": [
+     "geçiştirmek",
+     "üstünkörü yapmak",
+     "çarpıtmak"
+    ],
+    "examples": [
+     {
+      "en": "He fudged the question.",
+      "tr": "Soruyu geçiştirdi."
+     },
+     {
+      "en": "They fudged the figures in the report.",
+      "tr": "Rapordaki rakamları çarpıttılar."
+     },
+     {
+      "en": "Do not fudge the issue.",
+      "tr": "Konuyu geçiştirme."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/fʌdʒ/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-bennet",
+  "headword": "bennet",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2092,
+  "sourceEntry": "bennet n.",
+  "senses": [
+   {
+    "id": "gen-b2-bennet-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "su karanfili",
+     "benet otu"
+    ],
+    "examples": [
+     {
+      "en": "Bennet grows along the damp path.",
+      "tr": "Su karanfili nemli patika boyunca yetişiyor."
+     },
+     {
+      "en": "The yellow bennet flowers in spring.",
+      "tr": "Sarı su karanfili ilkbaharda çiçek açar."
+     },
+     {
+      "en": "She used bennet root in the remedy.",
+      "tr": "İlaçta su karanfili kökü kullandı."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": null,
+  "band": 2
+ },
+ {
+  "id": "gen-b2-councilman",
+  "headword": "councilman",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2093,
+  "sourceEntry": "councilman n.",
+  "senses": [
+   {
+    "id": "gen-b2-councilman-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "belediye meclis üyesi"
+    ],
+    "examples": [
+     {
+      "en": "The councilman opposed the plan.",
+      "tr": "Meclis üyesi plana karşı çıktı."
+     },
+     {
+      "en": "A councilman visited the school.",
+      "tr": "Bir meclis üyesi okulu ziyaret etti."
+     },
+     {
+      "en": "The councilman spoke for ten minutes.",
+      "tr": "Meclis üyesi on dakika konuştu."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": null,
+  "band": 2
+ },
+ {
+  "id": "gen-b2-quadrant",
+  "headword": "quadrant",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2094,
+  "sourceEntry": "quadrant n.",
+  "senses": [
+   {
+    "id": "gen-b2-quadrant-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "çeyrek daire",
+     "bölge",
+     "kadran"
+    ],
+    "examples": [
+     {
+      "en": "The city is divided into four quadrants.",
+      "tr": "Şehir dört bölgeye ayrılmış."
+     },
+     {
+      "en": "Mark the point in the first quadrant.",
+      "tr": "Noktayı birinci çeyrekte işaretle."
+     },
+     {
+      "en": "Sailors once used a quadrant.",
+      "tr": "Denizciler bir zamanlar kadran kullanırdı."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈkwɑd.ɹənt/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-velocity",
+  "headword": "velocity",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2095,
+  "sourceEntry": "velocity n.",
+  "senses": [
+   {
+    "id": "gen-b2-velocity-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "hız",
+     "sürat"
+    ],
+    "examples": [
+     {
+      "en": "The velocity of the wind increased.",
+      "tr": "Rüzgârın hızı arttı."
+     },
+     {
+      "en": "They measured the velocity of the ball.",
+      "tr": "Topun hızını ölçtüler."
+     },
+     {
+      "en": "Light travels at enormous velocity.",
+      "tr": "Işık muazzam bir hızla yol alır."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/vəˈlɒsəti/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-covert",
+  "headword": "covert",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2096,
+  "sourceEntry": "covert adj., n.",
+  "senses": [
+   {
+    "id": "gen-b2-covert-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "gizli",
+     "örtülü",
+     "el altından"
+    ],
+    "examples": [
+     {
+      "en": "It was a covert operation.",
+      "tr": "Gizli bir operasyondu."
+     },
+     {
+      "en": "He gave her a covert glance.",
+      "tr": "Ona gizli bir bakış attı."
+     },
+     {
+      "en": "The support was covert but real.",
+      "tr": "Destek örtülü ama gerçekti."
+     }
+    ]
+   },
+   {
+    "id": "gen-b2-covert-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "çalılık",
+     "av barınağı",
+     "sığınak"
+    ],
+    "examples": [
+     {
+      "en": "The fox hid in a thick covert.",
+      "tr": "Tilki sık bir çalılığa saklandı."
+     },
+     {
+      "en": "Birds nest in the covert.",
+      "tr": "Kuşlar çalılıkta yuva yapıyor."
+     },
+     {
+      "en": "Hunters searched every covert.",
+      "tr": "Avcılar her çalılığı aradı."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈkʌvət/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-insignificant",
+  "headword": "insignificant",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2097,
+  "sourceEntry": "insignificant adj.",
+  "senses": [
+   {
+    "id": "gen-b2-insignificant-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "önemsiz",
+     "kayda değmez",
+     "cılız"
+    ],
+    "examples": [
+     {
+      "en": "The difference is insignificant.",
+      "tr": "Fark önemsiz."
+     },
+     {
+      "en": "He felt insignificant in the crowd.",
+      "tr": "Kalabalıkta kendini önemsiz hissetti."
+     },
+     {
+      "en": "An insignificant sum was left.",
+      "tr": "Kayda değmez bir miktar kaldı."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˌɪnsɪɡˈnɪfɪkənt/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-dire",
+  "headword": "dire",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2098,
+  "sourceEntry": "dire adj.",
+  "senses": [
+   {
+    "id": "gen-b2-dire-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "vahim",
+     "korkunç",
+     "acil"
+    ],
+    "examples": [
+     {
+      "en": "The village is in dire need of water.",
+      "tr": "Köyün acil su ihtiyacı var."
+     },
+     {
+      "en": "The consequences were dire.",
+      "tr": "Sonuçlar vahimdi."
+     },
+     {
+      "en": "They issued a dire warning.",
+      "tr": "Korkunç bir uyarı yaptılar."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈdaɪ̯ə(ɹ)/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-credentials",
+  "headword": "credentials",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2099,
+  "sourceEntry": "credentials n.",
+  "senses": [
+   {
+    "id": "gen-b2-credentials-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "yeterlilik belgeleri",
+     "referanslar",
+     "kimlik bilgileri"
+    ],
+    "examples": [
+     {
+      "en": "She showed her credentials at the door.",
+      "tr": "Kapıda kimlik belgelerini gösterdi."
+     },
+     {
+      "en": "His credentials are impressive.",
+      "tr": "Referansları etkileyici."
+     },
+     {
+      "en": "Enter your credentials to log in.",
+      "tr": "Giriş için kimlik bilgilerini gir."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": null,
+  "band": 2
+ },
+ {
+  "id": "gen-b2-providence",
+  "headword": "providence",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2100,
+  "sourceEntry": "providence n.",
+  "senses": [
+   {
+    "id": "gen-b2-providence-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "ilahi takdir",
+     "kader",
+     "öngörü"
+    ],
+    "examples": [
+     {
+      "en": "They trusted in providence.",
+      "tr": "İlahi takdire güvendiler."
+     },
+     {
+      "en": "By providence the ship survived.",
+      "tr": "Kader eseri gemi kurtuldu."
+     },
+     {
+      "en": "Providence spared the village.",
+      "tr": "İlahi takdir köyü bağışladı."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈpɹɒvɪdəns/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-chump",
+  "headword": "chump",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2101,
+  "sourceEntry": "chump n.",
+  "senses": [
+   {
+    "id": "gen-b2-chump-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "enayi",
+     "budala",
+     "et parçası"
+    ],
+    "examples": [
+     {
+      "en": "Do not be a chump about money.",
+      "tr": "Para konusunda enayi olma."
+     },
+     {
+      "en": "They took him for a chump.",
+      "tr": "Onu enayi yerine koydular."
+     },
+     {
+      "en": "The butcher cut a chump of lamb.",
+      "tr": "Kasap bir parça kuzu but kesti."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/tʃʌmp/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-howl",
+  "headword": "howl",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2102,
+  "sourceEntry": "howl n., v.",
+  "senses": [
+   {
+    "id": "gen-b2-howl-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "uluma",
+     "haykırış",
+     "feryat"
+    ],
+    "examples": [
+     {
+      "en": "We heard the howl of a wolf.",
+      "tr": "Bir kurdun ulumasını duyduk."
+     },
+     {
+      "en": "A howl of laughter filled the room.",
+      "tr": "Bir kahkaha haykırışı odayı doldurdu."
+     },
+     {
+      "en": "The howl of the wind kept us awake.",
+      "tr": "Rüzgârın uğultusu bizi uyanık tuttu."
+     }
+    ]
+   },
+   {
+    "id": "gen-b2-howl-v",
+    "partOfSpeech": "v.",
+    "turkishMeanings": [
+     "ulumak",
+     "haykırmak",
+     "uğuldamak"
+    ],
+    "examples": [
+     {
+      "en": "Dogs howled all night.",
+      "tr": "Köpekler bütün gece uludu."
+     },
+     {
+      "en": "The wind howled around the house.",
+      "tr": "Rüzgâr evin etrafında uğuldadı."
+     },
+     {
+      "en": "The crowd howled with laughter.",
+      "tr": "Kalabalık kahkahayla haykırdı."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/haʊl/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-showtime",
+  "headword": "showtime",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2103,
+  "sourceEntry": "showtime n.",
+  "senses": [
+   {
+    "id": "gen-b2-showtime-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "gösteri vakti",
+     "başlama saati"
+    ],
+    "examples": [
+     {
+      "en": "Showtime is at eight sharp.",
+      "tr": "Gösteri vakti tam sekizde."
+     },
+     {
+      "en": "Five minutes to showtime.",
+      "tr": "Gösteriye beş dakika."
+     },
+     {
+      "en": "He gets nervous before showtime.",
+      "tr": "Gösteri vaktinden önce gerginleşiyor."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": null,
+  "band": 2
+ },
+ {
+  "id": "gen-b2-deposition",
+  "headword": "deposition",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2104,
+  "sourceEntry": "deposition n.",
+  "senses": [
+   {
+    "id": "gen-b2-deposition-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "ifade",
+     "tanık beyanı",
+     "birikim"
+    ],
+    "examples": [
+     {
+      "en": "The witness gave a deposition.",
+      "tr": "Tanık ifade verdi."
+     },
+     {
+      "en": "Her deposition lasted two hours.",
+      "tr": "İfadesi iki saat sürdü."
+     },
+     {
+      "en": "The deposition of sand formed a bank.",
+      "tr": "Kum birikimi bir sığlık oluşturdu."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/dɛpəˈzɪʃən/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-handshake",
+  "headword": "handshake",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2105,
+  "sourceEntry": "handshake n.",
+  "senses": [
+   {
+    "id": "gen-b2-handshake-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "el sıkışma",
+     "tokalaşma"
+    ],
+    "examples": [
+     {
+      "en": "They sealed the deal with a handshake.",
+      "tr": "Anlaşmayı el sıkışarak bağladılar."
+     },
+     {
+      "en": "His handshake was firm.",
+      "tr": "El sıkışı sıkıydı."
+     },
+     {
+      "en": "A quick handshake ended the meeting.",
+      "tr": "Kısa bir tokalaşma toplantıyı bitirdi."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": null,
+  "band": 2
+ },
+ {
+  "id": "gen-b2-overdue",
+  "headword": "overdue",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2106,
+  "sourceEntry": "overdue adj.",
+  "senses": [
+   {
+    "id": "gen-b2-overdue-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "gecikmiş",
+     "vadesi geçmiş",
+     "beklenen"
+    ],
+    "examples": [
+     {
+      "en": "The book is two weeks overdue.",
+      "tr": "Kitabın iadesi iki hafta gecikti."
+     },
+     {
+      "en": "The payment is overdue.",
+      "tr": "Ödemenin vadesi geçti."
+     },
+     {
+      "en": "A change is long overdue.",
+      "tr": "Bir değişiklik çoktan gerekliydi."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˌəʊ.vəˈdju/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-memorize",
+  "headword": "memorize",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2107,
+  "sourceEntry": "memorize v.",
+  "senses": [
+   {
+    "id": "gen-b2-memorize-v",
+    "partOfSpeech": "v.",
+    "turkishMeanings": [
+     "ezberlemek",
+     "belleğe almak"
+    ],
+    "examples": [
+     {
+      "en": "She memorized the whole poem.",
+      "tr": "Bütün şiiri ezberledi."
+     },
+     {
+      "en": "He memorized the phone number.",
+      "tr": "Telefon numarasını ezberledi."
+     },
+     {
+      "en": "Do not just memorize, understand it.",
+      "tr": "Sadece ezberleme, anla."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈmɛm.əɹˌaɪ̯z/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-freshen",
+  "headword": "freshen",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2108,
+  "sourceEntry": "freshen v.",
+  "senses": [
+   {
+    "id": "gen-b2-freshen-v",
+    "partOfSpeech": "v.",
+    "turkishMeanings": [
+     "tazelemek",
+     "ferahlatmak",
+     "canlanmak"
+    ],
+    "examples": [
+     {
+      "en": "Open a window to freshen the room.",
+      "tr": "Odayı ferahlatmak için bir pencere aç."
+     },
+     {
+      "en": "She freshened up before dinner.",
+      "tr": "Yemekten önce üstünü tazeledi."
+     },
+     {
+      "en": "The wind freshened towards evening.",
+      "tr": "Rüzgâr akşama doğru sertleşti."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": null,
+  "band": 2
+ },
+ {
+  "id": "gen-b2-mango",
+  "headword": "mango",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2109,
+  "sourceEntry": "mango n.",
+  "senses": [
+   {
+    "id": "gen-b2-mango-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "mango",
+     "tropikal bir meyve"
+    ],
+    "examples": [
+     {
+      "en": "He ate a ripe mango.",
+      "tr": "Olgun bir mango yedi."
+     },
+     {
+      "en": "The mango was very juicy.",
+      "tr": "Mango çok suluydu."
+     },
+     {
+      "en": "She bought two mangoes at the market.",
+      "tr": "Pazardan iki mango aldı."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈmæŋɡəʊ/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-sonar",
+  "headword": "sonar",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2110,
+  "sourceEntry": "sonar n.",
+  "senses": [
+   {
+    "id": "gen-b2-sonar-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "sonar",
+     "ses dalgalı bulucu"
+    ],
+    "examples": [
+     {
+      "en": "The ship uses sonar to find fish.",
+      "tr": "Gemi balık bulmak için sonar kullanıyor."
+     },
+     {
+      "en": "Sonar detected an object below.",
+      "tr": "Sonar aşağıda bir cisim tespit etti."
+     },
+     {
+      "en": "The submarine switched off its sonar.",
+      "tr": "Denizaltı sonarını kapattı."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": null,
+  "band": 2
+ },
+ {
+  "id": "gen-b2-decay",
+  "headword": "decay",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2111,
+  "sourceEntry": "decay n., v.",
+  "senses": [
+   {
+    "id": "gen-b2-decay-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "çürüme",
+     "bozulma",
+     "çöküş"
+    ],
+    "examples": [
+     {
+      "en": "The tooth showed signs of decay.",
+      "tr": "Dişte çürüme belirtileri vardı."
+     },
+     {
+      "en": "The building is in decay.",
+      "tr": "Bina çürümüş durumda."
+     },
+     {
+      "en": "Sugar speeds up decay.",
+      "tr": "Şeker çürümeyi hızlandırır."
+     }
+    ]
+   },
+   {
+    "id": "gen-b2-decay-v",
+    "partOfSpeech": "v.",
+    "turkishMeanings": [
+     "çürümek",
+     "bozulmak",
+     "zayıflamak"
+    ],
+    "examples": [
+     {
+      "en": "The fruit decayed in the heat.",
+      "tr": "Meyve sıcakta çürüdü."
+     },
+     {
+      "en": "Leaves decay into soil.",
+      "tr": "Yapraklar çürüyerek toprağa karışır."
+     },
+     {
+      "en": "His memory decayed with age.",
+      "tr": "Hafızası yaşla birlikte zayıfladı."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/dɪˈkeɪ/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-nightfall",
+  "headword": "nightfall",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2112,
+  "sourceEntry": "nightfall n.",
+  "senses": [
+   {
+    "id": "gen-b2-nightfall-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "akşam karanlığı",
+     "gece olması"
+    ],
+    "examples": [
+     {
+      "en": "We reached the camp by nightfall.",
+      "tr": "Akşam karanlığına dek kampa ulaştık."
+     },
+     {
+      "en": "At nightfall the gates close.",
+      "tr": "Gece olunca kapılar kapanıyor."
+     },
+     {
+      "en": "They worked until nightfall.",
+      "tr": "Akşam karanlığına kadar çalıştılar."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈnaɪtfɔːl/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-miniature",
+  "headword": "miniature",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2113,
+  "sourceEntry": "miniature adj., n.",
+  "senses": [
+   {
+    "id": "gen-b2-miniature-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "minyatür",
+     "küçültülmüş",
+     "ufak"
+    ],
+    "examples": [
+     {
+      "en": "He collects miniature cars.",
+      "tr": "Minyatür araba topluyor."
+     },
+     {
+      "en": "A miniature tree stood on the desk.",
+      "tr": "Masada minyatür bir ağaç duruyordu."
+     },
+     {
+      "en": "They built a miniature village.",
+      "tr": "Minyatür bir köy yaptılar."
+     }
+    ]
+   },
+   {
+    "id": "gen-b2-miniature-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "minyatür",
+     "küçük resim",
+     "küçük model"
+    ],
+    "examples": [
+     {
+      "en": "The museum displays a fine miniature.",
+      "tr": "Müze güzel bir minyatür sergiliyor."
+     },
+     {
+      "en": "She painted a miniature of her mother.",
+      "tr": "Annesinin bir minyatürünü yaptı."
+     },
+     {
+      "en": "The whole garden is a miniature.",
+      "tr": "Bütün bahçe bir minyatür."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈmɪn(ɪ)ətʃə(ɹ)/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-omen",
+  "headword": "omen",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2114,
+  "sourceEntry": "omen n., v.",
+  "senses": [
+   {
+    "id": "gen-b2-omen-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "alamet",
+     "işaret",
+     "belirti"
+    ],
+    "examples": [
+     {
+      "en": "They took the storm as a bad omen.",
+      "tr": "Fırtınayı kötü bir alamet saydılar."
+     },
+     {
+      "en": "A red sky was a good omen for sailors.",
+      "tr": "Kızıl gökyüzü denizciler için iyi bir işaretti."
+     },
+     {
+      "en": "The omen frightened the villagers.",
+      "tr": "Alamet köylüleri korkuttu."
+     }
+    ]
+   },
+   {
+    "id": "gen-b2-omen-v",
+    "partOfSpeech": "v.",
+    "turkishMeanings": [
+     "işaret etmek",
+     "haber vermek"
+    ],
+    "examples": [
+     {
+      "en": "Dark clouds omened a hard winter.",
+      "tr": "Kara bulutlar zor bir kışa işaret etti."
+     },
+     {
+      "en": "The silence omened trouble.",
+      "tr": "Sessizlik dertten haber verdi."
+     },
+     {
+      "en": "Nothing omened such a change.",
+      "tr": "Hiçbir şey böyle bir değişime işaret etmemişti."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈəʊmən/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-chum",
+  "headword": "chum",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2115,
+  "sourceEntry": "chum n.",
+  "senses": [
+   {
+    "id": "gen-b2-chum-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "ahbap",
+     "arkadaş",
+     "yem balık"
+    ],
+    "examples": [
+     {
+      "en": "He met an old chum from school.",
+      "tr": "Okuldan eski bir ahbabıyla karşılaştı."
+     },
+     {
+      "en": "They have been chums for years.",
+      "tr": "Yıllardır ahbaptırlar."
+     },
+     {
+      "en": "The boat carried a bucket of chum.",
+      "tr": "Tekne bir kova yem balık taşıyordu."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": null,
+  "band": 2
+ },
+ {
+  "id": "gen-b2-posse",
+  "headword": "posse",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2116,
+  "sourceEntry": "posse n.",
+  "senses": [
+   {
+    "id": "gen-b2-posse-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "destek grubu",
+     "ekip",
+     "kalabalık"
+    ],
+    "examples": [
+     {
+      "en": "The sheriff formed a posse.",
+      "tr": "Şerif bir destek grubu kurdu."
+     },
+     {
+      "en": "He arrived with his whole posse.",
+      "tr": "Bütün ekibiyle geldi."
+     },
+     {
+      "en": "A posse of reporters waited outside.",
+      "tr": "Dışarıda bir muhabir kalabalığı bekliyordu."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈpɒ.si/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-mutiny",
+  "headword": "mutiny",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2117,
+  "sourceEntry": "mutiny n., v.",
+  "senses": [
+   {
+    "id": "gen-b2-mutiny-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "isyan",
+     "ayaklanma",
+     "başkaldırı"
+    ],
+    "examples": [
+     {
+      "en": "The crew planned a mutiny.",
+      "tr": "Mürettebat bir isyan planladı."
+     },
+     {
+      "en": "The mutiny failed in a day.",
+      "tr": "İsyan bir günde başarısız oldu."
+     },
+     {
+      "en": "Fear of mutiny kept him awake.",
+      "tr": "İsyan korkusu onu uyanık tuttu."
+     }
+    ]
+   },
+   {
+    "id": "gen-b2-mutiny-v",
+    "partOfSpeech": "v.",
+    "turkishMeanings": [
+     "isyan etmek",
+     "ayaklanmak"
+    ],
+    "examples": [
+     {
+      "en": "The sailors mutinied at sea.",
+      "tr": "Denizciler denizde isyan etti."
+     },
+     {
+      "en": "Troops mutinied over unpaid wages.",
+      "tr": "Askerler ödenmeyen maaşlar yüzünden ayaklandı."
+     },
+     {
+      "en": "He feared the men would mutiny.",
+      "tr": "Adamların isyan edeceğinden korktu."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": null,
+  "band": 2
+ },
+ {
+  "id": "gen-b2-jumbo",
+  "headword": "jumbo",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2118,
+  "sourceEntry": "jumbo adj.",
+  "senses": [
+   {
+    "id": "gen-b2-jumbo-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "kocaman",
+     "dev boy",
+     "büyük boy"
+    ],
+    "examples": [
+     {
+      "en": "They ordered a jumbo pizza.",
+      "tr": "Dev boy bir pizza söylediler."
+     },
+     {
+      "en": "A jumbo jet landed at noon.",
+      "tr": "Bir dev jet öğlen indi."
+     },
+     {
+      "en": "He bought a jumbo pack of rice.",
+      "tr": "Büyük boy bir pirinç paketi aldı."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": null,
+  "band": 2
+ },
+ {
+  "id": "gen-b2-mystical",
+  "headword": "mystical",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2119,
+  "sourceEntry": "mystical adj.",
+  "senses": [
+   {
+    "id": "gen-b2-mystical-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "mistik",
+     "gizemli",
+     "ruhani"
+    ],
+    "examples": [
+     {
+      "en": "The place has a mystical feel.",
+      "tr": "Yerin mistik bir havası var."
+     },
+     {
+      "en": "He wrote mystical poetry.",
+      "tr": "Mistik şiirler yazdı."
+     },
+     {
+      "en": "She described a mystical experience.",
+      "tr": "Ruhani bir deneyimi anlattı."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈmɪstɪkəl/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-welsh",
+  "headword": "welsh",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2120,
+  "sourceEntry": "welsh v.",
+  "senses": [
+   {
+    "id": "gen-b2-welsh-v",
+    "partOfSpeech": "v.",
+    "turkishMeanings": [
+     "sözünden dönmek",
+     "borcunu ödememek"
+    ],
+    "examples": [
+     {
+      "en": "He welshed on the agreement.",
+      "tr": "Anlaşmadan caydı."
+     },
+     {
+      "en": "Do not welsh on your promise.",
+      "tr": "Sözünden dönme."
+     },
+     {
+      "en": "She welshed on the bet.",
+      "tr": "Bahis borcunu ödemedi."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/wɛlʃ/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-frat",
+  "headword": "frat",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2121,
+  "sourceEntry": "frat n.",
+  "senses": [
+   {
+    "id": "gen-b2-frat-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "öğrenci birliği",
+     "erkek öğrenci derneği"
+    ],
+    "examples": [
+     {
+      "en": "He joined a frat in his first year.",
+      "tr": "İlk yılında bir öğrenci birliğine katıldı."
+     },
+     {
+      "en": "The frat held a party on Friday.",
+      "tr": "Öğrenci birliği cuma bir parti verdi."
+     },
+     {
+      "en": "Their frat has thirty members.",
+      "tr": "Birliklerinin otuz üyesi var."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/fɹæt/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-waterfall",
+  "headword": "waterfall",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2122,
+  "sourceEntry": "waterfall n.",
+  "senses": [
+   {
+    "id": "gen-b2-waterfall-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "şelale",
+     "çağlayan"
+    ],
+    "examples": [
+     {
+      "en": "The waterfall roared below us.",
+      "tr": "Şelale altımızda gürledi."
+     },
+     {
+      "en": "We swam beneath the waterfall.",
+      "tr": "Şelalenin altında yüzdük."
+     },
+     {
+      "en": "A small waterfall feeds the pool.",
+      "tr": "Küçük bir şelale havuzu besliyor."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈwɔːtəfɔːl/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-windshield",
+  "headword": "windshield",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2123,
+  "sourceEntry": "windshield n.",
+  "senses": [
+   {
+    "id": "gen-b2-windshield-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "ön cam",
+     "rüzgâr siperi"
+    ],
+    "examples": [
+     {
+      "en": "A stone cracked the windshield.",
+      "tr": "Bir taş ön camı çatlattı."
+     },
+     {
+      "en": "He cleaned the windshield.",
+      "tr": "Ön camı temizledi."
+     },
+     {
+      "en": "Rain streamed down the windshield.",
+      "tr": "Yağmur ön camdan aktı."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": null,
+  "band": 2
+ },
+ {
+  "id": "gen-b2-plantation",
+  "headword": "plantation",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2124,
+  "sourceEntry": "plantation n.",
+  "senses": [
+   {
+    "id": "gen-b2-plantation-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "plantasyon",
+     "büyük çiftlik",
+     "ağaçlık alan"
+    ],
+    "examples": [
+     {
+      "en": "They worked on a tea plantation.",
+      "tr": "Bir çay plantasyonunda çalıştılar."
+     },
+     {
+      "en": "The plantation covers many hectares.",
+      "tr": "Plantasyon birçok hektarı kaplıyor."
+     },
+     {
+      "en": "A pine plantation stands on the hill.",
+      "tr": "Tepede bir çam ağaçlığı var."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/plænˈteɪʃən/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-antenna",
+  "headword": "antenna",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2125,
+  "sourceEntry": "antenna n.",
+  "senses": [
+   {
+    "id": "gen-b2-antenna-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "anten",
+     "duyarga"
+    ],
+    "examples": [
+     {
+      "en": "The antenna picks up a weak signal.",
+      "tr": "Anten zayıf bir sinyal alıyor."
+     },
+     {
+      "en": "An insect moves its antenna constantly.",
+      "tr": "Bir böcek duyargasını sürekli oynatır."
+     },
+     {
+      "en": "They fixed the antenna to the roof.",
+      "tr": "Anteni çatıya sabitlediler."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ænˈtɛn.ə/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-superficial",
+  "headword": "superficial",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2126,
+  "sourceEntry": "superficial adj.",
+  "senses": [
+   {
+    "id": "gen-b2-superficial-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "yüzeysel",
+     "sığ",
+     "derinliksiz"
+    ],
+    "examples": [
+     {
+      "en": "The wound is superficial.",
+      "tr": "Yara yüzeysel."
+     },
+     {
+      "en": "His knowledge is superficial.",
+      "tr": "Bilgisi yüzeysel."
+     },
+     {
+      "en": "They had a superficial conversation.",
+      "tr": "Sığ bir sohbet ettiler."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˌsuː.pəˈfɪʃ.əl/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-rust",
+  "headword": "rust",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2127,
+  "sourceEntry": "rust adj., n., v.",
+  "senses": [
+   {
+    "id": "gen-b2-rust-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "pas rengi",
+     "kızıl kahve"
+    ],
+    "examples": [
+     {
+      "en": "She wore a rust jacket.",
+      "tr": "Pas rengi bir ceket giymişti."
+     },
+     {
+      "en": "The leaves turned a deep rust.",
+      "tr": "Yapraklar koyu bir pas rengine döndü."
+     },
+     {
+      "en": "He painted the door rust brown.",
+      "tr": "Kapıyı pas kahvesine boyadı."
+     }
+    ]
+   },
+   {
+    "id": "gen-b2-rust-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "pas",
+     "pas hastalığı"
+    ],
+    "examples": [
+     {
+      "en": "Rust covered the old gate.",
+      "tr": "Pas eski kapıyı kaplamıştı."
+     },
+     {
+      "en": "He scraped the rust off the pipe.",
+      "tr": "Borudaki pası kazıdı."
+     },
+     {
+      "en": "Rust attacked the wheat crop.",
+      "tr": "Pas hastalığı buğday ürününe saldırdı."
+     }
+    ]
+   },
+   {
+    "id": "gen-b2-rust-v",
+    "partOfSpeech": "v.",
+    "turkishMeanings": [
+     "paslanmak",
+     "pas tutmak",
+     "körelmek"
+    ],
+    "examples": [
+     {
+      "en": "The tools rusted in the rain.",
+      "tr": "Aletler yağmurda paslandı."
+     },
+     {
+      "en": "Iron rusts quickly near the sea.",
+      "tr": "Demir deniz kenarında çabuk paslanır."
+     },
+     {
+      "en": "His skills rusted over the years.",
+      "tr": "Becerileri yıllar içinde köreldi."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": null,
+  "band": 2
+ },
+ {
+  "id": "gen-b2-hiccup",
+  "headword": "hiccup",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2128,
+  "sourceEntry": "hiccup n., v.",
+  "senses": [
+   {
+    "id": "gen-b2-hiccup-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "hıçkırık",
+     "küçük aksaklık"
+    ],
+    "examples": [
+     {
+      "en": "She had a hiccup all through dinner.",
+      "tr": "Yemek boyunca hıçkırığı vardı."
+     },
+     {
+      "en": "There was one small hiccup in the plan.",
+      "tr": "Planda küçük bir aksaklık oldu."
+     },
+     {
+      "en": "The hiccup stopped after some water.",
+      "tr": "Biraz sudan sonra hıçkırık durdu."
+     }
+    ]
+   },
+   {
+    "id": "gen-b2-hiccup-v",
+    "partOfSpeech": "v.",
+    "turkishMeanings": [
+     "hıçkırmak",
+     "aksamak"
+    ],
+    "examples": [
+     {
+      "en": "The baby hiccupped after feeding.",
+      "tr": "Bebek emzikten sonra hıçkırdı."
+     },
+     {
+      "en": "He hiccupped through the whole speech.",
+      "tr": "Konuşma boyunca hıçkırdı."
+     },
+     {
+      "en": "The system hiccupped twice this week.",
+      "tr": "Sistem bu hafta iki kez aksadı."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈhɪkəp/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-trustworthy",
+  "headword": "trustworthy",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2129,
+  "sourceEntry": "trustworthy adj.",
+  "senses": [
+   {
+    "id": "gen-b2-trustworthy-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "güvenilir",
+     "itimat edilir"
+    ],
+    "examples": [
+     {
+      "en": "He is a trustworthy friend.",
+      "tr": "Güvenilir bir dost."
+     },
+     {
+      "en": "The source is not trustworthy.",
+      "tr": "Kaynak güvenilir değil."
+     },
+     {
+      "en": "We need a trustworthy driver.",
+      "tr": "Güvenilir bir sürücüye ihtiyacımız var."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈtɹʌst.wɜɹ.ði/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-adios",
+  "headword": "adios",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2130,
+  "sourceEntry": "adios n.",
+  "senses": [
+   {
+    "id": "gen-b2-adios-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "hoşça kal",
+     "veda sözü"
+    ],
+    "examples": [
+     {
+      "en": "He waved and said a quick adios.",
+      "tr": "El salladı ve kısa bir hoşça kal dedi."
+     },
+     {
+      "en": "Her adios was the last word we heard.",
+      "tr": "Vedası duyduğumuz son sözdü."
+     },
+     {
+      "en": "They shouted adios from the train.",
+      "tr": "Trenden hoşça kal diye bağırdılar."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": null,
+  "band": 2
+ },
+ {
+  "id": "gen-b2-amuse",
+  "headword": "amuse",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2131,
+  "sourceEntry": "amuse v.",
+  "senses": [
+   {
+    "id": "gen-b2-amuse-v",
+    "partOfSpeech": "v.",
+    "turkishMeanings": [
+     "eğlendirmek",
+     "güldürmek",
+     "oyalamak"
+    ],
+    "examples": [
+     {
+      "en": "The story amused the children.",
+      "tr": "Hikâye çocukları eğlendirdi."
+     },
+     {
+      "en": "His answer amused everyone.",
+      "tr": "Cevabı herkesi güldürdü."
+     },
+     {
+      "en": "She amused herself with a book.",
+      "tr": "Kendini bir kitapla oyaladı."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/əˈmjuːz/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-unreal",
+  "headword": "unreal",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2132,
+  "sourceEntry": "unreal adj.",
+  "senses": [
+   {
+    "id": "gen-b2-unreal-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "gerçek dışı",
+     "inanılmaz",
+     "hayalî"
+    ],
+    "examples": [
+     {
+      "en": "The whole day felt unreal.",
+      "tr": "Bütün gün gerçek dışı geldi."
+     },
+     {
+      "en": "The colours look unreal in the photo.",
+      "tr": "Renkler fotoğrafta gerçek dışı görünüyor."
+     },
+     {
+      "en": "His story sounded unreal.",
+      "tr": "Hikâyesi inanılmaz geliyordu."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ʌnˈɹi.əl/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-gallant",
+  "headword": "gallant",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2133,
+  "sourceEntry": "gallant adj., n.",
+  "senses": [
+   {
+    "id": "gen-b2-gallant-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "yiğit",
+     "cesur",
+     "nazik"
+    ],
+    "examples": [
+     {
+      "en": "He made a gallant attempt.",
+      "tr": "Cesur bir girişimde bulundu."
+     },
+     {
+      "en": "A gallant soldier held the bridge.",
+      "tr": "Yiğit bir asker köprüyü tuttu."
+     },
+     {
+      "en": "That was a gallant gesture.",
+      "tr": "Bu nazik bir davranıştı."
+     }
+    ]
+   },
+   {
+    "id": "gen-b2-gallant-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "kadınlara nazik davranan adam",
+     "kavalye"
+    ],
+    "examples": [
+     {
+      "en": "A young gallant offered his arm.",
+      "tr": "Genç bir kavalye kolunu uzattı."
+     },
+     {
+      "en": "The gallant bowed to the lady.",
+      "tr": "Kavalye hanıma eğildi."
+     },
+     {
+      "en": "Every gallant at court knew her name.",
+      "tr": "Saraydaki her kavalye adını biliyordu."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈɡælənt/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-urn",
+  "headword": "urn",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2134,
+  "sourceEntry": "urn n.",
+  "senses": [
+   {
+    "id": "gen-b2-urn-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "vazo",
+     "küp",
+     "semaver"
+    ],
+    "examples": [
+     {
+      "en": "An ancient urn stood in the case.",
+      "tr": "Vitrinde antik bir küp duruyordu."
+     },
+     {
+      "en": "The ashes were placed in an urn.",
+      "tr": "Küller bir küpe konuldu."
+     },
+     {
+      "en": "Tea was served from a large urn.",
+      "tr": "Çay büyük bir semaverden servis edildi."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ɜːn/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-vine",
+  "headword": "vine",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2135,
+  "sourceEntry": "vine n.",
+  "senses": [
+   {
+    "id": "gen-b2-vine-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "asma",
+     "sarmaşık",
+     "üzüm bağı"
+    ],
+    "examples": [
+     {
+      "en": "A vine grew over the wall.",
+      "tr": "Bir sarmaşık duvarı kapladı."
+     },
+     {
+      "en": "Grapes hung from the vine.",
+      "tr": "Üzümler asmadan sarkıyordu."
+     },
+     {
+      "en": "They pruned the vine in winter.",
+      "tr": "Asmayı kışın budadılar."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/vaɪn/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-auspicious",
+  "headword": "auspicious",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2136,
+  "sourceEntry": "auspicious adj.",
+  "senses": [
+   {
+    "id": "gen-b2-auspicious-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "hayırlı",
+     "uğurlu",
+     "umut verici"
+    ],
+    "examples": [
+     {
+      "en": "It was an auspicious start.",
+      "tr": "Umut verici bir başlangıçtı."
+     },
+     {
+      "en": "They chose an auspicious day.",
+      "tr": "Uğurlu bir gün seçtiler."
+     },
+     {
+      "en": "The signs are auspicious.",
+      "tr": "İşaretler hayırlı."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ɔːˈspɪʃəs/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-seafood",
+  "headword": "seafood",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2137,
+  "sourceEntry": "seafood n.",
+  "senses": [
+   {
+    "id": "gen-b2-seafood-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "deniz ürünleri"
+    ],
+    "examples": [
+     {
+      "en": "The restaurant serves fresh seafood.",
+      "tr": "Restoran taze deniz ürünleri veriyor."
+     },
+     {
+      "en": "He is allergic to seafood.",
+      "tr": "Deniz ürünlerine alerjisi var."
+     },
+     {
+      "en": "Seafood is cheaper near the port.",
+      "tr": "Deniz ürünleri limana yakın daha ucuz."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈsiːfuːd/",
+  "band": 2
+ },
+ {
+  "id": "gen-b2-mellow",
+  "headword": "mellow",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 2138,
+  "sourceEntry": "mellow adj., adv., v.",
+  "senses": [
+   {
+    "id": "gen-b2-mellow-adj",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "yumuşak",
+     "olgun",
+     "sakin"
+    ],
+    "examples": [
+     {
+      "en": "The wine has a mellow taste.",
+      "tr": "Şarabın yumuşak bir tadı var."
+     },
+     {
+      "en": "He became mellow with age.",
+      "tr": "Yaşla birlikte yumuşadı."
+     },
+     {
+      "en": "A mellow light filled the room.",
+      "tr": "Yumuşak bir ışık odayı doldurdu."
+     }
+    ]
+   },
+   {
+    "id": "gen-b2-mellow-adv",
+    "partOfSpeech": "adv.",
+    "turkishMeanings": [
+     "yumuşak biçimde",
+     "sakin sakin"
+    ],
+    "examples": [
+     {
+      "en": "The band played mellow all evening.",
+      "tr": "Grup bütün akşam yumuşak çaldı."
+     },
+     {
+      "en": "Speak mellow, the baby is asleep.",
+      "tr": "Sakin konuş, bebek uyuyor."
+     },
+     {
+      "en": "The horn sounded mellow in the fog.",
+      "tr": "Korna siste yumuşak duyuldu."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈmɛləʊ/",
+  "band": 2
  }
 ]
