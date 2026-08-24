@@ -1,0 +1,586 @@
+{
+  "gen-b1-scoundrel-n": {
+    "turkishMeanings": ["alçak", "namussuz", "hergele"],
+    "examples": [
+      { "en": "That scoundrel stole from his own family.", "tr": "O alçak kendi ailesinden çaldı." },
+      { "en": "She called him a scoundrel to his face.", "tr": "Yüzüne karşı ona namussuz dedi." },
+      { "en": "The scoundrel escaped before dawn.", "tr": "Hergele şafaktan önce kaçtı." }
+    ]
+  },
+  "gen-b1-bribe-n": {
+    "turkishMeanings": ["rüşvet", "sus payı"],
+    "examples": [
+      { "en": "He refused to accept a bribe.", "tr": "Rüşvet almayı reddetti." },
+      { "en": "The bribe was hidden in an envelope.", "tr": "Rüşvet bir zarfa saklanmıştı." },
+      { "en": "Offering a bribe is a crime.", "tr": "Rüşvet teklif etmek bir suçtur." }
+    ]
+  },
+  "gen-b1-bribe-v": {
+    "turkishMeanings": ["rüşvet vermek", "para yedirmek"],
+    "examples": [
+      { "en": "They tried to bribe the official.", "tr": "Memura rüşvet vermeye çalıştılar." },
+      { "en": "You cannot bribe an honest judge.", "tr": "Dürüst bir hâkime rüşvet veremezsin." },
+      { "en": "She bribed the child with sweets.", "tr": "Çocuğu şekerle kandırdı." }
+    ]
+  },
+  "gen-b1-interrogation-n": {
+    "turkishMeanings": ["sorgu", "sorgulama"],
+    "examples": [
+      { "en": "The interrogation lasted six hours.", "tr": "Sorgu altı saat sürdü." },
+      { "en": "A lawyer attended the interrogation.", "tr": "Sorguya bir avukat katıldı." },
+      { "en": "He said nothing during the interrogation.", "tr": "Sorgu boyunca hiçbir şey söylemedi." }
+    ]
+  },
+  "gen-b1-graduation-n": {
+    "turkishMeanings": ["mezuniyet", "diploma töreni", "derecelendirme"],
+    "examples": [
+      { "en": "Her graduation is in June.", "tr": "Mezuniyeti haziranda." },
+      { "en": "The whole family came to the graduation.", "tr": "Bütün aile mezuniyete geldi." },
+      { "en": "He found a job after graduation.", "tr": "Mezuniyetten sonra iş buldu." }
+    ]
+  },
+  "gen-b1-haircut-n": {
+    "turkishMeanings": ["saç kesimi", "traş"],
+    "examples": [
+      { "en": "He needs a haircut before the wedding.", "tr": "Düğünden önce saç kesimine ihtiyacı var." },
+      { "en": "That haircut suits you well.", "tr": "Bu saç kesimi sana çok yakışmış." },
+      { "en": "A haircut costs twenty lira here.", "tr": "Burada saç kesimi yirmi lira." }
+    ]
+  },
+  "gen-b1-lodge-n": {
+    "turkishMeanings": ["kulübe", "dağ evi", "loca"],
+    "examples": [
+      { "en": "They stayed in a mountain lodge.", "tr": "Bir dağ evinde kaldılar." },
+      { "en": "The hunting lodge stood by the lake.", "tr": "Av kulübesi gölün kenarındaydı." },
+      { "en": "The lodge meets on the first Monday.", "tr": "Loca ilk pazartesi toplanıyor." }
+    ]
+  },
+  "gen-b1-lodge-v": {
+    "turkishMeanings": ["konaklamak", "sıkışıp kalmak", "resmen bildirmek"],
+    "examples": [
+      { "en": "They lodged with a farmer for a week.", "tr": "Bir hafta bir çiftçinin yanında konakladılar." },
+      { "en": "A fish bone lodged in his throat.", "tr": "Boğazına bir kılçık takıldı." },
+      { "en": "She lodged a complaint with the council.", "tr": "Belediyeye bir şikâyet dilekçesi verdi." }
+    ]
+  },
+  "gen-b1-oak-n": {
+    "turkishMeanings": ["meşe", "meşe ağacı"],
+    "examples": [
+      { "en": "A great oak stood in the field.", "tr": "Tarlada büyük bir meşe duruyordu." },
+      { "en": "The table is made of solid oak.", "tr": "Masa masif meşeden yapılmış." },
+      { "en": "Acorns fall from the oak in autumn.", "tr": "Sonbaharda meşeden palamut düşer." }
+    ]
+  },
+  "gen-b1-awhile-adv": {
+    "turkishMeanings": ["bir süre", "biraz", "kısa bir zaman"],
+    "examples": [
+      { "en": "Stay awhile and have some tea.", "tr": "Bir süre kal ve biraz çay iç." },
+      { "en": "We waited awhile before leaving.", "tr": "Ayrılmadan önce bir süre bekledik." },
+      { "en": "He rested awhile under the tree.", "tr": "Ağacın altında biraz dinlendi." }
+    ]
+  },
+  "gen-b1-sofa-n": {
+    "turkishMeanings": ["kanepe", "koltuk"],
+    "examples": [
+      { "en": "The cat sleeps on the sofa.", "tr": "Kedi kanepede uyuyor." },
+      { "en": "We bought a green sofa.", "tr": "Yeşil bir kanepe aldık." },
+      { "en": "The sofa is too wide for the door.", "tr": "Kanepe kapı için fazla geniş." }
+    ]
+  },
+  "gen-b1-olive-n": {
+    "turkishMeanings": ["zeytin", "zeytin ağacı"],
+    "examples": [
+      { "en": "She ate bread with olive and cheese.", "tr": "Zeytin ve peynirle ekmek yedi." },
+      { "en": "An olive tree grows slowly.", "tr": "Zeytin ağacı yavaş büyür." },
+      { "en": "The olive harvest starts in November.", "tr": "Zeytin hasadı kasımda başlar." }
+    ]
+  },
+  "gen-b1-olive-adj": {
+    "turkishMeanings": ["zeytin yeşili", "esmer"],
+    "examples": [
+      { "en": "He wore an olive jacket.", "tr": "Zeytin yeşili bir ceket giymişti." },
+      { "en": "She has an olive complexion.", "tr": "Buğday tenli." },
+      { "en": "The walls were painted olive.", "tr": "Duvarlar zeytin yeşiline boyanmıştı." }
+    ]
+  },
+  "gen-b1-maniac-n": {
+    "turkishMeanings": ["deli", "manyak", "düşkün"],
+    "examples": [
+      { "en": "He drives like a maniac.", "tr": "Manyak gibi araba sürüyor." },
+      { "en": "The maniac shouted at everyone.", "tr": "Deli herkese bağırdı." },
+      { "en": "She is a football maniac.", "tr": "Futbol delisi." }
+    ]
+  },
+  "gen-b1-straw-n": {
+    "turkishMeanings": ["saman", "pipet", "hasır"],
+    "examples": [
+      { "en": "The cows slept on fresh straw.", "tr": "İnekler taze samanın üstünde uyudu." },
+      { "en": "She drank the juice with a straw.", "tr": "Meyve suyunu pipetle içti." },
+      { "en": "He wore a straw hat in the sun.", "tr": "Güneşte hasır şapka taktı." }
+    ]
+  },
+  "gen-b1-glue-n": {
+    "turkishMeanings": ["yapıştırıcı", "tutkal", "zamk"],
+    "examples": [
+      { "en": "The glue takes an hour to dry.", "tr": "Yapıştırıcının kuruması bir saat sürüyor." },
+      { "en": "He bought a tube of glue.", "tr": "Bir tüp yapıştırıcı aldı." },
+      { "en": "This glue is strong enough for wood.", "tr": "Bu tutkal tahta için yeterince güçlü." }
+    ]
+  },
+  "gen-b1-glue-v": {
+    "turkishMeanings": ["yapıştırmak", "sıkıca bağlamak"],
+    "examples": [
+      { "en": "She glued the handle back on.", "tr": "Sapı geri yapıştırdı." },
+      { "en": "He glued the pieces together carefully.", "tr": "Parçaları dikkatle birbirine yapıştırdı." },
+      { "en": "The children were glued to the screen.", "tr": "Çocuklar ekrana yapışmıştı." }
+    ]
+  },
+  "gen-b1-salesman-n": {
+    "turkishMeanings": ["satıcı", "satış elemanı", "pazarlamacı"],
+    "examples": [
+      { "en": "The salesman showed us three models.", "tr": "Satıcı bize üç model gösterdi." },
+      { "en": "He worked as a salesman for years.", "tr": "Yıllarca satış elemanı olarak çalıştı." },
+      { "en": "A salesman knocked on the door.", "tr": "Bir pazarlamacı kapıyı çaldı." }
+    ]
+  },
+  "gen-b1-diner-n": {
+    "turkishMeanings": ["lokanta", "yemek yiyen kişi"],
+    "examples": [
+      { "en": "We ate at a roadside diner.", "tr": "Yol kenarındaki bir lokantada yedik." },
+      { "en": "The diner opens at six every morning.", "tr": "Lokanta her sabah altıda açılıyor." },
+      { "en": "One diner complained about the soup.", "tr": "Bir müşteri çorbadan şikâyet etti." }
+    ]
+  },
+  "gen-b1-behold-v": {
+    "turkishMeanings": ["görmek", "seyretmek", "bakmak"],
+    "examples": [
+      { "en": "Behold the beauty of the mountains.", "tr": "Dağların güzelliğini seyredin." },
+      { "en": "They beheld the ruins in silence.", "tr": "Harabelere sessizce baktılar." },
+      { "en": "It was a wonderful sight to behold.", "tr": "Görülmeye değer harika bir manzaraydı." }
+    ]
+  },
+  "gen-b1-blond-adj": {
+    "turkishMeanings": ["sarışın", "açık renk"],
+    "examples": [
+      { "en": "She has long blond hair.", "tr": "Uzun sarı saçları var." },
+      { "en": "The blond child waved at us.", "tr": "Sarışın çocuk bize el salladı." },
+      { "en": "He prefers blond wood furniture.", "tr": "Açık renk ahşap mobilya tercih ediyor." }
+    ]
+  },
+  "gen-b1-salmon-n": {
+    "turkishMeanings": ["somon", "somon balığı"],
+    "examples": [
+      { "en": "We had grilled salmon for dinner.", "tr": "Akşam yemeğinde ızgara somon yedik." },
+      { "en": "Salmon swim upstream to lay eggs.", "tr": "Somonlar yumurtlamak için akıntıya karşı yüzer." },
+      { "en": "The salmon was fresh from the river.", "tr": "Somon nehirden taze gelmişti." }
+    ]
+  },
+  "gen-b1-wig-n": {
+    "turkishMeanings": ["peruk", "takma saç"],
+    "examples": [
+      { "en": "The actor wore a grey wig.", "tr": "Oyuncu gri bir peruk takmıştı." },
+      { "en": "Her wig looked completely natural.", "tr": "Peruğu tamamen doğal görünüyordu." },
+      { "en": "He bought a wig after the treatment.", "tr": "Tedaviden sonra bir peruk aldı." }
+    ]
+  },
+  "gen-b1-wax-n": {
+    "turkishMeanings": ["mum", "balmumu", "cila"],
+    "examples": [
+      { "en": "The candle is made of wax.", "tr": "Mum balmumundan yapılmış." },
+      { "en": "She rubbed wax onto the table.", "tr": "Masaya cila sürdü." },
+      { "en": "Bees produce wax in the hive.", "tr": "Arılar kovanda balmumu üretir." }
+    ]
+  },
+  "gen-b1-wax-v": {
+    "turkishMeanings": ["cilalamak", "ağda yapmak", "büyümek"],
+    "examples": [
+      { "en": "He waxed the car until it shone.", "tr": "Arabayı parlayana kadar cilaladı." },
+      { "en": "She waxed her legs before the holiday.", "tr": "Tatilden önce bacaklarına ağda yaptı." },
+      { "en": "The moon waxes and then wanes.", "tr": "Ay önce büyür sonra küçülür." }
+    ]
+  },
+  "gen-b1-confidential-adj": {
+    "turkishMeanings": ["gizli", "mahrem", "özel"],
+    "examples": [
+      { "en": "This file is strictly confidential.", "tr": "Bu dosya kesinlikle gizlidir." },
+      { "en": "He shared confidential information.", "tr": "Gizli bilgi paylaştı." },
+      { "en": "Medical records are confidential.", "tr": "Tıbbi kayıtlar mahremdir." }
+    ]
+  },
+  "gen-b1-herd-n": {
+    "turkishMeanings": ["sürü", "kalabalık"],
+    "examples": [
+      { "en": "A herd of cattle crossed the road.", "tr": "Bir sığır sürüsü yolu geçti." },
+      { "en": "The herd moved slowly to the river.", "tr": "Sürü yavaşça nehre doğru ilerledi." },
+      { "en": "He counted the herd every evening.", "tr": "Her akşam sürüyü saydı." }
+    ]
+  },
+  "gen-b1-herd-v": {
+    "turkishMeanings": ["gütmek", "sürmek", "toplamak"],
+    "examples": [
+      { "en": "The dog herded the sheep home.", "tr": "Köpek koyunları eve güttü." },
+      { "en": "Guards herded people onto the bus.", "tr": "Görevliler insanları otobüse doldurdu." },
+      { "en": "He herded goats as a boy.", "tr": "Çocukken keçi güttü." }
+    ]
+  },
+  "gen-b1-scissors-n": {
+    "turkishMeanings": ["makas"],
+    "examples": [
+      { "en": "Pass me the scissors, please.", "tr": "Makası uzatır mısın lütfen." },
+      { "en": "These scissors are too blunt.", "tr": "Bu makas çok kör." },
+      { "en": "She cut the ribbon with scissors.", "tr": "Kurdeleyi makasla kesti." }
+    ]
+  },
+  "gen-b1-dash-n": {
+    "turkishMeanings": ["koşuş", "tire", "azıcık"],
+    "examples": [
+      { "en": "He made a dash for the door.", "tr": "Kapıya doğru bir koşuş yaptı." },
+      { "en": "Put a dash between the two words.", "tr": "İki kelimenin arasına bir tire koy." },
+      { "en": "Add a dash of salt to the soup.", "tr": "Çorbaya azıcık tuz ekle." }
+    ]
+  },
+  "gen-b1-dash-v": {
+    "turkishMeanings": ["fırlamak", "çarpmak", "suya düşürmek"],
+    "examples": [
+      { "en": "She dashed out of the room.", "tr": "Odadan fırladı." },
+      { "en": "The waves dashed against the rocks.", "tr": "Dalgalar kayalara çarptı." },
+      { "en": "The news dashed all our hopes.", "tr": "Haber bütün umutlarımızı suya düşürdü." }
+    ]
+  },
+  "gen-b1-senate-n": {
+    "turkishMeanings": ["senato", "üst meclis"],
+    "examples": [
+      { "en": "The senate voted on the new law.", "tr": "Senato yeni yasayı oyladı." },
+      { "en": "She was elected to the senate.", "tr": "Senatoya seçildi." },
+      { "en": "The senate meets twice a week.", "tr": "Senato haftada iki kez toplanıyor." }
+    ]
+  },
+  "gen-b1-gangster-n": {
+    "turkishMeanings": ["gangster", "çete üyesi", "haydut"],
+    "examples": [
+      { "en": "The gangster was arrested at the port.", "tr": "Gangster limanda tutuklandı." },
+      { "en": "The film is about a young gangster.", "tr": "Film genç bir gangsteri anlatıyor." },
+      { "en": "A gangster controlled the whole district.", "tr": "Bir çete üyesi bütün bölgeyi kontrol ediyordu." }
+    ]
+  },
+  "gen-b1-slim-adj": {
+    "turkishMeanings": ["ince", "zayıf", "az"],
+    "examples": [
+      { "en": "She is tall and slim.", "tr": "Uzun boylu ve ince." },
+      { "en": "The book is slim but useful.", "tr": "Kitap ince ama faydalı." },
+      { "en": "There is a slim chance of rain.", "tr": "Yağmur ihtimali çok az." }
+    ]
+  },
+  "gen-b1-slim-v": {
+    "turkishMeanings": ["zayıflamak", "incelmek", "küçültmek"],
+    "examples": [
+      { "en": "She slimmed after changing her diet.", "tr": "Beslenmesini değiştirdikten sonra zayıfladı." },
+      { "en": "The company slimmed its workforce.", "tr": "Şirket iş gücünü küçülttü." },
+      { "en": "He slimmed down before the wedding.", "tr": "Düğünden önce zayıfladı." }
+    ]
+  },
+  "gen-b1-briefcase-n": {
+    "turkishMeanings": ["evrak çantası", "el çantası"],
+    "examples": [
+      { "en": "He carried a leather briefcase.", "tr": "Deri bir evrak çantası taşıyordu." },
+      { "en": "The briefcase was full of papers.", "tr": "Evrak çantası kâğıt doluydu." },
+      { "en": "She left her briefcase on the train.", "tr": "Evrak çantasını trende unuttu." }
+    ]
+  },
+  "gen-b1-puppet-n": {
+    "turkishMeanings": ["kukla", "maşa"],
+    "examples": [
+      { "en": "The children watched a puppet show.", "tr": "Çocuklar bir kukla gösterisi izledi." },
+      { "en": "He made a puppet from an old sock.", "tr": "Eski bir çoraptan kukla yaptı." },
+      { "en": "The leader was only a puppet.", "tr": "Lider sadece bir kuklaydı." }
+    ]
+  },
+  "gen-b1-embarrass-v": {
+    "turkishMeanings": ["utandırmak", "mahcup etmek", "zor durumda bırakmak"],
+    "examples": [
+      { "en": "Do not embarrass me in public.", "tr": "Beni herkesin içinde utandırma." },
+      { "en": "The question embarrassed the minister.", "tr": "Soru bakanı zor durumda bıraktı." },
+      { "en": "She was embarrassed by the applause.", "tr": "Alkıştan mahcup oldu." }
+    ]
+  },
+  "gen-b1-mafia-n": {
+    "turkishMeanings": ["mafya", "suç örgütü"],
+    "examples": [
+      { "en": "The mafia controlled the docks.", "tr": "Mafya rıhtımları kontrol ediyordu." },
+      { "en": "Police fought the local mafia.", "tr": "Polis yerel mafyayla mücadele etti." },
+      { "en": "He wrote a book about the mafia.", "tr": "Mafya hakkında bir kitap yazdı." }
+    ]
+  },
+  "gen-b1-heartbeat-n": {
+    "turkishMeanings": ["kalp atışı", "nabız", "an"],
+    "examples": [
+      { "en": "The doctor listened to his heartbeat.", "tr": "Doktor kalp atışını dinledi." },
+      { "en": "Her heartbeat was fast with fear.", "tr": "Korkudan kalp atışı hızlıydı." },
+      { "en": "I would go back in a heartbeat.", "tr": "Bir anda geri dönerdim." }
+    ]
+  },
+  "gen-b1-cigar-n": {
+    "turkishMeanings": ["puro"],
+    "examples": [
+      { "en": "He lit a cigar after dinner.", "tr": "Yemekten sonra bir puro yaktı." },
+      { "en": "The cigar smoke filled the room.", "tr": "Puro dumanı odayı doldurdu." },
+      { "en": "She gave him a cigar to celebrate.", "tr": "Kutlamak için ona bir puro verdi." }
+    ]
+  },
+  "gen-b1-mug-n": {
+    "turkishMeanings": ["kupa", "büyük bardak", "surat"],
+    "examples": [
+      { "en": "She drank tea from a large mug.", "tr": "Büyük bir kupadan çay içti." },
+      { "en": "The mug has a broken handle.", "tr": "Kupanın sapı kırık." },
+      { "en": "He bought a mug as a souvenir.", "tr": "Hatıra olarak bir kupa aldı." }
+    ]
+  },
+  "gen-b1-mug-v": {
+    "turkishMeanings": ["soymak", "gasp etmek"],
+    "examples": [
+      { "en": "He was mugged near the station.", "tr": "İstasyonun yanında gasp edildi." },
+      { "en": "Two men mugged her last night.", "tr": "Dün gece iki adam onu soydu." },
+      { "en": "Tourists are often mugged here.", "tr": "Turistler burada sık sık gasp ediliyor." }
+    ]
+  },
+  "gen-b1-iris-n": {
+    "turkishMeanings": ["iris", "gözbebeği çemberi", "süsen çiçeği"],
+    "examples": [
+      { "en": "The iris controls the size of the pupil.", "tr": "İris gözbebeğinin boyutunu ayarlar." },
+      { "en": "She has a blue iris in each eye.", "tr": "Her iki gözünde de mavi iris var." },
+      { "en": "A purple iris bloomed in the garden.", "tr": "Bahçede mor bir süsen açtı." }
+    ]
+  },
+  "gen-b1-crow-n": {
+    "turkishMeanings": ["karga", "horoz ötüşü"],
+    "examples": [
+      { "en": "A crow sat on the fence.", "tr": "Bir karga çite kondu." },
+      { "en": "The crow flew off with the bread.", "tr": "Karga ekmekle uçup gitti." },
+      { "en": "We woke to the crow of the cockerel.", "tr": "Horoz ötüşüyle uyandık." }
+    ]
+  },
+  "gen-b1-crow-v": {
+    "turkishMeanings": ["ötmek", "böbürlenmek", "övünmek"],
+    "examples": [
+      { "en": "The rooster crows at dawn.", "tr": "Horoz şafakta öter." },
+      { "en": "He crowed about his victory all week.", "tr": "Bütün hafta zaferiyle böbürlendi." },
+      { "en": "Do not crow before the game ends.", "tr": "Maç bitmeden övünme." }
+    ]
+  },
+  "gen-b1-fountain-n": {
+    "turkishMeanings": ["çeşme", "fıskiye", "kaynak"],
+    "examples": [
+      { "en": "Children played around the fountain.", "tr": "Çocuklar çeşmenin etrafında oynadı." },
+      { "en": "The fountain sprayed water high.", "tr": "Fıskiye suyu yükseğe püskürttü." },
+      { "en": "He is a fountain of good ideas.", "tr": "İyi fikirlerin kaynağıdır." }
+    ]
+  },
+  "gen-b1-railroad-n": {
+    "turkishMeanings": ["demiryolu", "tren yolu"],
+    "examples": [
+      { "en": "The railroad crosses the whole country.", "tr": "Demiryolu bütün ülkeyi geçiyor." },
+      { "en": "He worked on the railroad for years.", "tr": "Yıllarca demiryolunda çalıştı." },
+      { "en": "A new railroad opened last month.", "tr": "Geçen ay yeni bir demiryolu açıldı." }
+    ]
+  },
+  "gen-b1-railroad-v": {
+    "turkishMeanings": ["zorla kabul ettirmek", "aceleye getirmek"],
+    "examples": [
+      { "en": "They railroaded the plan through the council.", "tr": "Planı meclisten aceleye getirerek geçirdiler." },
+      { "en": "She was railroaded into signing.", "tr": "İmzalamaya zorlandı." },
+      { "en": "Do not railroad us into a decision.", "tr": "Bizi bir karara zorlama." }
+    ]
+  },
+  "gen-b1-straighten-v": {
+    "turkishMeanings": ["düzeltmek", "doğrultmak", "toparlamak"],
+    "examples": [
+      { "en": "He straightened his tie in the mirror.", "tr": "Aynada kravatını düzeltti." },
+      { "en": "She straightened the picture on the wall.", "tr": "Duvardaki tabloyu düzeltti." },
+      { "en": "Let us straighten out this problem.", "tr": "Şu sorunu bir çözelim." }
+    ]
+  },
+  "gen-b1-sting-n": {
+    "turkishMeanings": ["iğne", "sokma", "acı"],
+    "examples": [
+      { "en": "A bee sting hurts for hours.", "tr": "Arı sokması saatlerce acıtır." },
+      { "en": "The sting swelled up quickly.", "tr": "Sokulan yer hızla şişti." },
+      { "en": "There was a sting in his words.", "tr": "Sözlerinde bir acılık vardı." }
+    ]
+  },
+  "gen-b1-sting-v": {
+    "turkishMeanings": ["sokmak", "yakmak", "acıtmak"],
+    "examples": [
+      { "en": "A wasp stung him on the hand.", "tr": "Bir eşek arısı elini soktu." },
+      { "en": "The smoke stung my eyes.", "tr": "Duman gözlerimi yaktı." },
+      { "en": "Her criticism stung him deeply.", "tr": "Eleştirisi onu derinden yaraladı." }
+    ]
+  },
+  "gen-b1-coroner-n": {
+    "turkishMeanings": ["adli tabip", "ölüm nedeni araştırmacısı"],
+    "examples": [
+      { "en": "The coroner examined the body.", "tr": "Adli tabip cesedi inceledi." },
+      { "en": "The coroner recorded an accidental death.", "tr": "Adli tabip kazaen ölüm kaydetti." },
+      { "en": "A coroner must sign the report.", "tr": "Raporu bir adli tabip imzalamalı." }
+    ]
+  },
+  "gen-b1-jade-n": {
+    "turkishMeanings": ["yeşim", "yeşim taşı"],
+    "examples": [
+      { "en": "The ring is made of green jade.", "tr": "Yüzük yeşil yeşimden yapılmış." },
+      { "en": "She collects small jade figures.", "tr": "Küçük yeşim heykelcikler topluyor." },
+      { "en": "Jade is valued in many cultures.", "tr": "Yeşim birçok kültürde değerlidir." }
+    ]
+  },
+  "gen-b1-jade-adj": {
+    "turkishMeanings": ["yeşim yeşili", "koyu yeşil"],
+    "examples": [
+      { "en": "She wore a jade dress.", "tr": "Yeşim yeşili bir elbise giymişti." },
+      { "en": "The sea had a jade colour.", "tr": "Denizin yeşim yeşili bir rengi vardı." },
+      { "en": "He painted the door jade.", "tr": "Kapıyı yeşim yeşiline boyadı." }
+    ]
+  },
+  "gen-b1-prep-n": {
+    "turkishMeanings": ["hazırlık", "ön çalışma"],
+    "examples": [
+      { "en": "The prep for the exam took weeks.", "tr": "Sınav hazırlığı haftalar sürdü." },
+      { "en": "Kitchen prep starts at six.", "tr": "Mutfak hazırlığı altıda başlıyor." },
+      { "en": "He does his prep every evening.", "tr": "Her akşam ön çalışmasını yapıyor." }
+    ]
+  },
+  "gen-b1-blond-n": {
+    "turkishMeanings": ["sarışın kimse"],
+    "examples": [
+      { "en": "A tall blond entered the room.", "tr": "Uzun boylu bir sarışın odaya girdi." },
+      { "en": "The blond spoke three languages.", "tr": "Sarışın üç dil konuşuyordu." },
+      { "en": "She is a natural blond.", "tr": "Doğal sarışın." }
+    ]
+  },
+  "gen-b1-salmon-adj": {
+    "turkishMeanings": ["somon rengi", "pembemsi turuncu"],
+    "examples": [
+      { "en": "The walls were a soft salmon shade.", "tr": "Duvarlar yumuşak bir somon tonundaydı." },
+      { "en": "She chose a salmon tablecloth.", "tr": "Somon rengi bir masa örtüsü seçti." },
+      { "en": "The sky turned salmon at sunset.", "tr": "Gün batımında gökyüzü somon rengine döndü." }
+    ]
+  },
+  "gen-b1-maniac-adj": {
+    "turkishMeanings": ["çılgın", "delice", "azgın"],
+    "examples": [
+      { "en": "He drove at a maniac speed.", "tr": "Çılgın bir hızla araba sürdü." },
+      { "en": "There was a maniac look in his eyes.", "tr": "Gözlerinde delice bir bakış vardı." },
+      { "en": "The crowd showed maniac excitement.", "tr": "Kalabalık çılgın bir heyecan gösterdi." }
+    ]
+  },
+  "gen-b1-straw-adj": {
+    "turkishMeanings": ["hasır", "samandan"],
+    "examples": [
+      { "en": "He wore a straw hat all summer.", "tr": "Bütün yaz hasır şapka taktı." },
+      { "en": "They sat on straw mats.", "tr": "Hasır minderlerde oturdular." },
+      { "en": "The straw basket held fresh bread.", "tr": "Hasır sepette taze ekmek vardı." }
+    ]
+  },
+  "gen-b1-yea-adv": {
+    "turkishMeanings": ["evet", "hatta", "gerçekten"],
+    "examples": [
+      { "en": "Yea, it shall be done.", "tr": "Evet, bu yapılacak." },
+      { "en": "He was brave, yea, fearless.", "tr": "Cesurdu, hatta korkusuzdu." },
+      { "en": "Yea, the words were true.", "tr": "Gerçekten, sözler doğruydu." }
+    ]
+  },
+  "gen-b1-yea-n": {
+    "turkishMeanings": ["kabul oyu", "evet oyu"],
+    "examples": [
+      { "en": "The motion passed with thirty yeas.", "tr": "Önerge otuz kabul oyuyla geçti." },
+      { "en": "Count the yeas and the nays.", "tr": "Kabul ve ret oylarını say." },
+      { "en": "His yea decided the vote.", "tr": "Onun evet oyu oylamayı belirledi." }
+    ]
+  },
+  "gen-b1-howdy-n": {
+    "turkishMeanings": ["selam", "merhaba"],
+    "examples": [
+      { "en": "He greeted us with a friendly howdy.", "tr": "Bizi dostça bir selamla karşıladı." },
+      { "en": "A howdy is common in that region.", "tr": "O bölgede böyle bir selam yaygındır." },
+      { "en": "She shouted a howdy from the porch.", "tr": "Verandadan bir selam attı." }
+    ]
+  },
+  "gen-b1-hallelujah-n": {
+    "turkishMeanings": ["şükür ilahisi", "hamd"],
+    "examples": [
+      { "en": "The choir sang a loud hallelujah.", "tr": "Koro gür bir şükür ilahisi söyledi." },
+      { "en": "A hallelujah rose from the crowd.", "tr": "Kalabalıktan bir hamd yükseldi." },
+      { "en": "The hallelujah echoed in the church.", "tr": "İlahi kilisede yankılandı." }
+    ]
+  },
+  "gen-b1-lipstick-v": {
+    "turkishMeanings": ["ruj sürmek"],
+    "examples": [
+      { "en": "She lipsticked her mouth carefully.", "tr": "Dudaklarına dikkatle ruj sürdü." },
+      { "en": "He lipsticked a message on the mirror.", "tr": "Aynaya rujla bir mesaj yazdı." },
+      { "en": "She lipsticked before leaving home.", "tr": "Evden çıkmadan önce ruj sürdü." }
+    ]
+  },
+  "gen-b1-calendar-v": {
+    "turkishMeanings": ["takvime almak", "kaydetmek"],
+    "examples": [
+      { "en": "Please calendar the meeting for Friday.", "tr": "Toplantıyı lütfen cumaya takvime al." },
+      { "en": "She calendared every deadline.", "tr": "Her teslim tarihini takvime kaydetti." },
+      { "en": "The clerk calendared the case.", "tr": "Kâtip davayı takvime aldı." }
+    ]
+  },
+  "gen-b1-cricket-v": {
+    "turkishMeanings": ["kriket oynamak"],
+    "examples": [
+      { "en": "The boys cricketed on the village green.", "tr": "Çocuklar köy çayırında kriket oynadı." },
+      { "en": "They cricketed every Saturday.", "tr": "Her cumartesi kriket oynadılar." },
+      { "en": "He cricketed for the school team.", "tr": "Okul takımında kriket oynadı." }
+    ]
+  },
+  "gen-b1-fart-v": {
+    "turkishMeanings": ["yellenmek", "gaz çıkarmak"],
+    "examples": [
+      { "en": "The dog farted under the table.", "tr": "Köpek masanın altında yellendi." },
+      { "en": "He farted and everyone laughed.", "tr": "Yellendi ve herkes güldü." },
+      { "en": "Do not fart in the classroom.", "tr": "Sınıfta yellenme." }
+    ]
+  },
+  "gen-b1-sub-v": {
+    "turkishMeanings": ["yerine geçmek", "vekâlet etmek"],
+    "examples": [
+      { "en": "She subbed for the sick teacher.", "tr": "Hasta öğretmenin yerine girdi." },
+      { "en": "He subbed in the second half.", "tr": "İkinci yarıda oyuna girdi." },
+      { "en": "Can you sub for me tomorrow?", "tr": "Yarın benim yerime bakabilir misin?" }
+    ]
+  },
+  "gen-b1-lame-n": {
+    "turkishMeanings": ["topallar", "aksayanlar"],
+    "examples": [
+      { "en": "The hospital cared for the lame.", "tr": "Hastane topalların bakımını üstlendi." },
+      { "en": "He gave shelter to the lame and the poor.", "tr": "Topallara ve yoksullara barınak verdi." },
+      { "en": "The lame waited outside the temple.", "tr": "Topallar tapınağın dışında bekledi." }
+    ]
+  },
+  "gen-b1-ruby-adj": {
+    "turkishMeanings": ["yakut kırmızısı", "koyu kırmızı"],
+    "examples": [
+      { "en": "She wore ruby lipstick.", "tr": "Yakut kırmızısı ruj sürmüştü." },
+      { "en": "The wine had a ruby glow.", "tr": "Şarabın yakut kırmızısı bir parıltısı vardı." },
+      { "en": "He gave her a ruby ring.", "tr": "Ona yakutlu bir yüzük verdi." }
+    ]
+  },
+  "gen-b1-ace-adj": {
+    "turkishMeanings": ["birinci sınıf", "usta", "harika"],
+    "examples": [
+      { "en": "He is an ace mechanic.", "tr": "Usta bir tamirci." },
+      { "en": "She is an ace student in maths.", "tr": "Matematikte birinci sınıf bir öğrenci." },
+      { "en": "That was an ace performance.", "tr": "Bu harika bir performanstı." }
+    ]
+  },
+  "gen-b1-pearl-v": {
+    "turkishMeanings": ["inci gibi parlamak", "inci toplamak"],
+    "examples": [
+      { "en": "Dew pearled on the morning grass.", "tr": "Çiy sabah çimlerinde inci gibi parladı." },
+      { "en": "Sweat pearled on his forehead.", "tr": "Ter alnında inci gibi belirdi." },
+      { "en": "They pearled off the southern coast.", "tr": "Güney kıyısında inci topladılar." }
+    ]
+  }
+}
