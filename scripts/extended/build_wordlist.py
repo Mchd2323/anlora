@@ -86,6 +86,7 @@ VULGAR = {
     'sodomy', 'fornication', 'pubic', 'scrotum', 'genitalia',
     'motherfucker', 'motherfucking', 'pissed', 'jackass', 'dumbass', 'badass',
     'douche', 'douchebag', 'skank', 'hump', 'humping', 'boner', 'wank',
+    'pissing', 'dickhead', 'shitting', 'cocksucker', 'shithead',
 }
 
 # Aşağılayıcı ve ırkçı terimler.
@@ -106,6 +107,9 @@ NOISE = {
     'brr', 'phew', 'kinda', 'gonna', 'wanna', 'gotta', 'lemme', 'gimme',
     'dunno', 'yah', 'nah', 'uhm', 'mmhmm', 'haven', 'don', 'cos', 'thou',
     'bleep', 'bleeps', 'bleeping',
+    # Roma rakamı, Latince ön ek ve İngilizce olmayan hitaplar: öğrenciye
+    # kart olarak gösterilebilecek bir sözcük değiller.
+    'iii', 'non', 'oppa', 'sherlock',
     # Altyazı ses notlarından gelenler: [panting], [indistinct chatter] gibi
     # köşeli parantezli açıklamalar sözcük sayımına karışıyor.
     'indistinct', 'panting', 'chattering', 'sobbing', 'growling', 'grunting',
