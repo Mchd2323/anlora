@@ -50361,6 +50361,41 @@
   "band": 1
  },
  {
+  "id": "gen-b1-martini",
+  "headword": "martini",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 1143,
+  "sourceEntry": "martini n.",
+  "senses": [
+   {
+    "id": "gen-b1-martini-n",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "martini",
+     "cin ve vermut kokteyli"
+    ],
+    "examples": [
+     {
+      "en": "He ordered a dry martini.",
+      "tr": "Sek bir martini söyledi."
+     },
+     {
+      "en": "The martini was very cold.",
+      "tr": "Martini çok soğuktu."
+     },
+     {
+      "en": "She never drinks a martini before dinner.",
+      "tr": "Yemekten önce hiç martini içmez."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/mɑɹˈtini/",
+  "band": 1
+ },
+ {
   "id": "gen-b1-empress",
   "headword": "empress",
   "cefr": "C1",
