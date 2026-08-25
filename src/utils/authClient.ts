@@ -69,13 +69,43 @@ export async function apiFetch<T = any>(
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const response = await fetch(apiUrl(path), { ...init, headers });
+  let response: Response;
+  try {
+    response = await fetch(apiUrl(path), { ...init, headers });
+  } catch {
+    // Ağ hiç kurulamadı: çevrimdışıyız ya da adres yanlış.
+    throw toApiError(
+      'Sunucuya ulaşılamadı. İnternet bağlantını kontrol et.',
+      0,
+      'NETWORK'
+    );
+  }
 
   let data: any = null;
   try {
     data = await response.json();
   } catch {
-    /* gövdesiz yanıt olabilir */
+    /* gövdesiz ya da JSON olmayan yanıt */
+  }
+
+  /*
+   * JSON BEKLENEN YERDE JSON YOKSA BU BİR HATADIR.
+   *
+   * Önceki sürüm başarısız çözümlemeyi sessizce geçip `null` döndürüyordu.
+   * APK'da sunucu adresi tanımlı olmadığında `/api/auth/register` isteği
+   * uygulamanın KENDİ paketine gidiyor, Capacitor da 200 ile `index.html`
+   * döndürüyordu: `response.ok` doğru, gövde HTML, `data` null. Çağıran taraf
+   * `data.devCode` okuyunca kullanıcı "Cannot read properties of null
+   * (reading 'devCode')" hatasını görüyordu — gerçek sebep olan "sunucu yok"
+   * bilgisi hiçbir yerde görünmüyordu.
+   */
+  if (response.ok && data === null) {
+    throw toApiError(
+      'Sunucuya ulaşılamadı. Bu sürüm çevrimdışı çalışıyor; hesap ve bulut ' +
+        'yedeği için sunucu adresi tanımlı değil.',
+      response.status,
+      'NO_SERVER'
+    );
   }
 
   if (!response.ok) {

@@ -121,7 +121,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
   };
 
   return (
-    <div className="space-y-6 pb-16 max-w-[1080px] mx-auto animate-fadeIn">
+    <div className="space-y-6 pb-safe-nav max-w-[1080px] mx-auto animate-fadeIn">
       {/* 1. ÜST BÖLÜM: Anlora Marka Karşılama ve Slogan */}
       <div className="text-left space-y-2 pt-2">
         <div className="flex flex-col gap-1">

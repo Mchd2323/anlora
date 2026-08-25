@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { UserProfile } from '../types';
 import { apiFetch, storeSession, clearSession } from '../utils/authClient';
+import { hasRemoteApi } from '../config/api';
 import { useModalA11y } from '../hooks/useModalA11y';
 import {
   CloudCheck,
@@ -57,6 +58,26 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [verificationCode, setVerificationCode] = useState('');
   const [resendCooldown, setResendCooldown] = useState(0);
   const [devCodePreview, setDevCodePreview] = useState<string | null>(null);
+
+  /*
+   * Sunucu bu kurulumda var mı?
+   *
+   * Hesap, doğrulama kodu ve bulut yedeği sunucu ister. APK çevrimdışı
+   * derlendiğinde sunucu adresi tanımlı olmaz; kullanıcıya formu doldurtup
+   * sonunda hata göstermek yerine durumu baştan söylemek gerekir. `null`
+   * "henüz bakılmadı" demektir.
+   */
+  const [serverAvailable, setServerAvailable] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (!isOpen) return;
+    let cancelled = false;
+    hasRemoteApi().then(ok => {
+      if (!cancelled) setServerAvailable(ok);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen]);
 
   // Status & Feedback
   const [isLoading, setIsLoading] = useState(false);
@@ -307,6 +328,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         >
           <X className="w-4 h-4" />
         </button>
+
+        {/*
+          Sunucu yoksa bunu baştan söyle. Formu doldurup sonunda hata almak,
+          kullanıcıya kendi hatasıymış gibi görünür; oysa bu sürüm bilerek
+          çevrimdışı derlenmiş olabilir.
+        */}
+        {serverAvailable === false && !profile.isLoggedIn && (
+          <div className="p-3.5 rounded-xl bg-[#FBF1DE] border border-[#E7C98F] text-[11px] leading-relaxed text-[#8A5A18]">
+            <b>Bu sürümde hesap özelliği kapalı.</b> Uygulama tamamen
+            çevrimdışı çalışıyor: kelimelerin, setlerin ve ilerlemen zaten
+            telefonunda saklanıyor ve hiçbir yere gönderilmiyor. Hesap yalnızca
+            bulut yedeği içindir; sunucu adresi tanımlı olmadığı için giriş ve
+            kayıt şu an çalışmaz.
+          </div>
+        )}
 
         {/* LOGGED-IN PROFILE VIEW */}
         {profile.isLoggedIn && authStep !== 'guest_migration' ? (

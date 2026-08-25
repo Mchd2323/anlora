@@ -61,6 +61,7 @@ import { OxfordGroupKey } from './types/oxford';
 import { extendedRepository } from './services/extendedRepository';
 import { useToast } from './components/ui/ToastProvider';
 import { useAndroidBackButton } from './hooks/useAndroidBackButton';
+import { releaseStuckScrollLocks } from './hooks/useModalA11y';
 
 export default function App() {
   const { showToast } = useToast();
@@ -70,6 +71,19 @@ export default function App() {
   // sonra ana sekmeye döner.
   const goToRootTab = useCallback(() => setActiveTab('today'), []);
   useAndroidBackButton(activeTab === 'today', goToRootTab);
+
+  /*
+   * Sekme değişiminde takılı kalmış kaydırma kilidi varsa çözülür.
+   *
+   * Kilidi normalde modalin kendi temizleme adımı çözer. Ama render
+   * sırasında fırlatılan bir hata o adımı atlarsa uygulama kalıcı olarak
+   * kaydırılamaz hâle geliyordu. Sekme değiştirmek "açık modal yok"
+   * demektir; burada denetlemek, benzer bir hatanın etkisini tek ekranla
+   * sınırlar.
+   */
+  useEffect(() => {
+    releaseStuckScrollLocks();
+  }, [activeTab]);
   // Seviye seçimi Oxford 3000 (A1–B2 + Tümü) ve Oxford 5000 Ek (B2 Ek, C1)
   // gruplarını birlikte kapsar.
   const [selectedLevel, setSelectedLevel] = useState<Level | 'ALL' | OxfordGroupKey>('ALL');
@@ -459,11 +473,16 @@ export default function App() {
               setActiveTab('oxford');
             }}
             onOpenCreateSet={() => {
-              if (!profile.isLoggedIn) {
-                setIsAuthModalOpen(true);
-              } else {
-                setActiveTab('collections');
-              }
+              /*
+               * Set oluşturmak giriş gerektirmez.
+               *
+               * Burada giriş modali açılıyordu ama kelime eklemek için
+               * istenmiyordu; aynı yerel veriye iki farklı kural uygulanıyordu.
+               * Setler de kelimeler de tarayıcıda saklanıyor, hesap yalnızca
+               * bulut yedeği için. İlk adımda hesap istemek, ürünün "hızlı
+               * ekleme" vaadinin önündeki en büyük sürtünmeydi.
+               */
+              setActiveTab('collections');
             }}
           />
         )}

@@ -319,7 +319,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
       className={`animate-fadeIn ${
         isFullscreen
           ? 'fixed inset-0 z-50 bg-[#F8F7F3] px-4 py-5 sm:px-6 overflow-y-auto flex flex-col'
-          : 'max-w-2xl mx-auto pb-16'
+          : 'max-w-2xl mx-auto pb-safe-nav'
       }`}
     >
       {/* ---------------------------------------------------------------

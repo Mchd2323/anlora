@@ -92,7 +92,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <>
       {/* Desktop Header */}
-      <header className="sticky top-0 z-40 bg-[#FFFFFF] border-b border-[#E4E1D9] transition-colors">
+      <header className="sticky top-0 z-40 bg-[#FFFFFF] border-b border-[#E4E1D9] transition-colors safe-top">
         <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Brand Logo - Text Wordmark */}
@@ -174,7 +174,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       </header>
 
       {/* Mobile Fixed Bottom Navigation Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FFFFFF] border-t border-[#E4E1D9] px-1 py-1.5 flex items-center justify-around shadow-sm">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FFFFFF] border-t border-[#E4E1D9] px-1 pt-1.5 pb-1.5 safe-bottom flex items-center justify-around shadow-sm">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;

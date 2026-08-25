@@ -240,7 +240,7 @@ export const CoreStudyView: React.FC<CoreStudyViewProps> = ({
   // 2. OVERVIEW / ENTRY SCREEN
   if (viewMode === 'overview') {
     return (
-      <div className="max-w-2xl mx-auto space-y-5 animate-fadeIn pb-16">
+      <div className="max-w-2xl mx-auto space-y-5 animate-fadeIn pb-safe-nav">
         {/* Top bar */}
         <button
           onClick={onExit}
@@ -381,7 +381,7 @@ export const CoreStudyView: React.FC<CoreStudyViewProps> = ({
 
   return (
     <div
-      className="max-w-2xl mx-auto space-y-4 animate-fadeIn pb-16"
+      className="max-w-2xl mx-auto space-y-4 animate-fadeIn pb-safe-nav"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >

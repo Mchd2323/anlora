@@ -39,7 +39,7 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({
   };
 
   return (
-    <div className="space-y-6 pb-16 max-w-[1180px] mx-auto animate-fadeIn">
+    <div className="space-y-6 pb-safe-nav max-w-[1180px] mx-auto animate-fadeIn">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#FFFFFF] p-6 sm:p-7 rounded-2xl border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
         <div className="flex items-center gap-3">

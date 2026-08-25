@@ -111,22 +111,29 @@ export function runV1toV2MigrationIfNeeded(oxfordWordsList: WordCard[] = []): vo
     const collections: Collection[] = [];
     const memberships: CollectionMembership[] = [];
 
-    // Always create the legacy notebook collection
+    /*
+     * "Eski Özel Defterim" YALNIZCA taşınacak kart varsa açılır.
+     *
+     * Önceden koşulsuz oluşturuluyordu: uygulamayı ilk kez kuran kullanıcı,
+     * içi boş ve adı geçmişten bahseden bir setle karşılaşıyordu — o kişinin
+     * "eski defteri" hiç olmadı. Set yalnızca gerçekten eski kart varsa,
+     * yani taşınacak bir şey olduğunda anlamlıdır.
+     */
     const legacyDeckId = 'deck-legacy-notebook';
-    collections.push({
-      id: legacyDeckId,
-      name: 'Eski Özel Defterim',
-      description: 'Version 1 özel kelime kartlarınız ve notlarınız',
-      iconName: 'BookOpen',
-      color: 'amber',
-      isPinned: true,
-      isArchived: false,
-      createdAt: nowIso,
-      updatedAt: nowIso
-    });
-
-    // Sample Starter Collection for new users
-    if (v1CustomCards.length === 0) {
+    if (v1CustomCards.length > 0) {
+      collections.push({
+        id: legacyDeckId,
+        name: 'Eski Özel Defterim',
+        description: 'Önceki sürümden taşınan kelime kartların',
+        iconName: 'BookOpen',
+        color: 'amber',
+        isPinned: true,
+        isArchived: false,
+        createdAt: nowIso,
+        updatedAt: nowIso
+      });
+    } else {
+      // Yeni kullanıcıya tek bir örnek set: nasıl kullanılacağını gösterir.
       collections.push({
         id: 'deck-breaking-bad',
         name: 'Dizi & Film Alıntıları',

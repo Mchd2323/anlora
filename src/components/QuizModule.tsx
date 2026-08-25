@@ -297,7 +297,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
   const currentQ = questions[currentQuestionIndex];
 
   return (
-    <div className="max-w-[760px] mx-auto space-y-6 pb-16 animate-fadeIn">
+    <div className="max-w-[760px] mx-auto space-y-6 pb-safe-nav animate-fadeIn">
       {/* 1. Sınav Kurulum Ekranı */}
       {quizState === 'IDLE' && (
         <div className="bg-[#FFFFFF] p-6 sm:p-8 rounded-2xl border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">

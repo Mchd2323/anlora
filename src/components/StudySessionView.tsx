@@ -287,7 +287,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
   // ----------------------------------------------------
   if (!isSessionStarted) {
     return (
-      <div className="max-w-[760px] mx-auto space-y-6 pb-16 animate-fadeIn">
+      <div className="max-w-[760px] mx-auto space-y-6 pb-safe-nav animate-fadeIn">
         <div className="bg-[#FFFFFF] rounded-2xl p-6 sm:p-8 border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
           <div className="text-center space-y-1.5">
             <div className="w-10 h-10 rounded-xl bg-[#EEECFA] text-[#4F46A5] flex items-center justify-center mx-auto">
@@ -409,7 +409,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
   // ----------------------------------------------------
   if (isCompleted) {
     return (
-      <div className="max-w-[600px] mx-auto space-y-6 pb-16 animate-fadeIn">
+      <div className="max-w-[600px] mx-auto space-y-6 pb-safe-nav animate-fadeIn">
         <div className="bg-[#FFFFFF] rounded-2xl p-8 border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)] text-center space-y-5">
           <div className="w-12 h-12 rounded-xl bg-[#E9F3ED] text-[#4F806A] flex items-center justify-center mx-auto">
             <Award className="w-6 h-6" />
@@ -481,7 +481,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
   const progressPercent = Math.round(((currentIndex) / queue.length) * 100);
 
   return (
-    <div className="max-w-[760px] mx-auto space-y-5 pb-16 animate-fadeIn">
+    <div className="max-w-[760px] mx-auto space-y-5 pb-safe-nav animate-fadeIn">
       {/* Top Header & Progress */}
       <div className="flex items-center justify-between gap-4">
         <button

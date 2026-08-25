@@ -24,11 +24,22 @@ export const DuplicateWarningModal: React.FC<DuplicateWarningModalProps> = ({
   onUseBaseForm,
   onViewCard
 }) => {
+  const modalRef = useModalA11y(isOpen, onClose);
+
+  /*
+   * Erken çıkış TÜM hook çağrılarından SONRA gelir.
+   *
+   * Burada hook'lardan önceydi: modal kapalıyken bileşen sıfır hook ile,
+   * açıkken altı hook ile render ediliyordu. React bunu "beklenenden az
+   * hook" diye görüp render'ı fırlatıyor; fırlatılan render'da efekt
+   * TEMİZLEME adımı da çalışmıyordu. Temizleme adımı gövde kaydırma
+   * kilidini çözen yer olduğu için, kullanıcı bu modali bir kez açıp
+   * kapattıktan sonra uygulama kalıcı olarak kaydırılamaz hâle geliyordu
+   * ("biraz kullanınca donuyor").
+   */
   if (!isOpen || !duplicateInfo) return null;
 
   const card = duplicateInfo.matchedWordCard;
-
-  const modalRef = useModalA11y(isOpen, onClose);
 
   return (
     <div

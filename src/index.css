@@ -86,6 +86,32 @@
   }
 }
 
+/* ==========================================================================
+   Güvenli alan (çentik, durum çubuğu, hareket çubuğu)
+   ==========================================================================
+
+   index.html `viewport-fit=cover` diyor: WebView durum çubuğunun ve alttaki
+   hareket çubuğunun ALTINA kadar uzanıyor. Bunu telafi eden hiçbir şey
+   yoktu, bu yüzden üstteki başlık şeridinin yarısı durum çubuğunun altında
+   kalıyor, alttaki gezinme çubuğu da hareket çubuğuyla çakışıyordu.
+
+   `env(safe-area-inset-*)` tarayıcının bildirdiği gerçek boşluktur; cihaz
+   çentiksizse ya da Capacitor durum çubuğunu kaplamıyorsa sıfır döner, o
+   yüzden fazladan boşluk oluşmaz. */
+
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Sabit alt çubuğun altında kalan içerik için pay. */
+.pb-safe-nav {
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+}
+
 /* Calm Study Micro-Animations */
 
 /*

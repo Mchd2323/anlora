@@ -45,6 +45,28 @@ function unlockBodyScroll(): void {
     document.body.style.overflow = overflowBeforeLock;
   }
 }
+
+/**
+ * Kalan bütün kaydırma kilitlerini çözer.
+ *
+ * EMNİYET AĞI. Kilidi bir efektin temizleme adımı çözer; render sırasında
+ * fırlatılan bir hata o adımı hiç çalıştırmaz ve uygulama kalıcı olarak
+ * kaydırılamaz hâle gelir — kullanıcının gördüğü tam olarak buydu.
+ * Sayfa değiştirmek gibi "artık açık modal olamaz" anlarında bu işlev
+ * çağrılırsa, benzer bir hata bir daha olsa bile kilit en fazla bir
+ * ekran boyu sürer.
+ *
+ * Ölçüt DOM'dan okunur: gerçekten açık bir iletişim kutusu varsa kilide
+ * dokunulmaz.
+ */
+export function releaseStuckScrollLocks(): void {
+  if (typeof document === 'undefined') return;
+  if (document.querySelector('[role="dialog"]')) return;
+  scrollLockCount = 0;
+  if (document.body.style.overflow === 'hidden') {
+    document.body.style.overflow = '';
+  }
+}
 export function useModalA11y(isOpen: boolean, onClose: () => void) {
   const containerRef = useRef<HTMLDivElement>(null);
   const previouslyFocused = useRef<HTMLElement | null>(null);

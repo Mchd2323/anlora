@@ -59,7 +59,7 @@ export const WordListView: React.FC<WordListViewProps> = ({
   }, [words, searchQuery, statusFilter, favorites, learningStates]);
 
   return (
-    <div className="space-y-4 max-w-3xl mx-auto animate-fadeIn pb-16">
+    <div className="space-y-4 max-w-3xl mx-auto animate-fadeIn pb-safe-nav">
       {/* Top Header */}
       <div className="flex items-center justify-between gap-3 bg-[#FFFFFF] p-4 sm:p-5 rounded-2xl border border-[#E4E1D9] shadow-xs">
         <button

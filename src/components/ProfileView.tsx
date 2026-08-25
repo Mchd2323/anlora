@@ -204,7 +204,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   };
 
   return (
-    <div className="space-y-6 pb-16 max-w-[880px] mx-auto animate-fadeIn">
+    <div className="space-y-6 pb-safe-nav max-w-[880px] mx-auto animate-fadeIn">
       {/* 1. Profil Başlık ve Hesap Kartı */}
       <div className="bg-[#FFFFFF] rounded-2xl p-6 sm:p-7 border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
         <div className="flex items-center gap-3.5">
