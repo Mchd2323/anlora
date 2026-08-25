@@ -98,7 +98,7 @@ export const TextMinerModal: React.FC<TextMinerModalProps> = ({
       ref={modalRef}
       className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
       <div
-        className="bg-[#FFFFFF] rounded-2xl my-auto max-w-2xl w-full border border-[#E4E1D9] shadow-xl overflow-hidden"
+        className="bg-[#FFFFFF] rounded-2xl max-w-2xl w-full border border-[#E4E1D9] shadow-xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

@@ -717,7 +717,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
           aria-labelledby="anlora-create-set-title"
           ref={createModalRef}
           className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
-          <div className="bg-[#FFFFFF] rounded-2xl my-auto max-w-md w-full border border-[#E4E1D9] shadow-xl p-6 space-y-4">
+          <div className="bg-[#FFFFFF] rounded-2xl max-w-md w-full border border-[#E4E1D9] shadow-xl p-6 space-y-4">
             <h3 id="anlora-create-set-title" className="text-base font-bold text-[#1E2430] flex items-center gap-2">
               <Layers className="w-4 h-4 text-[#4F46A5]" />
               Yeni Kelime Seti Oluştur
@@ -788,7 +788,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
       {/* MODAL: SETİ DÜZENLE */}
       {editingDeck && (
         <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
-          <div className="bg-[#FFFFFF] rounded-2xl my-auto max-w-md w-full border border-[#E4E1D9] shadow-xl p-6 space-y-4">
+          <div className="bg-[#FFFFFF] rounded-2xl max-w-md w-full border border-[#E4E1D9] shadow-xl p-6 space-y-4">
             <h3 className="text-base font-bold text-[#1E2430] flex items-center gap-2">
               <Edit2 className="w-4 h-4 text-[#4F46A5]" />
               Seti Düzenle
@@ -891,7 +891,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
           aria-labelledby="anlora-add-word-title"
           ref={addWordModalRef}
           className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
-          <div className="bg-[#FFFFFF] rounded-2xl my-auto max-w-lg w-full border border-[#E4E1D9] shadow-xl p-6 sm:p-7 space-y-5 my-8">
+          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full border border-[#E4E1D9] shadow-xl p-6 sm:p-7 space-y-5 my-8">
             <div className="flex items-center justify-between">
               <h3 id="anlora-add-word-title" className="text-lg font-bold text-[#1E2430] flex items-center gap-2">
                 <Plus className="w-4 h-4 text-[#4F46A5]" />

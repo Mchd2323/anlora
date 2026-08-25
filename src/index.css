@@ -87,8 +87,24 @@
 }
 
 /* Calm Study Micro-Animations */
+
+/*
+ * `forwards` KULLANILMAZ.
+ *
+ * Bu sınıf `animation-fill-mode: forwards` ile yazılmıştı; animasyon bitince
+ * son karedeki `transform: translateY(0)` öğenin üzerinde KALICI olarak
+ * duruyordu. `none` olmayan bir transform, öğeyi içindeki `position: fixed`
+ * elemanlar için kapsayıcı bloğa çevirir. Görünümlerin kökü bu sınıfı
+ * taşıdığı için modaller ekrana değil, sayfa içeriğine göre konumlanıyordu:
+ * ölçümde kelime ekleme penceresinin kaplaması 1179 piksel yükseklikte ve
+ * 92 piksel aşağıdan başlıyordu; pencerenin üst kısmı ekranın dışında
+ * kalıyor, kullanıcı ona hiç ulaşamıyordu.
+ *
+ * `forwards` olmadan animasyon bittiğinde öğe normal durumuna döner
+ * (opacity 1, transform none) — görsel sonuç aynı, kapsayıcı blok yok.
+ */
 .animate-fadeIn {
-  animation: fadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes fadeIn {
@@ -172,9 +188,11 @@
   pointer-events: none;
 }
 
-/* Anlam açılırken içerik alttan yumuşakça yerleşir. */
+/* Anlam açılırken içerik alttan yumuşakça yerleşir.
+   `forwards` yok: kalıcı transform, içindeki `position: fixed` öğeler için
+   kapsayıcı blok oluşturur (bkz. .animate-fadeIn'deki açıklama). */
 .animate-riseIn {
-  animation: riseIn var(--dur-slow) var(--ease-out) forwards;
+  animation: riseIn var(--dur-slow) var(--ease-out);
 }
 
 @keyframes riseIn {

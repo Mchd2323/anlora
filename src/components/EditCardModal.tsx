@@ -92,7 +92,7 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
       ref={modalRef}
       className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
       <div
-        className="bg-[#FFFFFF] rounded-2xl my-auto max-w-lg w-full border border-[#E4E1D9] shadow-xl overflow-hidden my-8"
+        className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full border border-[#E4E1D9] shadow-xl overflow-hidden my-8"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
