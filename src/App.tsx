@@ -13,7 +13,7 @@ import { AuthModal } from './components/AuthModal';
 import { AddToCollectionModal } from './components/AddToCollectionModal';
 import { EditCardModal } from './components/EditCardModal';
 
-import { OXFORD_3000_WORDS, OXFORD_5000_EXTRA_WORDS } from './data/oxfordWords';
+import { getOxford3000Words, getOxford5000ExtraWords, loadOxfordCore } from './data/oxfordWords';
 import {
   WordCard,
   Level,
@@ -90,6 +90,16 @@ export default function App() {
   const [memberships, setMemberships] = useState<CollectionMembership[]>([]);
   const [learningStates, setLearningStates] = useState<Record<string, LearningState>>({});
   const [customWords, setCustomWords] = useState<WordCard[]>([]);
+  /*
+   * Oxford sözlüğü tembel yüklenir; uygulama kabuğu onu beklemeden boyanır.
+   * Ölçüm (4 kat yavaşlatılmış işlemci): sözlük statikken ilk boyama 12,7
+   * saniyede oluyordu. Diziler yükleme bitene kadar boş durur, arayüz de bu
+   * süre boyunca "sözlük hazırlanıyor" der — boş liste gösterip veri yokmuş
+   * gibi davranmaz.
+   */
+  const [oxfordWords, setOxfordWords] = useState<WordCard[]>([]);
+  const [oxfordExtraWords, setOxfordExtraWords] = useState<WordCard[]>([]);
+  const [isDictionaryReady, setIsDictionaryReady] = useState(false);
   /**
    * Genel Dağarcık'tan o an bellekte olan kartlar.
    *
@@ -111,33 +121,54 @@ export default function App() {
 
   // Initialize and Migrate V1 data on startup
   useEffect(() => {
-    runV1toV2MigrationIfNeeded(OXFORD_3000_WORDS);
+    let cancelled = false;
+
+    /*
+     * Göç adımları sözlüğe muhtaçtır (eski kayıtlar Oxford kimlikleriyle
+     * eşleştiriliyor), bu yüzden kullanıcı verisi de sözlük yüklendikten
+     * SONRA okunur. Aksi hâlde göç çalışmadan okunan koleksiyonlar bir
+     * sonraki yazmada eski kimliklerle geri yazılırdı.
+     */
+    loadOxfordCore().then(() => {
+      if (cancelled) return;
+
+      const core = getOxford3000Words();
+      const extra = getOxford5000ExtraWords();
+
+      runV1toV2MigrationIfNeeded(core);
     // Oxford verisi resmî kaynaklardan yeniden üretildiğinde kayıt kimlikleri
     // kararlı bir şemaya geçti. Kullanıcının "Öğrendim", "Tekrar Et", favori
     // ve çalışma geçmişi bu kimliklere bağlı olduğu için göç V2'den HEMEN
     // SONRA, diğer okumalardan önce çalışmalıdır.
-    runOxfordIdMigrationIfNeeded();
+      runOxfordIdMigrationIfNeeded();
 
-    setCollections(getCollectionsV2());
-    setMemberships(getMembershipsV2());
-    setLearningStates(getAllLearningStatesV2());
-    setCustomWords(getCustomWordsV2());
-    setFavorites(getFavoritesV2());
-    setStats(getUserStatsV2());
-    setUnlockedBadges(getUnlockedBadgesV2());
-    setSettings(getUserSettingsV2());
-    setProfile(getUserProfileV2());
+      setOxfordWords(core);
+      setOxfordExtraWords(extra);
 
-    const badges = checkAndUnlockBadgesV2();
-    setUnlockedBadges(badges);
+      setCollections(getCollectionsV2());
+      setMemberships(getMembershipsV2());
+      setLearningStates(getAllLearningStatesV2());
+      setCustomWords(getCustomWordsV2());
+      setFavorites(getFavoritesV2());
+      setStats(getUserStatsV2());
+      setSettings(getUserSettingsV2());
+      setProfile(getUserProfileV2());
+      setUnlockedBadges(checkAndUnlockBadgesV2());
+
+      setIsDictionaryReady(true);
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Combined list of Oxford 3000 words + User Custom Cards
   // Oxford 3000 + Oxford 5000 Ek (B2 Ek, C1) + kullanıcının kendi kartları.
   // Çalışma, sınav ve favoriler bu birleşik havuz üzerinden çalışır.
   const allWordsCombined = useMemo(() => {
-    return [...OXFORD_3000_WORDS, ...OXFORD_5000_EXTRA_WORDS, ...extendedWords, ...customWords];
-  }, [extendedWords, customWords]);
+    return [...oxfordWords, ...oxfordExtraWords, ...extendedWords, ...customWords];
+  }, [oxfordWords, oxfordExtraWords, extendedWords, customWords]);
 
   /**
    * Kullanıcının dokunduğu Genel Dağarcık kelimeleri bant bırakılsa da elde
@@ -386,13 +417,30 @@ export default function App() {
 
       {/* Main Content Workspace */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/*
+          Sözlük hazırlanırken kabuk zaten görünür durumda. Bu aralıkta boş
+          listeler göstermek "kelime yok" gibi okunurdu; ne olduğunu yazmak
+          hem dürüst hem de bekleyişi anlaşılır kılıyor.
+        */}
+        {!isDictionaryReady ? (
+          <div className="flex flex-col items-center justify-center py-24 gap-3 text-center animate-fadeIn">
+            <div className="w-10 h-10 border-3 border-[#D7D2F4] border-t-[#4F46A5] rounded-full animate-spin" />
+            <div className="space-y-1">
+              <p className="text-sm font-bold text-[#1E2430]">Sözlük hazırlanıyor…</p>
+              <p className="text-xs text-[#687080]">
+                Kelimeler cihazında saklanıyor; bu yalnızca birkaç saniye sürer.
+              </p>
+            </div>
+          </div>
+        ) : (
+        <>
         {activeTab === 'today' && (
           <TodayDashboard
             collections={collections}
             memberships={memberships}
             customWords={customWords}
-            oxfordWords={OXFORD_3000_WORDS}
-            extraWords={OXFORD_5000_EXTRA_WORDS}
+            oxfordWords={oxfordWords}
+            extraWords={oxfordExtraWords}
             learningStates={learningStates}
             settings={settings}
             stats={stats}
@@ -425,7 +473,7 @@ export default function App() {
             collections={collections}
             memberships={memberships}
             customWords={customWords}
-            oxfordWords={OXFORD_3000_WORDS}
+            oxfordWords={oxfordWords}
             learningStates={learningStates}
             favorites={favorites}
             profile={profile}
@@ -459,7 +507,7 @@ export default function App() {
             collections={collections}
             memberships={memberships}
             customWords={customWords}
-            oxfordWords={OXFORD_3000_WORDS}
+            oxfordWords={oxfordWords}
             learningStates={learningStates}
             settings={settings}
             onRecordStudyResult={handleRecordStudyResult}
@@ -470,8 +518,8 @@ export default function App() {
 
         {activeTab === 'oxford' && (
           <OxfordExplorer
-            words={OXFORD_3000_WORDS}
-            extraWords={OXFORD_5000_EXTRA_WORDS}
+            words={oxfordWords}
+            extraWords={oxfordExtraWords}
             favorites={favorites}
             learned={Object.keys(learningStates).filter(k => learningStates[k]?.stage === 'MASTERED')}
             learningStates={learningStates}
@@ -504,8 +552,8 @@ export default function App() {
 
         {activeTab === 'quiz' && (
           <QuizModule
-            allWords={OXFORD_3000_WORDS}
-            extraWords={OXFORD_5000_EXTRA_WORDS}
+            allWords={oxfordWords}
+            extraWords={oxfordExtraWords}
             customCards={customWords}
             collections={collections}
             memberships={memberships}
@@ -526,7 +574,7 @@ export default function App() {
             onUpdateSettings={handleUpdateSettings}
             learningStates={learningStates}
             customWords={customWords}
-            oxfordWords={OXFORD_3000_WORDS}
+            oxfordWords={oxfordWords}
             favorites={favorites}
             onOpenAuthModal={() => setIsAuthModalOpen(true)}
             onLogout={handleLogout}
@@ -543,6 +591,8 @@ export default function App() {
               setActiveTab('oxford');
             }}
           />
+        )}
+        </>
         )}
       </main>
 

@@ -17,7 +17,7 @@ import {
   BadgeProgressSnapshot,
   V2BackupPayload
 } from '../types';
-import { BADGES_DATA, OXFORD_3000_WORDS } from '../data/oxfordWords';
+import { BADGES_DATA } from '../data/badges';
 import { createInitialLearningState, computeNextReviewState } from './srsEngine';
 import { normalizeWordString } from './lemmatizer';
 import { readJSON, writeJSON, readRaw, writeRaw, removeKey } from './safeStorage';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserStats, Badge, WordCard, LearningState } from '../types';
-import { BADGES_DATA } from '../data/oxfordWords';
+import { BADGES_DATA } from '../data/badges';
 import {
   BarChart3,
   Award,

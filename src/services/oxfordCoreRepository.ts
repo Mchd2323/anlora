@@ -23,9 +23,6 @@ import {
   getPrimaryMeaning,
   isEntryComplete,
 } from '../types/oxford';
-import oxford3000Raw from '../data/oxford3000.json';
-import oxford5000ExtraRaw from '../data/oxford5000extra.json';
-
 export const OXFORD_DATA_VERSION = '2.0.0';
 
 export const OXFORD_GROUPS: {
@@ -41,27 +38,99 @@ export const OXFORD_GROUPS: {
   { key: 'C1', label: 'C1', collection: 'oxford5000-extra' },
 ];
 
-const ALL_ENTRIES: readonly OxfordEntry[] = Object.freeze([
-  ...(oxford3000Raw as unknown as OxfordEntry[]),
-  ...(oxford5000ExtraRaw as unknown as OxfordEntry[]),
-]);
+/*
+ * VERİ TEMBEL YÜKLENİR.
+ *
+ * Sözlük yaklaşık 5 MB JSON'dur. Önceki sürümde iki dosya da modül başında
+ * statik olarak içe aktarılıyordu; bu, ayrıştırma ve 3.900 kartın nesneye
+ * çevrilmesi bitene kadar TARAYICININ HİÇBİR ŞEY BOYAYAMAMASI demekti.
+ * Ölçüm (4 kat yavaşlatılmış işlemci, mobil): bütün paketler 159 ms'de
+ * iniyor, ilk boyama ise 12.688 ms'de yapılıyordu — kullanıcının "tıklayınca
+ * geç açılıyor, takılıyor" dediği süre büyük ölçüde buydu.
+ *
+ * Artık veri `loadOxfordCore()` ile, uygulama kabuğu boyandıktan SONRA
+ * yüklenir. Eşzamanlı okuyucular yükleme bitene kadar boş liste görür; bu
+ * yüzden `isOxfordCoreLoaded()` vardır ve arayüz "sözlük hazırlanıyor"
+ * durumunu dürüstçe gösterir.
+ */
 
-const ENTRY_BY_ID = new Map<string, OxfordEntry>();
-const ENTRIES_BY_GROUP = new Map<OxfordGroupKey, OxfordEntry[]>();
+let ALL_ENTRIES: readonly OxfordEntry[] = [];
+let ENTRY_BY_ID = new Map<string, OxfordEntry>();
+let ENTRIES_BY_GROUP = new Map<OxfordGroupKey, OxfordEntry[]>();
+let WORD_CARDS: readonly WordCard[] = [];
+let WORD_CARD_BY_ID = new Map<string, WordCard>();
+let CARDS_BY_GROUP = new Map<OxfordGroupKey, WordCard[]>();
+let KNOWN_WORDS = new Set<string>();
 
-ALL_ENTRIES.forEach(entry => {
-  ENTRY_BY_ID.set(entry.id, entry);
-  const group = getGroupKey(entry);
-  const bucket = ENTRIES_BY_GROUP.get(group);
-  if (bucket) {
-    bucket.push(entry);
-  } else {
-    ENTRIES_BY_GROUP.set(group, [entry]);
-  }
-});
+let loaded = false;
+let loadPromise: Promise<void> | null = null;
 
-// Kaynak sırası korunur: listeler Oxford'un kendi düzeninde gösterilebilsin.
-ENTRIES_BY_GROUP.forEach(bucket => bucket.sort((a, b) => a.sourceOrder - b.sourceOrder));
+/** Sözlük belleğe alındı mı? */
+export function isOxfordCoreLoaded(): boolean {
+  return loaded;
+}
+
+/**
+ * Sözlüğü yükler ve dizinleri kurar. Birden çok çağrı tek yüklemeye düşer.
+ */
+export function loadOxfordCore(): Promise<void> {
+  if (loaded) return Promise.resolve();
+  if (loadPromise) return loadPromise;
+
+  loadPromise = (async () => {
+    const [core, extra] = await Promise.all([
+      import('../data/oxford3000.json'),
+      import('../data/oxford5000extra.json'),
+    ]);
+
+    buildIndexes([
+      ...((core.default || core) as unknown as OxfordEntry[]),
+      ...((extra.default || extra) as unknown as OxfordEntry[]),
+    ]);
+    loaded = true;
+  })();
+
+  return loadPromise;
+}
+
+function buildIndexes(entries: OxfordEntry[]): void {
+  ALL_ENTRIES = Object.freeze(entries);
+
+  ENTRY_BY_ID = new Map();
+  ENTRIES_BY_GROUP = new Map();
+
+  ALL_ENTRIES.forEach(entry => {
+    ENTRY_BY_ID.set(entry.id, entry);
+    const group = getGroupKey(entry);
+    const bucket = ENTRIES_BY_GROUP.get(group);
+    if (bucket) {
+      bucket.push(entry);
+    } else {
+      ENTRIES_BY_GROUP.set(group, [entry]);
+    }
+  });
+
+  // Kaynak sırası korunur: listeler Oxford'un kendi düzeninde gösterilebilsin.
+  ENTRIES_BY_GROUP.forEach(bucket => bucket.sort((a, b) => a.sourceOrder - b.sourceOrder));
+
+  WORD_CARDS = Object.freeze(ALL_ENTRIES.map(entryToWordCard));
+  WORD_CARD_BY_ID = new Map();
+  WORD_CARDS.forEach(card => WORD_CARD_BY_ID.set(card.id, card));
+
+  CARDS_BY_GROUP = new Map();
+  ENTRIES_BY_GROUP.forEach((groupEntries, group) => {
+    CARDS_BY_GROUP.set(
+      group,
+      groupEntries.map(entry => WORD_CARD_BY_ID.get(entry.id)!).filter(Boolean)
+    );
+  });
+
+  KNOWN_WORDS = new Set();
+  ALL_ENTRIES.forEach(entry => {
+    KNOWN_WORDS.add(entry.headword.trim().toLowerCase());
+    (entry.variants || []).forEach(variant => KNOWN_WORDS.add(variant.trim().toLowerCase()));
+  });
+}
 
 /**
  * Oxford kaydını uygulamanın ortak `WordCard` görünümüne çevirir.
@@ -95,26 +164,10 @@ export function entryToWordCard(entry: OxfordEntry): WordCard {
   };
 }
 
-const WORD_CARDS: readonly WordCard[] = Object.freeze(ALL_ENTRIES.map(entryToWordCard));
-const WORD_CARD_BY_ID = new Map<string, WordCard>();
-WORD_CARDS.forEach(card => WORD_CARD_BY_ID.set(card.id, card));
-
-const CARDS_BY_GROUP = new Map<OxfordGroupKey, WordCard[]>();
-ENTRIES_BY_GROUP.forEach((entries, group) => {
-  CARDS_BY_GROUP.set(
-    group,
-    entries.map(entry => WORD_CARD_BY_ID.get(entry.id)!).filter(Boolean)
-  );
-});
-
-/** Madde başı yazımları; yazım toleransı ve lemmatizer doğrulaması için. */
-const KNOWN_WORDS = new Set<string>();
-ALL_ENTRIES.forEach(entry => {
-  KNOWN_WORDS.add(entry.headword.trim().toLowerCase());
-  (entry.variants || []).forEach(variant => KNOWN_WORDS.add(variant.trim().toLowerCase()));
-});
-
 export const oxfordCoreRepository = {
+  isLoaded: isOxfordCoreLoaded,
+  load: loadOxfordCore,
+
   getMetadata() {
     const complete = ALL_ENTRIES.filter(isEntryComplete).length;
     return {

@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { BookOpen, Sparkles, GraduationCap, CheckCircle, Volume2, ArrowRight, BookMarked, ShieldCheck } from 'lucide-react';
 import { TabType } from './Navbar';
 import { Level } from '../types';
-import { OXFORD_3000_WORDS } from '../data/oxfordWords';
+import { getOxford3000Words } from '../data/oxfordWords';
 
 interface HomeHeroProps {
   onSelectLevel: (level: Level) => void;
@@ -19,7 +19,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 }) => {
   const levelCounts = useMemo(() => {
     const counts: Record<string, number> = { A1: 0, A2: 0, B1: 0, B2: 0 };
-    OXFORD_3000_WORDS.forEach((w) => {
+    getOxford3000Words().forEach((w) => {
       if (w.level && counts[w.level] !== undefined) {
         counts[w.level]++;
       }
