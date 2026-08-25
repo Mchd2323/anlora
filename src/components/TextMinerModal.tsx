@@ -29,14 +29,24 @@ export const TextMinerModal: React.FC<TextMinerModalProps> = ({
 }) => {
   const modalRef = useModalA11y(isOpen, onClose);
 
-  if (!isOpen) return null;
-
   const [rawText, setRawText] = useState('');
   const [selectedCollectionId, setSelectedCollectionId] = useState(collections[0]?.id || '');
   const [minedResults, setMinedResults] = useState<ReturnType<typeof mineVocabularyFromText> | null>(null);
   const [selectedWords, setSelectedWords] = useState<Record<string, boolean>>({});
   const [filterStatus, setFilterStatus] = useState<'ALL' | 'NEW' | 'OXFORD_AVAILABLE'>('ALL');
   const [isProcessing, setIsProcessing] = useState(false);
+
+  /*
+   * Erken çıkış, TÜM hook çağrılarından SONRA gelmelidir.
+   *
+   * Önceki sürümde `if (!isOpen) return null` hook'lardan önceydi: modal
+   * kapalıyken bileşen sıfır hook ile, açıldığında ise altı hook ile
+   * render ediliyordu. React bunu "önceki render'dan daha fazla hook"
+   * olarak görüp bileşeni düşürüyordu (minified React error #310) ve
+   * kullanıcı hata ekranına çarpıyordu. Hook sayısı her render'da aynı
+   * kalmalı; koşullu olan yalnızca çıktı olabilir.
+   */
+  if (!isOpen) return null;
 
   const handleMine = () => {
     if (!rawText.trim()) return;

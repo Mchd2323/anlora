@@ -73,6 +73,15 @@ export default function App() {
   // Seviye seçimi Oxford 3000 (A1–B2 + Tümü) ve Oxford 5000 Ek (B2 Ek, C1)
   // gruplarını birlikte kapsar.
   const [selectedLevel, setSelectedLevel] = useState<Level | 'ALL' | OxfordGroupKey>('ALL');
+  /**
+   * Oxford ekranı açılırken uygulanacak durum filtresi.
+   *
+   * Profildeki "Öğrendiklerim" / "Tekrar edeceklerim" bağlantıları listeye
+   * doğrudan gelebilsin diye burada tutulur; sayıyı gösterip listesine
+   * götürmemek bilgiyi yarım bırakmaktı.
+   */
+  const [oxfordStatusFilter, setOxfordStatusFilter] =
+    useState<'ALL' | 'LEARNED' | 'LEARNING' | 'UNSEEN' | 'FAVORITES'>('ALL');
   const [studySessionInitialDeckId, setStudySessionInitialDeckId] = useState<string | undefined>(undefined);
   const [quizInitialDeckId, setQuizInitialDeckId] = useState<string | undefined>(undefined);
 
@@ -232,15 +241,22 @@ export default function App() {
     setLearningStates(getAllLearningStatesV2());
   };
 
-  // Favorite toggle handler
-  const handleToggleFavorite = (wordId: string) => {
+  /*
+   * Listelere geçen işleyiciler `useCallback` ile sarılır.
+   *
+   * Kart bileşeni memoize edildi; ama her render'da yeni bir ok fonksiyonu
+   * geçilirse prop'lar değişmiş sayılır ve memo hiçbir şeyi engellemez.
+   * Kimliğin kararlı olması, tek bir favori dokunuşunun listedeki diğer
+   * kartları yeniden render etmesini önler.
+   */
+  const handleToggleFavorite = useCallback((wordId: string) => {
     const updated = toggleFavoriteV2(wordId);
     setFavorites(updated);
     setUnlockedBadges(checkAndUnlockBadgesV2());
-  };
+  }, []);
 
   // Spaced Repetition Study Result Handler
-  const handleRecordStudyResult = (
+  const handleRecordStudyResult = useCallback((
     wordId: string,
     quality: ResponseQuality,
     mode: 'flashcard' | 'typed' | 'listening' | 'cloze' | 'quiz',
@@ -250,7 +266,7 @@ export default function App() {
     setLearningStates(getAllLearningStatesV2());
     setStats(getUserStatsV2());
     setUnlockedBadges(checkAndUnlockBadgesV2());
-  };
+  }, []);
 
   // Study Session Completion
   const handleFinishStudySession = (summary: StudySessionSummary) => {
@@ -282,12 +298,20 @@ export default function App() {
     setStats(updatedStats);
   };
 
-  const handleSetWordStatus = (id: string, status: 'learned' | 'learning' | 'unseen') => {
+  const handleSetWordStatus = useCallback((id: string, status: 'learned' | 'learning' | 'unseen') => {
     setUserWordStatus(id, status);
     setLearningStates(getAllLearningStatesV2());
     setStats(getUserStatsV2());
     setUnlockedBadges(checkAndUnlockBadgesV2());
-  };
+  }, []);
+
+  const handleOpenAddToCollection = useCallback((card: WordCard) => {
+    setCardToAddToCollection(card);
+  }, []);
+
+  const handleToggleLearnedFromList = useCallback((id: string) => {
+    handleRecordStudyResult(id, 'good', 'flashcard');
+  }, [handleRecordStudyResult]);
 
   const handleUpdateSettings = (updated: UserSettings) => {
     saveUserSettingsV2(updated);
@@ -368,6 +392,7 @@ export default function App() {
             memberships={memberships}
             customWords={customWords}
             oxfordWords={OXFORD_3000_WORDS}
+            extraWords={OXFORD_5000_EXTRA_WORDS}
             learningStates={learningStates}
             settings={settings}
             stats={stats}
@@ -422,7 +447,7 @@ export default function App() {
               setActiveTab('quiz');
             }}
             onOpenEditModal={(card) => setEditingCard(card)}
-            onOpenAddToCollection={(card) => setCardToAddToCollection(card)}
+            onOpenAddToCollection={handleOpenAddToCollection}
             onOpenAuthModal={() => setIsAuthModalOpen(true)}
             onSetWordStatus={handleSetWordStatus}
           />
@@ -452,12 +477,11 @@ export default function App() {
             learningStates={learningStates}
             selectedLevel={selectedLevel}
             setSelectedLevel={setSelectedLevel}
+            initialStatusFilter={oxfordStatusFilter}
             onToggleFavorite={handleToggleFavorite}
-            onToggleLearned={(id) => {
-              handleRecordStudyResult(id, 'good', 'flashcard');
-            }}
+            onToggleLearned={handleToggleLearnedFromList}
             onSetStatus={handleSetWordStatus}
-            onOpenAddToCollection={(card) => setCardToAddToCollection(card)}
+            onOpenAddToCollection={handleOpenAddToCollection}
             onStartStudy={() => {
               setActiveTab('study');
             }}
@@ -473,7 +497,7 @@ export default function App() {
             learningStates={learningStates}
             onToggleFavorite={handleToggleFavorite}
             onSetStatus={handleSetWordStatus}
-            onOpenAddToCollection={(card) => setCardToAddToCollection(card)}
+            onOpenAddToCollection={handleOpenAddToCollection}
             onLoadedWordsChange={handleExtendedBandLoaded}
           />
         )}
@@ -510,6 +534,12 @@ export default function App() {
             onNavigateToTab={(tab) => setActiveTab(tab as TabType)}
             onSelectLevel={(lvl) => {
               setSelectedLevel(lvl);
+              setOxfordStatusFilter('ALL');
+              setActiveTab('oxford');
+            }}
+            onOpenOxfordStatus={(status) => {
+              setSelectedLevel('ALL');
+              setOxfordStatusFilter(status);
               setActiveTab('oxford');
             }}
           />

@@ -20,8 +20,6 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
 }) => {
   const modalRef = useModalA11y(isOpen, onClose);
 
-  if (!isOpen) return null;
-
   const [word, setWord] = useState(card.word);
   const [partOfSpeech, setPartOfSpeech] = useState(card.partOfSpeech);
   const [turkishMeaning, setTurkishMeaning] = useState(card.turkishMeaning);
@@ -36,6 +34,18 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
           { en: '', tr: '' }
         ]
   );
+
+  /*
+   * Erken çıkış, TÜM hook çağrılarından SONRA gelmelidir.
+   *
+   * Önceki sürümde `if (!isOpen) return null` hook'lardan önceydi: modal
+   * kapalıyken bileşen sıfır hook ile, açıldığında ise altı hook ile
+   * render ediliyordu. React bunu "önceki render'dan daha fazla hook"
+   * olarak görüp bileşeni düşürüyordu (minified React error #310) ve
+   * kullanıcı hata ekranına çarpıyordu. Hook sayısı her render'da aynı
+   * kalmalı; koşullu olan yalnızca çıktı olabilir.
+   */
+  if (!isOpen) return null;
 
   const handleExampleChange = (index: number, field: 'en' | 'tr', value: string) => {
     const updated = [...examples];

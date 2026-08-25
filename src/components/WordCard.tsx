@@ -33,7 +33,7 @@ interface WordCardProps {
   onOpenAddToCollection?: (card: WordCardType) => void;
 }
 
-export const WordCardComponent: React.FC<WordCardProps> = ({
+const WordCardComponentImpl: React.FC<WordCardProps> = ({
   card,
   isFavorite,
   isLearned,
@@ -362,3 +362,18 @@ export const WordCardComponent: React.FC<WordCardProps> = ({
     </div>
   );
 };
+
+/**
+ * Kart bileşeni memoize edilir.
+ *
+ * Listelerde aynı anda onlarca kart durur. Memoizasyon olmadan tek bir favori
+ * dokunuşu ya da tek bir durum değişikliği listedeki BÜTÜN kartları yeniden
+ * render ediyordu; kullanıcı bunu "butona basınca hemen olmuyor, saniyeler
+ * geçiyor" diye görüyordu.
+ *
+ * Bunun işe yaraması için üst bileşenin geçtiği fonksiyonların kimliği de
+ * kararlı olmalı (`useCallback`); yoksa her prop yeni sayılır ve memo hiçbir
+ * şeyi engellemez.
+ */
+export const WordCardComponent = React.memo(WordCardComponentImpl);
+WordCardComponent.displayName = 'WordCardComponent';

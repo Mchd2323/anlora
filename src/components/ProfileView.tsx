@@ -38,6 +38,13 @@ interface ProfileViewProps {
   onUpdateProfile?: (updated: Partial<UserProfile>) => void;
   onNavigateToTab?: (tab: string) => void;
   onSelectLevel?: (level: Level) => void;
+  /**
+   * Oxford listesini belirli bir durum filtresiyle açar.
+   *
+   * Profil "34 öğrendim" diyor ama hangi otuz dört olduğunu göstermiyordu.
+   * Sayı bir kapıdır: dokununca o listeye gidilir.
+   */
+  onOpenOxfordStatus?: (status: 'LEARNED' | 'LEARNING' | 'FAVORITES') => void;
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
@@ -52,7 +59,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onOpenAuthModal,
   onLogout,
   onNavigateToTab,
-  onSelectLevel
+  onSelectLevel,
+  onOpenOxfordStatus
 }) => {
   const [showExportSuccess, setShowExportSuccess] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
@@ -286,7 +294,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         </h3>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="p-4 bg-[#E9F3ED] rounded-xl border border-[#BFD7C8] text-center">
+          <button
+            type="button"
+            onClick={() => onOpenOxfordStatus?.('LEARNED')}
+            className="p-4 bg-[#E9F3ED] rounded-xl border border-[#BFD7C8] text-center transition-colors hover:bg-[#DCEDE3] cursor-pointer"
+          >
             <CheckCircle2 className="w-5 h-5 text-[#4F806A] mx-auto mb-1" />
             <div className="text-2xl font-bold text-[#35654E]">
               {learningSummary.learnedCount}
@@ -294,9 +306,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <div className="text-[10px] font-bold text-[#35654E] uppercase mt-0.5">
               Öğrendim
             </div>
-          </div>
+            <div className="text-[9px] text-[#4F806A] mt-1 font-semibold">Listeyi aç →</div>
+          </button>
 
-          <div className="p-4 bg-[#FBF1DE] rounded-xl border border-[#E7C98F] text-center">
+          <button
+            type="button"
+            onClick={() => onOpenOxfordStatus?.('LEARNING')}
+            className="p-4 bg-[#FBF1DE] rounded-xl border border-[#E7C98F] text-center transition-colors hover:bg-[#F6E7CB] cursor-pointer"
+          >
             <RefreshCw className="w-5 h-5 text-[#B97922] mx-auto mb-1" />
             <div className="text-2xl font-bold text-[#8A5A18]">
               {learningSummary.learningCount}
@@ -304,9 +321,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <div className="text-[10px] font-bold text-[#8A5A18] uppercase mt-0.5">
               Öğreniyorum
             </div>
-          </div>
+            <div className="text-[9px] text-[#B97922] mt-1 font-semibold">Listeyi aç →</div>
+          </button>
 
-          <div className="p-4 bg-[#FAECEA] rounded-xl border border-[#F0CBC7] text-center">
+          <button
+            type="button"
+            onClick={() => onOpenOxfordStatus?.('FAVORITES')}
+            className="p-4 bg-[#FAECEA] rounded-xl border border-[#F0CBC7] text-center transition-colors hover:bg-[#F6DFDC] cursor-pointer"
+          >
             <Heart className="w-5 h-5 text-[#B75D6A] mx-auto mb-1" />
             <div className="text-2xl font-bold text-[#C65D55]">
               {favorites.length}
@@ -314,7 +336,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <div className="text-[10px] font-bold text-[#C65D55] uppercase mt-0.5">
               Favori Kelimem
             </div>
-          </div>
+            <div className="text-[9px] text-[#B75D6A] mt-1 font-semibold">Listeyi aç →</div>
+          </button>
 
           <div className="p-4 bg-[#EEECFA] rounded-xl border border-[#D7D2F4] text-center">
             <BrainCircuit className="w-5 h-5 text-[#4F46A5] mx-auto mb-1" />
@@ -328,12 +351,12 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         </div>
       </div>
 
-      {/* 3. Oxford 3000 Seviye İlerlemesi */}
+      {/* 3. Oxford 5000 Seviye İlerlemesi */}
       <div className="bg-[#FFFFFF] rounded-2xl p-6 sm:p-7 border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold text-[#1E2430] flex items-center gap-1.5">
             <BookOpen className="w-4 h-4 text-[#4F46A5]" />
-            <span>Oxford 3000 Seviye Dağılımı</span>
+            <span>Oxford 5000 Seviye Dağılımı</span>
           </h3>
 
           {onNavigateToTab && (
@@ -341,7 +364,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               onClick={() => onNavigateToTab('oxford')}
               className="text-xs font-bold text-[#4F46A5] hover:text-[#433B91] cursor-pointer"
             >
-              Oxford 3000'e Git →
+              Oxford 5000'e Git →
             </button>
           )}
         </div>

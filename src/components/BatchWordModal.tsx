@@ -43,14 +43,24 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
 }) => {
   const modalRef = useModalA11y(isOpen, onClose);
 
-  if (!isOpen) return null;
-
   const [rawInput, setRawInput] = useState('');
   const [analyzedList, setAnalyzedList] = useState<AnalyzedToken[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [step, setStep] = useState<'input' | 'review'>('input');
   const [progressMsg, setProgressMsg] = useState('');
+
+  /*
+   * Erken çıkış, TÜM hook çağrılarından SONRA gelmelidir.
+   *
+   * Önceki sürümde `if (!isOpen) return null` hook'lardan önceydi: modal
+   * kapalıyken bileşen sıfır hook ile, açıldığında ise altı hook ile
+   * render ediliyordu. React bunu "önceki render'dan daha fazla hook"
+   * olarak görüp bileşeni düşürüyordu (minified React error #310) ve
+   * kullanıcı hata ekranına çarpıyordu. Hook sayısı her render'da aynı
+   * kalmalı; koşullu olan yalnızca çıktı olabilir.
+   */
+  if (!isOpen) return null;
 
   const handleAnalyze = () => {
     if (!rawInput.trim()) return;
