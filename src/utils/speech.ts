@@ -58,6 +58,43 @@ export function isNativePlatform(): Promise<boolean> {
   return nativeCheck;
 }
 
+/**
+ * Bir sözü zaman aşımına bağlar.
+ *
+ * Capacitor köprüsünden dönen sözler her zaman çözülmez. Yerel eklenti
+ * `speak()` çağrısını ancak KONUŞMA BİTTİĞİNDE çözüyor; motor sessizce
+ * başarısız olursa ne bitiş ne hata bildirimi geliyor ve söz sonsuza kadar
+ * asılı kalıyor. Arayüzde bunun karşılığı dönmeye devam eden bir simge ve
+ * hiç gelmeyen sestir. Bekleyen her köprü çağrısı bu sarmalayıcıdan geçer.
+ */
+function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return new Promise<T>(resolve => {
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      resolve(fallback);
+    }, ms);
+
+    promise
+      .then(value => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        resolve(value);
+      })
+      .catch(() => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        resolve(fallback);
+      });
+  });
+}
+
+/** Köprü çağrılarının en fazla bekleyeceği süre. */
+const BRIDGE_TIMEOUT_MS = 2500;
+
 // --- Yerel motor (Android) -------------------------------------------------
 
 type NativeTts = typeof import('@capacitor-community/text-to-speech').TextToSpeech;
@@ -81,26 +118,44 @@ async function speakNative(text: string, options: SpeechOptions): Promise<Speech
   const tts = await loadNativeTts();
   if (!tts) return { ok: false, reason: 'unsupported' };
 
-  try {
-    // Önceki okumayı kes; kullanıcı arka arkaya kartlara basınca sesler
-    // üst üste binmesin.
-    await tts.stop().catch(() => undefined);
-    await tts.speak({
+  const lang = options.lang || 'en-US';
+
+  /*
+   * ÖNCE SOR, SONRA OKU.
+   *
+   * `isLanguageSupported` hemen yanıt veren bir sorgudur; okumanın mümkün
+   * olup olmadığını `speak()` beklemeden öğreniriz. Köprü hiç yanıt vermezse
+   * zaman aşımı `null` döndürür ve tarayıcı motoruna düşeriz.
+   */
+  const supported = await withTimeout<{ supported: boolean } | null>(
+    tts.isLanguageSupported({ lang }),
+    BRIDGE_TIMEOUT_MS,
+    null
+  );
+
+  if (supported === null) return { ok: false, reason: 'error' };
+  if (!supported.supported) return { ok: false, reason: 'no-voice' };
+
+  /*
+   * OKUMANIN BİTMESİ BEKLENMEZ.
+   *
+   * Eklenti `speak()` sözünü ancak konuşma bittiğinde çözüyor. Düğmenin işi
+   * ise okumayı BAŞLATMAK; bitişini beklemek, uzun cümlelerde arayüzü boş
+   * yere kilitler, motor sessizce düşerse de sonsuza kadar bekletir.
+   * Çağrı ateşlenir, hatası yutulur, sonuç hemen döner.
+   */
+  void tts.stop().catch(() => undefined);
+  void tts
+    .speak({
       text,
-      lang: options.lang || 'en-US',
+      lang,
       rate: options.rate ?? 0.9,
       pitch: options.pitch ?? 1.0,
       category: 'ambient'
-    });
-    return { ok: true };
-  } catch (error) {
-    // Cihazda İngilizce dil paketi kurulu değilse motor burada hata verir.
-    const message = String((error as Error)?.message || '').toLowerCase();
-    if (message.includes('lang') || message.includes('not supported')) {
-      return { ok: false, reason: 'no-voice' };
-    }
-    return { ok: false, reason: 'error' };
-  }
+    })
+    .catch(() => undefined);
+
+  return { ok: true };
 }
 
 // --- Tarayıcı motoru -------------------------------------------------------
@@ -191,14 +246,22 @@ async function speakWeb(text: string, options: SpeechOptions): Promise<SpeechRes
       resolve(result);
     };
 
-    // Sessiz başarısızlığı yakala: motor hiç başlamazsa ne `onend` ne
-    // `onerror` gelir, kullanıcı da bozuk bir düğmeye bakakalır.
+    /*
+     * Sessiz başarısızlığı yakala: motor hiç başlamazsa ne `onend` ne
+     * `onerror` gelir, kullanıcı da bozuk bir düğmeye bakakalır.
+     *
+     * Süre dolduğunda konuşma İPTAL EDİLMEZ. Önceki sürüm iptal ediyordu;
+     * yavaş bir cihazda motor 1,5 saniyeden sonra başlıyorsa çalışan bir
+     * seslendirmeyi kendi elimizle susturmuş oluyorduk. Artık yalnızca
+     * "başlamış görünmüyor" diye bildiriliyor; ses sonradan gelirse gelsin.
+     */
     const silenceTimer = window.setTimeout(() => {
-      window.speechSynthesis.cancel();
       finish({ ok: false, reason: 'no-voice' });
-    }, 1500);
+    }, 3000);
 
-    utterance.onstart = () => window.clearTimeout(silenceTimer);
+    // Başarı ölçütü BAŞLAMAKTIR, bitmek değil: düğmenin işi okumayı
+    // başlatmak. Bitişi beklemek uzun cümlelerde arayüzü boş yere bekletir.
+    utterance.onstart = () => finish({ ok: true });
     utterance.onend = () => finish({ ok: true });
     utterance.onerror = () => finish({ ok: false, reason: 'error' });
 
@@ -286,12 +349,12 @@ export async function openTtsInstall(): Promise<boolean> {
   if (!(await isNativePlatform())) return false;
   const tts = await loadNativeTts();
   if (!tts) return false;
-  try {
-    await tts.openInstall();
-    return true;
-  } catch {
-    return false;
-  }
+  const ok = await withTimeout<boolean>(
+    tts.openInstall().then(() => true),
+    BRIDGE_TIMEOUT_MS,
+    false
+  );
+  return ok;
 }
 
 export interface SpeechDiagnostics {
@@ -317,18 +380,35 @@ export async function describeSpeechSupport(): Promise<SpeechDiagnostics> {
     if (!tts) {
       return { engine: 'none', hasEnglish: false, englishVoices: [], isNative: true };
     }
-    try {
-      const { languages } = await tts.getSupportedLanguages();
-      const english = languages.filter(lang => lang.toLowerCase().startsWith('en'));
+    const result = await withTimeout<{ languages: string[] } | null>(
+      tts.getSupportedLanguages(),
+      BRIDGE_TIMEOUT_MS,
+      null
+    );
+
+    if (result === null) {
+      /*
+       * Köprü yanıt vermedi. Bu bir "cihazda ses yok" durumu değil, eklentinin
+       * yanıtsız kalmasıdır; tarayıcı motoru hâlâ çalışıyor olabilir, o yüzden
+       * rapor ona göre verilir.
+       */
+      const voices = await loadVoices();
+      const english = voices.filter(voice => voice.lang.startsWith('en'));
       return {
-        engine: 'native',
+        engine: english.length > 0 ? 'web' : 'none',
         hasEnglish: english.length > 0,
-        englishVoices: english,
+        englishVoices: english.map(voice => `${voice.name} (${voice.lang})`),
         isNative: true,
       };
-    } catch {
-      return { engine: 'native', hasEnglish: false, englishVoices: [], isNative: true };
     }
+
+    const english = result.languages.filter(lang => lang.toLowerCase().startsWith('en'));
+    return {
+      engine: 'native',
+      hasEnglish: english.length > 0,
+      englishVoices: english,
+      isNative: true,
+    };
   }
 
   const voices = await loadVoices();
@@ -348,12 +428,15 @@ export async function hasEnglishVoice(): Promise<boolean> {
   if (await isNativePlatform()) {
     const tts = await loadNativeTts();
     if (!tts) return false;
-    try {
-      const { languages } = await tts.getSupportedLanguages();
-      return languages.some(l => l.toLowerCase().startsWith('en'));
-    } catch {
-      return false;
-    }
+    const result = await withTimeout<{ languages: string[] } | null>(
+      tts.getSupportedLanguages(),
+      BRIDGE_TIMEOUT_MS,
+      null
+    );
+    if (result) return result.languages.some(l => l.toLowerCase().startsWith('en'));
+    // Köprü sustuysa tarayıcı motoruna bak.
+    const voices = await loadVoices();
+    return voices.some(v => v.lang.startsWith('en'));
   }
 
   const voices = await loadVoices();
@@ -363,7 +446,7 @@ export async function hasEnglishVoice(): Promise<boolean> {
 export async function stopSpeech(): Promise<void> {
   if (await isNativePlatform()) {
     const tts = await loadNativeTts();
-    await tts?.stop().catch(() => undefined);
+    if (tts) await withTimeout(tts.stop(), BRIDGE_TIMEOUT_MS, undefined);
     return;
   }
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) {

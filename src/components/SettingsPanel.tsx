@@ -241,10 +241,11 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
               </>
             ) : (
               <>
-                <b>İngilizce ses paketi kurulu değil.</b> Cihazda konuşma
-                motoru var ama İngilizce verisi yok. Yukarıdaki düğmeyle
-                sistem kurulum ekranını açabilir ya da Ayarlar → Diller ve
-                giriş → Metin okuma yolundan ekleyebilirsin.
+                <b>İngilizce ses paketi bulunamadı.</b> Cihazda konuşma motoru
+                var ama İngilizce verisi yok.{' '}
+                {diagnostics.isNative
+                  ? 'Yukarıdaki düğmeyle sistem kurulum ekranını açabilir ya da Ayarlar → Diller ve giriş → Metin okuma yolundan ekleyebilirsin.'
+                  : 'Tarayıcında İngilizce bir ses yüklü değil; uygulamayı telefonuna kurduğunda sistemin kendi sesi kullanılır.'}
               </>
             )}
           </div>
