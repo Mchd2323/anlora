@@ -16,7 +16,35 @@ import { useEffect, useRef } from 'react';
  *
  * Ayrıca modal açıkken arka planın kaydırılmasını engeller; mobilde modalin
  * altındaki sayfanın kayması yaygın ve rahatsız edici bir sorundur.
+ *
+ * KİLİT SAYAÇLA TUTULUR. Önceki sürüm her modal için `body.style.overflow`
+ * değerini açılışta okuyup kapanışta geri yazıyordu. İki modal üst üste
+ * açıldığında (örneğin sete ekleme modalinin üstünde uyarı penceresi) ikincisi
+ * "önceki değer" olarak 'hidden' kaydediyor, kapanış sırası tersine döndüğünde
+ * de gövdeye kalıcı olarak 'hidden' yazıyordu. Sonuç: modallerin hepsi
+ * kapandıktan sonra uygulama artık hiç aşağı yukarı kaydırılamıyordu.
+ * Sayaç, kilidi yalnızca SON modal kapandığında çözer.
  */
+
+/** Kaydırma kilidini tutan açık modal sayısı. */
+let scrollLockCount = 0;
+/** Kilit ilk kez alındığında gövdenin gerçek `overflow` değeri. */
+let overflowBeforeLock = '';
+
+function lockBodyScroll(): void {
+  if (scrollLockCount === 0) {
+    overflowBeforeLock = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+  }
+  scrollLockCount++;
+}
+
+function unlockBodyScroll(): void {
+  scrollLockCount = Math.max(0, scrollLockCount - 1);
+  if (scrollLockCount === 0) {
+    document.body.style.overflow = overflowBeforeLock;
+  }
+}
 export function useModalA11y(isOpen: boolean, onClose: () => void) {
   const containerRef = useRef<HTMLDivElement>(null);
   const previouslyFocused = useRef<HTMLElement | null>(null);
@@ -83,12 +111,11 @@ export function useModalA11y(isOpen: boolean, onClose: () => void) {
 
     document.addEventListener('keydown', handleKeyDown, true);
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    lockBodyScroll();
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown, true);
-      document.body.style.overflow = previousOverflow;
+      unlockBodyScroll();
       // Odağı modali açan öğeye geri ver.
       previouslyFocused.current?.focus?.();
     };

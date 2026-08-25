@@ -22,6 +22,7 @@ import { CEFRBadge } from '../ui/CEFRBadge';
 import { WordStatusActions } from '../ui/WordStatusActions';
 import { getUserWordStatus } from '../../utils/storageV2';
 import { useSwipeDeck } from '../../hooks/useSwipeDeck';
+import { readJSON, writeJSON } from '../../utils/safeStorage';
 import { formatPhonetic } from '../../utils/phonetic';
 
 export interface StudyFlashcardProps {
@@ -37,9 +38,40 @@ export interface StudyFlashcardProps {
   onDeleteCard?: (id: string) => void;
   onOpenAddToCollection?: (card: WordCard) => void;
   isCustomDeck?: boolean;
+  /**
+   * Kaldığı yerin saklandığı anahtar. Verilmezse `title` kullanılır; aynı
+   * desteyi aynı yerden açmayı sağlayacak kadar kararlı bir dize olmalı.
+   */
+  deckKey?: string;
 }
 
 type FilterMode = 'ALL' | 'LEARNED' | 'LEARNING';
+
+/**
+ * Kaldığı yer.
+ *
+ * Kullanıcı "Kartlarla Çalış"a ikinci kez bastığında listenin başına dönüyor,
+ * ilerlediği yüzlerce kartı yeniden geçmek zorunda kalıyordu. Kaldığı yer
+ * SIRA NUMARASI olarak değil KART KİMLİĞİ olarak saklanır: liste filtreye ya
+ * da yeni içeriğe göre değişse bile numara kayar, kimlik kaymaz. Kart artık
+ * listede yoksa baştan başlanır.
+ */
+const RESUME_KEY = 'anlora.flashcardResume.v1';
+
+type ResumeMap = Record<string, string>;
+
+function readResumeCardId(deckKey: string): string | undefined {
+  if (!deckKey) return undefined;
+  return readJSON<ResumeMap>(RESUME_KEY, {})[deckKey];
+}
+
+function writeResumeCardId(deckKey: string, cardId: string): void {
+  if (!deckKey) return;
+  const map = readJSON<ResumeMap>(RESUME_KEY, {});
+  if (map[deckKey] === cardId) return;
+  map[deckKey] = cardId;
+  writeJSON(RESUME_KEY, map);
+}
 
 /** Sürükleme sırasında karta verilen en fazla eğim. */
 const MAX_TILT_DEG = 7;
@@ -58,10 +90,19 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
   onOpenEditCard,
   onDeleteCard,
   onOpenAddToCollection,
-  isCustomDeck = false
+  isCustomDeck = false,
+  deckKey
 }) => {
+  const resumeKey = deckKey || title;
   const [filterMode, setFilterMode] = useState<FilterMode>('ALL');
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // Kaldığı kart, ilk render'da bulunur; sonradan bir efektle atlamak
+  // kullanıcıya önce ilk kartı, sonra bir sıçrama gösterirdi.
+  const [currentIndex, setCurrentIndex] = useState(() => {
+    const savedId = readResumeCardId(resumeKey);
+    if (!savedId) return 0;
+    const index = words.findIndex(word => word.id === savedId);
+    return index >= 0 ? index : 0;
+  });
   const [isMeaningRevealed, setIsMeaningRevealed] = useState(false);
   const [isExamplesExpanded, setIsExamplesExpanded] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -93,7 +134,10 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
     setIsMeaningRevealed(false);
     setIsExamplesExpanded(false);
     setIsMenuOpen(false);
-  }, [currentCard?.id]);
+    if (currentCard?.id) {
+      writeResumeCardId(resumeKey, currentCard.id);
+    }
+  }, [currentCard?.id, resumeKey]);
 
   const handleNextCard = useCallback(() => {
     setCurrentIndex((prev) => (prev < activeWordList.length - 1 ? prev + 1 : prev));

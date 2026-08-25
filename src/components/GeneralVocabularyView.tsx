@@ -188,6 +188,7 @@ export const GeneralVocabularyView: React.FC<GeneralVocabularyViewProps> = ({
       <StudyFlashcard
         title={`Genel Dağarcık — ${activeDescriptor.label}`}
         sourceContextName={`Genel Dağarcık ${activeDescriptor.label}`}
+        deckKey={`extended:band-${activeDescriptor.band}`}
         words={filteredWords.length > 0 ? [...filteredWords] : [...bandWords]}
         favorites={favorites}
         learningStates={learningStates}

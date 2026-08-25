@@ -137,6 +137,15 @@ export interface Collection {
   color?: string; // Tailwind color class e.g., 'indigo', 'amber', 'emerald', 'rose', 'sky', 'violet'
   isPinned?: boolean;
   isArchived?: boolean;
+  /**
+   * Setteki kelimelerin sırası.
+   *
+   * 'added' (varsayılan): sete eklendiği sıra korunur — kullanıcı kelimeyi
+   * nereye koyduğunu hatırlar. 'alphabetical': A–Z sıralanır; uzun setlerde
+   * aranan kelimeyi gözle bulmayı kolaylaştırır. Tercih set başınadır, çünkü
+   * "diziden topladıklarım" ile "sınav kelimeleri" farklı düzen ister.
+   */
+  sortMode?: 'added' | 'alphabetical';
   createdAt: string;
   updatedAt: string;
 }

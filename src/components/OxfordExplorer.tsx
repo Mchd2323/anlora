@@ -211,6 +211,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
       <StudyFlashcard
         title={`Oxford 5000${levelSuffix}`}
         sourceContextName={`Oxford 5000${levelSuffix}`}
+        deckKey={`oxford:${selectedLevel}`}
         words={filteredWords.length > 0 ? filteredWords : levelPool.map(item => item.card)}
         favorites={favorites}
         learningStates={learningStates}

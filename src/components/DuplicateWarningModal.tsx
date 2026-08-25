@@ -36,9 +36,9 @@ export const DuplicateWarningModal: React.FC<DuplicateWarningModalProps> = ({
       aria-modal="true"
       aria-labelledby="anlora-duplicate-title"
       ref={modalRef}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn">
+      className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
       <div
-        className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full border border-[#E4E1D9] shadow-xl overflow-hidden"
+        className="bg-[#FFFFFF] rounded-2xl my-auto max-w-lg w-full border border-[#E4E1D9] shadow-xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -72,7 +72,8 @@ export const DuplicateWarningModal: React.FC<DuplicateWarningModalProps> = ({
                   Bu kelime zaten <span className="underline">{duplicateInfo.matchedCollectionName}</span> setinde mevcut!
                 </p>
                 <p className="text-[11px] text-[#8A5A18]">
-                  Mevcut kartı kullanabilir veya farklı bir anlam için yeni kart oluşturabilirsin.
+                  Yanlışlıkla eklemeyesin diye soruyoruz. Farklı bir anlamı
+                  için ikinci bir kart açmak istersen aşağıdan devam edebilirsin.
                 </p>
               </div>
 
@@ -188,13 +189,21 @@ export const DuplicateWarningModal: React.FC<DuplicateWarningModalProps> = ({
               </button>
             )}
 
+            {/*
+              "Yine de oluştur" her durumda durur.
+              
+              Uyarı kazayla ikinci kez eklemeyi durdurmak içindir, kullanıcıyı
+              engellemek için değil: aynı kelimenin ayrı bir anlamı (bank =
+              banka / nehir kıyısı) meşru biçimde ikinci bir kart ister. Karar
+              kullanıcınındır; uygulamanın işi ona durumu söylemektir.
+            */}
             {onForceCreateNew && (
               <button
                 onClick={onForceCreateNew}
                 className="w-full py-2 px-3 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#1E2430] text-xs font-semibold rounded-xl border border-[#E4E1D9] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>Farklı Anlam / Yeni Kart Olarak Oluştur</span>
+                <span>Farklı anlam için yine de ekle</span>
               </button>
             )}
 

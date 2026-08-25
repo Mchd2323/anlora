@@ -27,7 +27,6 @@ import {
   CheckCircle2,
   RotateCw,
   AlertCircle,
-  PenTool,
   Volume2
 } from 'lucide-react';
 import { calculateCollectionProgress } from '../utils/srsEngine';
@@ -112,13 +111,23 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   // New Word Addition Flow State
   const [wordInput, setWordInput] = useState('');
   const [contextInput, setContextInput] = useState('');
-  const [creationMode, setCreationMode] = useState<'CHOICE' | 'AI_GENERATING' | 'AI_PREVIEW' | 'MANUAL'>('CHOICE');
+  /*
+   * Kelime ekleme akışı.
+   *
+   * Önceki sürümde ilk ekran bir seçim ekranıydı: "AI ile hazırla" ya da
+   * "kendim hazırlayacağım". Kullanıcı kelimeyi zaten yazmışken bir de yöntem
+   * seçmek zorunda kalıyor, elle eklemek iki adım sürüyordu. Artık ilk ekran
+   * doğrudan formun kendisidir; yapay zekâ, formun altındaki tek alternatif
+   * olarak durur.
+   */
+  const [creationMode, setCreationMode] = useState<'FORM' | 'AI_GENERATING' | 'AI_PREVIEW'>('FORM');
   const [aiError, setAiError] = useState<string | null>(null);
   const [generatedPreviewCard, setGeneratedPreviewCard] = useState<WordCard | null>(null);
 
   // Manual Form State
   const [manualTurkishMeaning, setManualTurkishMeaning] = useState('');
-  const [manualPartOfSpeech, setManualPartOfSpeech] = useState('n.');
+  /** Sözcük türü isteğe bağlıdır; boş dize "belirtilmedi" demektir. */
+  const [manualPartOfSpeech, setManualPartOfSpeech] = useState('');
   const [manualExamples, setManualExamples] = useState<{ en: string; tr: string }[]>([
     { en: '', tr: '' },
     { en: '', tr: '' }
@@ -127,6 +136,15 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   // Duplicate Resolution State
   const [duplicateResult, setDuplicateResult] = useState<DuplicateCheckResult | null>(null);
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  /**
+   * Tekrar uyarısını hangi akış tetikledi?
+   *
+   * "Yine de yeni kart oluştur" seçeneği önceden her durumda yapay zekâ
+   * üretimini başlatıyordu; kullanıcı formu elle doldurmuş olsa bile yazdığı
+   * bilgiler atılıp AI çalışıyordu. Kaynağı bilmek, kullanıcıyı bıraktığı
+   * yerden devam ettirmeyi mümkün kılar.
+   */
+  const [duplicateOrigin, setDuplicateOrigin] = useState<'FORM' | 'AI'>('FORM');
 
   // Deck Form State
   const [newDeckName, setNewDeckName] = useState('');
@@ -147,9 +165,16 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     customWords.forEach((w) => allWordsMap.set(w.id, w));
     oxfordWords.forEach((w) => allWordsMap.set(w.id, w));
 
-    return deckWordIds
+    const cards = deckWordIds
       .map((id) => allWordsMap.get(id))
       .filter((w): w is WordCard => !!w);
+
+    if (activeDeck.sortMode === 'alphabetical') {
+      // Türkçe yerel ayarıyla karşılaştırılır; 'ı' ve 'i' doğru sırada
+      // dursun diye. Kaynak dizi kopyalanır, üyelik sırası bozulmaz.
+      return [...cards].sort((a, b) => a.word.localeCompare(b.word, 'tr'));
+    }
+    return cards;
   }, [activeDeck, memberships, customWords, oxfordWords]);
 
   // Filtered words in the active deck
@@ -168,11 +193,11 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     setLastAddedWord(null);
     setWordInput('');
     setContextInput('');
-    setCreationMode('CHOICE');
+    setCreationMode('FORM');
     setAiError(null);
     setGeneratedPreviewCard(null);
     setManualTurkishMeaning('');
-    setManualPartOfSpeech('n.');
+    setManualPartOfSpeech('');
     setManualExamples([
       { en: '', tr: '' },
       { en: '', tr: '' }
@@ -196,6 +221,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
       oxfordWords
     });
     if (check.type !== 'NONE') {
+      setDuplicateOrigin('AI');
       setDuplicateResult(check);
       setShowDuplicateModal(true);
     } else {
@@ -247,7 +273,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
         err.message ||
           'Yapay zekâ şu anda kelime bilgilerini oluşturamadı. Tekrar deneyebilir veya kartı kendiniz doldurabilirsiniz.'
       );
-      setCreationMode('CHOICE');
+      setCreationMode('FORM');
     }
   };
 
@@ -258,9 +284,14 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     resetAddWordModal();
   };
 
-  // Save Manual Word Card
-  const handleSaveManualCard = (e: React.FormEvent, forceOverride: boolean = false) => {
-    e.preventDefault();
+  /**
+   * Elle doldurulan kartı kaydeder.
+   *
+   * Form gönderiminden de, tekrar uyarısındaki "yine de oluştur"dan da
+   * çağrılabilsin diye olaydan ayrıldı; ikinci çağrıda ortada bir form olayı
+   * yoktur.
+   */
+  const saveManualCard = (forceOverride: boolean = false) => {
     if (!wordInput.trim() || !manualTurkishMeaning.trim() || !activeDeck) return;
 
     if (!forceOverride) {
@@ -273,6 +304,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
         oxfordWords
       });
       if (check.type !== 'NONE') {
+        setDuplicateOrigin('FORM');
         setDuplicateResult(check);
         setShowDuplicateModal(true);
         return;
@@ -309,12 +341,18 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     setDuplicateResult(null);
   };
 
+  const handleSaveManualCard = (e: React.FormEvent) => {
+    e.preventDefault();
+    saveManualCard(false);
+  };
+
   // If user is studying this set in Flashcard Study Mode
   if (isStudyingFlashcards && activeDeck) {
     return (
       <StudyFlashcard
         title={activeDeck.name}
         sourceContextName={activeDeck.name}
+        deckKey={`collection:${activeDeck.id}`}
         words={activeDeckWords}
         favorites={favorites}
         learningStates={learningStates}
@@ -678,8 +716,8 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
           aria-modal="true"
           aria-labelledby="anlora-create-set-title"
           ref={createModalRef}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-md w-full border border-[#E4E1D9] shadow-xl p-6 space-y-4">
+          className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
+          <div className="bg-[#FFFFFF] rounded-2xl my-auto max-w-md w-full border border-[#E4E1D9] shadow-xl p-6 space-y-4">
             <h3 id="anlora-create-set-title" className="text-base font-bold text-[#1E2430] flex items-center gap-2">
               <Layers className="w-4 h-4 text-[#4F46A5]" />
               Yeni Kelime Seti Oluştur
@@ -749,8 +787,8 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
       {/* MODAL: SETİ DÜZENLE */}
       {editingDeck && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-md w-full border border-[#E4E1D9] shadow-xl p-6 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
+          <div className="bg-[#FFFFFF] rounded-2xl my-auto max-w-md w-full border border-[#E4E1D9] shadow-xl p-6 space-y-4">
             <h3 className="text-base font-bold text-[#1E2430] flex items-center gap-2">
               <Edit2 className="w-4 h-4 text-[#4F46A5]" />
               Seti Düzenle
@@ -788,6 +826,28 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   }
                   className="w-full px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl text-[#1E2430]"
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#687080] uppercase mb-1">
+                  Kelime Sırası
+                </label>
+                <select
+                  value={editingDeck.sortMode || 'added'}
+                  onChange={(e) =>
+                    setEditingDeck({
+                      ...editingDeck,
+                      sortMode: e.target.value as 'added' | 'alphabetical'
+                    })
+                  }
+                  className="w-full px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl font-semibold text-[#1E2430]"
+                >
+                  <option value="added">Eklediğim sıraya göre</option>
+                  <option value="alphabetical">Alfabetik (A–Z)</option>
+                </select>
+                <p className="text-[11px] text-[#8E95A2] mt-1">
+                  Sıra yalnızca görünümü değiştirir; kelimeler silinmez.
+                </p>
               </div>
 
               <div className="flex items-center gap-2 pt-1">
@@ -830,8 +890,8 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
           aria-modal="true"
           aria-labelledby="anlora-add-word-title"
           ref={addWordModalRef}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full border border-[#E4E1D9] shadow-xl p-6 sm:p-7 space-y-5 my-8">
+          className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
+          <div className="bg-[#FFFFFF] rounded-2xl my-auto max-w-lg w-full border border-[#E4E1D9] shadow-xl p-6 sm:p-7 space-y-5 my-8">
             <div className="flex items-center justify-between">
               <h3 id="anlora-add-word-title" className="text-lg font-bold text-[#1E2430] flex items-center gap-2">
                 <Plus className="w-4 h-4 text-[#4F46A5]" />
@@ -851,9 +911,16 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               </div>
             )}
 
-            {/* ADIM 1: KELİME VE BAĞLAM GİRİŞİ */}
-            {creationMode === 'CHOICE' && (
-              <div className="space-y-4">
+            {/*
+              ADIM 1: KELİMENİN KENDİSİ.
+
+              Zorunlu olan yalnızca İngilizce kelime ve Türkçe anlamı. Sözcük
+              türü isteğe bağlıdır: kullanıcı "ne olduğundan emin değilim"
+              diyebilmeli, uydurma bir tür seçmek zorunda kalmamalı. Bağlam
+              kutusu da isteğe bağlıdır.
+            */}
+            {creationMode === 'FORM' && (
+              <form onSubmit={handleSaveManualCard} className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-[#687080] uppercase mb-1">
                     İngilizce Kelime <span className="text-[#C65D55]">*</span>
@@ -871,111 +938,63 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
                 <div>
                   <label className="block text-xs font-bold text-[#687080] uppercase mb-1">
-                    Bu kelimeyi gördüğün cümle (İsteğe Bağlı Bağlam)
+                    Türkçe Anlamı <span className="text-[#C65D55]">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={manualTurkishMeaning}
+                    onChange={(e) => setManualTurkishMeaning(e.target.value)}
+                    placeholder="Örn: isteksiz, gönülsüz"
+                    required
+                    className="w-full px-3.5 py-2.5 text-sm bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:outline-none focus:border-[#4F46A5] font-bold text-[#1E2430]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#687080] uppercase mb-1">
+                    Kelime Türü <span className="font-semibold normal-case text-[#8E95A2]">(isteğe bağlı)</span>
+                  </label>
+                  <select
+                    value={manualPartOfSpeech}
+                    onChange={(e) => setManualPartOfSpeech(e.target.value)}
+                    className="w-full px-3.5 py-2.5 text-sm bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:outline-none focus:border-[#4F46A5] font-semibold text-[#1E2430]"
+                  >
+                    <option value="">Boş bırak / Bilmiyorum</option>
+                    <option value="n.">İsim (n.)</option>
+                    <option value="v.">Fiil (v.)</option>
+                    <option value="adj.">Sıfat (adj.)</option>
+                    <option value="adv.">Zarf (adv.)</option>
+                    <option value="prep.">Edat (prep.)</option>
+                    <option value="conj.">Bağlaç (conj.)</option>
+                    <option value="phrase">Kalıp (phrase)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#687080] uppercase mb-1">
+                    Bağlam ya da Not{' '}
+                    <span className="font-semibold normal-case text-[#8E95A2]">(isteğe bağlı)</span>
                   </label>
                   <textarea
                     value={contextInput}
                     onChange={(e) => setContextInput(e.target.value)}
-                    placeholder="Örn: She was reluctant to leave the party early."
+                    placeholder="Kelimeyi gördüğün cümle ya da kendi notun..."
                     rows={2}
                     className="w-full px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:outline-none italic text-[#1E2430]"
                   />
                 </div>
 
-                {/* AI Error Notification */}
+                {/* AI hata bildirimi */}
                 {aiError && (
-                  <div className="p-3 bg-[#FAECEA] rounded-xl border border-[#F0CBC7] text-xs space-y-1.5">
+                  <div className="p-3 bg-[#FAECEA] rounded-xl border border-[#F0CBC7] text-xs">
                     <div className="flex items-start gap-2 text-[#C65D55] font-semibold">
                       <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                       <span>{aiError}</span>
                     </div>
-                    <div className="flex items-center gap-2 pt-1">
-                      <button
-                        onClick={handleExecuteAiGeneration}
-                        className="px-3 py-1 bg-[#C65D55] text-white rounded-lg text-xs font-semibold cursor-pointer"
-                      >
-                        Tekrar Dene
-                      </button>
-                      <button
-                        onClick={() => {
-                          setAiError(null);
-                          setCreationMode('MANUAL');
-                        }}
-                        className="px-3 py-1 bg-white text-[#1E2430] border border-[#E4E1D9] rounded-lg text-xs font-semibold cursor-pointer"
-                      >
-                        Kendim Yazacağım
-                      </button>
-                    </div>
                   </div>
                 )}
 
-                {/* 2 NET SEÇENEK: AI vs MANUEL */}
-                <div className="space-y-2.5 pt-1">
-                  <div className="text-[11px] font-bold text-[#8E95A2] uppercase tracking-wider">
-                    Nasıl hazırlamak istersin?
-                  </div>
-
-                  {/* 1. SEÇENEK: AI İLE HAZIRLA */}
-                  <div
-                    onClick={handleCheckAndProceedWithAi}
-                    className={`p-4 rounded-xl border cursor-pointer transition-all ${
-                      wordInput.trim()
-                        ? 'border-[#D7D2F4] bg-[#EEECFA]/70 hover:bg-[#EEECFA]'
-                        : 'border-[#E4E1D9] bg-[#F8F7F3] opacity-60'
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-[#4F46A5] text-white flex items-center justify-center shrink-0">
-                        <Sparkles className="w-4 h-4" />
-                      </div>
-                      <div className="space-y-0.5">
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-xs font-bold text-[#1E2430]">
-                            ✨ Anlora AI ile hazırla
-                          </h4>
-                          <span className="text-[10px] font-bold px-1.5 py-0.2 bg-[#4F46A5] text-white rounded-md">
-                            Önerilen
-                          </span>
-                        </div>
-                        <p className="text-xs text-[#687080] leading-relaxed">
-                          Türkçe anlamları, kelime türlerini ve doğal örnekleri otomatik hazırlasın.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 2. SEÇENEK: KENDİM HAZIRLAYACAĞIM */}
-                  <div
-                    onClick={() => {
-                      if (!wordInput.trim()) {
-                        alert('Lütfen önce bir İngilizce kelime yazın.');
-                        return;
-                      }
-                      setCreationMode('MANUAL');
-                    }}
-                    className={`p-4 rounded-xl border cursor-pointer transition-all ${
-                      wordInput.trim()
-                        ? 'border-[#E4E1D9] hover:border-[#D5D0C5] bg-[#FFFFFF]'
-                        : 'border-[#E4E1D9] bg-[#F8F7F3] opacity-60'
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-[#F1EFE8] text-[#1E2430] flex items-center justify-center shrink-0">
-                        <PenTool className="w-4 h-4" />
-                      </div>
-                      <div className="space-y-0.5">
-                        <h4 className="text-xs font-bold text-[#1E2430]">
-                          ✍️ Kendim hazırlayacağım
-                        </h4>
-                        <p className="text-xs text-[#687080] leading-relaxed">
-                          Türkçe anlamı ve kart bilgilerini kendin yaz.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-end pt-2">
+                <div className="flex justify-end gap-2 pt-1">
                   <button
                     type="button"
                     onClick={resetAddWordModal}
@@ -983,8 +1002,50 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   >
                     Kapat
                   </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2.5 bg-[#4F46A5] hover:bg-[#433B91] text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Check className="w-4 h-4" />
+                    <span>Kartı Kaydet</span>
+                  </button>
                 </div>
-              </div>
+
+                {/*
+                  Tek alternatif: yapay zekâ. Formun altında durur, çünkü asıl
+                  yol kullanıcının kendi girdisidir; yapay zekâ yardımcıdır.
+                */}
+                <div className="pt-3 border-t border-[#EFECE6] space-y-2">
+                  <div className="text-[11px] font-bold text-[#8E95A2] uppercase tracking-wider">
+                    Yazmak istemiyorsan
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCheckAndProceedWithAi}
+                    disabled={!wordInput.trim()}
+                    className={`w-full p-4 rounded-xl border text-left transition-all ${
+                      wordInput.trim()
+                        ? 'border-[#D7D2F4] bg-[#EEECFA]/70 hover:bg-[#EEECFA] cursor-pointer'
+                        : 'border-[#E4E1D9] bg-[#F8F7F3] opacity-60 cursor-not-allowed'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-[#4F46A5] text-white flex items-center justify-center shrink-0">
+                        <Sparkles className="w-4 h-4" />
+                      </div>
+                      <div className="space-y-0.5">
+                        <h4 className="text-xs font-bold text-[#1E2430]">
+                          ✨ Anlora AI ile hazırla
+                        </h4>
+                        <p className="text-xs text-[#687080] leading-relaxed">
+                          Türkçe anlamı, kelime türünü ve örnek cümleleri senin
+                          yerine hazırlasın. Sonuç kaydedilmeden önce sana gösterilir.
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </form>
             )}
 
             {/* AI LOADING SKELETON LOADER */}
@@ -1069,13 +1130,13 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     type="button"
                     onClick={() => {
                       setManualTurkishMeaning(generatedPreviewCard.turkishMeaning);
-                      setManualPartOfSpeech(generatedPreviewCard.partOfSpeech || 'n.');
+                      setManualPartOfSpeech(generatedPreviewCard.partOfSpeech || '');
                       setManualExamples(
                         generatedPreviewCard.examples?.length
                           ? generatedPreviewCard.examples
                           : [{ en: '', tr: '' }]
                       );
-                      setCreationMode('MANUAL');
+                      setCreationMode('FORM');
                     }}
                     className="px-4 py-2 text-xs font-semibold text-[#1E2430] bg-[#F1EFE8] hover:bg-[#E4E1D9] rounded-xl cursor-pointer"
                   >
@@ -1094,72 +1155,6 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               </div>
             )}
 
-            {/* MANUAL FORM */}
-            {creationMode === 'MANUAL' && (
-              <form onSubmit={handleSaveManualCard} className="space-y-3.5 animate-fadeIn">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold text-[#687080] uppercase mb-1">
-                      İngilizce Kelime
-                    </label>
-                    <input
-                      type="text"
-                      value={wordInput}
-                      onChange={(e) => setWordInput(e.target.value)}
-                      required
-                      className="w-full px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl font-bold text-[#1E2430]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-[#687080] uppercase mb-1">
-                      Kelime Türü
-                    </label>
-                    <select
-                      value={manualPartOfSpeech}
-                      onChange={(e) => setManualPartOfSpeech(e.target.value)}
-                      className="w-full px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl font-semibold text-[#1E2430]"
-                    >
-                      <option value="n.">İsim (n.)</option>
-                      <option value="v.">Fiil (v.)</option>
-                      <option value="adj.">Sıfat (adj.)</option>
-                      <option value="adv.">Zarf (adv.)</option>
-                      <option value="prep.">Edat (prep.)</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-[#687080] uppercase mb-1">
-                    Türkçe Anlamı <span className="text-[#C65D55]">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={manualTurkishMeaning}
-                    onChange={(e) => setManualTurkishMeaning(e.target.value)}
-                    placeholder="Örn: isteksiz, gönülsüz"
-                    required
-                    className="w-full px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl font-bold text-[#1E2430]"
-                  />
-                </div>
-
-                <div className="flex justify-end gap-2 pt-2 border-t border-[#EFECE6]">
-                  <button
-                    type="button"
-                    onClick={() => setCreationMode('CHOICE')}
-                    className="px-4 py-2 text-xs font-semibold text-[#687080] hover:bg-[#F1EFE8] rounded-xl cursor-pointer"
-                  >
-                    Geri
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-[#4F46A5] hover:bg-[#433B91] text-white text-xs font-semibold rounded-xl shadow-xs cursor-pointer"
-                  >
-                    Kartı Kaydet
-                  </button>
-                </div>
-              </form>
-            )}
           </div>
         </div>
       )}
@@ -1182,7 +1177,12 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
         }}
         onForceCreateNew={() => {
           setShowDuplicateModal(false);
-          handleExecuteAiGeneration();
+          if (duplicateOrigin === 'AI') {
+            handleExecuteAiGeneration();
+            return;
+          }
+          // Elle doldurulmuş formu kaydet; kullanıcının yazdıkları korunur.
+          saveManualCard(true);
         }}
         onUseBaseForm={(baseForm) => {
           setWordInput(baseForm);
