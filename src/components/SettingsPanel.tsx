@@ -1,6 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { UserSettings } from '../types';
-import { Sliders, Target, Volume2, Keyboard, Layers } from 'lucide-react';
+import { Sliders, Target, Volume2, Keyboard, Layers, Download, Loader2 } from 'lucide-react';
+import {
+  describeSpeechSupport,
+  openTtsInstall,
+  speakText,
+  SpeechDiagnostics
+} from '../utils/speech';
 
 interface SettingsPanelProps {
   settings: UserSettings;
@@ -26,6 +32,31 @@ const STUDY_MODES: { value: UserSettings['preferredStudyMode']; label: string; h
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange }) => {
   const update = <K extends keyof UserSettings>(key: K, value: UserSettings[K]) => {
     onChange({ ...settings, [key]: value });
+  };
+
+  /*
+   * Telaffuz tanılaması.
+   *
+   * "Ses çıkmıyor" şikâyetinin nedeni uygulamada da olabilir, cihazda da:
+   * Türkçe kurulmuş telefonlarda metin okuma motoru çoğu zaman yalnızca
+   * Türkçe ses verisiyle gelir ve İngilizce okuma sessizce başarısız olur.
+   * Tahmin yürütmek yerine ölçüp söylemek, kullanıcıyı da bizi de doğru
+   * yere götürüyor.
+   */
+  const [diagnostics, setDiagnostics] = useState<SpeechDiagnostics | null>(null);
+  const [isTesting, setIsTesting] = useState(false);
+
+  const runSpeechTest = async () => {
+    setIsTesting(true);
+    try {
+      const report = await describeSpeechSupport();
+      setDiagnostics(report);
+      if (report.hasEnglish) {
+        await speakText('This is how Anlora sounds.');
+      }
+    } finally {
+      setIsTesting(false);
+    }
   };
 
   return (
@@ -146,6 +177,78 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
             </span>
           </span>
         </label>
+      </div>
+
+      {/* Telaffuz sesi */}
+      <div className="space-y-2 pt-2 border-t border-[#EFECE6]">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-[#687080]">
+          <Volume2 className="w-3.5 h-3.5" />
+          <span>Telaffuz Sesi</span>
+        </div>
+        <p className="text-[11px] text-[#687080] leading-relaxed">
+          Ses gelmiyorsa önce burayı dene. Sorun çoğu zaman cihazda İngilizce
+          konuşma paketinin kurulu olmamasıdır.
+        </p>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={runSpeechTest}
+            disabled={isTesting}
+            className="px-3.5 py-2 bg-[#F1EFE8] hover:bg-[#EEECFA] text-[#4F46A5] border border-[#D7D2F4] text-xs font-semibold rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-60 disabled:cursor-wait"
+          >
+            {isTesting ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Volume2 className="w-3.5 h-3.5" />
+            )}
+            <span>Sesi Test Et</span>
+          </button>
+
+          {diagnostics?.isNative && !diagnostics.hasEnglish && (
+            <button
+              type="button"
+              onClick={() => void openTtsInstall()}
+              className="px-3.5 py-2 bg-[#4F46A5] hover:bg-[#433B91] text-white text-xs font-semibold rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>İngilizce Ses Paketini Yükle</span>
+            </button>
+          )}
+        </div>
+
+        {diagnostics && (
+          <div
+            className={`p-3 rounded-xl border text-[11px] leading-relaxed ${
+              diagnostics.hasEnglish
+                ? 'bg-[#E9F3ED] border-[#BFD7C8] text-[#35654E]'
+                : 'bg-[#FBF1DE] border-[#E7C98F] text-[#8A5A18]'
+            }`}
+          >
+            {diagnostics.hasEnglish ? (
+              <>
+                <b>Ses hazır.</b> Bulunan İngilizce ses:{' '}
+                {diagnostics.englishVoices.slice(0, 3).join(', ')}
+                {diagnostics.englishVoices.length > 3 &&
+                  ` (+${diagnostics.englishVoices.length - 3})`}
+                . Şimdi bir örnek okundu; duymadıysan telefonun ses düzeyini
+                ve sessiz modunu kontrol et.
+              </>
+            ) : diagnostics.engine === 'none' ? (
+              <>
+                <b>Bu cihazda konuşma motoru bulunamadı.</b> Telaffuz sesi
+                çalışmayacak; kartların geri kalanı normal çalışır.
+              </>
+            ) : (
+              <>
+                <b>İngilizce ses paketi kurulu değil.</b> Cihazda konuşma
+                motoru var ama İngilizce verisi yok. Yukarıdaki düğmeyle
+                sistem kurulum ekranını açabilir ya da Ayarlar → Diller ve
+                giriş → Metin okuma yolundan ekleyebilirsin.
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,5 +1,9 @@
-import { describe, it, expect } from 'vitest';
-import { oxfordCoreRepository, OXFORD_GROUPS } from '../../services/oxfordCoreRepository';
+import { describe, it, expect, beforeAll } from 'vitest';
+import {
+  oxfordCoreRepository,
+  loadOxfordCore,
+  OXFORD_GROUPS
+} from '../../services/oxfordCoreRepository';
 import {
   getGroupKey,
   getPrimaryMeaning,
@@ -9,7 +13,16 @@ import {
   OxfordEntry
 } from '../../types/oxford';
 
-const entries = oxfordCoreRepository.getEntries();
+/*
+ * Sözlük artık tembel yüklenir: modül içe aktarıldığında depo boştur.
+ * Testler de uygulamayla aynı yolu izler, veriyi önce yükler.
+ */
+let entries: readonly OxfordEntry[] = [];
+
+beforeAll(async () => {
+  await loadOxfordCore();
+  entries = oxfordCoreRepository.getEntries();
+});
 
 describe('Oxford çekirdek veri kümesi', () => {
   it('resmî kaynakla aynı kayıt sayısına sahiptir', () => {
