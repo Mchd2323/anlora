@@ -1,87 +1,156 @@
 /**
- * Anlora – Genel Dağarcık deposu (salt okunur, bant bant tembel yüklenir).
+ * Anlora – Genel Dağarcık (Oxford dışı yaygın kelimeler) ARAMA SERVİSİ.
  *
- * MİMARİ KARARLAR
+ * NE İŞE YARAR
+ * Bu katman kullanıcıya gezilecek bir liste sunmaz. İşi, kullanıcı yeni bir
+ * kelime eklerken sözlük olmaktır: yazdığı kelime burada varsa Türkçe anlamı
+ * ve üç örnek cümlesi hazırdır, yapay zekâya hiç gerek kalmaz.
  *
- * 1. Bant başına tembel yükleme. Katmanın tamamı ~4,5 MB JSON'dur. Oxford
- *    sözlüğü gibi açılışta baştan sona ayrıştırılsaydı zayıf telefonlarda
- *    uygulama saniyelerce donardı. Her bant ayrı bir `import()` ile, ancak
- *    kullanıcı o bandı açtığında yüklenir.
+ * NEDEN BANT İNDİRME KALDIRILDI
+ * Önceki sürüm veriyi üç "bant" hâlinde sunuyor ve kullanıcıya hangisini
+ * yükleyeceğini soruyordu. Bu yanlış bir soruydu: kimse hangi bantta hangi
+ * kelimelerin olduğunu bilemez, dolayısıyla bilinçli bir seçim yapamaz.
+ * Seçim ortadan kalktı; veri, ihtiyaç duyulduğu anda kendiliğinden gelir.
  *
- * 2. Aynı anda tek bant bellekte. Yeni bant açılınca öncekiler bırakılır
- *    (`releaseBandsExcept`). Üç bandı birden tutmak tembel yüklemenin amacını
- *    ortadan kaldırırdı.
+ * TELEFONU YORMADAN
+ * İki kademe vardır:
  *
- * 3. İşaretli kartlar bant bırakılsa da yaşar. Kullanıcı bir kelimeyi favoriye
- *    eklediyse ya da "Tekrar Et" dediyse, bandı kapattığında o kelimenin
- *    favoriler listesinden ve tekrar kuyruğundan kaybolması veri kaybı gibi
- *    görünürdü. `retainCards` bu kartların kopyasını ayrı bir haritada tutar;
- *    bu harita yalnızca kullanıcının dokunduğu kelimeler kadar büyür.
+ *   1. `index.json` (~50 KB) — yalnızca madde başları. Açılışta bir kez
+ *      yüklenir. "Bu kelime sözlükte var mı?" sorusu bundan sonra bellekte,
+ *      ağ ya da ayrıştırma maliyeti olmadan yanıtlanır.
+ *   2. `w-<harf>.json` — o harfle başlayan kelimelerin tam kaydı. Yalnızca
+ *      kullanıcı gerçekten o kelimeyi seçtiğinde yüklenir (ortalama ~138 KB).
+ *      Yüklenen harf dosyaları önbellekte tutulur; aynı harften ikinci kelime
+ *      bedava gelir.
  *
- * 4. `import()` çağrıları sabit yazılır. Değişkenli yol (`band-${n}.json`)
- *    paketleyicinin hangi dosyaların gerekli olduğunu görmesini zorlaştırır;
- *    üç sabit dal hem çevrimdışı paketlemeyi hem de parça bölmeyi garanti eder.
+ * Toplam 4,5 MB'lık katmandan açılışta yalnızca 50 KB dokunulur.
  *
- * 5. Salt okunur: Oxford verisinde olduğu gibi kullanıcı da çalışma zamanı da
- *    bu veriyi değiştiremez; ağ ya da yapay zekâ çağrısı yoktur.
+ * Salt okunur: Oxford verisinde olduğu gibi kullanıcı da çalışma zamanı da
+ * bu veriyi değiştiremez; ağ ya da yapay zekâ çağrısı yoktur.
  */
 
 import { WordCard } from '../types';
-import {
-  BandDescriptor,
-  BandNumber,
-  ExtendedEntry,
-  ExtendedManifest,
-} from '../types/extended';
-import manifestRaw from '../data/extended/manifest.json';
+import { ExtendedEntry } from '../types/extended';
 
-export const EXTENDED_DATA_VERSION = '1.0.0';
+export const EXTENDED_DATA_VERSION = '2.0.0';
 
-const MANIFEST = manifestRaw as ExtendedManifest;
+interface ExtendedIndex {
+  version: number;
+  wordCount: number;
+  senseCount: number;
+  letters: string[];
+  words: string[];
+}
+
+let index: ExtendedIndex | null = null;
+let indexWords: Set<string> = new Set();
+let indexPromise: Promise<void> | null = null;
+
+/** Yüklenmiş harf dosyaları: harf → madde başı → kayıt. */
+const shardCache = new Map<string, Map<string, ExtendedEntry>>();
+const shardPromises = new Map<string, Promise<Map<string, ExtendedEntry>>>();
+
+function normalize(word: string): string {
+  return (word || '').trim().toLowerCase();
+}
+
+function shardKeyOf(word: string): string {
+  const first = normalize(word).slice(0, 1);
+  return first >= 'a' && first <= 'z' ? first : '_';
+}
 
 /**
- * Bant açıklamaları.
+ * Madde başı dizinini yükler. Birden çok çağrı tek yüklemeye düşer.
  *
- * Bantlar sıklık sırasına göre bölünmüştür: 1. bant altyazı derlemlerinde en
- * sık geçen kelimeler, 3. bant en seyrek olanlardır. Sayılar burada sabit
- * yazılmaz, manifest'ten okunur (talimat 24).
+ * Açılışta çağrılabilecek kadar küçüktür; yine de uygulama kabuğu
+ * boyandıktan sonra çağrılır ki ilk boyamayı geciktirmesin.
  */
-const BAND_TEXT: Record<BandNumber, { label: string; description: string }> = {
-  1: {
-    label: 'Bant 1 · En Sık',
-    description: 'Günlük konuşmada ve dizilerde en çok geçen kelimeler.',
-  },
-  2: {
-    label: 'Bant 2 · Orta Sıklık',
-    description: 'Sık karşılaşılan ama temel listelerin dışında kalan kelimeler.',
-  },
-  3: {
-    label: 'Bant 3 · Seyrek',
-    description: 'Daha nadir, çoğu zaman uzmanlık ya da edebî kullanımdaki kelimeler.',
-  },
-};
+export function loadExtendedIndex(): Promise<void> {
+  if (index) return Promise.resolve();
+  if (indexPromise) return indexPromise;
 
-export const EXTENDED_BANDS: readonly BandDescriptor[] = Object.freeze(
-  MANIFEST.bands
-    .filter(entry => entry.band === 1 || entry.band === 2 || entry.band === 3)
-    .map(entry => {
-      const band = entry.band as BandNumber;
-      return {
-        band,
-        label: BAND_TEXT[band].label,
-        description: BAND_TEXT[band].description,
-        entryCount: entry.entryCount,
-        senseCount: entry.senseCount,
-      };
+  indexPromise = import('../data/extended/index.json')
+    .then(module => {
+      index = (module.default || module) as unknown as ExtendedIndex;
+      indexWords = new Set(index.words.map(normalize));
     })
-);
+    .catch(error => {
+      // Başarısız yükleme önbelleğe yazılmasın; yeniden denenebilsin.
+      indexPromise = null;
+      throw error;
+    });
+
+  return indexPromise;
+}
+
+export function isExtendedIndexLoaded(): boolean {
+  return index !== null;
+}
+
+/**
+ * Bu kelime Genel Dağarcık'ta var mı?
+ *
+ * Eşzamanlıdır: dizin yüklendikten sonra kullanıcı her harfe bastığında
+ * ağa ya da diske gitmeden yanıt verilebilsin diye.
+ */
+export function hasExtendedWord(word: string): boolean {
+  return indexWords.has(normalize(word));
+}
+
+/**
+ * Öneki eşleşen madde başları. Kullanıcı yazarken öneri göstermek için.
+ */
+export function suggestExtendedWords(prefix: string, limit = 8): string[] {
+  const needle = normalize(prefix);
+  if (!index || needle.length < 2) return [];
+
+  const results: string[] = [];
+  for (const word of index.words) {
+    if (word.toLowerCase().startsWith(needle)) {
+      results.push(word);
+      if (results.length >= limit) break;
+    }
+  }
+  return results;
+}
+
+async function loadShard(letter: string): Promise<Map<string, ExtendedEntry>> {
+  const cached = shardCache.get(letter);
+  if (cached) return cached;
+
+  const pending = shardPromises.get(letter);
+  if (pending) return pending;
+
+  /*
+   * Değişkenli dinamik `import()`. Vite bu kalıbı görüp `w-*.json`
+   * dosyalarının tamamı için ayrı parçalar üretir; hangisinin isteneceğine
+   * çalışma zamanında karar verilir. Yirmi altı sabit dal yazmak da olurdu
+   * ama okunmaz bir switch bloğu oluştururdu.
+   */
+  const request = import(`../data/extended/w-${letter}.json`)
+    .then(module => {
+      const entries = (module.default || module) as unknown as ExtendedEntry[];
+      const map = new Map<string, ExtendedEntry>();
+      entries.forEach(entry => map.set(normalize(entry.headword), entry));
+      shardCache.set(letter, map);
+      shardPromises.delete(letter);
+      return map;
+    })
+    .catch(error => {
+      shardPromises.delete(letter);
+      throw error;
+    });
+
+  shardPromises.set(letter, request);
+  return request;
+}
 
 /**
  * Genel Dağarcık kaydını uygulamanın ortak `WordCard` görünümüne çevirir.
  *
  * `level` bilerek doldurulmaz: bu kelimelerin ölçülmüş bir CEFR seviyesi yok.
  * Alan boş kalınca arayüz CEFR rozetini kendiliğinden gizler; olmayan bir
- * seviye uydurulmamış olur (talimat 36/59).
+ * seviye uydurulmamış olur.
  */
 export function extendedEntryToWordCard(entry: ExtendedEntry): WordCard {
   const firstSenseWithExamples = entry.senses.find(sense => sense.examples.length > 0);
@@ -109,123 +178,26 @@ export function extendedEntryToWordCard(entry: ExtendedEntry): WordCard {
   };
 }
 
-/** Yüklenmiş bantlar. Aynı anda genellikle tek bant durur. */
-const LOADED_BANDS = new Map<BandNumber, readonly WordCard[]>();
-/** Süren yüklemeler; aynı bant iki kez istenirse tek istek yapılır. */
-const PENDING = new Map<BandNumber, Promise<readonly WordCard[]>>();
-/** Bant bırakılsa da elde tutulan kartlar (favori / tekrar kuyruğu). */
-const RETAINED = new Map<string, WordCard>();
+/**
+ * Kelimenin tam kaydını getirir; gerekiyorsa harf dosyasını yükler.
+ * Sözlükte yoksa `undefined` döner.
+ */
+export async function getExtendedCard(word: string): Promise<WordCard | undefined> {
+  const key = normalize(word);
+  if (!key) return undefined;
 
-function importBand(band: BandNumber): Promise<{ default: unknown }> {
-  switch (band) {
-    case 1:
-      return import('../data/extended/band-1.json');
-    case 2:
-      return import('../data/extended/band-2.json');
-    case 3:
-      return import('../data/extended/band-3.json');
-  }
+  await loadExtendedIndex();
+  if (!indexWords.has(key)) return undefined;
+
+  const shard = await loadShard(shardKeyOf(key));
+  const entry = shard.get(key);
+  return entry ? extendedEntryToWordCard(entry) : undefined;
 }
 
-export const extendedRepository = {
-  getMetadata() {
-    const totalEntries = EXTENDED_BANDS.reduce((sum, b) => sum + b.entryCount, 0);
-    const totalSenses = EXTENDED_BANDS.reduce((sum, b) => sum + b.senseCount, 0);
-    return {
-      datasetVersion: EXTENDED_DATA_VERSION,
-      source: 'Open English WordNet (CC BY 4.0) · OpenSubtitles FrequencyWords (MIT)',
-      isReadOnly: true as const,
-      totalEntries,
-      totalSenses,
-      bandCount: EXTENDED_BANDS.length,
-    };
-  },
-
-  getBands(): readonly BandDescriptor[] {
-    return EXTENDED_BANDS;
-  },
-
-  getBand(band: BandNumber): BandDescriptor | undefined {
-    return EXTENDED_BANDS.find(item => item.band === band);
-  },
-
-  isBandLoaded(band: BandNumber): boolean {
-    return LOADED_BANDS.has(band);
-  },
-
-  /** Bandı yükler; yüklüyse önbellekten döner. */
-  async loadBand(band: BandNumber): Promise<readonly WordCard[]> {
-    const cached = LOADED_BANDS.get(band);
-    if (cached) return cached;
-
-    const pending = PENDING.get(band);
-    if (pending) return pending;
-
-    const request = importBand(band)
-      .then(module => {
-        const entries = (module.default || module) as unknown as ExtendedEntry[];
-        const cards = Object.freeze(entries.map(extendedEntryToWordCard));
-        LOADED_BANDS.set(band, cards);
-        PENDING.delete(band);
-        return cards;
-      })
-      .catch(error => {
-        // Başarısız istek önbellekte kalmasın; kullanıcı yeniden deneyebilsin.
-        PENDING.delete(band);
-        throw error;
-      });
-
-    PENDING.set(band, request);
-    return request;
-  },
-
-  getLoadedCards(band: BandNumber): readonly WordCard[] {
-    return LOADED_BANDS.get(band) || [];
-  },
-
-  /**
-   * Verilen bant dışındaki bantları bellekten bırakır.
-   * `keep` null verilirse tüm bantlar bırakılır.
-   */
-  releaseBandsExcept(keep: BandNumber | null): void {
-    LOADED_BANDS.forEach((_cards, band) => {
-      if (band !== keep) LOADED_BANDS.delete(band);
-    });
-  },
-
-  /**
-   * Bu kimliklere ait kartları, bantları bırakıldıktan sonra da elde tutar.
-   * Yüklü olmayan kimlikler sessizce atlanır: kart ancak bandı bir kez
-   * açıldığında tanınabilir.
-   */
-  retainCards(ids: Iterable<string>): void {
-    const wanted = new Set(ids);
-    if (wanted.size === 0) return;
-    LOADED_BANDS.forEach(cards => {
-      cards.forEach(card => {
-        if (wanted.has(card.id)) RETAINED.set(card.id, card);
-      });
-    });
-  },
-
-  /** Artık işaretli olmayan kartları elden bırakır. */
-  pruneRetained(keepIds: Iterable<string>): void {
-    const keep = new Set(keepIds);
-    RETAINED.forEach((_card, id) => {
-      if (!keep.has(id)) RETAINED.delete(id);
-    });
-  },
-
-  getRetainedCards(): readonly WordCard[] {
-    return Array.from(RETAINED.values());
-  },
-
-  /** Yüklü bantlarda ya da elde tutulanlarda kimlikle kart arar. */
-  getCardById(id: string): WordCard | undefined {
-    for (const cards of LOADED_BANDS.values()) {
-      const found = cards.find(card => card.id === id);
-      if (found) return found;
-    }
-    return RETAINED.get(id);
-  },
-};
+/** Dizin sayıları; arayüzde sabit sayı yazmak yerine buradan okunur. */
+export function getExtendedStats(): { wordCount: number; senseCount: number } {
+  return {
+    wordCount: index?.wordCount ?? 0,
+    senseCount: index?.senseCount ?? 0,
+  };
+}

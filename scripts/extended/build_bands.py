@@ -14,9 +14,22 @@ TASARIM KARARLARI
    uydurma karşılık da yazılmaz. Kelime içeriği yazılana kadar listede
    bekler, uygulamada görünmez.
 
-2. Bant başına ayrı dosya. Uygulama bantları `import()` ile tembel yükler;
-   bellekte yalnızca çalışılan bant durur. Tek dosya olsaydı 14 MB'lık
-   sözlük açılışta baştan sona ayrıştırılırdı.
+2. ÇIKTI: BİR DİZİN + HARF DOSYALARI.
+
+   Önceki sürüm bant başına bir dosya yazıyordu ve arayüz kullanıcıya
+   "hangi bandı indirmek istersin?" diye soruyordu. Bu yanlış bir soruydu:
+   kullanıcı hangi bantta hangi kelimelerin olduğunu bilemez. Bu katmanın
+   işi kullanıcıya liste sunmak değil, KELİME EKLERKEN sözlük olmak —
+   aranan kelime burada varsa yapay zekâya hiç gerek kalmaz.
+
+   Bu yüzden iki tür dosya yazılır:
+
+   * `index.json` — yalnızca madde başları (~55 KB). Açılışta bir kez
+     yüklenir; "bu kelime sözlükte var mı" sorusu ağ ya da ayrıştırma
+     maliyeti olmadan yanıtlanır.
+   * `w-<harf>.json` — o harfle başlayan kelimelerin tam kaydı. Yalnızca
+     kullanıcı gerçekten o kelimeyi seçtiğinde yüklenir. En büyüğü ~436 KB,
+     ortalaması ~138 KB; bant dosyaları 1,3 MB'a kadar çıkıyordu.
 
 3. Doğrulama Oxford boru hattıyla aynı kuralları kullanır (`word_match`),
    böylece iki koleksiyon arasında kalite farkı oluşmaz.
@@ -38,11 +51,21 @@ from word_match import sentence_contains  # noqa: E402
 WORDLIST = 'scripts/extended/source/wordlist.json'
 CONTENT_DIR = 'scripts/extended/content'
 OUT_DIR = 'src/data/extended'
-MANIFEST = 'src/data/extended/manifest.json'
+INDEX_FILE = 'src/data/extended/index.json'
 
 POS_SLUG = {'n.': 'n', 'v.': 'v', 'adj.': 'adj', 'adv.': 'adv'}
 
 MIN_EXAMPLES = 3
+
+
+def shard_key(word):
+    """Kelimenin hangi harf dosyasına gireceği.
+
+    İngilizce madde başları ASCII'dir; yine de beklenmedik bir karakter
+    gelirse '_' kovasına düşer ve sessizce kaybolmaz.
+    """
+    first = (word or '').strip().lower()[:1]
+    return first if 'a' <= first <= 'z' else '_'
 
 
 def sense_id(word, band, pos):
@@ -163,31 +186,52 @@ def main():
 
     os.makedirs(OUT_DIR, exist_ok=True)
 
-    manifest = []
-    for band in sorted(by_band):
-        entries = sorted(by_band[band], key=lambda e: e['sourceOrder'])
-        path = os.path.join(OUT_DIR, f'band-{band}.json')
-        with open(path, 'w', encoding='utf-8') as handle:
-            json.dump(entries, handle, ensure_ascii=False, indent=1)
-            handle.write('\n')
-        manifest.append({
-            'band': band,
-            'entryCount': len(entries),
-            'senseCount': sum(len(e['senses']) for e in entries),
-        })
+    # Eski bant dosyaları artık üretilmiyor; kalmışsa temizlenir ki pakete
+    # kullanılmayan megabaytlar sızmasın.
+    for stale in glob.glob(os.path.join(OUT_DIR, 'band-*.json')):
+        os.remove(stale)
 
-    # Henüz hiç içerik almamış bantlar da bildirilir; arayüz "hazırlanıyor"
-    # diyebilsin diye toplam hedefi de yazıyoruz.
-    planned = {}
-    for item in words:
-        planned[item['band']] = planned.get(item['band'], 0) + 1
-    with open(MANIFEST, 'w', encoding='utf-8') as handle:
+    all_entries = []
+    for band in sorted(by_band):
+        all_entries.extend(by_band[band])
+    all_entries.sort(key=lambda e: e['sourceOrder'])
+
+    # --- Harf dosyaları -------------------------------------------------
+    shards = {}
+    for entry in all_entries:
+        letter = shard_key(entry['headword'])
+        shards.setdefault(letter, []).append(entry)
+
+    for letter in sorted(shards):
+        entries = sorted(shards[letter], key=lambda e: e['headword'])
+        path = os.path.join(OUT_DIR, f'w-{letter}.json')
+        with open(path, 'w', encoding='utf-8') as handle:
+            json.dump(entries, handle, ensure_ascii=False, separators=(',', ':'))
+            handle.write('\n')
+
+    # --- Dizin ----------------------------------------------------------
+    #
+    # Yalnızca madde başları. Sıralı tutulur: arayüz ikili arama ya da önek
+    # taraması yapabilsin, ayrıca dosya daha iyi sıkışsın.
+    index_words = sorted({e['headword'] for e in all_entries})
+    with open(INDEX_FILE, 'w', encoding='utf-8') as handle:
         json.dump({
-            'bands': manifest,
-            'plannedWordsPerBand': planned,
-            'totalPlannedWords': len(words),
-        }, handle, ensure_ascii=False, indent=1)
+            'version': 1,
+            'wordCount': len(index_words),
+            'senseCount': sum(len(e['senses']) for e in all_entries),
+            'letters': sorted(shards),
+            'words': index_words,
+        }, handle, ensure_ascii=False, separators=(',', ':'))
         handle.write('\n')
+
+    manifest = [
+        {
+            'band': band,
+            'entryCount': len(by_band[band]),
+            'senseCount': sum(len(e['senses']) for e in by_band[band]),
+        }
+        for band in sorted(by_band)
+    ]
 
     print(f'Kelime listesi : {len(words)} kelime / {total_senses} anlam')
     print(f'İçerik yamaları: {len(content)} kayıt')

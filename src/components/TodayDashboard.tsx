@@ -133,7 +133,11 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           </p>
         </div>
         <p className="text-xs text-[#687080] max-w-2xl leading-relaxed">
-          Kendi kelime setlerini oluştur veya Oxford 5000 kelimelerini seviyene göre çalış. Kelimeleri öğren, bildiklerini işaretle ve tekrar ederek aklında tut.
+          Kendi kelime setlerini oluştur veya Oxford 5000 kelimelerini seviyene
+          göre çalış. Eklediğin kelime uygulamanın sözlüğünde varsa Türkçe
+          anlamı ve <strong className="text-[#1E2430]">üç örnek cümlesi
+          çevirisiyle birlikte</strong> hazır gelir — internet gerekmeden.
+          Kelimeleri öğren, bildiklerini işaretle ve tekrar ederek aklında tut.
         </p>
       </div>
 
@@ -162,10 +166,12 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
               <Sparkles className="w-4 h-4 text-[#4F46A5] shrink-0 mt-0.5" />
               <div>
                 <span className="font-bold text-[#4F46A5] block">
-                  ✨ {BRAND.aiName} ile hazırla
+                  Kelimeyi yaz, gerisini Anlora getirsin
                 </span>
                 <p className="text-[#687080] text-[11px] mt-0.5">
-                  Kelimeyi yaz; Türkçe anlamlarını kendin ekle veya Anlora AI ile anlamları ve doğal örnek cümleleri hazırlat.
+                  Yazdığın kelime {BRAND.name} sözlüğünde varsa anlamı ve üç
+                  örnek cümlesi anında gelir. Yoksa {BRAND.aiName} hazırlar ya
+                  da kendin yazarsın.
                 </p>
               </div>
             </div>

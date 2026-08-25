@@ -4,7 +4,6 @@ import { TodayDashboard } from './components/TodayDashboard';
 import { CollectionsView } from './components/CollectionsView';
 import { StudySessionView } from './components/StudySessionView';
 import { OxfordExplorer } from './components/OxfordExplorer';
-import { GeneralVocabularyView } from './components/GeneralVocabularyView';
 import { QuizModule } from './components/QuizModule';
 import { StatsAndBadges } from './components/StatsAndBadges';
 import { FavoritesView } from './components/FavoritesView';
@@ -58,7 +57,7 @@ import {
 import { apiFetch, logout } from './utils/authClient';
 import { runOxfordIdMigrationIfNeeded } from './utils/oxfordIdMigration';
 import { OxfordGroupKey } from './types/oxford';
-import { extendedRepository } from './services/extendedRepository';
+import { loadExtendedIndex } from './services/extendedRepository';
 import { useToast } from './components/ui/ToastProvider';
 import { useAndroidBackButton } from './hooks/useAndroidBackButton';
 import { releaseStuckScrollLocks } from './hooks/useModalA11y';
@@ -114,14 +113,6 @@ export default function App() {
   const [oxfordWords, setOxfordWords] = useState<WordCard[]>([]);
   const [oxfordExtraWords, setOxfordExtraWords] = useState<WordCard[]>([]);
   const [isDictionaryReady, setIsDictionaryReady] = useState(false);
-  /**
-   * Genel Dağarcık'tan o an bellekte olan kartlar.
-   *
-   * Bu katman bant bant tembel yüklenir; uygulama açılışında boştur. Yüklenen
-   * bandın kartları buraya alınır ki favoriler, sınav hataları ve çalışma
-   * geçmişi bu kelimeleri de kimliklerinden çözebilsin.
-   */
-  const [extendedWords, setExtendedWords] = useState<WordCard[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [stats, setStats] = useState<UserStats>(getUserStatsV2());
   const [unlockedBadges, setUnlockedBadges] = useState<string[]>([]);
@@ -170,6 +161,15 @@ export default function App() {
       setUnlockedBadges(checkAndUnlockBadgesV2());
 
       setIsDictionaryReady(true);
+
+      /*
+       * Genel Dağarcık dizini (~50 KB) arka planda yüklenir. Kullanıcı yeni
+       * kelime eklerken "bu kelime sözlükte var mı" sorusuna beklemeden
+       * yanıt verebilmek için gerekli; küçük olduğu için açılışı geciktirmez
+       * ve başarısız olursa uygulama yalnızca öneri gösteremez, çalışmaya
+       * devam eder.
+       */
+      void loadExtendedIndex().catch(() => undefined);
     });
 
     return () => {
@@ -181,24 +181,20 @@ export default function App() {
   // Oxford 3000 + Oxford 5000 Ek (B2 Ek, C1) + kullanıcının kendi kartları.
   // Çalışma, sınav ve favoriler bu birleşik havuz üzerinden çalışır.
   const allWordsCombined = useMemo(() => {
-    return [...oxfordWords, ...oxfordExtraWords, ...extendedWords, ...customWords];
-  }, [oxfordWords, oxfordExtraWords, extendedWords, customWords]);
+    return [...oxfordWords, ...oxfordExtraWords, ...customWords];
+  }, [oxfordWords, oxfordExtraWords, customWords]);
 
   /**
-   * Kullanıcının dokunduğu Genel Dağarcık kelimeleri bant bırakılsa da elde
-   * tutulur. Favorilenen bir kelimenin, bandı kapatınca favoriler listesinden
-   * kaybolması veri kaybı gibi görünürdü.
+   * Oxford'un tamamı (3000 + 5000 Ek).
+   *
+   * Kelime setleri ekranı yalnızca Oxford 3000'i görüyordu; kullanıcı C1 bir
+   * kelimeyi setine eklediğinde kart listede çözülemiyordu. Sözlük araması da
+   * bu havuz üzerinden yapılır.
    */
-  useEffect(() => {
-    extendedRepository.retainCards([...favorites, ...Object.keys(learningStates)]);
-  }, [favorites, learningStates]);
-
-  const handleExtendedBandLoaded = useCallback((cards: readonly WordCard[]) => {
-    const merged = new Map<string, WordCard>();
-    extendedRepository.getRetainedCards().forEach(card => merged.set(card.id, card));
-    cards.forEach(card => merged.set(card.id, card));
-    setExtendedWords(Array.from(merged.values()));
-  }, []);
+  const oxfordPool = useMemo(
+    () => [...oxfordWords, ...oxfordExtraWords],
+    [oxfordWords, oxfordExtraWords]
+  );
 
   const favoriteWordsList = useMemo(() => {
     return allWordsCombined.filter((w) => favorites.includes(w.id));
@@ -492,7 +488,7 @@ export default function App() {
             collections={collections}
             memberships={memberships}
             customWords={customWords}
-            oxfordWords={oxfordWords}
+            oxfordWords={oxfordPool}
             learningStates={learningStates}
             favorites={favorites}
             profile={profile}
@@ -555,17 +551,6 @@ export default function App() {
             onStartQuiz={() => {
               setActiveTab('quiz');
             }}
-          />
-        )}
-
-        {activeTab === 'general' && (
-          <GeneralVocabularyView
-            favorites={favorites}
-            learningStates={learningStates}
-            onToggleFavorite={handleToggleFavorite}
-            onSetStatus={handleSetWordStatus}
-            onOpenAddToCollection={handleOpenAddToCollection}
-            onLoadedWordsChange={handleExtendedBandLoaded}
           />
         )}
 

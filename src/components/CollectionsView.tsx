@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Collection,
   CollectionMembership,
@@ -25,6 +25,7 @@ import {
   MoreVertical,
   Check,
   CheckCircle2,
+  Loader2,
   RotateCw,
   AlertCircle,
   Volume2
@@ -39,6 +40,12 @@ import { speakText } from '../utils/speech';
 import { getUserWordStatus } from '../utils/storageV2';
 import { UserProfile } from '../types';
 import { apiUrl } from '../config/api';
+import { formatPhonetic } from '../utils/phonetic';
+import {
+  hasExtendedWord,
+  getExtendedCard,
+  loadExtendedIndex
+} from '../services/extendedRepository';
 
 interface CollectionsViewProps {
   collections: Collection[];
@@ -146,6 +153,30 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
    */
   const [duplicateOrigin, setDuplicateOrigin] = useState<'FORM' | 'AI'>('FORM');
 
+  /*
+   * SÖZLÜK ARAMASI.
+   *
+   * Kullanıcı İngilizce kelimeyi yazarken uygulamanın kendi sözlüğüne
+   * bakılır. Kelime varsa Türkçe anlamı ve üç örnek cümlesi zaten hazırdır;
+   * ne yapay zekâya, ne de kullanıcının bir şey yazmasına gerek kalır.
+   *
+   * Arama iki kaynağa bakar: bellekteki Oxford havuzu ve Genel Dağarcık
+   * dizini (~50 KB, açılışta yüklenir). Tam kayıt ancak eşleşme olduğunda,
+   * ilgili harf dosyasından getirilir.
+   *
+   * Sonuç AYNI EKRANDA gösterilir. Önceki sürüm ayrı bir pencere açıp
+   * "mevcut kartı bu sete bağla" diyordu; bu hem akışı kesiyor hem de
+   * kullanıcının kelime dağarcığında olmayan bir terimle konuşuyordu.
+   */
+  type LookupResult =
+    | { kind: 'idle' }
+    | { kind: 'searching' }
+    | { kind: 'found'; card: WordCard; source: 'oxford' | 'extended' }
+    | { kind: 'in-set'; card: WordCard }
+    | { kind: 'not-found' };
+
+  const [lookup, setLookup] = useState<LookupResult>({ kind: 'idle' });
+
   // Deck Form State
   const [newDeckName, setNewDeckName] = useState('');
   const [newDeckDesc, setNewDeckDesc] = useState('');
@@ -189,6 +220,140 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     });
   }, [activeDeckWords, searchQuery]);
 
+  /** Setteki kelime kimlikleri; "zaten var" denetimi için. */
+  const activeDeckWordIds = useMemo(
+    () =>
+      new Set(
+        memberships
+          .filter(m => m.collectionId === activeDeckId)
+          .map(m => m.wordId)
+      ),
+    [memberships, activeDeckId]
+  );
+
+  /** Oxford havuzunda madde başına göre hızlı arama. */
+  const oxfordByWord = useMemo(() => {
+    const map = new Map<string, WordCard>();
+    oxfordWords.forEach(card => {
+      const key = card.word.trim().toLowerCase();
+      // Aynı yüzey kelimesinin birden çok kaydı olabilir (can1/can2). İlki
+      // korunur: kaynak sırası en yaygın anlamı öne koyuyor.
+      if (!map.has(key)) map.set(key, card);
+    });
+    return map;
+  }, [oxfordWords]);
+
+  // Dizin arka planda hazır olsun; kullanıcı yazmaya başlayınca beklemesin.
+  useEffect(() => {
+    if (showAddWordModal) void loadExtendedIndex().catch(() => undefined);
+  }, [showAddWordModal]);
+
+  /*
+   * Yazarken arama. 350 ms beklenir: her harf için arama yapmak, harf
+   * dosyası yükleyen bir işlevde gereksiz iş demektir.
+   */
+  useEffect(() => {
+    const raw = wordInput.trim();
+    if (!showAddWordModal || raw.length < 2) {
+      setLookup({ kind: 'idle' });
+      return;
+    }
+
+    let cancelled = false;
+    setLookup({ kind: 'searching' });
+
+    const timer = window.setTimeout(async () => {
+      const key = raw.toLowerCase();
+
+      const decide = (card: WordCard, source: 'oxford' | 'extended') => {
+        if (cancelled) return;
+        setLookup(
+          activeDeckWordIds.has(card.id)
+            ? { kind: 'in-set', card }
+            : { kind: 'found', card, source }
+        );
+      };
+
+      const oxford = oxfordByWord.get(key);
+      if (oxford) {
+        decide(oxford, 'oxford');
+        return;
+      }
+
+      // Kullanıcının kendi kartlarında da olabilir.
+      const own = customWords.find(c => c.word.trim().toLowerCase() === key);
+      if (own) {
+        decide(own, 'oxford');
+        return;
+      }
+
+      if (hasExtendedWord(key)) {
+        try {
+          const card = await getExtendedCard(key);
+          if (card) {
+            decide(card, 'extended');
+            return;
+          }
+        } catch {
+          /* harf dosyası gelmezse elle yazmaya düşülür */
+        }
+      }
+
+      if (!cancelled) setLookup({ kind: 'not-found' });
+    }, 350);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [wordInput, showAddWordModal, oxfordByWord, customWords, activeDeckWordIds]);
+
+  /**
+   * Sözlükte bulunan kelimeyi sete ekler.
+   *
+   * Oxford kaydı zaten uygulamanın sabit verisidir; kopyalanmaz, sete
+   * bağlanır. Genel Dağarcık kaydı ise bir yerde saklanmadığı için
+   * kullanıcının kartı olarak yazılır — anlamı ve üç örnek cümlesiyle.
+   */
+  const addLookedUpCard = (card: WordCard, source: 'oxford' | 'extended') => {
+    if (!activeDeck) return;
+    const context = contextInput.trim() || undefined;
+
+    if (source === 'oxford' && card.sourceType === 'oxford') {
+      onAddWordToCollection(card.id, activeDeck.id, context);
+    } else if (customWords.some(c => c.id === card.id)) {
+      onAddWordToCollection(card.id, activeDeck.id, context);
+    } else {
+      onAddCustomWord(
+        {
+          ...card,
+          id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          isCustom: true,
+          sourceContext: context,
+          dateAdded: new Date().toISOString().slice(0, 10),
+          isAiGenerated: false
+        },
+        activeDeck.id,
+        context
+      );
+    }
+
+    setLastAddedWord(card.word);
+    setWordInput('');
+    setManualTurkishMeaning('');
+    setManualPartOfSpeech('');
+    setContextInput('');
+    setLookup({ kind: 'idle' });
+  };
+
+  const handleExampleChange = (index: number, field: 'en' | 'tr', value: string) => {
+    setManualExamples(list => {
+      const next = [...list];
+      next[index] = { ...next[index], [field]: value };
+      return next;
+    });
+  };
+
   const resetAddWordModal = () => {
     setLastAddedWord(null);
     setWordInput('');
@@ -198,10 +363,8 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     setGeneratedPreviewCard(null);
     setManualTurkishMeaning('');
     setManualPartOfSpeech('');
-    setManualExamples([
-      { en: '', tr: '' },
-      { en: '', tr: '' }
-    ]);
+    setManualExamples([{ en: '', tr: '' }]);
+    setLookup({ kind: 'idle' });
     setShowAddWordModal(false);
   };
 
@@ -936,6 +1099,78 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   />
                 </div>
 
+                {/* SÖZLÜK SONUCU — aynı ekranda, ayrı pencere açmadan */}
+                {lookup.kind === 'searching' && (
+                  <div className="flex items-center gap-2 text-[11px] text-[#8E95A2] font-medium">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Sözlükte aranıyor…</span>
+                  </div>
+                )}
+
+                {lookup.kind === 'in-set' && (
+                  <div className="p-3.5 rounded-xl bg-[#FBF1DE] border border-[#E7C98F] text-[11px] text-[#8A5A18] space-y-2">
+                    <p className="font-bold">
+                      "{lookup.card.word}" bu sette zaten var.
+                    </p>
+                    <p>
+                      Farklı bir anlamı için ikinci bir kart istiyorsan aşağıdaki
+                      alanları doldurup kaydedebilirsin.
+                    </p>
+                  </div>
+                )}
+
+                {lookup.kind === 'found' && (
+                  <div className="p-4 rounded-xl bg-[#E9F3ED] border border-[#BFD7C8] space-y-3">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#35654E]">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Bu kelime Anlora sözlüğünde bulunuyor</span>
+                    </div>
+
+                    <div className="bg-white rounded-xl border border-[#BFD7C8] p-3 space-y-1.5">
+                      <div className="flex items-baseline gap-2 flex-wrap">
+                        <span className="text-base font-bold text-[#1E2430]">
+                          {lookup.card.word}
+                        </span>
+                        {lookup.card.phonetic && (
+                          <span className="text-[11px] font-mono text-[#687080]">
+                            {formatPhonetic(lookup.card.phonetic)}
+                          </span>
+                        )}
+                        {lookup.card.partOfSpeech && (
+                          <span className="text-[10px] font-semibold px-1.5 py-0.5 bg-[#F1EFE8] text-[#687080] rounded">
+                            {lookup.card.partOfSpeech}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm font-semibold text-[#1E2430]">
+                        {lookup.card.turkishMeaning}
+                      </p>
+                      {lookup.card.examples.length > 0 && (
+                        <p className="text-[11px] text-[#687080] italic">
+                          Örnek: {lookup.card.examples[0].en}
+                        </p>
+                      )}
+                      <p className="text-[10px] text-[#4F806A] font-semibold pt-0.5">
+                        Anlamı ve {lookup.card.examples.length >= 3 ? 'üç' : lookup.card.examples.length}{' '}
+                        örnek cümlesi hazır — çeviriyle birlikte.
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => addLookedUpCard(lookup.card, lookup.source)}
+                      className="w-full py-2.5 bg-[#4F806A] hover:bg-[#3F6A57] text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Bu kelimeyi sete ekle</span>
+                    </button>
+
+                    <p className="text-[10px] text-[#35654E] text-center">
+                      Kendi anlamını yazmak istersen aşağıdaki alanları doldur.
+                    </p>
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-xs font-bold text-[#687080] uppercase mb-1">
                     Türkçe Anlamı <span className="text-[#C65D55]">*</span>
@@ -968,6 +1203,55 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     <option value="conj.">Bağlaç (conj.)</option>
                     <option value="phrase">Kalıp (phrase)</option>
                   </select>
+                </div>
+
+                {/*
+                  ÖRNEK CÜMLELER.
+
+                  Sözlükten gelen her kelime üç örnek cümleyle geliyor; elle
+                  eklenen kelimede bu alan boş kalırsa kart, uygulamanın geri
+                  kalanından daha zayıf olur. Alanlar isteğe bağlıdır ama
+                  görünürdür: kullanıcı doldurmayı seçebilsin diye.
+                */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-[#687080] uppercase">
+                    Örnek Cümleler{' '}
+                    <span className="font-semibold normal-case text-[#8E95A2]">(isteğe bağlı)</span>
+                  </label>
+                  <p className="text-[11px] text-[#8E95A2] leading-relaxed">
+                    Kelimeyi cümle içinde görmek kalıcı öğrenmenin en hızlı yolu.
+                    Sözlükten gelen kelimelerde üç örnek hazır gelir; kendi
+                    kelimende de yazabilirsin.
+                  </p>
+                  {manualExamples.slice(0, 3).map((ex, i) => (
+                    <div key={i} className="grid grid-cols-1 gap-1.5">
+                      <input
+                        type="text"
+                        value={ex.en}
+                        onChange={e => handleExampleChange(i, 'en', e.target.value)}
+                        placeholder={`${i + 1}. örnek (İngilizce)`}
+                        className="w-full px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:outline-none focus:border-[#4F46A5] text-[#1E2430]"
+                      />
+                      {ex.en.trim() && (
+                        <input
+                          type="text"
+                          value={ex.tr}
+                          onChange={e => handleExampleChange(i, 'tr', e.target.value)}
+                          placeholder={`${i + 1}. örneğin Türkçesi`}
+                          className="w-full px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:outline-none focus:border-[#4F46A5] italic text-[#687080]"
+                        />
+                      )}
+                    </div>
+                  ))}
+                  {manualExamples.length < 3 && (
+                    <button
+                      type="button"
+                      onClick={() => setManualExamples(list => [...list, { en: '', tr: '' }])}
+                      className="text-[11px] font-semibold text-[#4F46A5] hover:text-[#433B91] cursor-pointer"
+                    >
+                      + Bir örnek daha ekle
+                    </button>
+                  )}
                 </div>
 
                 <div>
@@ -1012,12 +1296,15 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 </div>
 
                 {/*
-                  Tek alternatif: yapay zekâ. Formun altında durur, çünkü asıl
-                  yol kullanıcının kendi girdisidir; yapay zekâ yardımcıdır.
+                  Yapay zekâ YALNIZCA kelime sözlükte yoksa önerilir.
+                  Sözlükte hazır bir kart varken yapay zekâ çağırmak hem
+                  gereksiz beklemek hem de elde olan doğrulanmış içeriği
+                  bir kenara atmak olurdu.
                 */}
+                {lookup.kind === 'not-found' && (
                 <div className="pt-3 border-t border-[#EFECE6] space-y-2">
                   <div className="text-[11px] font-bold text-[#8E95A2] uppercase tracking-wider">
-                    Yazmak istemiyorsan
+                    Bu kelime sözlükte yok
                   </div>
                   <button
                     type="button"
@@ -1045,6 +1332,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     </div>
                   </button>
                 </div>
+                )}
               </form>
             )}
 

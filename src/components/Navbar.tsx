@@ -3,7 +3,6 @@ import {
   BookOpen,
   GraduationCap,
   Layers,
-  Library,
   Home,
   User,
   LogIn
@@ -23,7 +22,6 @@ export type TabType =
   | 'today'
   | 'collections'
   | 'oxford'
-  | 'general'
   | 'quiz'
   | 'profile'
   | 'study'
@@ -68,12 +66,6 @@ export const Navbar: React.FC<NavbarProps> = ({
       label: 'Oxford 5000',
       shortLabel: 'Oxford',
       icon: BookOpen
-    },
-    {
-      id: 'general' as TabType,
-      label: 'Genel Dağarcık',
-      shortLabel: 'Dağarcık',
-      icon: Library
     },
     {
       id: 'quiz' as TabType,
