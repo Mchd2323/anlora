@@ -14,17 +14,22 @@ export default defineConfig(() => {
     build: {
       rollupOptions: {
         output: {
-          // Oxford sözlüğü yaklaşık 2,2 MB'lık JSON'dur ve uygulama kodundan
-          // çok daha seyrek değişir. Ayrı bir parçaya alınınca kullanıcı
-          // sözlüğü bir kez indirir ve sonraki dağıtımlarda önbellekten
-          // kullanır; yalnızca uygulama parçası yeniden iner.
+          // Oxford sözlüğü yaklaşık 5 MB'lık JSON'dur ve uygulama kodundan çok
+          // daha seyrek değişir. Ayrı bir parçaya alınınca kullanıcı sözlüğü
+          // bir kez indirir ve sonraki dağıtımlarda önbellekten kullanır;
+          // yalnızca uygulama parçası yeniden iner.
+          //
+          // Kalıp önceden 'src/data/words' idi; dosya `oxford3000.json` adını
+          // aldığında eşleşmeyi kaybetmiş ve 3 MB'lık liste sessizce ana
+          // uygulama parçasına geri düşmüştü.
           //
           // NOT: Bu yalnızca önbelleklemeyi iyileştirir, ilk yükleme boyutunu
-          // değil. Sözlük hâlâ açılışta baştan sona yükleniyor; asıl çözüm
-          // `oxfordRepository`'yi seviye başına dinamik `import()` ile tembel
-          // yüklemeye çevirmektir (README'de "Bilinen sınırlar").
+          // değil; Oxford verisi hâlâ açılışta baştan sona yükleniyor. Genel
+          // Dağarcık katmanı (`src/data/extended/band-*.json`) ise burada yer
+          // ALMAZ: o dosyalara yalnızca dinamik `import()` ile ulaşılır, bu
+          // yüzden Rollup her bandı kendi tembel parçasına ayırır.
           manualChunks(id: string) {
-            if (id.includes('src/data/words') || id.includes('src/data/oxford5000')) {
+            if (id.includes('src/data/oxford3000') || id.includes('src/data/oxford5000')) {
               return 'oxford-data';
             }
             if (id.includes('node_modules')) {

@@ -3,6 +3,7 @@ import {
   BookOpen,
   GraduationCap,
   Layers,
+  Library,
   Home,
   User,
   LogIn
@@ -22,6 +23,7 @@ export type TabType =
   | 'today'
   | 'collections'
   | 'oxford'
+  | 'general'
   | 'quiz'
   | 'profile'
   | 'study'
@@ -42,31 +44,47 @@ export const Navbar: React.FC<NavbarProps> = ({
   profile,
   onOpenAuthModal
 }) => {
+  /*
+   * `shortLabel`, alt çubuk içindir. Sekme sayısı altıya çıkınca dar
+   * telefonlarda uzun etiketler birbirinin üstüne biniyordu; kısaltma yalnızca
+   * mobil çubukta kullanılır, masaüstünde tam ad görünür.
+   */
   const navItems = [
     {
       id: 'today' as TabType,
       label: 'Ana Sayfa',
+      shortLabel: 'Ana Sayfa',
       icon: Home
     },
     {
       id: 'collections' as TabType,
       label: 'Kelime Setlerim',
+      shortLabel: 'Setlerim',
       icon: Layers,
       badge: collectionCount > 0 ? collectionCount : undefined
     },
     {
       id: 'oxford' as TabType,
       label: 'Oxford 3000',
+      shortLabel: 'Oxford',
       icon: BookOpen
+    },
+    {
+      id: 'general' as TabType,
+      label: 'Genel Dağarcık',
+      shortLabel: 'Dağarcık',
+      icon: Library
     },
     {
       id: 'quiz' as TabType,
       label: 'Sınav',
+      shortLabel: 'Sınav',
       icon: GraduationCap
     },
     {
       id: 'profile' as TabType,
       label: 'Profilim',
+      shortLabel: 'Profil',
       icon: User
     }
   ];
@@ -156,7 +174,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       </header>
 
       {/* Mobile Fixed Bottom Navigation Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FFFFFF] border-t border-[#E4E1D9] px-2 py-1.5 flex items-center justify-around shadow-sm">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FFFFFF] border-t border-[#E4E1D9] px-1 py-1.5 flex items-center justify-around shadow-sm">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -164,7 +182,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center justify-center min-h-[44px] py-1 px-2 rounded-xl text-[11px] font-medium transition-colors flex-1 cursor-pointer ${
+              className={`flex flex-col items-center justify-center min-h-[44px] py-1 px-0.5 rounded-xl text-[10px] font-medium transition-colors flex-1 cursor-pointer ${
                 isActive ? 'text-[#4F46A5] font-bold' : 'text-[#687080] hover:text-[#1E2430]'
               }`}
             >
@@ -180,7 +198,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   </span>
                 )}
               </div>
-              <span className="mt-0.5 whitespace-nowrap">{item.label}</span>
+              <span className="mt-0.5 whitespace-nowrap">{item.shortLabel}</span>
             </button>
           );
         })}

@@ -113,7 +113,11 @@ export interface WordCard {
   senses?: WordSense[]; // multi-POS / multi-sense breakdown (unlimited senses)
   isCustom?: boolean;
   customNote?: string;
-  sourceType?: 'oxford' | 'custom';
+  /**
+   * Kartın kaynağı. 'extended' = Genel Dağarcık katmanı; Oxford gibi salt
+   * okunurdur ama resmî bir CEFR listesinden gelmediği için seviye taşımaz.
+   */
+  sourceType?: 'oxford' | 'custom' | 'extended';
   sourceEntryId?: string; // canonical Oxford ID if originated from Oxford 3000
   sourceContext?: string; // e.g. "He was reluctant to tell her the truth."
   sourceName?: string; // e.g. "Breaking Bad S02E05"

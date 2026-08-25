@@ -4,6 +4,7 @@ import { TodayDashboard } from './components/TodayDashboard';
 import { CollectionsView } from './components/CollectionsView';
 import { StudySessionView } from './components/StudySessionView';
 import { OxfordExplorer } from './components/OxfordExplorer';
+import { GeneralVocabularyView } from './components/GeneralVocabularyView';
 import { QuizModule } from './components/QuizModule';
 import { StatsAndBadges } from './components/StatsAndBadges';
 import { FavoritesView } from './components/FavoritesView';
@@ -57,6 +58,7 @@ import {
 import { apiFetch, logout } from './utils/authClient';
 import { runOxfordIdMigrationIfNeeded } from './utils/oxfordIdMigration';
 import { OxfordGroupKey } from './types/oxford';
+import { extendedRepository } from './services/extendedRepository';
 import { useToast } from './components/ui/ToastProvider';
 import { useAndroidBackButton } from './hooks/useAndroidBackButton';
 
@@ -79,6 +81,14 @@ export default function App() {
   const [memberships, setMemberships] = useState<CollectionMembership[]>([]);
   const [learningStates, setLearningStates] = useState<Record<string, LearningState>>({});
   const [customWords, setCustomWords] = useState<WordCard[]>([]);
+  /**
+   * Genel Dağarcık'tan o an bellekte olan kartlar.
+   *
+   * Bu katman bant bant tembel yüklenir; uygulama açılışında boştur. Yüklenen
+   * bandın kartları buraya alınır ki favoriler, sınav hataları ve çalışma
+   * geçmişi bu kelimeleri de kimliklerinden çözebilsin.
+   */
+  const [extendedWords, setExtendedWords] = useState<WordCard[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [stats, setStats] = useState<UserStats>(getUserStatsV2());
   const [unlockedBadges, setUnlockedBadges] = useState<string[]>([]);
@@ -117,8 +127,24 @@ export default function App() {
   // Oxford 3000 + Oxford 5000 Ek (B2 Ek, C1) + kullanıcının kendi kartları.
   // Çalışma, sınav ve favoriler bu birleşik havuz üzerinden çalışır.
   const allWordsCombined = useMemo(() => {
-    return [...OXFORD_3000_WORDS, ...OXFORD_5000_EXTRA_WORDS, ...customWords];
-  }, [customWords]);
+    return [...OXFORD_3000_WORDS, ...OXFORD_5000_EXTRA_WORDS, ...extendedWords, ...customWords];
+  }, [extendedWords, customWords]);
+
+  /**
+   * Kullanıcının dokunduğu Genel Dağarcık kelimeleri bant bırakılsa da elde
+   * tutulur. Favorilenen bir kelimenin, bandı kapatınca favoriler listesinden
+   * kaybolması veri kaybı gibi görünürdü.
+   */
+  useEffect(() => {
+    extendedRepository.retainCards([...favorites, ...Object.keys(learningStates)]);
+  }, [favorites, learningStates]);
+
+  const handleExtendedBandLoaded = useCallback((cards: readonly WordCard[]) => {
+    const merged = new Map<string, WordCard>();
+    extendedRepository.getRetainedCards().forEach(card => merged.set(card.id, card));
+    cards.forEach(card => merged.set(card.id, card));
+    setExtendedWords(Array.from(merged.values()));
+  }, []);
 
   const favoriteWordsList = useMemo(() => {
     return allWordsCombined.filter((w) => favorites.includes(w.id));
@@ -438,6 +464,17 @@ export default function App() {
             onStartQuiz={() => {
               setActiveTab('quiz');
             }}
+          />
+        )}
+
+        {activeTab === 'general' && (
+          <GeneralVocabularyView
+            favorites={favorites}
+            learningStates={learningStates}
+            onToggleFavorite={handleToggleFavorite}
+            onSetStatus={handleSetWordStatus}
+            onOpenAddToCollection={(card) => setCardToAddToCollection(card)}
+            onLoadedWordsChange={handleExtendedBandLoaded}
           />
         )}
 
