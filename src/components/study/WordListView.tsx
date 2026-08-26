@@ -61,20 +61,20 @@ export const WordListView: React.FC<WordListViewProps> = ({
   return (
     <div className="space-y-4 max-w-3xl mx-auto animate-fadeIn pb-safe-nav">
       {/* Top Header */}
-      <div className="flex items-center justify-between gap-3 bg-[#FFFFFF] p-4 sm:p-5 rounded-2xl border border-[#E4E1D9] shadow-xs">
+      <div className="flex items-center justify-between gap-3 bg-[var(--surface)] p-4 sm:p-5 rounded-2xl border border-[var(--border)] shadow-xs">
         <button
           onClick={onBackToStudy}
-          className="flex items-center gap-1.5 px-3 py-2 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-xs font-bold text-[#1E2430] rounded-xl border border-[#E4E1D9] transition-colors cursor-pointer"
+          className="flex items-center gap-1.5 px-3 py-2 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-xs font-bold text-[var(--text-primary)] rounded-xl border border-[var(--border)] transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Karta Dön</span>
         </button>
 
         <div className="text-center">
-          <h2 className="text-base sm:text-lg font-bold text-[#1E2430] truncate max-w-[200px] sm:max-w-md">
+          <h2 className="text-base sm:text-lg font-bold text-[var(--text-primary)] truncate max-w-[200px] sm:max-w-md">
             {title}
           </h2>
-          <p className="text-xs text-[#687080]">
+          <p className="text-xs text-[var(--text-secondary)]">
             Toplam {words.length} kelime
           </p>
         </div>
@@ -83,20 +83,20 @@ export const WordListView: React.FC<WordListViewProps> = ({
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="bg-[#FFFFFF] p-4 rounded-2xl border border-[#E4E1D9] shadow-xs space-y-3">
+      <div className="bg-[var(--surface)] p-4 rounded-2xl border border-[var(--border)] shadow-xs space-y-3">
         <div className="relative">
-          <Search className="w-4 h-4 text-[#8E95A2] absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[var(--text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Kelimelerde veya anlamlarda ara..."
-            className="w-full pl-10 pr-9 py-2.5 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:outline-none focus:border-[#4F46A5] font-medium text-[#1E2430]"
+            className="w-full pl-10 pr-9 py-2.5 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] font-medium text-[var(--text-primary)]"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8E95A2] hover:text-[#1E2430] cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -109,8 +109,8 @@ export const WordListView: React.FC<WordListViewProps> = ({
             onClick={() => setStatusFilter('ALL')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               statusFilter === 'ALL'
-                ? 'bg-[#1E2430] text-white shadow-xs'
-                : 'bg-[#F8F7F3] text-[#687080] hover:text-[#1E2430] border border-[#E4E1D9]'
+                ? 'bg-[var(--text-primary)] text-white shadow-xs'
+                : 'bg-[var(--bg)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border)]'
             }`}
           >
             Tümü ({words.length})
@@ -119,45 +119,45 @@ export const WordListView: React.FC<WordListViewProps> = ({
             onClick={() => setStatusFilter('LEARNING')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
               statusFilter === 'LEARNING'
-                ? 'bg-[#FBF1DE] text-[#B97922] border border-[#E7C98F] shadow-xs'
-                : 'bg-[#F8F7F3] text-[#687080] hover:text-[#1E2430] border border-[#E4E1D9]'
+                ? 'bg-[var(--learning-soft)] text-[var(--learning)] border border-[var(--learning-border)] shadow-xs'
+                : 'bg-[var(--bg)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border)]'
             }`}
           >
-            <RotateCw className="w-3 h-3 text-[#B97922]" />
+            <RotateCw className="w-3 h-3 text-[var(--learning)]" />
             <span>Öğreniyorum</span>
           </button>
           <button
             onClick={() => setStatusFilter('LEARNED')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
               statusFilter === 'LEARNED'
-                ? 'bg-[#E9F3ED] text-[#4F806A] border border-[#BFD7C8] shadow-xs'
-                : 'bg-[#F8F7F3] text-[#687080] hover:text-[#1E2430] border border-[#E4E1D9]'
+                ? 'bg-[var(--learned-soft)] text-[var(--learned)] border border-[var(--learned-border)] shadow-xs'
+                : 'bg-[var(--bg)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border)]'
             }`}
           >
-            <CheckCircle2 className="w-3 h-3 text-[#4F806A]" />
+            <CheckCircle2 className="w-3 h-3 text-[var(--learned)]" />
             <span>Öğrendim</span>
           </button>
           <button
             onClick={() => setStatusFilter('FAVORITES')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
               statusFilter === 'FAVORITES'
-                ? 'bg-[#FAECEA] text-[#D96B82] border border-[#E8C2BD] shadow-xs'
-                : 'bg-[#F8F7F3] text-[#687080] hover:text-[#1E2430] border border-[#E4E1D9]'
+                ? 'bg-[var(--danger-soft)] text-[var(--favorite-strong)] border border-[var(--danger-border-strong)] shadow-xs'
+                : 'bg-[var(--bg)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border)]'
             }`}
           >
-            <Heart className="w-3 h-3 text-[#D96B82] fill-current" />
+            <Heart className="w-3 h-3 text-[var(--favorite-strong)] fill-current" />
             <span>Favoriler</span>
           </button>
         </div>
       </div>
 
       {/* Word List Items */}
-      <div className="bg-[#FFFFFF] rounded-2xl border border-[#E4E1D9] shadow-xs divide-y divide-[#EFECE6] overflow-hidden">
+      <div className="bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow-xs divide-y divide-[var(--border-light)] overflow-hidden">
         {filteredWordItems.length === 0 ? (
           <div className="p-10 text-center space-y-2">
-            <BookOpen className="w-8 h-8 text-[#8E95A2] mx-auto" />
-            <p className="text-sm font-bold text-[#1E2430]">Kelime Bulunamadı</p>
-            <p className="text-xs text-[#687080]">Arama kriterlerine uygun kelime yok.</p>
+            <BookOpen className="w-8 h-8 text-[var(--text-muted)] mx-auto" />
+            <p className="text-sm font-bold text-[var(--text-primary)]">Kelime Bulunamadı</p>
+            <p className="text-xs text-[var(--text-secondary)]">Arama kriterlerine uygun kelime yok.</p>
           </div>
         ) : (
           filteredWordItems.map(({ word, originalIndex }) => {
@@ -168,21 +168,21 @@ export const WordListView: React.FC<WordListViewProps> = ({
               <div
                 key={word.id}
                 onClick={() => onSelectWordIndex(originalIndex)}
-                className="p-3.5 sm:p-4 hover:bg-[#F8F7F3] transition-colors flex items-center justify-between gap-3 cursor-pointer group"
+                className="p-3.5 sm:p-4 hover:bg-[var(--bg)] transition-colors flex items-center justify-between gap-3 cursor-pointer group"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   {/* Status Indicator Icon */}
                   <div className="shrink-0">
                     {st === 'learned' ? (
-                      <span className="w-6 h-6 rounded-full bg-[#E9F3ED] text-[#4F806A] flex items-center justify-center border border-[#BFD7C8]">
+                      <span className="w-6 h-6 rounded-full bg-[var(--learned-soft)] text-[var(--learned)] flex items-center justify-center border border-[var(--learned-border)]">
                         <CheckCircle2 className="w-3.5 h-3.5" />
                       </span>
                     ) : st === 'learning' ? (
-                      <span className="w-6 h-6 rounded-full bg-[#FBF1DE] text-[#B97922] flex items-center justify-center border border-[#E7C98F]">
+                      <span className="w-6 h-6 rounded-full bg-[var(--learning-soft)] text-[var(--learning)] flex items-center justify-center border border-[var(--learning-border)]">
                         <RotateCw className="w-3.5 h-3.5" />
                       </span>
                     ) : (
-                      <span className="w-6 h-6 rounded-full bg-[#F8F7F3] text-[#8E95A2] flex items-center justify-center border border-[#E4E1D9] text-[10px] font-bold">
+                      <span className="w-6 h-6 rounded-full bg-[var(--bg)] text-[var(--text-muted)] flex items-center justify-center border border-[var(--border)] text-[10px] font-bold">
                         {originalIndex + 1}
                       </span>
                     )}
@@ -191,17 +191,17 @@ export const WordListView: React.FC<WordListViewProps> = ({
                   {/* Word & Meaning Preview */}
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm sm:text-base font-bold text-[#1E2430] group-hover:text-[#4F46A5] transition-colors truncate">
+                      <span className="text-sm sm:text-base font-bold text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors truncate">
                         {word.word}
                       </span>
                       {shouldShowCefr(word) && <CEFRBadge level={word.level!} size="sm" />}
-                      <span className="text-[10px] font-semibold text-[#8E95A2]">
+                      <span className="text-[10px] font-semibold text-[var(--text-muted)]">
                         {word.partOfSpeech}
                       </span>
                     </div>
-                    <p className="text-xs text-[#687080] truncate mt-0.5">
+                    <p className="text-xs text-[var(--text-secondary)] truncate mt-0.5">
                       {word.turkishMeaning || (
-                        <span className="text-[#8E95A2] italic">anlam hazırlanıyor</span>
+                        <span className="text-[var(--text-muted)] italic">anlam hazırlanıyor</span>
                       )}
                     </p>
                   </div>
@@ -211,7 +211,7 @@ export const WordListView: React.FC<WordListViewProps> = ({
                 <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
                   <button
                     onClick={() => speakText(word.word)}
-                    className="p-1.5 text-[#8E95A2] hover:text-[#4F46A5] hover:bg-[#EEECFA] rounded-lg transition-colors cursor-pointer"
+                    className="p-1.5 text-[var(--text-muted)] hover:text-[var(--primary)] hover:bg-[var(--primary-soft)] rounded-lg transition-colors cursor-pointer"
                     title="Telaffuz"
                   >
                     <Volume2 className="w-3.5 h-3.5" />
@@ -220,8 +220,8 @@ export const WordListView: React.FC<WordListViewProps> = ({
                     onClick={() => onToggleFavorite(word.id)}
                     className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                       isFav
-                        ? 'text-[#D96B82] bg-[#FAECEA]'
-                        : 'text-[#8E95A2] hover:text-[#D96B82] hover:bg-[#FAECEA]'
+                        ? 'text-[var(--favorite-strong)] bg-[var(--danger-soft)]'
+                        : 'text-[var(--text-muted)] hover:text-[var(--favorite-strong)] hover:bg-[var(--danger-soft)]'
                     }`}
                     title="Favori"
                   >

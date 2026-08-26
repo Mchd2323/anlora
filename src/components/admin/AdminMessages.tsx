@@ -184,26 +184,26 @@ export const AdminMessages: React.FC = () => {
         <Card className="space-y-2">
           <SectionTitle>Yayınlanmış duyurular</SectionTitle>
           {announcements.map(item => (
-            <div key={item.id} className="rounded-xl border border-[#E4E1D9] bg-[#FAF9F5] p-3">
+            <div key={item.id} className="rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-3">
               <div className="flex items-start justify-between gap-3 flex-wrap">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-bold text-[#1E2430]">{item.title}</span>
+                    <span className="text-sm font-bold text-[var(--text-primary)]">{item.title}</span>
                     <span
                       className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
                         item.active
-                          ? 'bg-[#E9F3ED] text-[#35654E]'
-                          : 'bg-[#F1EFE8] text-[#687080]'
+                          ? 'bg-[var(--learned-soft)] text-[var(--learned-text)]'
+                          : 'bg-[var(--surface-soft)] text-[var(--text-secondary)]'
                       }`}
                     >
                       {item.active ? 'YAYINDA' : 'KAPALI'}
                     </span>
-                    <span className="text-[10px] text-[#8E95A2]">
+                    <span className="text-[10px] text-[var(--text-muted)]">
                       {item.audience === 'verified' ? 'doğrulanmışlara' : 'herkese'} ·{' '}
                       {formatDate(item.createdAt)}
                     </span>
                   </div>
-                  <p className="text-[11px] text-[#687080] mt-1">{item.body}</p>
+                  <p className="text-[11px] text-[var(--text-secondary)] mt-1">{item.body}</p>
                 </div>
                 <div className="flex gap-1.5">
                   <Button onClick={() => void toggleAnnouncement(item)}>
@@ -223,7 +223,7 @@ export const AdminMessages: React.FC = () => {
       <Card className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <SectionTitle icon={<Inbox className="w-3.5 h-3.5" />}>
-            Gelen bildirimler {newCount > 0 && <span className="text-[#C65D55]">· {newCount} yeni</span>}
+            Gelen bildirimler {newCount > 0 && <span className="text-[var(--danger)]">· {newCount} yeni</span>}
           </SectionTitle>
           <select
             value={statusFilter}
@@ -238,42 +238,42 @@ export const AdminMessages: React.FC = () => {
         </div>
 
         {feedback.length === 0 ? (
-          <p className="text-xs text-[#687080] py-6 text-center">Bildirim yok.</p>
+          <p className="text-xs text-[var(--text-secondary)] py-6 text-center">Bildirim yok.</p>
         ) : (
           <div className="space-y-2">
             {feedback.map(item => (
-              <div key={item.id} className="rounded-xl border border-[#E4E1D9] bg-[#FAF9F5] p-3 space-y-2">
+              <div key={item.id} className="rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-3 space-y-2">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#EEECFA] text-[#4F46A5]">
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[var(--primary-soft)] text-[var(--primary)]">
                     {KIND_LABEL[item.kind] || item.kind}
                   </span>
                   {item.word && (
-                    <span className="text-[11px] font-bold text-[#1E2430]">"{item.word}"</span>
+                    <span className="text-[11px] font-bold text-[var(--text-primary)]">"{item.word}"</span>
                   )}
                   <span
                     className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
                       item.status === 'new'
-                        ? 'bg-[#FAECEA] text-[#C65D55]'
+                        ? 'bg-[var(--danger-soft)] text-[var(--danger)]'
                         : item.status === 'resolved'
-                        ? 'bg-[#E9F3ED] text-[#35654E]'
-                        : 'bg-[#F1EFE8] text-[#687080]'
+                        ? 'bg-[var(--learned-soft)] text-[var(--learned-text)]'
+                        : 'bg-[var(--surface-soft)] text-[var(--text-secondary)]'
                     }`}
                   >
                     {STATUS_LABEL[item.status]}
                   </span>
-                  <span className="text-[10px] text-[#8E95A2]">{formatDate(item.createdAt)}</span>
+                  <span className="text-[10px] text-[var(--text-muted)]">{formatDate(item.createdAt)}</span>
                 </div>
 
-                <p className="text-xs text-[#1E2430] leading-relaxed">{item.message}</p>
+                <p className="text-xs text-[var(--text-primary)] leading-relaxed">{item.message}</p>
 
                 {(item.email || item.replyTo) && (
-                  <p className="text-[10px] text-[#687080]">
+                  <p className="text-[10px] text-[var(--text-secondary)]">
                     {item.email && <>hesap: {item.email}</>}
                     {item.replyTo && <> · yanıt için: {item.replyTo}</>}
                   </p>
                 )}
 
-                <div className="flex flex-wrap gap-1.5 pt-1 border-t border-[#EFECE6]">
+                <div className="flex flex-wrap gap-1.5 pt-1 border-t border-[var(--border-light)]">
                   {item.status !== 'read' && (
                     <Button onClick={() => void setFeedbackStatus(item, 'read')}>
                       <Eye className="w-3.5 h-3.5" /> Okundu

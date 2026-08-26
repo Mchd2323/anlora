@@ -193,23 +193,23 @@ export const CoreStudyView: React.FC<CoreStudyViewProps> = ({
   if (words.length === 0) {
     return (
       <div className="max-w-md mx-auto text-center py-16 space-y-4 animate-fadeIn">
-        <div className="w-14 h-14 rounded-2xl bg-[#EEECFA] text-[#4F46A5] flex items-center justify-center mx-auto border border-[#D7D2F4]">
+        <div className="w-14 h-14 rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center mx-auto border border-[var(--primary-border)]">
           <BookOpen className="w-7 h-7" />
         </div>
-        <h2 className="text-lg font-bold text-[#1E2430]">{title}</h2>
-        <p className="text-xs text-[#687080]">Bu sette henüz kelime bulunmuyor.</p>
+        <h2 className="text-lg font-bold text-[var(--text-primary)]">{title}</h2>
+        <p className="text-xs text-[var(--text-secondary)]">Bu sette henüz kelime bulunmuyor.</p>
         <div className="flex justify-center gap-2 pt-2">
           {onOpenAddWordModal && (
             <button
               onClick={onOpenAddWordModal}
-              className="px-4 py-2 bg-[#4F46A5] text-white text-xs font-semibold rounded-xl cursor-pointer"
+              className="px-4 py-2 bg-[var(--primary)] text-white text-xs font-semibold rounded-xl cursor-pointer"
             >
               + İlk Kelimeyi Ekle
             </button>
           )}
           <button
             onClick={onExit}
-            className="px-4 py-2 bg-[#F8F7F3] text-[#1E2430] border border-[#E4E1D9] text-xs font-semibold rounded-xl cursor-pointer"
+            className="px-4 py-2 bg-[var(--bg)] text-[var(--text-primary)] border border-[var(--border)] text-xs font-semibold rounded-xl cursor-pointer"
           >
             Geri Dön
           </button>
@@ -244,30 +244,30 @@ export const CoreStudyView: React.FC<CoreStudyViewProps> = ({
         {/* Top bar */}
         <button
           onClick={onExit}
-          className="flex items-center gap-1.5 px-3.5 py-2 bg-[#FFFFFF] hover:bg-[#F8F7F3] text-xs font-bold text-[#1E2430] rounded-xl border border-[#E4E1D9] shadow-2xs transition-colors cursor-pointer"
+          className="flex items-center gap-1.5 px-3.5 py-2 bg-[var(--surface)] hover:bg-[var(--bg)] text-xs font-bold text-[var(--text-primary)] rounded-xl border border-[var(--border)] shadow-2xs transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Geri Dön</span>
         </button>
 
         {/* Set / Level Summary Card */}
-        <div className="bg-[#FFFFFF] rounded-2xl border border-[#E4E1D9] p-6 sm:p-8 shadow-xs space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#EFECE6]">
+        <div className="bg-[var(--surface)] rounded-2xl border border-[var(--border)] p-6 sm:p-8 shadow-xs space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[var(--border-light)]">
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-black text-[#1E2430] tracking-tight">
+                <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tight">
                   {title}
                 </h1>
                 {level && level !== 'ALL' && <CEFRBadge level={level} />}
               </div>
-              <p className="text-xs text-[#687080] mt-1 font-medium">
+              <p className="text-xs text-[var(--text-secondary)] mt-1 font-medium">
                 Toplam {words.length} kelime
               </p>
             </div>
 
             {savedIndex > 0 && (
-              <div className="px-3 py-1.5 bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl text-xs text-[#687080] flex items-center gap-1.5 self-start sm:self-auto">
-                <span className="w-2 h-2 rounded-full bg-[#4F46A5]" />
+              <div className="px-3 py-1.5 bg-[var(--bg)] border border-[var(--border)] rounded-xl text-xs text-[var(--text-secondary)] flex items-center gap-1.5 self-start sm:self-auto">
+                <span className="w-2 h-2 rounded-full bg-[var(--primary)]" />
                 <span>Son çalışma: <b>{savedIndex + 1}</b> / {words.length}</span>
               </div>
             )}
@@ -275,40 +275,40 @@ export const CoreStudyView: React.FC<CoreStudyViewProps> = ({
 
           {/* Quick Progress Stats */}
           <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
-            <div className="p-3.5 bg-[#E9F3ED]/70 rounded-xl border border-[#BFD7C8] text-center space-y-0.5">
-              <span className="text-[11px] font-bold text-[#4F806A] uppercase tracking-wider block">
+            <div className="p-3.5 bg-[var(--learned-soft)]/70 rounded-xl border border-[var(--learned-border)] text-center space-y-0.5">
+              <span className="text-[11px] font-bold text-[var(--learned)] uppercase tracking-wider block">
                 Öğrendim
               </span>
-              <span className="text-lg font-black text-[#1E2430]">
+              <span className="text-lg font-black text-[var(--text-primary)]">
                 {stats.learnedCount}
               </span>
             </div>
-            <div className="p-3.5 bg-[#FBF1DE]/70 rounded-xl border border-[#E7C98F] text-center space-y-0.5">
-              <span className="text-[11px] font-bold text-[#B97922] uppercase tracking-wider block">
+            <div className="p-3.5 bg-[var(--learning-soft)]/70 rounded-xl border border-[var(--learning-border)] text-center space-y-0.5">
+              <span className="text-[11px] font-bold text-[var(--learning)] uppercase tracking-wider block">
                 Öğreniyorum
               </span>
-              <span className="text-lg font-black text-[#1E2430]">
+              <span className="text-lg font-black text-[var(--text-primary)]">
                 {stats.learningCount}
               </span>
             </div>
-            <div className="p-3.5 bg-[#F8F7F3] rounded-xl border border-[#E4E1D9] text-center space-y-0.5">
-              <span className="text-[11px] font-bold text-[#8E95A2] uppercase tracking-wider block">
+            <div className="p-3.5 bg-[var(--bg)] rounded-xl border border-[var(--border)] text-center space-y-0.5">
+              <span className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider block">
                 Henüz Bakılmadı
               </span>
-              <span className="text-lg font-black text-[#1E2430]">
+              <span className="text-lg font-black text-[var(--text-primary)]">
                 {stats.unseenCount}
               </span>
             </div>
           </div>
 
           {/* Shuffle vs Sequential Selector */}
-          <div className="flex items-center justify-between p-3 bg-[#F8F7F3] rounded-xl border border-[#E4E1D9] text-xs">
-            <span className="font-semibold text-[#1E2430]">Çalışma Sırası</span>
+          <div className="flex items-center justify-between p-3 bg-[var(--bg)] rounded-xl border border-[var(--border)] text-xs">
+            <span className="font-semibold text-[var(--text-primary)]">Çalışma Sırası</span>
             <div className="flex gap-1">
               <button
                 onClick={() => setIsShuffled(false)}
                 className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
-                  !isShuffled ? 'bg-[#FFFFFF] text-[#1E2430] shadow-2xs' : 'text-[#687080]'
+                  !isShuffled ? 'bg-[var(--surface)] text-[var(--text-primary)] shadow-2xs' : 'text-[var(--text-secondary)]'
                 }`}
               >
                 Sırayla
@@ -316,7 +316,7 @@ export const CoreStudyView: React.FC<CoreStudyViewProps> = ({
               <button
                 onClick={() => setIsShuffled(true)}
                 className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1 cursor-pointer ${
-                  isShuffled ? 'bg-[#FFFFFF] text-[#1E2430] shadow-2xs' : 'text-[#687080]'
+                  isShuffled ? 'bg-[var(--surface)] text-[var(--text-primary)] shadow-2xs' : 'text-[var(--text-secondary)]'
                 }`}
               >
                 <Shuffle className="w-3 h-3" />
@@ -332,7 +332,7 @@ export const CoreStudyView: React.FC<CoreStudyViewProps> = ({
                 setCurrentIndex(savedIndex);
                 setViewMode('study');
               }}
-              className="flex-1 py-3 px-4 bg-[#4F46A5] hover:bg-[#433B91] text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+              className="flex-1 py-3 px-4 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
             >
               <Play className="w-4 h-4 fill-current" />
               <span>{savedIndex > 0 ? 'Kaldığın Yerden Devam Et' : 'Çalışmaya Başla'}</span>
@@ -345,7 +345,7 @@ export const CoreStudyView: React.FC<CoreStudyViewProps> = ({
                   saveProgress(0);
                   setViewMode('study');
                 }}
-                className="py-3 px-4 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#1E2430] font-bold text-xs rounded-xl border border-[#E4E1D9] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="py-3 px-4 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] font-bold text-xs rounded-xl border border-[var(--border)] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Baştan Başla</span>
@@ -354,7 +354,7 @@ export const CoreStudyView: React.FC<CoreStudyViewProps> = ({
 
             <button
               onClick={() => setViewMode('list')}
-              className="py-3 px-4 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#1E2430] font-bold text-xs rounded-xl border border-[#E4E1D9] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              className="py-3 px-4 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] font-bold text-xs rounded-xl border border-[var(--border)] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <List className="w-4 h-4" />
               <span>Tüm Kelimeler</span>
@@ -363,7 +363,7 @@ export const CoreStudyView: React.FC<CoreStudyViewProps> = ({
             {onOpenAddWordModal && (
               <button
                 onClick={onOpenAddWordModal}
-                className="py-3 px-4 bg-[#EEECFA] hover:bg-[#E3DFF7] text-[#4F46A5] font-bold text-xs rounded-xl border border-[#D7D2F4] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="py-3 px-4 bg-[var(--primary-soft)] hover:bg-[var(--primary-soft-strong)] text-[var(--primary)] font-bold text-xs rounded-xl border border-[var(--primary-border)] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Kelime Ekle</span>
@@ -386,10 +386,10 @@ export const CoreStudyView: React.FC<CoreStudyViewProps> = ({
       onTouchEnd={handleTouchEnd}
     >
       {/* Study Navigation Header */}
-      <div className="bg-[#FFFFFF] p-3.5 sm:p-4 rounded-2xl border border-[#E4E1D9] shadow-xs flex items-center justify-between gap-3">
+      <div className="bg-[var(--surface)] p-3.5 sm:p-4 rounded-2xl border border-[var(--border)] shadow-xs flex items-center justify-between gap-3">
         <button
           onClick={() => setViewMode('overview')}
-          className="flex items-center gap-1 px-2.5 py-1.5 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-xs font-bold text-[#1E2430] rounded-xl border border-[#E4E1D9] transition-colors cursor-pointer"
+          className="flex items-center gap-1 px-2.5 py-1.5 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-xs font-bold text-[var(--text-primary)] rounded-xl border border-[var(--border)] transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">Menü</span>
@@ -397,14 +397,14 @@ export const CoreStudyView: React.FC<CoreStudyViewProps> = ({
 
         {/* Center Progress Text & Bar */}
         <div className="flex-1 max-w-xs text-center space-y-1">
-          <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-[#1E2430]">
+          <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-[var(--text-primary)]">
             <span>{title}</span>
-            <span className="text-[#8E95A2]">·</span>
-            <span className="font-mono text-[#4F46A5]">{currentIndex + 1} / {activeWordList.length}</span>
+            <span className="text-[var(--text-muted)]">·</span>
+            <span className="font-mono text-[var(--primary)]">{currentIndex + 1} / {activeWordList.length}</span>
           </div>
-          <div className="w-full bg-[#F8F7F3] h-1.5 rounded-full overflow-hidden border border-[#EFECE6]">
+          <div className="w-full bg-[var(--bg)] h-1.5 rounded-full overflow-hidden border border-[var(--border-light)]">
             <div
-              className="bg-[#4F46A5] h-full rounded-full transition-all duration-300"
+              className="bg-[var(--primary)] h-full rounded-full transition-all duration-300"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -413,9 +413,9 @@ export const CoreStudyView: React.FC<CoreStudyViewProps> = ({
         {/* Right Action: All Words */}
         <button
           onClick={() => setViewMode('list')}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-xs font-bold text-[#1E2430] rounded-xl border border-[#E4E1D9] transition-colors cursor-pointer"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-xs font-bold text-[var(--text-primary)] rounded-xl border border-[var(--border)] transition-colors cursor-pointer"
         >
-          <List className="w-3.5 h-3.5 text-[#4F46A5]" />
+          <List className="w-3.5 h-3.5 text-[var(--primary)]" />
           <span className="hidden sm:inline">Tüm Kelimeler</span>
         </button>
       </div>
@@ -440,7 +440,7 @@ export const CoreStudyView: React.FC<CoreStudyViewProps> = ({
         <button
           onClick={handlePrevCard}
           disabled={currentIndex === 0}
-          className="flex-1 py-3 px-4 bg-[#FFFFFF] hover:bg-[#F8F7F3] disabled:opacity-40 text-[#1E2430] font-bold text-xs rounded-xl border border-[#E4E1D9] shadow-2xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+          className="flex-1 py-3 px-4 bg-[var(--surface)] hover:bg-[var(--bg)] disabled:opacity-40 text-[var(--text-primary)] font-bold text-xs rounded-xl border border-[var(--border)] shadow-2xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
         >
           <ChevronLeft className="w-4 h-4" />
           <span>Önceki Kelime</span>
@@ -449,7 +449,7 @@ export const CoreStudyView: React.FC<CoreStudyViewProps> = ({
         <button
           onClick={handleNextCard}
           disabled={currentIndex === activeWordList.length - 1}
-          className="flex-1 py-3 px-4 bg-[#4F46A5] hover:bg-[#433B91] disabled:opacity-40 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+          className="flex-1 py-3 px-4 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-40 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
         >
           <span>Sonraki Kelime</span>
           <ChevronRight className="w-4 h-4" />
@@ -457,8 +457,8 @@ export const CoreStudyView: React.FC<CoreStudyViewProps> = ({
       </div>
 
       {/* Desktop Keyboard Tip */}
-      <p className="text-[11px] text-center text-[#8E95A2] hidden sm:block">
-        İpucu: Kartlar arasında geçiş yapmak için klavyedeki <kbd className="px-1.5 py-0.5 bg-[#FFFFFF] border border-[#E4E1D9] rounded text-[10px] font-mono">←</kbd> ve <kbd className="px-1.5 py-0.5 bg-[#FFFFFF] border border-[#E4E1D9] rounded text-[10px] font-mono">→</kbd> ok tuşlarını kullanabilirsin.
+      <p className="text-[11px] text-center text-[var(--text-muted)] hidden sm:block">
+        İpucu: Kartlar arasında geçiş yapmak için klavyedeki <kbd className="px-1.5 py-0.5 bg-[var(--surface)] border border-[var(--border)] rounded text-[10px] font-mono">←</kbd> ve <kbd className="px-1.5 py-0.5 bg-[var(--surface)] border border-[var(--border)] rounded text-[10px] font-mono">→</kbd> ok tuşlarını kullanabilirsin.
       </p>
     </div>
   );

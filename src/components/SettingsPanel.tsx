@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { UserSettings } from '../types';
-import { Sliders, Target, Volume2, Keyboard, Layers, Download, Loader2 } from 'lucide-react';
+import { Sliders, Target, Volume2, Keyboard, Layers, Download, Loader2, Sun } from 'lucide-react';
 import {
   describeSpeechSupport,
   openTtsInstall,
@@ -60,23 +60,23 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
   };
 
   return (
-    <div className="bg-[#FFFFFF] rounded-2xl p-6 sm:p-7 border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
-      <h3 className="text-sm font-bold text-[#1E2430] flex items-center gap-1.5">
-        <Sliders className="w-4 h-4 text-[#687080]" />
+    <div className="bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
+      <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+        <Sliders className="w-4 h-4 text-[var(--text-secondary)]" />
         <span>Çalışma Ayarları</span>
       </h3>
 
       {/* Günlük hedefler */}
       <div className="space-y-4">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-[#687080]">
-          <Target className="w-3.5 h-3.5 text-[#4F46A5]" />
+        <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)]">
+          <Target className="w-3.5 h-3.5 text-[var(--primary)]" />
           <span>Günlük hedefler</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className="block">
-            <span className="text-[11px] font-semibold text-[#687080] block mb-1.5">
-              Günlük tekrar hedefi: <b className="text-[#4F46A5]">{settings.dailyReviewGoal}</b>
+            <span className="text-[11px] font-semibold text-[var(--text-secondary)] block mb-1.5">
+              Günlük tekrar hedefi: <b className="text-[var(--primary)]">{settings.dailyReviewGoal}</b>
             </span>
             <input
               type="range"
@@ -85,13 +85,13 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
               step={5}
               value={settings.dailyReviewGoal}
               onChange={e => update('dailyReviewGoal', Number(e.target.value))}
-              className="w-full accent-[#4F46A5] cursor-pointer"
+              className="w-full accent-[var(--primary)] cursor-pointer"
             />
           </label>
 
           <label className="block">
-            <span className="text-[11px] font-semibold text-[#687080] block mb-1.5">
-              Günlük yeni kelime: <b className="text-[#4F46A5]">{settings.dailyNewWordsGoal}</b>
+            <span className="text-[11px] font-semibold text-[var(--text-secondary)] block mb-1.5">
+              Günlük yeni kelime: <b className="text-[var(--primary)]">{settings.dailyNewWordsGoal}</b>
             </span>
             <input
               type="range"
@@ -100,7 +100,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
               step={1}
               value={settings.dailyNewWordsGoal}
               onChange={e => update('dailyNewWordsGoal', Number(e.target.value))}
-              className="w-full accent-[#4F46A5] cursor-pointer"
+              className="w-full accent-[var(--primary)] cursor-pointer"
             />
           </label>
         </div>
@@ -108,8 +108,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
 
       {/* Çalışma modu */}
       <div className="space-y-2.5">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-[#687080]">
-          <Layers className="w-3.5 h-3.5 text-[#4F46A5]" />
+        <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)]">
+          <Layers className="w-3.5 h-3.5 text-[var(--primary)]" />
           <span>Tercih edilen çalışma modu</span>
         </div>
 
@@ -119,8 +119,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
               key={mode.value}
               className={`flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-colors ${
                 settings.preferredStudyMode === mode.value
-                  ? 'bg-[#EEECFA] border-[#D7D2F4]'
-                  : 'bg-[#FAF9F5] border-[#EFECE6] hover:bg-[#F1EFE8]'
+                  ? 'bg-[var(--primary-soft)] border-[var(--primary-border)]'
+                  : 'bg-[var(--surface-subtle)] border-[var(--border-light)] hover:bg-[var(--surface-soft)]'
               }`}
             >
               <input
@@ -129,11 +129,11 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
                 value={mode.value}
                 checked={settings.preferredStudyMode === mode.value}
                 onChange={() => update('preferredStudyMode', mode.value)}
-                className="mt-0.5 accent-[#4F46A5] cursor-pointer"
+                className="mt-0.5 accent-[var(--primary)] cursor-pointer"
               />
               <span>
-                <span className="text-xs font-bold text-[#1E2430] block">{mode.label}</span>
-                <span className="text-[11px] text-[#687080]">{mode.hint}</span>
+                <span className="text-xs font-bold text-[var(--text-primary)] block">{mode.label}</span>
+                <span className="text-[11px] text-[var(--text-secondary)]">{mode.hint}</span>
               </span>
             </label>
           ))}
@@ -142,50 +142,118 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
 
       {/* Anahtarlar */}
       <div className="space-y-2.5">
-        <label className="flex items-start gap-2.5 p-3 rounded-xl border border-[#EFECE6] bg-[#FAF9F5] cursor-pointer hover:bg-[#F1EFE8] transition-colors">
+        <label className="flex items-start gap-2.5 p-3 rounded-xl border border-[var(--border-light)] bg-[var(--surface-subtle)] cursor-pointer hover:bg-[var(--surface-soft)] transition-colors">
           <input
             type="checkbox"
             checked={settings.autoPlayAudioOnCard}
             onChange={e => update('autoPlayAudioOnCard', e.target.checked)}
-            className="mt-0.5 accent-[#4F46A5] cursor-pointer"
+            className="mt-0.5 accent-[var(--primary)] cursor-pointer"
           />
           <span>
-            <span className="text-xs font-bold text-[#1E2430] flex items-center gap-1.5">
-              <Volume2 className="w-3.5 h-3.5 text-[#4F46A5]" />
+            <span className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+              <Volume2 className="w-3.5 h-3.5 text-[var(--primary)]" />
               Kart açılınca telaffuzu otomatik çal
             </span>
-            <span className="text-[11px] text-[#687080]">
+            <span className="text-[11px] text-[var(--text-secondary)]">
               Çalışma sırasında her yeni kelime kendiliğinden seslendirilir.
             </span>
           </span>
         </label>
 
-        <label className="flex items-start gap-2.5 p-3 rounded-xl border border-[#EFECE6] bg-[#FAF9F5] cursor-pointer hover:bg-[#F1EFE8] transition-colors">
+        <label className="flex items-start gap-2.5 p-3 rounded-xl border border-[var(--border-light)] bg-[var(--surface-subtle)] cursor-pointer hover:bg-[var(--surface-soft)] transition-colors">
           <input
             type="checkbox"
             checked={settings.enableTypoTolerance}
             onChange={e => update('enableTypoTolerance', e.target.checked)}
-            className="mt-0.5 accent-[#4F46A5] cursor-pointer"
+            className="mt-0.5 accent-[var(--primary)] cursor-pointer"
           />
           <span>
-            <span className="text-xs font-bold text-[#1E2430] flex items-center gap-1.5">
-              <Keyboard className="w-3.5 h-3.5 text-[#4F46A5]" />
+            <span className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+              <Keyboard className="w-3.5 h-3.5 text-[var(--primary)]" />
               Yazarken bir harflik hatayı hoş gör
             </span>
-            <span className="text-[11px] text-[#687080]">
+            <span className="text-[11px] text-[var(--text-secondary)]">
               Yazdığın şey başka bir gerçek kelimeyse yine de yanlış sayılır.
             </span>
           </span>
         </label>
       </div>
 
+      {/* Görünüm */}
+      <div className="space-y-3 pt-2 border-t border-[var(--border-light)]">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)]">
+          <Sun className="w-3.5 h-3.5" />
+          <span>Görünüm</span>
+        </div>
+
+        <div>
+          <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">
+            Tema
+          </label>
+          <div className="grid grid-cols-3 gap-1.5">
+            {[
+              { id: 'system' as const, label: 'Sistem', hint: 'Telefonun ayarı' },
+              { id: 'light' as const, label: 'Açık', hint: '' },
+              { id: 'dark' as const, label: 'Koyu', hint: '' }
+            ].map(option => (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => update('theme', option.id)}
+                aria-pressed={(settings.theme || 'system') === option.id}
+                className={`px-2.5 py-2 rounded-xl text-[11px] font-semibold border transition-colors cursor-pointer ${
+                  (settings.theme || 'system') === option.id
+                    ? 'bg-[var(--primary-soft)] border-[var(--primary)] text-[var(--primary)]'
+                    : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-soft)]'
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-[11px] text-[var(--text-muted)] mt-1">
+            "Sistem" seçiliyken telefonun karanlık moda geçmesiyle uygulama da geçer.
+          </p>
+        </div>
+
+        <div>
+          <label
+            htmlFor="fontScale"
+            className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1.5"
+          >
+            Yazı büyüklüğü ·{' '}
+            <span className="normal-case tracking-normal">
+              %{Math.round((settings.fontScale || 1) * 100)}
+            </span>
+          </label>
+          <input
+            id="fontScale"
+            type="range"
+            min={0.875}
+            max={1.5}
+            step={0.125}
+            value={settings.fontScale || 1}
+            onChange={e => update('fontScale', Number(e.target.value))}
+            className="w-full accent-[var(--primary)] cursor-pointer"
+          />
+          <div className="flex justify-between text-[10px] text-[var(--text-muted)] mt-0.5">
+            <span>Küçük</span>
+            <span>Varsayılan</span>
+            <span>Büyük</span>
+          </div>
+          <p className="text-[11px] text-[var(--text-muted)] mt-1">
+            Tüm ekranı birlikte büyütür. Değişiklik anında görünür.
+          </p>
+        </div>
+      </div>
+
       {/* Telaffuz sesi */}
-      <div className="space-y-2 pt-2 border-t border-[#EFECE6]">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-[#687080]">
+      <div className="space-y-2 pt-2 border-t border-[var(--border-light)]">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)]">
           <Volume2 className="w-3.5 h-3.5" />
           <span>Telaffuz Sesi</span>
         </div>
-        <p className="text-[11px] text-[#687080] leading-relaxed">
+        <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
           Ses gelmiyorsa önce burayı dene. Sorun çoğu zaman cihazda İngilizce
           konuşma paketinin kurulu olmamasıdır.
         </p>
@@ -195,7 +263,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
             type="button"
             onClick={runSpeechTest}
             disabled={isTesting}
-            className="px-3.5 py-2 bg-[#F1EFE8] hover:bg-[#EEECFA] text-[#4F46A5] border border-[#D7D2F4] text-xs font-semibold rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-60 disabled:cursor-wait"
+            className="px-3.5 py-2 bg-[var(--surface-soft)] hover:bg-[var(--primary-soft)] text-[var(--primary)] border border-[var(--primary-border)] text-xs font-semibold rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-60 disabled:cursor-wait"
           >
             {isTesting ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -209,7 +277,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
             <button
               type="button"
               onClick={() => void openTtsInstall()}
-              className="px-3.5 py-2 bg-[#4F46A5] hover:bg-[#433B91] text-white text-xs font-semibold rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-xs font-semibold rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
               <span>İngilizce Ses Paketini Yükle</span>
@@ -221,8 +289,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
           <div
             className={`p-3 rounded-xl border text-[11px] leading-relaxed ${
               diagnostics.hasEnglish
-                ? 'bg-[#E9F3ED] border-[#BFD7C8] text-[#35654E]'
-                : 'bg-[#FBF1DE] border-[#E7C98F] text-[#8A5A18]'
+                ? 'bg-[var(--learned-soft)] border-[var(--learned-border)] text-[var(--learned-text)]'
+                : 'bg-[var(--learning-soft)] border-[var(--learning-border)] text-[var(--learning-text)]'
             }`}
           >
             {diagnostics.hasEnglish ? (

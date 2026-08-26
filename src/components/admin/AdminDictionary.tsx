@@ -225,7 +225,7 @@ export const AdminDictionary: React.FC = () => {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <SectionTitle>
             Sözlük · {counts.total} kayıt
-            <span className="font-normal text-[#687080] normal-case tracking-normal ml-1">
+            <span className="font-normal text-[var(--text-secondary)] normal-case tracking-normal ml-1">
               ({counts.publishedCount} yayında, {counts.draftCount} taslak)
             </span>
           </SectionTitle>
@@ -244,7 +244,7 @@ export const AdminDictionary: React.FC = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <div className="relative">
-            <Search className="w-4 h-4 text-[#8E95A2] absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[var(--text-muted)] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={query}
@@ -269,34 +269,34 @@ export const AdminDictionary: React.FC = () => {
         </div>
 
         {words.length === 0 ? (
-          <p className="text-xs text-[#687080] py-8 text-center">
+          <p className="text-xs text-[var(--text-secondary)] py-8 text-center">
             Henüz kelime yok. "Kelime ekle" ile başlayabilir ya da CSV yükleyebilirsin.
           </p>
         ) : (
           <div className="space-y-2">
             {words.map(word => (
-              <div key={word.id} className="rounded-xl border border-[#E4E1D9] bg-[#FAF9F5] p-3">
+              <div key={word.id} className="rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-3">
                 <div className="flex items-start justify-between gap-3 flex-wrap">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-bold text-[#1E2430]">{word.word}</span>
+                      <span className="text-sm font-bold text-[var(--text-primary)]">{word.word}</span>
                       {word.phonetic && (
-                        <span className="text-[11px] font-mono text-[#687080]">{word.phonetic}</span>
+                        <span className="text-[11px] font-mono text-[var(--text-secondary)]">{word.phonetic}</span>
                       )}
                       {word.level && (
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#EEECFA] text-[#4F46A5]">
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[var(--primary-soft)] text-[var(--primary)]">
                           {word.level}
                         </span>
                       )}
                       {word.status === 'draft' && (
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#FBF1DE] text-[#8A5A18]">
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[var(--learning-soft)] text-[var(--learning-text)]">
                           TASLAK
                         </span>
                       )}
-                      {word.imageUrl && <Image className="w-3.5 h-3.5 text-[#8E95A2]" />}
-                      {word.audioUrl && <Volume2 className="w-3.5 h-3.5 text-[#8E95A2]" />}
+                      {word.imageUrl && <Image className="w-3.5 h-3.5 text-[var(--text-muted)]" />}
+                      {word.audioUrl && <Volume2 className="w-3.5 h-3.5 text-[var(--text-muted)]" />}
                     </div>
-                    <p className="text-[11px] text-[#687080] mt-0.5">
+                    <p className="text-[11px] text-[var(--text-secondary)] mt-0.5">
                       {word.senses
                         .map(s => `${s.partOfSpeech} ${s.turkishMeanings.join(', ')}`)
                         .join(' · ')}
@@ -306,7 +306,7 @@ export const AdminDictionary: React.FC = () => {
                         {[...word.topics, ...word.examTags].map(tag => (
                           <span
                             key={tag}
-                            className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-white border border-[#E4E1D9] text-[#687080]"
+                            className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-white border border-[var(--border)] text-[var(--text-secondary)]"
                           >
                             {tag}
                           </span>
@@ -363,7 +363,7 @@ export const AdminDictionary: React.FC = () => {
             <button
               type="button"
               onClick={() => setEditing(null)}
-              className="p-1.5 text-[#8E95A2] hover:text-[#1E2430] rounded-lg cursor-pointer"
+              className="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-lg cursor-pointer"
               aria-label="Kapat"
             >
               <X className="w-4 h-4" />
@@ -435,7 +435,7 @@ export const AdminDictionary: React.FC = () => {
           {/* Anlamlar */}
           <div className="space-y-3">
             {editing.senses.map((sense, si) => (
-              <div key={si} className="rounded-xl border border-[#E4E1D9] p-3 space-y-2.5 bg-[#FAF9F5]">
+              <div key={si} className="rounded-xl border border-[var(--border)] p-3 space-y-2.5 bg-[var(--surface-subtle)]">
                 <div className="flex items-center gap-2">
                   <select
                     value={sense.partOfSpeech}
@@ -484,7 +484,7 @@ export const AdminDictionary: React.FC = () => {
                 </Field>
 
                 <div className="space-y-1.5">
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-[#8E95A2]">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
                     Örnek cümleler
                   </label>
                   {sense.examples.map((ex, ei) => (
@@ -525,7 +525,7 @@ export const AdminDictionary: React.FC = () => {
                         senses[si] = { ...sense, examples: [...sense.examples, { en: '', tr: '' }] };
                         setEditing({ ...editing, senses });
                       }}
-                      className="text-[11px] font-semibold text-[#4F46A5] cursor-pointer"
+                      className="text-[11px] font-semibold text-[var(--primary)] cursor-pointer"
                     >
                       + Örnek ekle
                     </button>
@@ -544,7 +544,7 @@ export const AdminDictionary: React.FC = () => {
                   ]
                 })
               }
-              className="text-[11px] font-semibold text-[#4F46A5] cursor-pointer"
+              className="text-[11px] font-semibold text-[var(--primary)] cursor-pointer"
             >
               + Sözcük türü ekle
             </button>
@@ -561,13 +561,13 @@ export const AdminDictionary: React.FC = () => {
                     const file = e.target.files?.[0];
                     if (file) void upload('image', file);
                   }}
-                  className="text-[11px] text-[#687080] w-full"
+                  className="text-[11px] text-[var(--text-secondary)] w-full"
                 />
                 {editing.imageUrl && (
                   <img
                     src={apiUrl(editing.imageUrl)}
                     alt=""
-                    className="w-10 h-10 rounded-lg object-cover border border-[#E4E1D9]"
+                    className="w-10 h-10 rounded-lg object-cover border border-[var(--border)]"
                   />
                 )}
               </div>
@@ -581,14 +581,14 @@ export const AdminDictionary: React.FC = () => {
                     const file = e.target.files?.[0];
                     if (file) void upload('audio', file);
                   }}
-                  className="text-[11px] text-[#687080] w-full"
+                  className="text-[11px] text-[var(--text-secondary)] w-full"
                 />
-                {editing.audioUrl && <Volume2 className="w-4 h-4 text-[#4F806A]" />}
+                {editing.audioUrl && <Volume2 className="w-4 h-4 text-[var(--learned)]" />}
               </div>
             </Field>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#EFECE6]">
+          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[var(--border-light)]">
             <select
               value={editing.status}
               onChange={e =>

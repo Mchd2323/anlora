@@ -96,27 +96,27 @@ export const TextMinerModal: React.FC<TextMinerModalProps> = ({
       aria-modal="true"
       aria-labelledby="anlora-text-miner-title"
       ref={modalRef}
-      className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
+      className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
       <div
-        className="bg-[#FFFFFF] rounded-2xl max-w-2xl w-full border border-[#E4E1D9] shadow-xl overflow-hidden"
+        className="bg-[var(--surface)] rounded-2xl max-w-2xl w-full border border-[var(--border)] shadow-xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-[#FFFFFF] border-b border-[#EFECE6] p-5 flex items-start justify-between">
+        <div className="bg-[var(--surface)] border-b border-[var(--border-light)] p-5 flex items-start justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-[#EEECFA] text-[#4F46A5] rounded-xl">
+            <div className="p-2 bg-[var(--primary-soft)] text-[var(--primary)] rounded-xl">
               <FileText className="w-4 h-4" />
             </div>
             <div>
-              <h3 id="anlora-text-miner-title" className="text-sm font-bold text-[#1E2430]">Metinden Kelime Ayıkla (Text Miner)</h3>
-              <p className="text-xs text-[#687080]">
+              <h3 id="anlora-text-miner-title" className="text-sm font-bold text-[var(--text-primary)]">Metinden Kelime Ayıkla (Text Miner)</h3>
+              <p className="text-xs text-[var(--text-secondary)]">
                 Bir metin yapıştır; bilmediğin kelimeleri otomatik ayıklayıp setine ekle.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-[#8E95A2] hover:text-[#1E2430] rounded-lg hover:bg-[#F1EFE8] transition-colors cursor-pointer"
+            className="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--surface-soft)] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -126,7 +126,7 @@ export const TextMinerModal: React.FC<TextMinerModalProps> = ({
           {!minedResults ? (
             <div className="space-y-3.5">
               <div>
-                <label className="block text-xs font-bold text-[#687080] uppercase mb-1">
+                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
                   İngilizce Metin:
                 </label>
                 <textarea
@@ -134,7 +134,7 @@ export const TextMinerModal: React.FC<TextMinerModalProps> = ({
                   onChange={(e) => setRawText(e.target.value)}
                   placeholder="İngilizce paragraf, altyazı veya makale metnini buraya yapıştır..."
                   rows={8}
-                  className="w-full p-3 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:outline-none focus:border-[#4F46A5] leading-relaxed text-[#1E2430]"
+                  className="w-full p-3 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] leading-relaxed text-[var(--text-primary)]"
                 />
               </div>
 
@@ -142,7 +142,7 @@ export const TextMinerModal: React.FC<TextMinerModalProps> = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-3.5 py-2 text-xs font-semibold text-[#687080] hover:bg-[#F1EFE8] rounded-xl cursor-pointer"
+                  className="px-3.5 py-2 text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-soft)] rounded-xl cursor-pointer"
                 >
                   Vazgeç
                 </button>
@@ -150,7 +150,7 @@ export const TextMinerModal: React.FC<TextMinerModalProps> = ({
                   type="button"
                   onClick={handleMine}
                   disabled={!rawText.trim()}
-                  className="px-4 py-2 bg-[#4F46A5] hover:bg-[#433B91] disabled:opacity-50 text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+                  className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Kelimeleri Çıkar ve Analiz Et</span>
@@ -161,53 +161,53 @@ export const TextMinerModal: React.FC<TextMinerModalProps> = ({
             <div className="space-y-3.5">
               {/* Summary Bar */}
               <div className="grid grid-cols-4 gap-2 text-center text-xs">
-                <div className="p-2.5 bg-[#F8F7F3] rounded-xl border border-[#E4E1D9]">
-                  <span className="text-[10px] text-[#687080] font-bold block">TOPLAM</span>
-                  <span className="text-base font-bold text-[#1E2430]">{minedResults.totalExtracted}</span>
+                <div className="p-2.5 bg-[var(--bg)] rounded-xl border border-[var(--border)]">
+                  <span className="text-[10px] text-[var(--text-secondary)] font-bold block">TOPLAM</span>
+                  <span className="text-base font-bold text-[var(--text-primary)]">{minedResults.totalExtracted}</span>
                 </div>
-                <div className="p-2.5 bg-[#E9F3ED] rounded-xl border border-[#BFD7C8]">
-                  <span className="text-[10px] text-[#35654E] font-bold block">YENİ</span>
-                  <span className="text-base font-bold text-[#35654E]">{minedResults.newCandidateCount}</span>
+                <div className="p-2.5 bg-[var(--learned-soft)] rounded-xl border border-[var(--learned-border)]">
+                  <span className="text-[10px] text-[var(--learned-text)] font-bold block">YENİ</span>
+                  <span className="text-base font-bold text-[var(--learned-text)]">{minedResults.newCandidateCount}</span>
                 </div>
-                <div className="p-2.5 bg-[#EEECFA] rounded-xl border border-[#D7D2F4]">
-                  <span className="text-[10px] text-[#4F46A5] font-bold block">OXFORD</span>
-                  <span className="text-base font-bold text-[#4F46A5]">{minedResults.oxfordCount}</span>
+                <div className="p-2.5 bg-[var(--primary-soft)] rounded-xl border border-[var(--primary-border)]">
+                  <span className="text-[10px] text-[var(--primary)] font-bold block">OXFORD</span>
+                  <span className="text-base font-bold text-[var(--primary)]">{minedResults.oxfordCount}</span>
                 </div>
-                <div className="p-2.5 bg-[#FBF1DE] rounded-xl border border-[#E7C98F]">
-                  <span className="text-[10px] text-[#8A5A18] font-bold block">BİLİNEN</span>
-                  <span className="text-base font-bold text-[#8A5A18]">{minedResults.knownCount}</span>
+                <div className="p-2.5 bg-[var(--learning-soft)] rounded-xl border border-[var(--learning-border)]">
+                  <span className="text-[10px] text-[var(--learning-text)] font-bold block">BİLİNEN</span>
+                  <span className="text-base font-bold text-[var(--learning-text)]">{minedResults.knownCount}</span>
                 </div>
               </div>
 
               {/* Filter Tabs & Destination Collection */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1">
-                <div className="flex items-center gap-1 bg-[#F1EFE8] p-1 rounded-xl">
+                <div className="flex items-center gap-1 bg-[var(--surface-soft)] p-1 rounded-xl">
                   <button
                     onClick={() => setFilterStatus('ALL')}
-                    className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg transition-all cursor-pointer ${filterStatus === 'ALL' ? 'bg-[#FFFFFF] text-[#1E2430] shadow-xs' : 'text-[#687080]'}`}
+                    className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg transition-all cursor-pointer ${filterStatus === 'ALL' ? 'bg-[var(--surface)] text-[var(--text-primary)] shadow-xs' : 'text-[var(--text-secondary)]'}`}
                   >
                     Tümü ({minedResults.items.length})
                   </button>
                   <button
                     onClick={() => setFilterStatus('NEW')}
-                    className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg transition-all cursor-pointer ${filterStatus === 'NEW' ? 'bg-[#FFFFFF] text-[#35654E] shadow-xs' : 'text-[#687080]'}`}
+                    className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg transition-all cursor-pointer ${filterStatus === 'NEW' ? 'bg-[var(--surface)] text-[var(--learned-text)] shadow-xs' : 'text-[var(--text-secondary)]'}`}
                   >
                     Yeni ({minedResults.newCandidateCount})
                   </button>
                   <button
                     onClick={() => setFilterStatus('OXFORD_AVAILABLE')}
-                    className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg transition-all cursor-pointer ${filterStatus === 'OXFORD_AVAILABLE' ? 'bg-[#FFFFFF] text-[#4F46A5] shadow-xs' : 'text-[#687080]'}`}
+                    className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg transition-all cursor-pointer ${filterStatus === 'OXFORD_AVAILABLE' ? 'bg-[var(--surface)] text-[var(--primary)] shadow-xs' : 'text-[var(--text-secondary)]'}`}
                   >
                     Oxford ({minedResults.oxfordCount})
                   </button>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-bold text-[#687080]">Hedef Set:</span>
+                  <span className="text-[11px] font-bold text-[var(--text-secondary)]">Hedef Set:</span>
                   <select
                     value={selectedCollectionId}
                     onChange={(e) => setSelectedCollectionId(e.target.value)}
-                    className="text-xs font-semibold bg-[#FFFFFF] border border-[#E4E1D9] rounded-xl px-2.5 py-1 focus:outline-none text-[#1E2430]"
+                    className="text-xs font-semibold bg-[var(--surface)] border border-[var(--border)] rounded-xl px-2.5 py-1 focus:outline-none text-[var(--text-primary)]"
                   >
                     {collections.map(c => (
                       <option key={c.id} value={c.id}>{c.name}</option>
@@ -226,8 +226,8 @@ export const TextMinerModal: React.FC<TextMinerModalProps> = ({
                       onClick={() => setSelectedWords({ ...selectedWords, [item.rawWord]: !isChecked })}
                       className={`p-2.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
                         isChecked
-                          ? 'bg-[#EEECFA]/40 border-[#D7D2F4]'
-                          : 'bg-[#FFFFFF] border-[#E4E1D9] hover:bg-[#F8F7F3]'
+                          ? 'bg-[var(--primary-soft)]/40 border-[var(--primary-border)]'
+                          : 'bg-[var(--surface)] border-[var(--border)] hover:bg-[var(--bg)]'
                       }`}
                     >
                       <div className="flex items-center gap-2.5">
@@ -235,15 +235,15 @@ export const TextMinerModal: React.FC<TextMinerModalProps> = ({
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => {}}
-                          className="w-3.5 h-3.5 rounded text-[#4F46A5] accent-[#4F46A5]"
+                          className="w-3.5 h-3.5 rounded text-[var(--primary)] accent-[var(--primary)]"
                         />
                         <div>
-                          <span className="text-xs font-bold text-[#1E2430]">{item.rawWord}</span>
+                          <span className="text-xs font-bold text-[var(--text-primary)]">{item.rawWord}</span>
                           {item.lemma !== item.rawWord && (
-                            <span className="text-[11px] text-[#8E95A2] ml-1.5">(kök: {item.lemma})</span>
+                            <span className="text-[11px] text-[var(--text-muted)] ml-1.5">(kök: {item.lemma})</span>
                           )}
                           {item.suggestedMeaning && (
-                            <span className="text-xs text-[#687080] ml-2 italic">
+                            <span className="text-xs text-[var(--text-secondary)] ml-2 italic">
                               — {item.suggestedMeaning}
                             </span>
                           )}
@@ -251,21 +251,21 @@ export const TextMinerModal: React.FC<TextMinerModalProps> = ({
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-[#8E95A2] font-mono">
+                        <span className="text-[10px] text-[var(--text-muted)] font-mono">
                           {item.count}x
                         </span>
                         {item.status === 'NEW' && (
-                          <span className="text-[10px] font-bold bg-[#E9F3ED] text-[#35654E] px-2 py-0.5 rounded-md border border-[#BFD7C8]">
+                          <span className="text-[10px] font-bold bg-[var(--learned-soft)] text-[var(--learned-text)] px-2 py-0.5 rounded-md border border-[var(--learned-border)]">
                             Yeni
                           </span>
                         )}
                         {item.status === 'OXFORD_AVAILABLE' && (
-                          <span className="text-[10px] font-bold bg-[#EEECFA] text-[#4F46A5] px-2 py-0.5 rounded-md border border-[#D7D2F4]">
+                          <span className="text-[10px] font-bold bg-[var(--primary-soft)] text-[var(--primary)] px-2 py-0.5 rounded-md border border-[var(--primary-border)]">
                             Oxford {item.level}
                           </span>
                         )}
                         {item.status === 'KNOWN' && (
-                          <span className="text-[10px] font-bold bg-[#F8F7F3] text-[#687080] px-2 py-0.5 rounded-md border border-[#E4E1D9]">
+                          <span className="text-[10px] font-bold bg-[var(--bg)] text-[var(--text-secondary)] px-2 py-0.5 rounded-md border border-[var(--border)]">
                             Öğrenildi
                           </span>
                         )}
@@ -276,11 +276,11 @@ export const TextMinerModal: React.FC<TextMinerModalProps> = ({
               </div>
 
               {/* Bottom Actions */}
-              <div className="flex items-center justify-between pt-2 border-t border-[#EFECE6]">
+              <div className="flex items-center justify-between pt-2 border-t border-[var(--border-light)]">
                 <button
                   type="button"
                   onClick={() => setMinedResults(null)}
-                  className="text-xs text-[#687080] hover:text-[#1E2430] font-semibold cursor-pointer"
+                  className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-semibold cursor-pointer"
                 >
                   ← Metni Değiştir
                 </button>
@@ -289,7 +289,7 @@ export const TextMinerModal: React.FC<TextMinerModalProps> = ({
                   <button
                     type="button"
                     onClick={onClose}
-                    className="px-3.5 py-2 text-xs font-semibold text-[#687080] hover:bg-[#F1EFE8] rounded-xl cursor-pointer"
+                    className="px-3.5 py-2 text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-soft)] rounded-xl cursor-pointer"
                   >
                     Vazgeç
                   </button>
@@ -297,7 +297,7 @@ export const TextMinerModal: React.FC<TextMinerModalProps> = ({
                     type="button"
                     onClick={handleSave}
                     disabled={isProcessing || Object.values(selectedWords).filter(Boolean).length === 0}
-                    className="px-4 py-2 bg-[#4F46A5] hover:bg-[#433B91] disabled:opacity-50 text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+                    className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
                   >
                     <BookmarkPlus className="w-3.5 h-3.5" />
                     <span>Seçilen {Object.values(selectedWords).filter(Boolean).length} Kelimeyi Ekle</span>

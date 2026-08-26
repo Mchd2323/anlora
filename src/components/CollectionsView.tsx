@@ -932,17 +932,17 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   return (
     <div className="space-y-6 pb-safe-nav max-w-[1180px] mx-auto animate-fadeIn">
       {/* Top Banner: Kelime Setlerim */}
-      <div className="bg-[#FFFFFF] p-6 sm:p-7 rounded-2xl border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)] flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+      <div className="bg-[var(--surface)] p-6 sm:p-7 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl sm:text-2xl font-bold text-[#1E2430]">
+            <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
               Kelime Setlerim
             </h2>
-            <span className="px-2 py-0.5 bg-[#EEECFA] text-[#4F46A5] text-xs font-bold rounded-lg border border-[#D7D2F4]">
+            <span className="px-2 py-0.5 bg-[var(--primary-soft)] text-[var(--primary)] text-xs font-bold rounded-lg border border-[var(--primary-border)]">
               {collections.length} Set
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-[#687080] max-w-xl">
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] max-w-xl">
             Diziler, kitaplar veya günlük hayatta karşılaştığın kelimeler için kendi setlerini oluştur.
           </p>
         </div>
@@ -950,9 +950,9 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           <button
             onClick={() => setShowMinerModal(true)}
-            className="px-3.5 py-2 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#1E2430] text-xs font-semibold rounded-xl border border-[#E4E1D9] transition-colors flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 py-2 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] text-xs font-semibold rounded-xl border border-[var(--border)] transition-colors flex items-center gap-1.5 cursor-pointer"
           >
-            <FileText className="w-4 h-4 text-[#4F46A5]" />
+            <FileText className="w-4 h-4 text-[var(--primary)]" />
             <span>Metinden Kelime Yakala</span>
           </button>
 
@@ -968,7 +968,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
              * eşitlenmek istendiğinde profil ekranından yapılabilir.
              */
             onClick={() => setShowCreateModal(true)}
-            className="px-4 py-2 bg-[#4F46A5] hover:bg-[#433B91] text-white text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-1.5 active:scale-[0.98] cursor-pointer"
+            className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-1.5 active:scale-[0.98] cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Yeni Kelime Seti</span>
@@ -981,10 +981,10 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
         {/* Left Column: Kelime Setleri */}
         <div className="lg:col-span-4 space-y-3">
           <div className="flex items-center justify-between px-1">
-            <h3 className="text-xs font-bold text-[#687080] uppercase tracking-wider">
+            <h3 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
               Set Listesi
             </h3>
-            <span className="text-xs font-semibold text-[#8E95A2]">
+            <span className="text-xs font-semibold text-[var(--text-muted)]">
               {collections.length} Set
             </span>
           </div>
@@ -1016,8 +1016,8 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   }}
                   className={`p-4 rounded-xl border transition-all cursor-pointer relative group ${
                     isActive
-                      ? 'bg-[#FFFFFF] border-[#4F46A5] shadow-xs ring-1 ring-[#4F46A5]'
-                      : 'bg-[#FFFFFF] border-[#E4E1D9] hover:border-[#D5D0C5]'
+                      ? 'bg-[var(--surface)] border-[var(--primary)] shadow-xs ring-1 ring-[var(--primary)]'
+                      : 'bg-[var(--surface)] border-[var(--border)] hover:border-[var(--neutral-300)]'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -1035,15 +1035,15 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       </span>
                       <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
-                        <h4 className="text-sm font-bold text-[#1E2430] truncate">
+                        <h4 className="text-sm font-bold text-[var(--text-primary)] truncate">
                           {deck.name}
                         </h4>
                         {deck.isPinned && (
-                          <Pin className="w-3 h-3 text-[#B97922] fill-current shrink-0" />
+                          <Pin className="w-3 h-3 text-[var(--learning)] fill-current shrink-0" />
                         )}
                       </div>
                       {deck.description && (
-                        <p className="text-xs text-[#687080] truncate mt-0.5">
+                        <p className="text-xs text-[var(--text-secondary)] truncate mt-0.5">
                           {deck.description}
                         </p>
                       )}
@@ -1051,7 +1051,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     </div>
 
                     <div className="flex items-center gap-1 shrink-0">
-                      <span className="text-xs font-bold text-[#4F46A5] bg-[#EEECFA] px-2 py-0.5 rounded-md border border-[#D7D2F4]">
+                      <span className="text-xs font-bold text-[var(--primary)] bg-[var(--primary-soft)] px-2 py-0.5 rounded-md border border-[var(--primary-border)]">
                         {deckWordCount}
                       </span>
 
@@ -1061,7 +1061,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                           e.stopPropagation();
                           setOpenMenuDeckId(openMenuDeckId === deck.id ? null : deck.id);
                         }}
-                        className="p-1 text-[#8E95A2] hover:text-[#1E2430] hover:bg-[#F1EFE8] rounded-lg transition-colors cursor-pointer"
+                        className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-soft)] rounded-lg transition-colors cursor-pointer"
                         title="Set Seçenekleri"
                       >
                         <MoreVertical className="w-4 h-4" />
@@ -1073,20 +1073,20 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   {openMenuDeckId === deck.id && (
                     <div
                       onClick={(e) => e.stopPropagation()}
-                      className="absolute right-3 top-11 z-30 bg-[#FFFFFF] rounded-xl shadow-lg border border-[#E4E1D9] py-1 min-w-[180px] animate-fadeIn text-xs font-semibold text-[#1E2430]"
+                      className="absolute right-3 top-11 z-30 bg-[var(--surface)] rounded-xl shadow-lg border border-[var(--border)] py-1 min-w-[180px] animate-fadeIn text-xs font-semibold text-[var(--text-primary)]"
                     >
                       <button
                         onClick={() => {
                           setEditingDeck(deck);
                           setOpenMenuDeckId(null);
                         }}
-                        className="w-full px-3.5 py-2 hover:bg-[#F1EFE8] flex items-center gap-2 text-left cursor-pointer"
+                        className="w-full px-3.5 py-2 hover:bg-[var(--surface-soft)] flex items-center gap-2 text-left cursor-pointer"
                       >
-                        <Edit2 className="w-3.5 h-3.5 text-[#4F46A5]" />
+                        <Edit2 className="w-3.5 h-3.5 text-[var(--primary)]" />
                         <span>Düzenle</span>
                       </button>
 
-                      <div className="border-t border-[#EFECE6] my-1" />
+                      <div className="border-t border-[var(--border-light)] my-1" />
 
                       <button
                         onClick={() => {
@@ -1097,7 +1097,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                             setOpenMenuDeckId(null);
                           }
                         }}
-                        className="w-full px-3.5 py-2 hover:bg-[#FAECEA] text-[#C65D55] flex items-center gap-2 text-left cursor-pointer"
+                        className="w-full px-3.5 py-2 hover:bg-[var(--danger-soft)] text-[var(--danger)] flex items-center gap-2 text-left cursor-pointer"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                         <span>Seti Sil</span>
@@ -1106,14 +1106,14 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   )}
 
                   {/* Progress Line */}
-                  <div className="mt-3 pt-2.5 border-t border-[#EFECE6] space-y-1">
-                    <div className="flex items-center justify-between text-[11px] font-semibold text-[#687080]">
-                      <span className="text-[#4F806A]">{learned} Öğrendim</span>
-                      <span className="text-[#B97922]">{learning} Tekrar Et</span>
+                  <div className="mt-3 pt-2.5 border-t border-[var(--border-light)] space-y-1">
+                    <div className="flex items-center justify-between text-[11px] font-semibold text-[var(--text-secondary)]">
+                      <span className="text-[var(--learned)]">{learned} Öğrendim</span>
+                      <span className="text-[var(--learning)]">{learning} Tekrar Et</span>
                     </div>
-                    <div className="h-1.5 w-full bg-[#E4E1D9] rounded-full overflow-hidden">
+                    <div className="h-1.5 w-full bg-[var(--border)] rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-[#4F806A] rounded-full transition-all"
+                        className="h-full bg-[var(--learned)] rounded-full transition-all"
                         style={{ width: `${learnedPercent}%` }}
                       />
                     </div>
@@ -1128,18 +1128,18 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
         {activeDeck ? (
           <div className="lg:col-span-8 space-y-5">
             {/* Active Set Header */}
-            <div className="bg-[#FFFFFF] p-6 rounded-2xl border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-4">
+            <div className="bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-2xl font-bold text-[#1E2430]">{activeDeck.name}</h3>
+                    <h3 className="text-2xl font-bold text-[var(--text-primary)]">{activeDeck.name}</h3>
                     {activeDeck.isPinned && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 bg-[#FBF1DE] text-[#8A5A18] rounded-md border border-[#E7C98F]">
+                      <span className="text-[10px] font-bold px-2 py-0.5 bg-[var(--learning-soft)] text-[var(--learning-text)] rounded-md border border-[var(--learning-border)]">
                         Sabitlendi
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-[#687080]">
+                  <p className="text-xs text-[var(--text-secondary)]">
                     {activeDeck.description || 'Bu setteki kelimeler ve özel bağlam cümleleri'}
                   </p>
                 </div>
@@ -1148,23 +1148,23 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     onClick={() => onStartQuiz(activeDeck.id)}
-                    className="px-3.5 py-2 bg-[#F1EFE8] hover:bg-[#EEECFA] text-[#4F46A5] border border-[#D7D2F4] text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                    className="px-3.5 py-2 bg-[var(--surface-soft)] hover:bg-[var(--primary-soft)] text-[var(--primary)] border border-[var(--primary-border)] text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
                   >
-                    <GraduationCap className="w-4 h-4 text-[#4F46A5]" />
+                    <GraduationCap className="w-4 h-4 text-[var(--primary)]" />
                     <span>Sınav Yap</span>
                   </button>
                 </div>
               </div>
 
               {/* Set Action Controls */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#EFECE6]">
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[var(--border-light)]">
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => {
                       resetAddWordModal();
                       setShowAddWordModal(true);
                     }}
-                    className="px-3.5 py-2 bg-[#4F46A5] hover:bg-[#433B91] text-white text-xs font-semibold rounded-xl shadow-xs transition-colors flex items-center gap-1.5 active:scale-[0.98] cursor-pointer"
+                    className="px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-xs font-semibold rounded-xl shadow-xs transition-colors flex items-center gap-1.5 active:scale-[0.98] cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Kelime Ekle</span>
@@ -1172,27 +1172,27 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
                   <button
                     onClick={() => setShowBatchModal(true)}
-                    className="px-3.5 py-2 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#1E2430] text-xs font-semibold rounded-xl border border-[#E4E1D9] transition-colors flex items-center gap-1.5 cursor-pointer"
+                    className="px-3.5 py-2 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] text-xs font-semibold rounded-xl border border-[var(--border)] transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
-                    <Layers className="w-3.5 h-3.5 text-[#687080]" />
+                    <Layers className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
                     <span>Toplu Ekle</span>
                   </button>
 
                   <button
                     onClick={exportDeckCsv}
                     title="Bu seti CSV olarak indir"
-                    className="px-3 py-2 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#1E2430] text-xs font-semibold rounded-xl border border-[#E4E1D9] transition-colors flex items-center gap-1.5 cursor-pointer"
+                    className="px-3 py-2 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] text-xs font-semibold rounded-xl border border-[var(--border)] transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
-                    <Download className="w-3.5 h-3.5 text-[#687080]" />
+                    <Download className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
                     <span className="hidden sm:inline">CSV</span>
                   </button>
 
                   <button
                     onClick={() => setShowImport(true)}
                     title="CSV'den bu sete kelime ekle"
-                    className="px-3 py-2 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#1E2430] text-xs font-semibold rounded-xl border border-[#E4E1D9] transition-colors flex items-center gap-1.5 cursor-pointer"
+                    className="px-3 py-2 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] text-xs font-semibold rounded-xl border border-[var(--border)] transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
-                    <Upload className="w-3.5 h-3.5 text-[#687080]" />
+                    <Upload className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
                   </button>
 
                   <button
@@ -1200,8 +1200,8 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     title={activeDeck.shareCode ? 'Paylaşım bağlantısı' : 'Bu seti paylaş'}
                     className={`px-3 py-2 text-xs font-semibold rounded-xl border transition-colors flex items-center gap-1.5 cursor-pointer ${
                       activeDeck.shareCode
-                        ? 'bg-[#E2F0EE] text-[#1F6F6B] border-[#B7D9D6]'
-                        : 'bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#1E2430] border-[#E4E1D9]'
+                        ? 'bg-[var(--teal-soft)] text-[var(--teal)] border-[var(--teal-border)]'
+                        : 'bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] border-[var(--border)]'
                     }`}
                   >
                     <Share2 className="w-3.5 h-3.5" />
@@ -1214,22 +1214,22 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     <button
                       onClick={() => setShowMerge(true)}
                       title="Başka bir seti bu sete kat"
-                      className="px-3 py-2 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#1E2430] text-xs font-semibold rounded-xl border border-[#E4E1D9] transition-colors flex items-center gap-1.5 cursor-pointer"
+                      className="px-3 py-2 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] text-xs font-semibold rounded-xl border border-[var(--border)] transition-colors flex items-center gap-1.5 cursor-pointer"
                     >
-                      <Merge className="w-3.5 h-3.5 text-[#687080]" />
+                      <Merge className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
                     </button>
                   )}
                 </div>
 
                 {/* Search in Set */}
                 <div className="relative min-w-[200px] flex-1 max-w-xs">
-                  <Search className="w-3.5 h-3.5 text-[#8E95A2] absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Search className="w-3.5 h-3.5 text-[var(--text-muted)] absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Bu sette ara..."
-                    className="w-full pl-8 pr-3 py-1.5 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:border-[#4F46A5] focus:outline-none text-[#1E2430]"
+                    className="w-full pl-8 pr-3 py-1.5 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:border-[var(--primary)] focus:outline-none text-[var(--text-primary)]"
                   />
                 </div>
               </div>
@@ -1240,30 +1240,30 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsStudyingFlashcards(true)}
-                className="w-full p-4 sm:p-5 bg-[#EEECFA] hover:bg-[#E3DFF7] border-2 border-[#D7D2F4] hover:border-[#4F46A5] rounded-2xl transition-all cursor-pointer text-left flex items-center justify-between group shadow-xs active:scale-[0.99]"
+                className="w-full p-4 sm:p-5 bg-[var(--primary-soft)] hover:bg-[var(--primary-soft-strong)] border-2 border-[var(--primary-border)] hover:border-[var(--primary)] rounded-2xl transition-all cursor-pointer text-left flex items-center justify-between group shadow-xs active:scale-[0.99]"
               >
                 <div className="space-y-0.5">
-                  <div className="text-base sm:text-lg font-bold text-[#1E2430] group-hover:text-[#4F46A5] flex items-center gap-2">
+                  <div className="text-base sm:text-lg font-bold text-[var(--text-primary)] group-hover:text-[var(--primary)] flex items-center gap-2">
                     <span>Kartlarla Çalış</span>
-                    <span className="text-[#4F46A5]">→</span>
+                    <span className="text-[var(--primary)]">→</span>
                   </div>
-                  <p className="text-xs text-[#687080] font-medium">
+                  <p className="text-xs text-[var(--text-secondary)] font-medium">
                     Şimdi çalışmaya başla ({activeDeckWords.length} kelime)
                   </p>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-[#4F46A5] text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-[var(--primary)] text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
                   <Play className="w-4 h-4 fill-current ml-0.5" />
                 </div>
               </button>
             )}
 
             {setNotice && (
-              <div className="p-3 rounded-xl bg-[#E9F3ED] border border-[#BFD7C8] text-[11px] font-semibold text-[#35654E] flex items-center justify-between gap-2">
+              <div className="p-3 rounded-xl bg-[var(--learned-soft)] border border-[var(--learned-border)] text-[11px] font-semibold text-[var(--learned-text)] flex items-center justify-between gap-2">
                 <span>{setNotice}</span>
                 <button
                   type="button"
                   onClick={() => setSetNotice('')}
-                  className="text-[#35654E] hover:opacity-70 cursor-pointer"
+                  className="text-[var(--learned-text)] hover:opacity-70 cursor-pointer"
                   aria-label="Kapat"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -1288,14 +1288,14 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                         : new Set(filteredWords.map(c => c.id))
                     )
                   }
-                  className="text-[11px] font-semibold text-[#4F46A5] hover:text-[#433B91] cursor-pointer"
+                  className="text-[11px] font-semibold text-[var(--primary)] hover:text-[var(--primary-hover)] cursor-pointer"
                 >
                   {selectedIds.size === filteredWords.length ? 'Seçimi kaldır' : 'Tümünü seç'}
                 </button>
 
                 {selectedIds.size > 0 && (
                   <div className="flex flex-wrap items-center gap-1.5">
-                    <span className="text-[11px] font-bold text-[#1E2430]">
+                    <span className="text-[11px] font-bold text-[var(--text-primary)]">
                       {selectedIds.size} seçili
                     </span>
                     {collections.length > 1 && (
@@ -1303,14 +1303,14 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                         <button
                           type="button"
                           onClick={() => setBulkTarget('move')}
-                          className="px-2.5 py-1.5 text-[11px] font-semibold rounded-lg bg-[#F1EFE8] hover:bg-[#E4E1D9] text-[#1E2430] cursor-pointer inline-flex items-center gap-1"
+                          className="px-2.5 py-1.5 text-[11px] font-semibold rounded-lg bg-[var(--surface-soft)] hover:bg-[var(--border)] text-[var(--text-primary)] cursor-pointer inline-flex items-center gap-1"
                         >
                           <MoveRight className="w-3.5 h-3.5" /> Taşı
                         </button>
                         <button
                           type="button"
                           onClick={() => setBulkTarget('copy')}
-                          className="px-2.5 py-1.5 text-[11px] font-semibold rounded-lg bg-[#F1EFE8] hover:bg-[#E4E1D9] text-[#1E2430] cursor-pointer inline-flex items-center gap-1"
+                          className="px-2.5 py-1.5 text-[11px] font-semibold rounded-lg bg-[var(--surface-soft)] hover:bg-[var(--border)] text-[var(--text-primary)] cursor-pointer inline-flex items-center gap-1"
                         >
                           <Copy className="w-3.5 h-3.5" /> Kopyala
                         </button>
@@ -1319,7 +1319,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     <button
                       type="button"
                       onClick={removeSelected}
-                      className="px-2.5 py-1.5 text-[11px] font-semibold rounded-lg bg-[#FAECEA] hover:bg-[#F6DFDC] text-[#C65D55] cursor-pointer inline-flex items-center gap-1"
+                      className="px-2.5 py-1.5 text-[11px] font-semibold rounded-lg bg-[var(--danger-soft)] hover:bg-[var(--danger-soft-hover)] text-[var(--danger)] cursor-pointer inline-flex items-center gap-1"
                     >
                       <Trash2 className="w-3.5 h-3.5" /> Setten çıkar
                     </button>
@@ -1349,11 +1349,11 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     <div
                       key={card.id}
                       className={`relative group rounded-2xl transition-shadow ${
-                        isSelected ? 'ring-2 ring-[#4F46A5] ring-offset-2' : ''
+                        isSelected ? 'ring-2 ring-[var(--primary)] ring-offset-2' : ''
                       }`}
                     >
                       <label
-                        className="absolute top-2 left-2 z-10 w-7 h-7 rounded-lg bg-white/90 border border-[#E4E1D9]
+                        className="absolute top-2 left-2 z-10 w-7 h-7 rounded-lg bg-white/90 border border-[var(--border)]
                                    flex items-center justify-center cursor-pointer shadow-xs"
                         title="Seç"
                       >
@@ -1361,7 +1361,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => toggleSelected(card.id)}
-                          className="accent-[#4F46A5] cursor-pointer"
+                          className="accent-[var(--primary)] cursor-pointer"
                           aria-label={`${card.word} kelimesini seç`}
                         />
                       </label>
@@ -1382,7 +1382,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
                       <button
                         onClick={() => onRemoveWordFromCollection(card.id, activeDeck.id)}
-                        className="mt-1.5 w-full py-1 text-[11px] font-semibold text-[#8E95A2] hover:text-[#C65D55] text-center transition-colors hover:underline cursor-pointer"
+                        className="mt-1.5 w-full py-1 text-[11px] font-semibold text-[var(--text-muted)] hover:text-[var(--danger)] text-center transition-colors hover:underline cursor-pointer"
                       >
                         Bu Setten Çıkar
                       </button>
@@ -1392,11 +1392,11 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               </div>
             ) : (
               /* Empty Set View */
-              <div className="bg-[#FFFFFF] p-10 rounded-2xl border border-[#E4E1D9] text-center space-y-3 shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
-                <BookOpen className="w-8 h-8 text-[#8E95A2] mx-auto" />
+              <div className="bg-[var(--surface)] p-10 rounded-2xl border border-[var(--border)] text-center space-y-3 shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
+                <BookOpen className="w-8 h-8 text-[var(--text-muted)] mx-auto" />
                 <div className="space-y-1">
-                  <h4 className="text-base font-bold text-[#1E2430]">Henüz kelime yok</h4>
-                  <p className="text-xs text-[#687080] max-w-sm mx-auto leading-relaxed">
+                  <h4 className="text-base font-bold text-[var(--text-primary)]">Henüz kelime yok</h4>
+                  <p className="text-xs text-[var(--text-secondary)] max-w-sm mx-auto leading-relaxed">
                     Bu sette öğrenmek istediğin İngilizce kelimeleri biriktirebilirsin.
                   </p>
                 </div>
@@ -1406,7 +1406,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       resetAddWordModal();
                       setShowAddWordModal(true);
                     }}
-                    className="px-4 py-2 bg-[#4F46A5] hover:bg-[#433B91] text-white text-xs font-semibold rounded-xl inline-flex items-center gap-1.5 cursor-pointer"
+                    className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-xs font-semibold rounded-xl inline-flex items-center gap-1.5 cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>İlk Kelimemi Ekle</span>
@@ -1425,10 +1425,10 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
           aria-modal="true"
           aria-labelledby="anlora-create-set-title"
           ref={createModalRef}
-          className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-md w-full border border-[#E4E1D9] shadow-xl p-6 space-y-4">
-            <h3 id="anlora-create-set-title" className="text-base font-bold text-[#1E2430] flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[#4F46A5]" />
+          className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
+          <div className="bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
+            <h3 id="anlora-create-set-title" className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
+              <Layers className="w-4 h-4 text-[var(--primary)]" />
               Yeni Kelime Seti Oluştur
             </h3>
             <form
@@ -1447,8 +1447,8 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               className="space-y-3.5"
             >
               <div>
-                <label className="block text-xs font-bold text-[#687080] uppercase mb-1">
-                  Set Adı <span className="text-[#C65D55]">*</span>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                  Set Adı <span className="text-[var(--danger)]">*</span>
                 </label>
                 <input
                   type="text"
@@ -1457,12 +1457,12 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   placeholder="Örn: B2 Kelimelerim, İş İngilizcesi..."
                   required
                   autoFocus
-                  className="w-full px-3.5 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:outline-none focus:border-[#4F46A5] font-semibold text-[#1E2430]"
+                  className="w-full px-3.5 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] font-semibold text-[var(--text-primary)]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#687080] uppercase mb-1">
+                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
                   Açıklama (İsteğe Bağlı)
                 </label>
                 <input
@@ -1470,7 +1470,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   value={newDeckDesc}
                   onChange={(e) => setNewDeckDesc(e.target.value)}
                   placeholder="Örn: Bu setteki kelimeler..."
-                  className="w-full px-3.5 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:outline-none text-[#1E2430]"
+                  className="w-full px-3.5 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none text-[var(--text-primary)]"
                 />
               </div>
 
@@ -1478,13 +1478,13 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 text-xs font-semibold text-[#687080] hover:bg-[#F1EFE8] rounded-xl cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-soft)] rounded-xl cursor-pointer"
                 >
                   Vazgeç
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[#4F46A5] text-white text-xs font-semibold rounded-xl hover:bg-[#433B91] cursor-pointer"
+                  className="px-4 py-2 bg-[var(--primary)] text-white text-xs font-semibold rounded-xl hover:bg-[var(--primary-hover)] cursor-pointer"
                 >
                   Oluştur
                 </button>
@@ -1496,10 +1496,10 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
       {/* MODAL: SETİ DÜZENLE */}
       {editingDeck && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-md w-full border border-[#E4E1D9] shadow-xl p-6 space-y-4">
-            <h3 className="text-base font-bold text-[#1E2430] flex items-center gap-2">
-              <Edit2 className="w-4 h-4 text-[#4F46A5]" />
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
+          <div className="bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
+            <h3 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
+              <Edit2 className="w-4 h-4 text-[var(--primary)]" />
               Seti Düzenle
             </h3>
             <form
@@ -1511,7 +1511,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               className="space-y-3"
             >
               <div>
-                <label className="block text-xs font-bold text-[#687080] uppercase mb-1">
+                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
                   Set Adı
                 </label>
                 <input
@@ -1519,12 +1519,12 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   value={editingDeck.name}
                   onChange={(e) => setEditingDeck({ ...editingDeck, name: e.target.value })}
                   required
-                  className="w-full px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl font-bold text-[#1E2430]"
+                  className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl font-bold text-[var(--text-primary)]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#687080] uppercase mb-1">
+                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
                   Açıklama
                 </label>
                 <input
@@ -1533,12 +1533,12 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   onChange={(e) =>
                     setEditingDeck({ ...editingDeck, description: e.target.value })
                   }
-                  className="w-full px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl text-[#1E2430]"
+                  className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl text-[var(--text-primary)]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#687080] uppercase mb-1.5">
+                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5">
                   Renk
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -1552,7 +1552,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       aria-pressed={(editingDeck.color || 'indigo') === color.id}
                       className={`w-8 h-8 rounded-xl transition-transform cursor-pointer ${
                         (editingDeck.color || 'indigo') === color.id
-                          ? 'ring-2 ring-offset-2 ring-[#1E2430] scale-105'
+                          ? 'ring-2 ring-offset-2 ring-[var(--text-primary)] scale-105'
                           : 'hover:scale-105'
                       }`}
                       style={{ background: color.hex }}
@@ -1562,7 +1562,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#687080] uppercase mb-1.5">
+                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5">
                   Simge
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -1576,8 +1576,8 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       aria-pressed={(editingDeck.iconName || 'Layers') === id}
                       className={`w-8 h-8 rounded-xl border flex items-center justify-center transition-colors cursor-pointer ${
                         (editingDeck.iconName || 'Layers') === id
-                          ? 'bg-[#1E2430] text-white border-[#1E2430]'
-                          : 'bg-[#F8F7F3] text-[#687080] border-[#E4E1D9] hover:bg-[#F1EFE8]'
+                          ? 'bg-[var(--text-primary)] text-white border-[var(--text-primary)]'
+                          : 'bg-[var(--bg)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
                       }`}
                     >
                       <Icon className="w-4 h-4" />
@@ -1587,7 +1587,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#687080] uppercase mb-1">
+                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
                   Kelime Sırası
                 </label>
                 <select
@@ -1598,7 +1598,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       sortMode: e.target.value as Collection['sortMode']
                     })
                   }
-                  className="w-full px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl font-semibold text-[#1E2430]"
+                  className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl font-semibold text-[var(--text-primary)]"
                 >
                   <option value="added">Eklediğim sıraya göre</option>
                   <option value="alphabetical">Alfabetik (A–Z)</option>
@@ -1606,7 +1606,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   <option value="date">Tarihe göre (en yeni üstte)</option>
                   <option value="status">Öğrenme durumuna göre</option>
                 </select>
-                <p className="text-[11px] text-[#8E95A2] mt-1">
+                <p className="text-[11px] text-[var(--text-muted)] mt-1">
                   Sıra yalnızca görünümü değiştirir; kelimeler silinmez.
                 </p>
               </div>
@@ -1617,9 +1617,9 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   id="pinCheck"
                   checked={!!editingDeck.isPinned}
                   onChange={(e) => setEditingDeck({ ...editingDeck, isPinned: e.target.checked })}
-                  className="w-4 h-4 rounded text-[#4F46A5]"
+                  className="w-4 h-4 rounded text-[var(--primary)]"
                 />
-                <label htmlFor="pinCheck" className="text-xs font-semibold text-[#1E2430]">
+                <label htmlFor="pinCheck" className="text-xs font-semibold text-[var(--text-primary)]">
                   Bu seti listenin başına sabitle
                 </label>
               </div>
@@ -1628,13 +1628,13 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setEditingDeck(null)}
-                  className="px-4 py-2 text-xs font-semibold text-[#687080] hover:bg-[#F1EFE8] rounded-xl cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-soft)] rounded-xl cursor-pointer"
                 >
                   Vazgeç
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[#4F46A5] text-white text-xs font-semibold rounded-xl hover:bg-[#433B91] cursor-pointer"
+                  className="px-4 py-2 bg-[var(--primary)] text-white text-xs font-semibold rounded-xl hover:bg-[var(--primary-hover)] cursor-pointer"
                 >
                   Kaydet
                 </button>
@@ -1651,20 +1651,20 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
           aria-modal="true"
           aria-labelledby="anlora-add-word-title"
           ref={addWordModalRef}
-          className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full border border-[#E4E1D9] shadow-xl p-6 sm:p-7 space-y-5 my-8">
+          className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
+          <div className="bg-[var(--surface)] rounded-2xl max-w-lg w-full border border-[var(--border)] shadow-xl p-6 sm:p-7 space-y-5 my-8">
             <div className="flex items-center justify-between">
-              <h3 id="anlora-add-word-title" className="text-lg font-bold text-[#1E2430] flex items-center gap-2">
-                <Plus className="w-4 h-4 text-[#4F46A5]" />
+              <h3 id="anlora-add-word-title" className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
+                <Plus className="w-4 h-4 text-[var(--primary)]" />
                 Yeni Kelime Ekle
               </h3>
-              <span className="text-xs font-bold text-[#4F46A5] bg-[#EEECFA] px-2.5 py-1 rounded-lg border border-[#D7D2F4]">
+              <span className="text-xs font-bold text-[var(--primary)] bg-[var(--primary-soft)] px-2.5 py-1 rounded-lg border border-[var(--primary-border)]">
                 {activeDeck?.name}
               </span>
             </div>
 
             {lastAddedWord && (
-              <div className="px-3.5 py-2.5 rounded-xl bg-[#E9F3ED] border border-[#BFD7C8] text-[#35654E] text-xs font-semibold flex items-center gap-2">
+              <div className="px-3.5 py-2.5 rounded-xl bg-[var(--learned-soft)] border border-[var(--learned-border)] text-[var(--learned-text)] text-xs font-semibold flex items-center gap-2">
                 <Check className="w-3.5 h-3.5 shrink-0" />
                 <span>
                   <b>{lastAddedWord}</b> sete eklendi. Bir kelime daha ekleyebilirsin.
@@ -1683,8 +1683,8 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
             {creationMode === 'FORM' && (
               <form onSubmit={handleSaveManualCard} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-[#687080] uppercase mb-1">
-                    İngilizce Kelime <span className="text-[#C65D55]">*</span>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                    İngilizce Kelime <span className="text-[var(--danger)]">*</span>
                   </label>
                   <input
                     type="text"
@@ -1693,20 +1693,20 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     placeholder="Örn: reluctant, achieve, scrutinize..."
                     required
                     autoFocus
-                    className="w-full px-3.5 py-2.5 text-sm bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:outline-none focus:border-[#4F46A5] font-bold text-[#1E2430]"
+                    className="w-full px-3.5 py-2.5 text-sm bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] font-bold text-[var(--text-primary)]"
                   />
                 </div>
 
                 {/* SÖZLÜK SONUCU — aynı ekranda, ayrı pencere açmadan */}
                 {lookup.kind === 'searching' && (
-                  <div className="flex items-center gap-2 text-[11px] text-[#8E95A2] font-medium">
+                  <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)] font-medium">
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     <span>Sözlükte aranıyor…</span>
                   </div>
                 )}
 
                 {lookup.kind === 'in-set' && (
-                  <div className="p-3.5 rounded-xl bg-[#FBF1DE] border border-[#E7C98F] text-[11px] text-[#8A5A18] space-y-2">
+                  <div className="p-3.5 rounded-xl bg-[var(--learning-soft)] border border-[var(--learning-border)] text-[11px] text-[var(--learning-text)] space-y-2">
                     <p className="font-bold">
                       "{lookup.card.word}" bu sette zaten var.
                     </p>
@@ -1718,37 +1718,37 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 )}
 
                 {lookup.kind === 'found' && (
-                  <div className="p-4 rounded-xl bg-[#E9F3ED] border border-[#BFD7C8] space-y-3">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#35654E]">
+                  <div className="p-4 rounded-xl bg-[var(--learned-soft)] border border-[var(--learned-border)] space-y-3">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-[var(--learned-text)]">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       <span>Bu kelime Anlora sözlüğünde bulunuyor</span>
                     </div>
 
-                    <div className="bg-white rounded-xl border border-[#BFD7C8] p-3 space-y-1.5">
+                    <div className="bg-white rounded-xl border border-[var(--learned-border)] p-3 space-y-1.5">
                       <div className="flex items-baseline gap-2 flex-wrap">
-                        <span className="text-base font-bold text-[#1E2430]">
+                        <span className="text-base font-bold text-[var(--text-primary)]">
                           {lookup.card.word}
                         </span>
                         {lookup.card.phonetic && (
-                          <span className="text-[11px] font-mono text-[#687080]">
+                          <span className="text-[11px] font-mono text-[var(--text-secondary)]">
                             {formatPhonetic(lookup.card.phonetic)}
                           </span>
                         )}
                         {lookup.card.partOfSpeech && (
-                          <span className="text-[10px] font-semibold px-1.5 py-0.5 bg-[#F1EFE8] text-[#687080] rounded">
+                          <span className="text-[10px] font-semibold px-1.5 py-0.5 bg-[var(--surface-soft)] text-[var(--text-secondary)] rounded">
                             {lookup.card.partOfSpeech}
                           </span>
                         )}
                       </div>
-                      <p className="text-sm font-semibold text-[#1E2430]">
+                      <p className="text-sm font-semibold text-[var(--text-primary)]">
                         {lookup.card.turkishMeaning}
                       </p>
                       {lookup.card.examples.length > 0 && (
-                        <p className="text-[11px] text-[#687080] italic">
+                        <p className="text-[11px] text-[var(--text-secondary)] italic">
                           Örnek: {lookup.card.examples[0].en}
                         </p>
                       )}
-                      <p className="text-[10px] text-[#4F806A] font-semibold pt-0.5">
+                      <p className="text-[10px] text-[var(--learned)] font-semibold pt-0.5">
                         Anlamı ve {lookup.card.examples.length >= 3 ? 'üç' : lookup.card.examples.length}{' '}
                         örnek cümlesi hazır — çeviriyle birlikte.
                       </p>
@@ -1757,21 +1757,21 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     <button
                       type="button"
                       onClick={() => addLookedUpCard(lookup.card, lookup.source)}
-                      className="w-full py-2.5 bg-[#4F806A] hover:bg-[#3F6A57] text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                      className="w-full py-2.5 bg-[var(--learned)] hover:bg-[var(--learned-hover)] text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                     >
                       <Plus className="w-4 h-4" />
                       <span>Bu kelimeyi sete ekle</span>
                     </button>
 
-                    <p className="text-[10px] text-[#35654E] text-center">
+                    <p className="text-[10px] text-[var(--learned-text)] text-center">
                       Kendi anlamını yazmak istersen aşağıdaki alanları doldur.
                     </p>
                   </div>
                 )}
 
                 <div>
-                  <label className="block text-xs font-bold text-[#687080] uppercase mb-1">
-                    Türkçe Anlamı <span className="text-[#C65D55]">*</span>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                    Türkçe Anlamı <span className="text-[var(--danger)]">*</span>
                   </label>
                   <input
                     type="text"
@@ -1779,18 +1779,18 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     onChange={(e) => setManualTurkishMeaning(e.target.value)}
                     placeholder="Örn: isteksiz, gönülsüz"
                     required
-                    className="w-full px-3.5 py-2.5 text-sm bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:outline-none focus:border-[#4F46A5] font-bold text-[#1E2430]"
+                    className="w-full px-3.5 py-2.5 text-sm bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] font-bold text-[var(--text-primary)]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#687080] uppercase mb-1">
-                    Kelime Türü <span className="font-semibold normal-case text-[#8E95A2]">(isteğe bağlı)</span>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                    Kelime Türü <span className="font-semibold normal-case text-[var(--text-muted)]">(isteğe bağlı)</span>
                   </label>
                   <select
                     value={manualPartOfSpeech}
                     onChange={(e) => setManualPartOfSpeech(e.target.value)}
-                    className="w-full px-3.5 py-2.5 text-sm bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:outline-none focus:border-[#4F46A5] font-semibold text-[#1E2430]"
+                    className="w-full px-3.5 py-2.5 text-sm bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] font-semibold text-[var(--text-primary)]"
                   >
                     <option value="">Boş bırak / Bilmiyorum</option>
                     <option value="n.">İsim (n.)</option>
@@ -1812,11 +1812,11 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   görünürdür: kullanıcı doldurmayı seçebilsin diye.
                 */}
                 <div className="space-y-2">
-                  <label className="block text-xs font-bold text-[#687080] uppercase">
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase">
                     Örnek Cümleler{' '}
-                    <span className="font-semibold normal-case text-[#8E95A2]">(isteğe bağlı)</span>
+                    <span className="font-semibold normal-case text-[var(--text-muted)]">(isteğe bağlı)</span>
                   </label>
-                  <p className="text-[11px] text-[#8E95A2] leading-relaxed">
+                  <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">
                     Kelimeyi cümle içinde görmek kalıcı öğrenmenin en hızlı yolu.
                     Sözlükten gelen kelimelerde üç örnek hazır gelir; kendi
                     kelimende de yazabilirsin.
@@ -1828,7 +1828,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                         value={ex.en}
                         onChange={e => handleExampleChange(i, 'en', e.target.value)}
                         placeholder={`${i + 1}. örnek (İngilizce)`}
-                        className="w-full px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:outline-none focus:border-[#4F46A5] text-[#1E2430]"
+                        className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] text-[var(--text-primary)]"
                       />
                       {ex.en.trim() && (
                         <input
@@ -1836,7 +1836,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                           value={ex.tr}
                           onChange={e => handleExampleChange(i, 'tr', e.target.value)}
                           placeholder={`${i + 1}. örneğin Türkçesi`}
-                          className="w-full px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:outline-none focus:border-[#4F46A5] italic text-[#687080]"
+                          className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] italic text-[var(--text-secondary)]"
                         />
                       )}
                     </div>
@@ -1845,7 +1845,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     <button
                       type="button"
                       onClick={() => setManualExamples(list => [...list, { en: '', tr: '' }])}
-                      className="text-[11px] font-semibold text-[#4F46A5] hover:text-[#433B91] cursor-pointer"
+                      className="text-[11px] font-semibold text-[var(--primary)] hover:text-[var(--primary-hover)] cursor-pointer"
                     >
                       + Bir örnek daha ekle
                     </button>
@@ -1853,23 +1853,23 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#687080] uppercase mb-1">
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
                     Bağlam ya da Not{' '}
-                    <span className="font-semibold normal-case text-[#8E95A2]">(isteğe bağlı)</span>
+                    <span className="font-semibold normal-case text-[var(--text-muted)]">(isteğe bağlı)</span>
                   </label>
                   <textarea
                     value={contextInput}
                     onChange={(e) => setContextInput(e.target.value)}
                     placeholder="Kelimeyi gördüğün cümle ya da kendi notun..."
                     rows={2}
-                    className="w-full px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:outline-none italic text-[#1E2430]"
+                    className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none italic text-[var(--text-primary)]"
                   />
                 </div>
 
                 {/* AI hata bildirimi */}
                 {aiError && (
-                  <div className="p-3 bg-[#FAECEA] rounded-xl border border-[#F0CBC7] text-xs">
-                    <div className="flex items-start gap-2 text-[#C65D55] font-semibold">
+                  <div className="p-3 bg-[var(--danger-soft)] rounded-xl border border-[var(--danger-border)] text-xs">
+                    <div className="flex items-start gap-2 text-[var(--danger)] font-semibold">
                       <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                       <span>{aiError}</span>
                     </div>
@@ -1880,13 +1880,13 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   <button
                     type="button"
                     onClick={resetAddWordModal}
-                    className="px-4 py-2 text-xs font-semibold text-[#687080] hover:bg-[#F1EFE8] rounded-xl cursor-pointer"
+                    className="px-4 py-2 text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-soft)] rounded-xl cursor-pointer"
                   >
                     Kapat
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2.5 bg-[#4F46A5] hover:bg-[#433B91] text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
+                    className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
                   >
                     <Check className="w-4 h-4" />
                     <span>Kartı Kaydet</span>
@@ -1900,8 +1900,8 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   bir kenara atmak olurdu.
                 */}
                 {lookup.kind === 'not-found' && (
-                <div className="pt-3 border-t border-[#EFECE6] space-y-2">
-                  <div className="text-[11px] font-bold text-[#8E95A2] uppercase tracking-wider">
+                <div className="pt-3 border-t border-[var(--border-light)] space-y-2">
+                  <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
                     Bu kelime sözlükte yok
                   </div>
                   <button
@@ -1910,19 +1910,19 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     disabled={!wordInput.trim()}
                     className={`w-full p-4 rounded-xl border text-left transition-all ${
                       wordInput.trim()
-                        ? 'border-[#D7D2F4] bg-[#EEECFA]/70 hover:bg-[#EEECFA] cursor-pointer'
-                        : 'border-[#E4E1D9] bg-[#F8F7F3] opacity-60 cursor-not-allowed'
+                        ? 'border-[var(--primary-border)] bg-[var(--primary-soft)]/70 hover:bg-[var(--primary-soft)] cursor-pointer'
+                        : 'border-[var(--border)] bg-[var(--bg)] opacity-60 cursor-not-allowed'
                     }`}
                   >
                     <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-[#4F46A5] text-white flex items-center justify-center shrink-0">
+                      <div className="w-9 h-9 rounded-xl bg-[var(--primary)] text-white flex items-center justify-center shrink-0">
                         <Sparkles className="w-4 h-4" />
                       </div>
                       <div className="space-y-0.5">
-                        <h4 className="text-xs font-bold text-[#1E2430]">
+                        <h4 className="text-xs font-bold text-[var(--text-primary)]">
                           ✨ Anlora AI ile hazırla
                         </h4>
-                        <p className="text-xs text-[#687080] leading-relaxed">
+                        <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                           Türkçe anlamı, kelime türünü ve örnek cümleleri senin
                           yerine hazırlasın. Sonuç kaydedilmeden önce sana gösterilir.
                         </p>
@@ -1937,12 +1937,12 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
             {/* AI LOADING SKELETON LOADER */}
             {creationMode === 'AI_GENERATING' && (
               <div className="py-10 text-center space-y-4">
-                <div className="w-10 h-10 border-3 border-[#D7D2F4] border-t-[#4F46A5] rounded-full animate-spin mx-auto" />
+                <div className="w-10 h-10 border-3 border-[var(--primary-border)] border-t-[var(--primary)] rounded-full animate-spin mx-auto" />
                 <div className="space-y-1">
-                  <h4 className="text-sm font-bold text-[#1E2430]">
+                  <h4 className="text-sm font-bold text-[var(--text-primary)]">
                     Anlora kelime kartını hazırlıyor...
                   </h4>
-                  <p className="text-xs text-[#687080]">
+                  <p className="text-xs text-[var(--text-secondary)]">
                     Anlamlar ve örnek cümleler hazırlanıyor...
                   </p>
                 </div>
@@ -1952,23 +1952,23 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
             {/* AI PREVIEW CARD */}
             {creationMode === 'AI_PREVIEW' && generatedPreviewCard && (
               <div className="space-y-4 animate-fadeIn">
-                <div className="text-xs font-bold text-[#4F806A] flex items-center gap-1.5 pb-1">
+                <div className="text-xs font-bold text-[var(--learned)] flex items-center gap-1.5 pb-1">
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Kelime kartın hazır.</span>
                 </div>
-                <div className="p-4 rounded-xl bg-[#F8F7F3] border border-[#E4E1D9] space-y-3">
+                <div className="p-4 rounded-xl bg-[var(--bg)] border border-[var(--border)] space-y-3">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h4 className="text-2xl font-bold text-[#1E2430] flex items-baseline gap-2">
+                      <h4 className="text-2xl font-bold text-[var(--text-primary)] flex items-baseline gap-2">
                         {generatedPreviewCard.word}
                         {generatedPreviewCard.phonetic && (
-                          <span className="text-xs font-mono text-[#687080] font-normal">
+                          <span className="text-xs font-mono text-[var(--text-secondary)] font-normal">
                             {generatedPreviewCard.phonetic}
                           </span>
                         )}
                       </h4>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs font-semibold text-[#687080]">
+                        <span className="text-xs font-semibold text-[var(--text-secondary)]">
                           {generatedPreviewCard.partOfSpeech}
                         </span>
                       </div>
@@ -1976,34 +1976,34 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
                     <button
                       onClick={() => speakText(generatedPreviewCard.word)}
-                      className="p-2 rounded-xl bg-white border border-[#E4E1D9] text-[#4F46A5] hover:bg-[#EEECFA] cursor-pointer"
+                      className="p-2 rounded-xl bg-white border border-[var(--border)] text-[var(--primary)] hover:bg-[var(--primary-soft)] cursor-pointer"
                       title="Dinle"
                     >
                       <Volume2 className="w-4 h-4" />
                     </button>
                   </div>
 
-                  <div className="p-3 bg-white rounded-xl border border-[#E4E1D9]">
-                    <div className="text-[10px] font-bold text-[#4F46A5] uppercase">
+                  <div className="p-3 bg-white rounded-xl border border-[var(--border)]">
+                    <div className="text-[10px] font-bold text-[var(--primary)] uppercase">
                       Türkçe Anlamı
                     </div>
-                    <div className="text-base font-bold text-[#1E2430] mt-0.5">
+                    <div className="text-base font-bold text-[var(--text-primary)] mt-0.5">
                       {generatedPreviewCard.turkishMeaning}
                     </div>
                   </div>
 
                   {generatedPreviewCard.examples && generatedPreviewCard.examples.length > 0 && (
                     <div className="space-y-1.5 pt-1">
-                      <div className="text-[10px] font-bold text-[#8E95A2] uppercase tracking-wider">
+                      <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
                         Örnek Cümleler
                       </div>
                       {generatedPreviewCard.examples.map((ex, idx) => (
                         <div
                           key={idx}
-                          className="p-2.5 bg-white rounded-lg border border-[#E4E1D9] text-xs space-y-0.5"
+                          className="p-2.5 bg-white rounded-lg border border-[var(--border)] text-xs space-y-0.5"
                         >
-                          <p className="font-semibold text-[#1E2430]">{ex.en}</p>
-                          <p className="text-[#687080] italic text-[11px]">"{ex.tr}"</p>
+                          <p className="font-semibold text-[var(--text-primary)]">{ex.en}</p>
+                          <p className="text-[var(--text-secondary)] italic text-[11px]">"{ex.tr}"</p>
                         </div>
                       ))}
                     </div>
@@ -2024,7 +2024,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       );
                       setCreationMode('FORM');
                     }}
-                    className="px-4 py-2 text-xs font-semibold text-[#1E2430] bg-[#F1EFE8] hover:bg-[#E4E1D9] rounded-xl cursor-pointer"
+                    className="px-4 py-2 text-xs font-semibold text-[var(--text-primary)] bg-[var(--surface-soft)] hover:bg-[var(--border)] rounded-xl cursor-pointer"
                   >
                     Düzenle
                   </button>
@@ -2032,7 +2032,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   <button
                     type="button"
                     onClick={handleSaveAiCard}
-                    className="px-5 py-2 bg-[#4F46A5] hover:bg-[#433B91] text-white text-xs font-semibold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
+                    className="px-5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-xs font-semibold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
                   >
                     <Check className="w-4 h-4" />
                     <span>Kaydet</span>
@@ -2047,23 +2047,23 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
       {/* MODAL: SEÇİLENLERİ TAŞI / KOPYALA */}
       {bulkTarget && activeDeck && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-md w-full border border-[#E4E1D9] shadow-xl p-6 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
+          <div className="bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-[#1E2430]">
+              <h3 className="text-base font-bold text-[var(--text-primary)]">
                 {selectedIds.size} kelimeyi {bulkTarget === 'move' ? 'taşı' : 'kopyala'}
               </h3>
               <button
                 type="button"
                 onClick={() => setBulkTarget(null)}
-                className="p-1.5 text-[#8E95A2] hover:text-[#1E2430] rounded-lg cursor-pointer"
+                className="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-lg cursor-pointer"
                 aria-label="Kapat"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <p className="text-xs text-[#687080] leading-relaxed">
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
               {bulkTarget === 'move'
                 ? 'Kelimeler bu setten çıkıp seçtiğin sete geçecek. Kartlar ve ilerlemen silinmez.'
                 : 'Kelimeler iki sette birden duracak. Kart tek kalır, ilerlemen ortaktır.'}
@@ -2077,7 +2077,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     key={deck.id}
                     type="button"
                     onClick={() => moveSelected(deck.id, bulkTarget)}
-                    className="w-full text-left px-3.5 py-2.5 rounded-xl border border-[#E4E1D9] bg-[#F8F7F3] hover:bg-[#EEECFA] hover:border-[#D7D2F4] transition-colors cursor-pointer flex items-center gap-2.5"
+                    className="w-full text-left px-3.5 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--bg)] hover:bg-[var(--primary-soft)] hover:border-[var(--primary-border)] transition-colors cursor-pointer flex items-center gap-2.5"
                   >
                     <span
                       className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0"
@@ -2086,10 +2086,10 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       <DeckIcon name={deck.iconName} className="w-3.5 h-3.5" />
                     </span>
                     <span className="min-w-0">
-                      <span className="block text-xs font-bold text-[#1E2430] truncate">
+                      <span className="block text-xs font-bold text-[var(--text-primary)] truncate">
                         {deck.name}
                       </span>
-                      <span className="block text-[10px] text-[#687080]">
+                      <span className="block text-[10px] text-[var(--text-secondary)]">
                         {memberships.filter(m => m.collectionId === deck.id).length} kelime
                       </span>
                     </span>
@@ -2102,17 +2102,17 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
       {/* MODAL: SETİ PAYLAŞ */}
       {showShare && activeDeck && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-md w-full border border-[#E4E1D9] shadow-xl p-6 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
+          <div className="bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-[#1E2430] flex items-center gap-2">
-                <Share2 className="w-4 h-4 text-[#1F6F6B]" />
+              <h3 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
+                <Share2 className="w-4 h-4 text-[var(--teal)]" />
                 Seti paylaş
               </h3>
               <button
                 type="button"
                 onClick={() => setShowShare(false)}
-                className="p-1.5 text-[#8E95A2] hover:text-[#1E2430] rounded-lg cursor-pointer"
+                className="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-lg cursor-pointer"
                 aria-label="Kapat"
               >
                 <X className="w-4 h-4" />
@@ -2121,14 +2121,14 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
             {activeDeck.shareCode ? (
               <>
-                <div className="p-3 rounded-xl bg-[#E2F0EE] border border-[#B7D9D6] text-[11px] text-[#1F6F6B] leading-relaxed">
+                <div className="p-3 rounded-xl bg-[var(--teal-soft)] border border-[var(--teal-border)] text-[11px] text-[var(--teal)] leading-relaxed">
                   Bu set paylaşımda. Bağlantıyı alan herkes kelimeleri görebilir; kimin
                   açtığını göremezsin. Paylaşılan içerik <b>o anki kopyadır</b> — sonradan
                   eklediğin kelimeler için yeniden paylaşman gerekir.
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-[#8E95A2] mb-1">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">
                     Bağlantı
                   </label>
                   <div className="flex gap-2">
@@ -2137,7 +2137,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       readOnly
                       value={`${window.location.origin}/?set=${activeDeck.shareCode}`}
                       onFocus={e => e.currentTarget.select()}
-                      className="flex-1 px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl text-[#1E2430] font-mono"
+                      className="flex-1 px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] font-mono"
                     />
                     <button
                       type="button"
@@ -2147,7 +2147,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                           .then(() => setSetNotice('Bağlantı kopyalandı.'))
                           .catch(() => setShareError('Kopyalanamadı; bağlantıyı elle seçebilirsin.'));
                       }}
-                      className="px-3 py-2 bg-[#F1EFE8] hover:bg-[#E4E1D9] text-[#1E2430] text-xs font-semibold rounded-xl cursor-pointer"
+                      className="px-3 py-2 bg-[var(--surface-soft)] hover:bg-[var(--border)] text-[var(--text-primary)] text-xs font-semibold rounded-xl cursor-pointer"
                     >
                       Kopyala
                     </button>
@@ -2159,7 +2159,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     type="button"
                     onClick={() => void shareDeck()}
                     disabled={isSharing}
-                    className="px-4 py-2 bg-[#F1EFE8] hover:bg-[#E4E1D9] text-[#1E2430] text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-40"
+                    className="px-4 py-2 bg-[var(--surface-soft)] hover:bg-[var(--border)] text-[var(--text-primary)] text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-40"
                   >
                     Güncel hâliyle yenile
                   </button>
@@ -2167,7 +2167,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     type="button"
                     onClick={() => void unshareDeck()}
                     disabled={isSharing}
-                    className="px-4 py-2 bg-[#FAECEA] hover:bg-[#F6DFDC] text-[#C65D55] text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40"
+                    className="px-4 py-2 bg-[var(--danger-soft)] hover:bg-[var(--danger-soft-hover)] text-[var(--danger)] text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40"
                   >
                     Paylaşımı kaldır
                   </button>
@@ -2175,12 +2175,12 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               </>
             ) : (
               <>
-                <p className="text-xs text-[#687080] leading-relaxed">
-                  Bu set şu an <b className="text-[#1E2430]">gizli</b> ve yalnızca bu cihazda
+                <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                  Bu set şu an <b className="text-[var(--text-primary)]">gizli</b> ve yalnızca bu cihazda
                   duruyor. Paylaşırsan kelimeler sunucuya kopyalanır ve bağlantıyı verdiğin
                   kişiler görebilir. İstediğin an geri alabilirsin.
                 </p>
-                <p className="text-[11px] text-[#8E95A2]">
+                <p className="text-[11px] text-[var(--text-muted)]">
                   {activeDeckWords.length} kelime paylaşılacak. Paylaşmak için giriş yapmış
                   olman gerekiyor.
                 </p>
@@ -2189,7 +2189,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowShare(false)}
-                    className="px-4 py-2 text-xs font-semibold text-[#687080] hover:bg-[#F1EFE8] rounded-xl cursor-pointer"
+                    className="px-4 py-2 text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-soft)] rounded-xl cursor-pointer"
                   >
                     Vazgeç
                   </button>
@@ -2197,7 +2197,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     type="button"
                     onClick={() => void shareDeck()}
                     disabled={isSharing || activeDeckWords.length === 0}
-                    className="px-4 py-2 bg-[#1F6F6B] hover:bg-[#195B58] text-white text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-4 py-2 bg-[var(--teal)] hover:bg-[var(--teal-hover)] text-white text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {isSharing ? 'Paylaşılıyor…' : 'Bağlantı oluştur'}
                   </button>
@@ -2206,7 +2206,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
             )}
 
             {shareError && (
-              <div className="p-3 rounded-xl bg-[#FAECEA] border border-[#F0CBC7] text-[11px] text-[#C65D55]">
+              <div className="p-3 rounded-xl bg-[var(--danger-soft)] border border-[var(--danger-border)] text-[11px] text-[var(--danger)]">
                 {shareError}
               </div>
             )}
@@ -2216,22 +2216,22 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
       {/* MODAL: SET BİRLEŞTİR */}
       {showMerge && activeDeck && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-md w-full border border-[#E4E1D9] shadow-xl p-6 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
+          <div className="bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-[#1E2430]">Seti bu sete kat</h3>
+              <h3 className="text-base font-bold text-[var(--text-primary)]">Seti bu sete kat</h3>
               <button
                 type="button"
                 onClick={() => setShowMerge(false)}
-                className="p-1.5 text-[#8E95A2] hover:text-[#1E2430] rounded-lg cursor-pointer"
+                className="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-lg cursor-pointer"
                 aria-label="Kapat"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <p className="text-xs text-[#687080] leading-relaxed">
-              Seçtiğin setteki kelimeler <b className="text-[#1E2430]">{activeDeck.name}</b> setine
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+              Seçtiğin setteki kelimeler <b className="text-[var(--text-primary)]">{activeDeck.name}</b> setine
               eklenir, sonra o set silinir. <b>Kelimeler silinmez</b> — yalnızca setin kendisi
               ortadan kalkar. Zaten burada olan kelime ikinci kez eklenmez.
             </p>
@@ -2239,7 +2239,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
             <select
               value={mergeSource}
               onChange={e => setMergeSource(e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl font-semibold text-[#1E2430]"
+              className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl font-semibold text-[var(--text-primary)]"
             >
               <option value="">Katılacak seti seç…</option>
               {collections
@@ -2255,7 +2255,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               <button
                 type="button"
                 onClick={() => setShowMerge(false)}
-                className="px-4 py-2 text-xs font-semibold text-[#687080] hover:bg-[#F1EFE8] rounded-xl cursor-pointer"
+                className="px-4 py-2 text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-soft)] rounded-xl cursor-pointer"
               >
                 Vazgeç
               </button>
@@ -2263,7 +2263,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 type="button"
                 onClick={mergeInto}
                 disabled={!mergeSource}
-                className="px-4 py-2 bg-[#4F46A5] hover:bg-[#433B91] text-white text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Katıp seti sil
               </button>
@@ -2274,21 +2274,21 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
       {/* MODAL: CSV'DEN EKLE */}
       {showImport && activeDeck && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full border border-[#E4E1D9] shadow-xl p-6 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
+          <div className="bg-[var(--surface)] rounded-2xl max-w-lg w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-[#1E2430]">CSV'den kelime ekle</h3>
+              <h3 className="text-base font-bold text-[var(--text-primary)]">CSV'den kelime ekle</h3>
               <button
                 type="button"
                 onClick={() => setShowImport(false)}
-                className="p-1.5 text-[#8E95A2] hover:text-[#1E2430] rounded-lg cursor-pointer"
+                className="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-lg cursor-pointer"
                 aria-label="Kapat"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="p-3 rounded-xl bg-[#FBF1DE] border border-[#E7C98F] text-[11px] text-[#8A5A18] leading-relaxed">
+            <div className="p-3 rounded-xl bg-[var(--learning-soft)] border border-[var(--learning-border)] text-[11px] text-[var(--learning-text)] leading-relaxed">
               En az <b>kelime</b> ve <b>anlamlar</b> sütunları gerekli. İsteğe bağlı:{' '}
               <b>telaffuz, seviye, tur, ornek1_en, ornek1_tr</b>. Excel'den kaydettiğin dosyayı
               açıp içeriğini buraya yapıştırabilirsin. Sette zaten olan kelime atlanır. Örnek
@@ -2300,14 +2300,14 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               onChange={e => setImportText(e.target.value)}
               rows={8}
               placeholder={'kelime;anlamlar\nthrive;gelişmek'}
-              className="w-full px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-white focus:outline-none focus:border-[#4F46A5] font-mono text-[#1E2430]"
+              className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-white focus:outline-none focus:border-[var(--primary)] font-mono text-[var(--text-primary)]"
             />
 
             <div className="flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setShowImport(false)}
-                className="px-4 py-2 text-xs font-semibold text-[#687080] hover:bg-[#F1EFE8] rounded-xl cursor-pointer"
+                className="px-4 py-2 text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-soft)] rounded-xl cursor-pointer"
               >
                 Vazgeç
               </button>
@@ -2315,7 +2315,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 type="button"
                 onClick={importDeckCsv}
                 disabled={!importText.trim()}
-                className="px-4 py-2 bg-[#4F46A5] hover:bg-[#433B91] text-white text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Ekle
               </button>

@@ -77,7 +77,7 @@ export const AdminAI: React.FC = () => {
   };
 
   if (error && !data) return <Notice tone="error">{error}</Notice>;
-  if (!data) return <p className="text-xs text-[#687080] py-8 text-center">Yükleniyor…</p>;
+  if (!data) return <p className="text-xs text-[var(--text-secondary)] py-8 text-center">Yükleniyor…</p>;
 
   const quotaPercent = Math.min(
     100,
@@ -112,7 +112,7 @@ export const AdminAI: React.FC = () => {
             hint="kalitesiz bulunan"
           />
         </div>
-        <p className="text-[10px] text-[#8E95A2] leading-relaxed">
+        <p className="text-[10px] text-[var(--text-muted)] leading-relaxed">
           Aynı kelime ikinci kez sorulduğunda yapay zekâya gidilmez; yanıt buradan
           gelir. "Önlenen çağrı" bu sayede yapılmayan istek sayısıdır.
         </p>
@@ -122,17 +122,17 @@ export const AdminAI: React.FC = () => {
       <Card className="space-y-3">
         <SectionTitle icon={<Gauge className="w-3.5 h-3.5" />}>Günlük kota</SectionTitle>
         <div className="space-y-1.5">
-          <div className="flex items-center justify-between text-[11px] font-semibold text-[#687080]">
+          <div className="flex items-center justify-between text-[11px] font-semibold text-[var(--text-secondary)]">
             <span>
-              Bugün <b className="text-[#1E2430] tabular-nums">{data.quota.usedToday}</b> /{' '}
+              Bugün <b className="text-[var(--text-primary)] tabular-nums">{data.quota.usedToday}</b> /{' '}
               {data.quota.dailyLimit} yeni üretim
             </span>
             <span className="tabular-nums">%{quotaPercent}</span>
           </div>
-          <div className="h-2 w-full bg-[#E4E1D9] rounded-full overflow-hidden">
+          <div className="h-2 w-full bg-[var(--border)] rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full transition-all ${
-                quotaPercent > 85 ? 'bg-[#C65D55]' : 'bg-[#4F46A5]'
+                quotaPercent > 85 ? 'bg-[var(--danger)]' : 'bg-[var(--primary)]'
               }`}
               style={{ width: `${quotaPercent}%` }}
             />
@@ -159,13 +159,13 @@ export const AdminAI: React.FC = () => {
           En çok aranıp bulunamayan kelimeler
         </SectionTitle>
         {data.topMisses.length === 0 ? (
-          <p className="text-xs text-[#687080] py-6 text-center">
+          <p className="text-xs text-[var(--text-secondary)] py-6 text-center">
             Henüz kayıt yok. Kullanıcılar sözlükte olmayan bir kelime aradığında burada
             görünür.
           </p>
         ) : (
           <>
-            <p className="text-[11px] text-[#687080] leading-relaxed">
+            <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
               İnsanların istediği ama elimizde olmayan kelimeler. Sözlük sekmesinden
               ekleyebilir ya da CSV ile topluca yükleyebilirsin.
             </p>
@@ -173,14 +173,14 @@ export const AdminAI: React.FC = () => {
               {data.topMisses.map(item => (
                 <span
                   key={item.word}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#FAF9F5] border border-[#E4E1D9] text-[11px]"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--surface-subtle)] border border-[var(--border)] text-[11px]"
                 >
-                  <b className="text-[#1E2430]">{item.word}</b>
-                  <span className="text-[#8E95A2] tabular-nums">{item.count}×</span>
+                  <b className="text-[var(--text-primary)]">{item.word}</b>
+                  <span className="text-[var(--text-muted)] tabular-nums">{item.count}×</span>
                   <button
                     type="button"
                     onClick={() => void act(item.word, `misses/${encodeURIComponent(item.word)}`, 'DELETE')}
-                    className="text-[#8E95A2] hover:text-[#C65D55] cursor-pointer"
+                    className="text-[var(--text-muted)] hover:text-[var(--danger)] cursor-pointer"
                     aria-label={`${item.word} kaydını listeden çıkar`}
                   >
                     ×
@@ -196,7 +196,7 @@ export const AdminAI: React.FC = () => {
       <Card className="space-y-3">
         <SectionTitle>Son üretilen kartlar</SectionTitle>
         {data.recent.length === 0 ? (
-          <p className="text-xs text-[#687080] py-6 text-center">
+          <p className="text-xs text-[var(--text-secondary)] py-6 text-center">
             Henüz yapay zekâ ile üretilmiş kart yok.
           </p>
         ) : (
@@ -204,26 +204,26 @@ export const AdminAI: React.FC = () => {
             {data.recent.map(item => (
               <div
                 key={item.word}
-                className="rounded-xl border border-[#E4E1D9] bg-[#FAF9F5] p-3 flex flex-wrap items-center justify-between gap-2"
+                className="rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-3 flex flex-wrap items-center justify-between gap-2"
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-bold text-[#1E2430]">{item.word}</span>
+                    <span className="text-sm font-bold text-[var(--text-primary)]">{item.word}</span>
                     {item.approved && (
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#E9F3ED] text-[#35654E]">
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[var(--learned-soft)] text-[var(--learned-text)]">
                         ONAYLI
                       </span>
                     )}
                     {item.flagged && (
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#FAECEA] text-[#C65D55]">
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[var(--danger-soft)] text-[var(--danger)]">
                         KALİTESİZ
                       </span>
                     )}
-                    <span className="text-[10px] text-[#8E95A2] tabular-nums">
+                    <span className="text-[10px] text-[var(--text-muted)] tabular-nums">
                       {item.hits}× kullanıldı · {formatDate(item.createdAt)}
                     </span>
                   </div>
-                  <p className="text-[11px] text-[#687080] mt-0.5 truncate">
+                  <p className="text-[11px] text-[var(--text-secondary)] mt-0.5 truncate">
                     {item.turkishMeaning || '(anlam yok)'}
                   </p>
                 </div>
@@ -271,7 +271,7 @@ export const AdminAI: React.FC = () => {
             ))}
           </div>
         )}
-        <p className="text-[10px] text-[#8E95A2] leading-relaxed">
+        <p className="text-[10px] text-[var(--text-muted)] leading-relaxed">
           Kalitesiz bir kartı <b>silmek</b>, o kelime için bir sonraki istekte yeniden
           üretilmesini sağlar; düzeltmenin yolu budur. <b>Sözlüğe al</b> ise kartı
           kalıcı sözlük kaydına çevirir ve uygulamaya doğrudan indirir.

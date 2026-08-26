@@ -168,14 +168,14 @@ export const AdminAppearance: React.FC = () => {
                 const file = e.target.files?.[0];
                 if (file) uploadLogo(file);
               }}
-              className="text-[11px] text-[#687080]"
+              className="text-[11px] text-[var(--text-secondary)]"
             />
             {branding.logoDataUri && (
               <>
                 <img
                   src={branding.logoDataUri}
                   alt="Yüklenen logo"
-                  className="w-9 h-9 rounded-lg object-contain border border-[#E4E1D9] bg-white"
+                  className="w-9 h-9 rounded-lg object-contain border border-[var(--border)] bg-white"
                 />
                 <Button
                   tone="danger"
@@ -205,10 +205,10 @@ export const AdminAppearance: React.FC = () => {
         </Notice>
 
         {slots.map((slot, index) => (
-          <div key={slot.id} className="rounded-xl border border-[#E4E1D9] bg-[#FAF9F5] p-3 space-y-2">
+          <div key={slot.id} className="rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-3 space-y-2">
             <div className="flex items-center justify-between gap-2 flex-wrap">
-              <span className="text-xs font-bold text-[#1E2430]">{slot.label}</span>
-              <label className="flex items-center gap-1.5 text-[11px] font-semibold text-[#687080] cursor-pointer">
+              <span className="text-xs font-bold text-[var(--text-primary)]">{slot.label}</span>
+              <label className="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--text-secondary)] cursor-pointer">
                 <input
                   type="checkbox"
                   checked={slot.enabled}
@@ -217,7 +217,7 @@ export const AdminAppearance: React.FC = () => {
                     next[index] = { ...slot, enabled: e.target.checked };
                     setSlots(next);
                   }}
-                  className="accent-[#4F46A5] cursor-pointer"
+                  className="accent-[var(--primary)] cursor-pointer"
                 />
                 Açık
               </label>

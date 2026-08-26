@@ -61,27 +61,27 @@ export const AddToCollectionModal: React.FC<AddToCollectionModalProps> = ({
       aria-modal="true"
       aria-labelledby="anlora-add-collection-title"
       ref={modalRef}
-      className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
+      className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
       <div
-        className="bg-[#FFFFFF] rounded-2xl max-w-md w-full border border-[#E4E1D9] shadow-xl overflow-hidden"
+        className="bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-[#FFFFFF] border-b border-[#EFECE6] p-5 flex items-start justify-between">
+        <div className="bg-[var(--surface)] border-b border-[var(--border-light)] p-5 flex items-start justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-[#EEECFA] rounded-xl text-[#4F46A5]">
+            <div className="p-2 bg-[var(--primary-soft)] rounded-xl text-[var(--primary)]">
               <BookmarkPlus className="w-4 h-4" />
             </div>
             <div>
-              <h3 id="anlora-add-collection-title" className="text-sm font-bold text-[#1E2430]">Kelimelerime Ekle</h3>
-              <p className="text-xs text-[#687080]">
+              <h3 id="anlora-add-collection-title" className="text-sm font-bold text-[var(--text-primary)]">Kelimelerime Ekle</h3>
+              <p className="text-xs text-[var(--text-secondary)]">
                 "{wordCard.word}" kelimesini bir sete ekle
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-[#8E95A2] hover:text-[#1E2430] rounded-lg hover:bg-[#F1EFE8] transition-colors cursor-pointer"
+            className="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--surface-soft)] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -89,13 +89,13 @@ export const AddToCollectionModal: React.FC<AddToCollectionModalProps> = ({
 
         <div className="p-5 space-y-3.5 max-h-[75vh] overflow-y-auto">
           {/* Card Preview Pill */}
-          <div className="p-3 bg-[#F8F7F3] rounded-xl border border-[#E4E1D9] flex items-center justify-between">
+          <div className="p-3 bg-[var(--bg)] rounded-xl border border-[var(--border)] flex items-center justify-between">
             <div>
-              <span className="text-sm font-bold text-[#1E2430]">{wordCard.word}</span>
+              <span className="text-sm font-bold text-[var(--text-primary)]">{wordCard.word}</span>
               {wordCard.phonetic && (
-                <span className="text-xs text-[#687080] font-mono ml-2">{wordCard.phonetic}</span>
+                <span className="text-xs text-[var(--text-secondary)] font-mono ml-2">{wordCard.phonetic}</span>
               )}
-              <p className="text-xs text-[#687080]">{wordCard.turkishMeaning}</p>
+              <p className="text-xs text-[var(--text-secondary)]">{wordCard.turkishMeaning}</p>
             </div>
             {/* Seviye yalnızca Oxford kaynaklıysa gösterilir; kişisel karta
                 uydurma bir CEFR yazmak yanlış bilgi verir. */}
@@ -103,8 +103,8 @@ export const AddToCollectionModal: React.FC<AddToCollectionModalProps> = ({
           </div>
 
           {/* Optional Context Inputs */}
-          <div className="space-y-2 p-3 bg-[#F8F7F3] rounded-xl border border-[#E4E1D9]">
-            <span className="text-[10px] font-bold text-[#8E95A2] uppercase tracking-wider block">
+          <div className="space-y-2 p-3 bg-[var(--bg)] rounded-xl border border-[var(--border)]">
+            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block">
               İsteğe Bağlı Bağlam Notu
             </span>
             <input
@@ -112,27 +112,27 @@ export const AddToCollectionModal: React.FC<AddToCollectionModalProps> = ({
               value={sourceName}
               onChange={(e) => setSourceName(e.target.value)}
               placeholder="Kaynak (örn: Dizi, Makale...)"
-              className="w-full px-3 py-1.5 text-xs bg-[#FFFFFF] border border-[#E4E1D9] rounded-lg focus:outline-none focus:border-[#4F46A5] text-[#1E2430]"
+              className="w-full px-3 py-1.5 text-xs bg-[var(--surface)] border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--primary)] text-[var(--text-primary)]"
             />
             <input
               type="text"
               value={sourceContext}
               onChange={(e) => setSourceContext(e.target.value)}
               placeholder="Cümle (örn: She was reluctant to go...)"
-              className="w-full px-3 py-1.5 text-xs bg-[#FFFFFF] border border-[#E4E1D9] rounded-lg focus:outline-none focus:border-[#4F46A5] italic text-[#1E2430]"
+              className="w-full px-3 py-1.5 text-xs bg-[var(--surface)] border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--primary)] italic text-[var(--text-primary)]"
             />
           </div>
 
           {/* Collections List */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[#687080] uppercase tracking-wider">
+              <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
                 Kelime Setlerin ({collections.length})
               </span>
               <button
                 type="button"
                 onClick={() => setIsCreatingNew(!isCreatingNew)}
-                className="text-xs font-bold text-[#4F46A5] hover:underline flex items-center gap-1 cursor-pointer"
+                className="text-xs font-bold text-[var(--primary)] hover:underline flex items-center gap-1 cursor-pointer"
               >
                 <FolderPlus className="w-3.5 h-3.5" />
                 <span>{isCreatingNew ? 'Listeyi Gör' : 'Yeni Set'}</span>
@@ -140,25 +140,25 @@ export const AddToCollectionModal: React.FC<AddToCollectionModalProps> = ({
             </div>
 
             {isCreatingNew ? (
-              <form onSubmit={handleCreateNew} className="p-3 bg-[#EEECFA]/50 rounded-xl border border-[#D7D2F4] space-y-2">
+              <form onSubmit={handleCreateNew} className="p-3 bg-[var(--primary-soft)]/50 rounded-xl border border-[var(--primary-border)] space-y-2">
                 <input
                   type="text"
                   value={newDeckName}
                   onChange={(e) => setNewDeckName(e.target.value)}
                   placeholder="Set Adı (örn: YDS Kelimeleri)"
                   required
-                  className="w-full px-3 py-1.5 text-xs bg-[#FFFFFF] border border-[#D7D2F4] rounded-lg focus:outline-none font-bold text-[#1E2430]"
+                  className="w-full px-3 py-1.5 text-xs bg-[var(--surface)] border border-[var(--primary-border)] rounded-lg focus:outline-none font-bold text-[var(--text-primary)]"
                 />
                 <input
                   type="text"
                   value={newDeckDesc}
                   onChange={(e) => setNewDeckDesc(e.target.value)}
                   placeholder="Açıklama (isteğe bağlı)"
-                  className="w-full px-3 py-1.5 text-xs bg-[#FFFFFF] border border-[#D7D2F4] rounded-lg focus:outline-none text-[#1E2430]"
+                  className="w-full px-3 py-1.5 text-xs bg-[var(--surface)] border border-[var(--primary-border)] rounded-lg focus:outline-none text-[var(--text-primary)]"
                 />
                 <button
                   type="submit"
-                  className="w-full py-2 bg-[#4F46A5] text-white rounded-lg font-bold text-xs hover:bg-[#433B91] transition-colors cursor-pointer"
+                  className="w-full py-2 bg-[var(--primary)] text-white rounded-lg font-bold text-xs hover:bg-[var(--primary-hover)] transition-colors cursor-pointer"
                 >
                   Oluştur ve Ekle
                 </button>
@@ -166,7 +166,7 @@ export const AddToCollectionModal: React.FC<AddToCollectionModalProps> = ({
             ) : (
               <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
                 {collections.length === 0 ? (
-                  <div className="text-center py-6 text-xs text-[#8E95A2]">
+                  <div className="text-center py-6 text-xs text-[var(--text-muted)]">
                     Henüz kelime seti oluşturmadın. Yukarıdan yeni bir tane ekle!
                   </div>
                 ) : (
@@ -179,23 +179,23 @@ export const AddToCollectionModal: React.FC<AddToCollectionModalProps> = ({
                         onClick={() => onToggleCollectionMembership(col.id, sourceContext, sourceName)}
                         className={`w-full p-3 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer ${
                           isMember
-                            ? 'bg-[#E9F3ED] border-[#BFD7C8] text-[#35654E]'
-                            : 'bg-[#FFFFFF] border-[#E4E1D9] hover:bg-[#F8F7F3] text-[#1E2430]'
+                            ? 'bg-[var(--learned-soft)] border-[var(--learned-border)] text-[var(--learned-text)]'
+                            : 'bg-[var(--surface)] border-[var(--border)] hover:bg-[var(--bg)] text-[var(--text-primary)]'
                         }`}
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
-                          <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isMember ? 'bg-[#4F806A] text-white' : 'bg-[#F1EFE8] text-[#687080]'}`}>
+                          <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isMember ? 'bg-[var(--learned)] text-white' : 'bg-[var(--surface-soft)] text-[var(--text-secondary)]'}`}>
                             <Layers className="w-3.5 h-3.5" />
                           </div>
                           <div className="truncate">
                             <h4 className="text-xs font-bold truncate">{col.name}</h4>
                             {col.description && (
-                              <p className="text-[11px] text-[#687080] truncate">{col.description}</p>
+                              <p className="text-[11px] text-[var(--text-secondary)] truncate">{col.description}</p>
                             )}
                           </div>
                         </div>
 
-                        <div className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${isMember ? 'bg-[#4F806A] text-white' : 'border border-[#E4E1D9]'}`}>
+                        <div className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${isMember ? 'bg-[var(--learned)] text-white' : 'border border-[var(--border)]'}`}>
                           {isMember && <Check className="w-3 h-3" />}
                         </div>
                       </button>
@@ -209,7 +209,7 @@ export const AddToCollectionModal: React.FC<AddToCollectionModalProps> = ({
           <div className="pt-2">
             <button
               onClick={onClose}
-              className="w-full py-2 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#1E2430] font-semibold text-xs rounded-xl border border-[#E4E1D9] transition-colors cursor-pointer"
+              className="w-full py-2 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] font-semibold text-xs rounded-xl border border-[var(--border)] transition-colors cursor-pointer"
             >
               Kapat
             </button>

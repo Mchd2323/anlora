@@ -239,6 +239,22 @@ export interface UserSettings {
   autoPlayAudioOnCard: boolean;
   preferredStudyMode: 'mixed' | 'flashcard' | 'typed' | 'listening' | 'cloze';
   enableTypoTolerance: boolean;
+  /**
+   * Tema tercihi.
+   *
+   * 'system' (varsayılan) telefonun ayarını izler — çoğu kişi için doğru
+   * cevap budur ve akşam otomatik koyulaşır. Kullanıcı açıkça seçtiğinde
+   * sistem ayarı geçersiz kalır.
+   */
+  theme?: 'system' | 'light' | 'dark';
+  /**
+   * Yazı büyüklüğü çarpanı (1 = varsayılan).
+   *
+   * Kök yazı boyutunu ölçekler; bütün arayüz `rem` tabanlı olduğu için
+   * tek bir değer her yeri birlikte büyütür. Tek tek bileşen boyutlarıyla
+   * oynamak, düzeni yerinden oynatırdı.
+   */
+  fontScale?: number;
 }
 
 // Duplicate check result structure

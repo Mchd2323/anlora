@@ -49,7 +49,7 @@ export const AdminOverview: React.FC = () => {
   }, [load]);
 
   if (error) return <Notice tone="error">{error}</Notice>;
-  if (!overview || !stats) return <p className="text-xs text-[#687080] py-8 text-center">Yükleniyor…</p>;
+  if (!overview || !stats) return <p className="text-xs text-[var(--text-secondary)] py-8 text-center">Yükleniyor…</p>;
 
   return (
     <div className="space-y-4">
@@ -81,7 +81,7 @@ export const AdminOverview: React.FC = () => {
             Günlük aktif kullanıcı · son 14 gün
           </SectionTitle>
           <BarSeries data={stats.dailyActiveUsers} label="Günlük aktif kullanıcı sayısı" color="#1F6F6B" />
-          <p className="text-[10px] text-[#8E95A2] leading-relaxed">
+          <p className="text-[10px] text-[var(--text-muted)] leading-relaxed">
             Yalnızca hesabı olan ve o gün uygulamayı kullanan kişiler sayılır. Aşağıdaki açılış
             sayacı ise hesapsız kullanımı da içerir ve kimlik toplamaz.
           </p>
@@ -92,9 +92,9 @@ export const AdminOverview: React.FC = () => {
           <SectionTitle icon={<Sparkles className="w-3.5 h-3.5" />}>
             Yapay zekâ istekleri · son 14 gün
           </SectionTitle>
-          <p className="text-[11px] text-[#687080]">
-            Bugün <b className="text-[#1E2430]">{overview.ai.today}</b> · toplam{' '}
-            <b className="text-[#1E2430]">{overview.ai.total}</b>
+          <p className="text-[11px] text-[var(--text-secondary)]">
+            Bugün <b className="text-[var(--text-primary)]">{overview.ai.today}</b> · toplam{' '}
+            <b className="text-[var(--text-primary)]">{overview.ai.total}</b>
           </p>
           <BarSeries data={overview.ai.daily} label="Günlük yapay zekâ istek sayısı" />
           {!overview.ai.configured && (
@@ -110,7 +110,7 @@ export const AdminOverview: React.FC = () => {
           En çok zorlanılan kelimeler
         </SectionTitle>
         {stats.hardestWords.length === 0 ? (
-          <p className="text-xs text-[#687080] py-6 text-center">
+          <p className="text-xs text-[var(--text-secondary)] py-6 text-center">
             Henüz yeterli veri yok. En az beş kez çalışılmış kelimeler burada listelenir.
           </p>
         ) : (
@@ -118,26 +118,26 @@ export const AdminOverview: React.FC = () => {
             {stats.hardestWords.map(word => (
               <div
                 key={word.id}
-                className="flex items-center gap-3 rounded-lg border border-[#E4E1D9] bg-[#FAF9F5] px-3 py-2"
+                className="flex items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] px-3 py-2"
               >
-                <span className="text-xs font-bold text-[#1E2430] flex-1 truncate">{word.id}</span>
-                <div className="w-24 h-1.5 rounded-full bg-[#E4E1D9] overflow-hidden shrink-0">
+                <span className="text-xs font-bold text-[var(--text-primary)] flex-1 truncate">{word.id}</span>
+                <div className="w-24 h-1.5 rounded-full bg-[var(--border)] overflow-hidden shrink-0">
                   <div
-                    className="h-full bg-[#C65D55] rounded-full"
+                    className="h-full bg-[var(--danger)] rounded-full"
                     style={{ width: `${Math.round(word.wrongRate * 100)}%` }}
                   />
                 </div>
-                <span className="text-[11px] font-bold text-[#C65D55] tabular-nums w-10 text-right">
+                <span className="text-[11px] font-bold text-[var(--danger)] tabular-nums w-10 text-right">
                   %{Math.round(word.wrongRate * 100)}
                 </span>
-                <span className="text-[10px] text-[#8E95A2] tabular-nums w-16 text-right">
+                <span className="text-[10px] text-[var(--text-muted)] tabular-nums w-16 text-right">
                   {word.attempts} deneme
                 </span>
               </div>
             ))}
           </div>
         )}
-        <p className="text-[10px] text-[#8E95A2] leading-relaxed">
+        <p className="text-[10px] text-[var(--text-muted)] leading-relaxed">
           Ölçüt yanlış <b>oranı</b>, ham yanlış sayısı değil: çok çalışılan bir kelime doğal olarak
           çok yanlış toplar. Yalnızca en az beş deneme görmüş kelimeler sıralanır. Kimin yanlış
           yaptığı toplanmaz.

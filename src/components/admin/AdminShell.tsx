@@ -35,14 +35,14 @@ export const AdminShell: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   return (
     <div className="space-y-4 pb-safe-nav max-w-[1080px] mx-auto animate-fadeIn">
-      <div className="flex items-center justify-between gap-3 bg-[#FFFFFF] p-5 rounded-2xl border border-[#E4E1D9]">
+      <div className="flex items-center justify-between gap-3 bg-[var(--surface)] p-5 rounded-2xl border border-[var(--border)]">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-[#1E2430] text-white flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-[var(--text-primary)] text-white flex items-center justify-center shrink-0">
             <Shield className="w-4.5 h-4.5" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-[#1E2430]">Yönetim Paneli</h2>
-            <p className="text-[11px] text-[#687080]">
+            <h2 className="text-lg font-bold text-[var(--text-primary)]">Yönetim Paneli</h2>
+            <p className="text-[11px] text-[var(--text-secondary)]">
               Hesaplar, sözlük ve kullanım. Kimsenin kelimeleri burada görünmez.
             </p>
           </div>
@@ -50,7 +50,7 @@ export const AdminShell: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         <button
           type="button"
           onClick={onClose}
-          className="px-3 py-2 text-xs font-semibold text-[#687080] hover:bg-[#F1EFE8] rounded-xl cursor-pointer shrink-0"
+          className="px-3 py-2 text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-soft)] rounded-xl cursor-pointer shrink-0"
         >
           Kapat
         </button>
@@ -68,8 +68,8 @@ export const AdminShell: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap border
                           transition-colors cursor-pointer flex items-center gap-1.5 ${
                             isActive
-                              ? 'bg-[#1E2430] text-white border-[#1E2430]'
-                              : 'bg-[#FFFFFF] text-[#1E2430] border-[#E4E1D9] hover:bg-[#F1EFE8]'
+                              ? 'bg-[var(--text-primary)] text-white border-[var(--text-primary)]'
+                              : 'bg-[var(--surface)] text-[var(--text-primary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
                           }`}
             >
               <Icon className="w-3.5 h-3.5" />

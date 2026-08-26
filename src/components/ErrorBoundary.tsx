@@ -42,31 +42,31 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     if (!error) return this.props.children;
 
     return (
-      <div className="min-h-screen bg-[#F8F7F3] flex items-center justify-center p-6">
-        <div className="max-w-md w-full bg-white rounded-2xl border border-[#E4E1D9] p-8 text-center">
-          <div className="w-12 h-12 rounded-xl bg-[#FAECEA] flex items-center justify-center mx-auto mb-5">
-            <AlertTriangle className="w-6 h-6 text-[#C65D55]" />
+      <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center p-6">
+        <div className="max-w-md w-full bg-white rounded-2xl border border-[var(--border)] p-8 text-center">
+          <div className="w-12 h-12 rounded-xl bg-[var(--danger-soft)] flex items-center justify-center mx-auto mb-5">
+            <AlertTriangle className="w-6 h-6 text-[var(--danger)]" />
           </div>
 
-          <h1 className="text-lg font-bold text-[#1E2430] mb-2">Bir şeyler ters gitti</h1>
-          <p className="text-sm text-[#687080] leading-relaxed mb-6">
+          <h1 className="text-lg font-bold text-[var(--text-primary)] mb-2">Bir şeyler ters gitti</h1>
+          <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-6">
             Anlora beklenmeyen bir hatayla karşılaştı. Çalışma verileriniz tarayıcınızda
             duruyor ve silinmedi. Sayfayı yenilemek çoğu durumda sorunu çözer.
           </p>
 
           <button
             onClick={this.handleReload}
-            className="w-full py-3 bg-[#4F46A5] hover:bg-[#433B91] text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
           >
             <RotateCcw className="w-4 h-4" />
             <span>Sayfayı yenile</span>
           </button>
 
           <details className="mt-5 text-left">
-            <summary className="text-[11px] text-[#8E95A2] cursor-pointer select-none">
+            <summary className="text-[11px] text-[var(--text-muted)] cursor-pointer select-none">
               Teknik ayrıntı
             </summary>
-            <pre className="mt-2 p-3 bg-[#FAF9F5] border border-[#EFECE6] rounded-lg text-[11px] text-[#687080] whitespace-pre-wrap break-words overflow-x-auto">
+            <pre className="mt-2 p-3 bg-[var(--surface-subtle)] border border-[var(--border-light)] rounded-lg text-[11px] text-[var(--text-secondary)] whitespace-pre-wrap break-words overflow-x-auto">
               {error.message}
             </pre>
           </details>

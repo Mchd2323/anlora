@@ -5,7 +5,6 @@ import { CollectionsView } from './components/CollectionsView';
 import { StudySessionView } from './components/StudySessionView';
 import { OxfordExplorer } from './components/OxfordExplorer';
 import { QuizModule } from './components/QuizModule';
-import { StatsAndBadges } from './components/StatsAndBadges';
 import { FavoritesView } from './components/FavoritesView';
 import { ProfileView } from './components/ProfileView';
 import { AuthModal } from './components/AuthModal';
@@ -63,6 +62,7 @@ import { OxfordGroupKey } from './types/oxford';
 import { loadExtendedIndex } from './services/extendedRepository';
 import { useToast } from './components/ui/ToastProvider';
 import { useAndroidBackButton } from './hooks/useAndroidBackButton';
+import { useTheme } from './hooks/useTheme';
 import { releaseStuckScrollLocks } from './hooks/useModalA11y';
 import { reportAppOpened, reportWordResult } from './services/usageReporter';
 
@@ -122,6 +122,9 @@ export default function App() {
   const [unlockedBadges, setUnlockedBadges] = useState<string[]>([]);
   const [settings, setSettings] = useState<UserSettings>(getUserSettingsV2());
   const [profile, setProfile] = useState<UserProfile>(getUserProfileV2());
+
+  // Tema ve yazı büyüklüğü tercihini belgeye uygular.
+  useTheme(settings);
 
   // Modal States
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -454,7 +457,7 @@ export default function App() {
   }, [cardToAddToCollection, memberships]);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-800 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text-primary)] flex flex-col font-sans selection:bg-[var(--primary-soft)] selection:text-[var(--primary)]">
       {/* Top Navigation */}
       <Navbar
         activeTab={activeTab}
@@ -473,10 +476,10 @@ export default function App() {
         */}
         {!isDictionaryReady ? (
           <div className="flex flex-col items-center justify-center py-24 gap-3 text-center animate-fadeIn">
-            <div className="w-10 h-10 border-3 border-[#D7D2F4] border-t-[#4F46A5] rounded-full animate-spin" />
+            <div className="w-10 h-10 border-3 border-[var(--primary-border)] border-t-[var(--primary)] rounded-full animate-spin" />
             <div className="space-y-1">
-              <p className="text-sm font-bold text-[#1E2430]">Sözlük hazırlanıyor…</p>
-              <p className="text-xs text-[#687080]">
+              <p className="text-sm font-bold text-[var(--text-primary)]">Sözlük hazırlanıyor…</p>
+              <p className="text-xs text-[var(--text-secondary)]">
                 Kelimeler cihazında saklanıyor; bu yalnızca birkaç saniye sürer.
               </p>
             </div>
@@ -693,15 +696,15 @@ export default function App() {
       />
 
       {/* Clean Minimal Footer */}
-      <footer className="bg-white border-t border-slate-200 py-6 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <footer className="bg-[var(--surface)] border-t border-[var(--border)] py-6 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[var(--text-secondary)]">
           <div className="flex items-center gap-2 font-medium">
             <span>Anlora — Heh, şimdi anlorum!</span>
           </div>
 
           <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1.5 text-[#4F806A] font-semibold">
-              <span className="w-2 h-2 rounded-full bg-[#4F806A] animate-pulse" /> Çevrimdışı Çalışma & Yerel Depolama Hazır
+            <span className="flex items-center gap-1.5 text-[var(--learned)] font-semibold">
+              <span className="w-2 h-2 rounded-full bg-[var(--learned)] animate-pulse" /> Çevrimdışı Çalışma & Yerel Depolama Hazır
             </span>
             <span>© 2026 Anlora</span>
           </div>

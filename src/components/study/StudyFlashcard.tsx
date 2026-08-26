@@ -233,14 +233,14 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
   if (words.length === 0) {
     return (
       <div className="max-w-md mx-auto text-center py-16 space-y-4 animate-fadeIn">
-        <div className="w-14 h-14 rounded-2xl bg-[#EEECFA] text-[#4F46A5] flex items-center justify-center mx-auto border border-[#D7D2F4]">
+        <div className="w-14 h-14 rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center mx-auto border border-[var(--primary-border)]">
           <BookOpen className="w-7 h-7" />
         </div>
-        <h2 className="text-lg font-bold text-[#1E2430]">{title}</h2>
-        <p className="text-xs text-[#687080]">Bu grupta henüz çalışılacak kelime bulunmuyor.</p>
+        <h2 className="text-lg font-bold text-[var(--text-primary)]">{title}</h2>
+        <p className="text-xs text-[var(--text-secondary)]">Bu grupta henüz çalışılacak kelime bulunmuyor.</p>
         <button
           onClick={onBack}
-          className="px-4 py-2 bg-[#F8F7F3] text-[#1E2430] border border-[#E4E1D9] text-xs font-semibold rounded-xl cursor-pointer hover:bg-[#F1EFE8]"
+          className="px-4 py-2 bg-[var(--bg)] text-[var(--text-primary)] border border-[var(--border)] text-xs font-semibold rounded-xl cursor-pointer hover:bg-[var(--surface-soft)]"
         >
           {sourceContextName ? `← ${sourceContextName}` : 'Geri Dön'}
         </button>
@@ -251,13 +251,13 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
   if (activeWordList.length === 0) {
     return (
       <div className="max-w-md mx-auto text-center py-16 space-y-4 animate-fadeIn">
-        <div className="w-12 h-12 rounded-2xl bg-[#F8F7F3] text-[#687080] flex items-center justify-center mx-auto border border-[#E4E1D9]">
+        <div className="w-12 h-12 rounded-2xl bg-[var(--bg)] text-[var(--text-secondary)] flex items-center justify-center mx-auto border border-[var(--border)]">
           <Layers className="w-6 h-6" />
         </div>
-        <h3 className="text-base font-bold text-[#1E2430]">
+        <h3 className="text-base font-bold text-[var(--text-primary)]">
           {filterMode === 'LEARNED' ? 'Öğrenilen Kelime Yok' : 'Tekrar Edilecek Kelime Yok'}
         </h3>
-        <p className="text-xs text-[#687080]">
+        <p className="text-xs text-[var(--text-secondary)]">
           {filterMode === 'LEARNED'
             ? 'Bu grupta henüz "Öğrendim" olarak işaretlediğin kelime bulunmuyor.'
             : 'Bu grupta henüz "Tekrar Et" listesine eklediğin kelime bulunmuyor.'}
@@ -265,13 +265,13 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
         <div className="flex justify-center gap-2">
           <button
             onClick={() => setFilterMode('ALL')}
-            className="px-4 py-2 bg-[#4F46A5] text-white text-xs font-semibold rounded-xl cursor-pointer hover:bg-[#433B91]"
+            className="px-4 py-2 bg-[var(--primary)] text-white text-xs font-semibold rounded-xl cursor-pointer hover:bg-[var(--primary-hover)]"
           >
             Tüm Kelimeleri Göster ({words.length})
           </button>
           <button
             onClick={onBack}
-            className="px-4 py-2 bg-[#F8F7F3] text-[#1E2430] border border-[#E4E1D9] text-xs font-semibold rounded-xl cursor-pointer hover:bg-[#F1EFE8]"
+            className="px-4 py-2 bg-[var(--bg)] text-[var(--text-primary)] border border-[var(--border)] text-xs font-semibold rounded-xl cursor-pointer hover:bg-[var(--surface-soft)]"
           >
             Geri
           </button>
@@ -299,18 +299,18 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
   const stackLift = swipe.progress;
 
   const filters: { key: FilterMode; label: string; count: number; active: string }[] = [
-    { key: 'ALL', label: 'Tümü', count: counts.all, active: 'bg-[#FFFFFF] text-[#1E2430]' },
+    { key: 'ALL', label: 'Tümü', count: counts.all, active: 'bg-[var(--surface)] text-[var(--text-primary)]' },
     {
       key: 'LEARNED',
       label: 'Öğrendiklerim',
       count: counts.learned,
-      active: 'bg-[#FFFFFF] text-[#35654E]'
+      active: 'bg-[var(--surface)] text-[var(--learned-text)]'
     },
     {
       key: 'LEARNING',
       label: 'Tekrar Edeceklerim',
       count: counts.learning,
-      active: 'bg-[#FFFFFF] text-[#8A5A18]'
+      active: 'bg-[var(--surface)] text-[var(--learning-text)]'
     }
   ];
 
@@ -318,7 +318,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
     <div
       className={`animate-fadeIn ${
         isFullscreen
-          ? 'fixed inset-0 z-50 bg-[#F8F7F3] px-4 py-5 sm:px-6 overflow-y-auto flex flex-col'
+          ? 'fixed inset-0 z-50 bg-[var(--bg)] px-4 py-5 sm:px-6 overflow-y-auto flex flex-col'
           : 'max-w-2xl mx-auto pb-safe-nav'
       }`}
     >
@@ -328,7 +328,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
       <div className="flex items-center justify-between gap-3">
         <button
           onClick={isFullscreen ? () => setIsFullscreen(false) : onBack}
-          className="flex items-center gap-1.5 -ml-1 px-2.5 py-1.5 text-xs font-semibold text-[#687080] hover:text-[#1E2430] rounded-lg hover:bg-[#F1EFE8] transition-colors cursor-pointer shrink-0"
+          className="flex items-center gap-1.5 -ml-1 px-2.5 py-1.5 text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--surface-soft)] transition-colors cursor-pointer shrink-0"
           title={sourceContextName || 'Geri'}
         >
           <ArrowLeft className="w-4 h-4" />
@@ -338,12 +338,12 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
         </button>
 
         <div className="min-w-0 text-center">
-          <p className="text-xs font-bold text-[#1E2430] truncate">{title}</p>
+          <p className="text-xs font-bold text-[var(--text-primary)] truncate">{title}</p>
         </div>
 
         <button
           onClick={() => setIsFullscreen(!isFullscreen)}
-          className="p-2 text-[#8E95A2] hover:text-[#1E2430] rounded-lg hover:bg-[#F1EFE8] transition-colors cursor-pointer shrink-0"
+          className="p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--surface-soft)] transition-colors cursor-pointer shrink-0"
           title={isFullscreen ? 'Tam ekrandan çık (Esc)' : 'Tam ekran'}
           aria-label={isFullscreen ? 'Tam ekrandan çık' : 'Tam ekran'}
         >
@@ -353,14 +353,14 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
 
       {/* İnce ilerleme çizgisi + sayaç */}
       <div className="mt-3 flex items-center gap-3">
-        <div className="flex-1 bg-[#E9E6DE] h-[3px] rounded-full overflow-hidden">
+        <div className="flex-1 bg-[var(--neutral-200)] h-[3px] rounded-full overflow-hidden">
           <div
-            className="bg-[#4F46A5] h-full rounded-full transition-[width] duration-300 ease-out"
+            className="bg-[var(--primary)] h-full rounded-full transition-[width] duration-300 ease-out"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
         <span
-          className="text-[11px] font-mono font-semibold text-[#8E95A2] tabular-nums shrink-0"
+          className="text-[11px] font-mono font-semibold text-[var(--text-muted)] tabular-nums shrink-0"
           aria-live="polite"
         >
           {currentIndex + 1} / {activeWordList.length}
@@ -371,7 +371,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
           2. FİLTRE — tam ekranda gizlenir (dikkat dağıtmasın)
           --------------------------------------------------------------- */}
       {!isFullscreen && (
-        <div className="mt-4 flex items-center gap-1 p-1 bg-[#F1EFE8] rounded-xl">
+        <div className="mt-4 flex items-center gap-1 p-1 bg-[var(--surface-soft)] rounded-xl">
           {filters.map((f) => (
             <button
               key={f.key}
@@ -382,7 +382,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
               className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] sm:text-xs font-semibold transition-all cursor-pointer text-center truncate ${
                 filterMode === f.key
                   ? `${f.active} shadow-[var(--elev-1)]`
-                  : 'text-[#8E95A2] hover:text-[#1E2430]'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
               }`}
             >
               {f.label}{' '}
@@ -407,7 +407,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
             <>
               <div
                 aria-hidden="true"
-                className="deck-stack-card absolute inset-x-0 top-0 h-full rounded-[26px] bg-[#FFFFFF] border border-[#EFECE6]"
+                className="deck-stack-card absolute inset-x-0 top-0 h-full rounded-[26px] bg-[var(--surface)] border border-[var(--border-light)]"
                 style={{
                   transform: `translateY(${20 - stackLift * 8}px) scale(${0.92 + stackLift * 0.03})`,
                   opacity: 0.45 + stackLift * 0.2
@@ -415,7 +415,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
               />
               <div
                 aria-hidden="true"
-                className="deck-stack-card absolute inset-x-0 top-0 h-full rounded-[26px] bg-[#FFFFFF] border border-[#E9E6DE]"
+                className="deck-stack-card absolute inset-x-0 top-0 h-full rounded-[26px] bg-[var(--surface)] border border-[var(--neutral-200)]"
                 style={{
                   transform: `translateY(${10 - stackLift * 5}px) scale(${0.96 + stackLift * 0.025})`,
                   opacity: 0.7 + stackLift * 0.3
@@ -427,7 +427,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
           {/* Kenar ipuçları — eşiğe yaklaşıldıkça belirir */}
           <div
             aria-hidden="true"
-            className="deck-hint absolute left-3 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5 px-3 py-2 rounded-full bg-[#1E2430] text-white text-[11px] font-bold shadow-[var(--elev-4)]"
+            className="deck-hint absolute left-3 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5 px-3 py-2 rounded-full bg-[var(--text-primary)] text-white text-[11px] font-bold shadow-[var(--elev-4)]"
             style={{
               opacity: swipe.offsetX > 12 && hasPrev ? swipe.progress : 0,
               transform: `translateY(-50%) scale(${0.85 + swipe.progress * 0.15})`
@@ -438,7 +438,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
           </div>
           <div
             aria-hidden="true"
-            className="deck-hint absolute right-3 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5 px-3 py-2 rounded-full bg-[#4F46A5] text-white text-[11px] font-bold shadow-[var(--elev-4)]"
+            className="deck-hint absolute right-3 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5 px-3 py-2 rounded-full bg-[var(--primary)] text-white text-[11px] font-bold shadow-[var(--elev-4)]"
             style={{
               opacity: swipe.offsetX < -12 && hasNext ? swipe.progress : 0,
               transform: `translateY(-50%) scale(${0.85 + swipe.progress * 0.15})`
@@ -455,7 +455,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
             <div
               key={currentCard.id}
               {...surfaceHandlers}
-              className={`deck-surface deck-card relative z-10 bg-[#FFFFFF] rounded-[26px] border border-[#E4E1D9] p-6 sm:p-8 flex flex-col min-h-[400px] sm:min-h-[440px] ${
+              className={`deck-surface deck-card relative z-10 bg-[var(--surface)] rounded-[26px] border border-[var(--border)] p-6 sm:p-8 flex flex-col min-h-[400px] sm:min-h-[440px] ${
                 swipe.isDragging
                   ? 'deck-card--dragging shadow-[var(--elev-3)]'
                   : swipe.exitDirection
@@ -474,12 +474,12 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                     <CEFRBadge level={currentCard.level} size="sm" />
                   )}
                   {currentCard.partOfSpeech && (
-                    <span className="text-[11px] font-semibold px-2 py-0.5 bg-[#F8F7F3] border border-[#E9E6DE] rounded-md text-[#687080]">
+                    <span className="text-[11px] font-semibold px-2 py-0.5 bg-[var(--bg)] border border-[var(--neutral-200)] rounded-md text-[var(--text-secondary)]">
                       {currentCard.partOfSpeech}
                     </span>
                   )}
                   {currentCard.isCustom && (
-                    <span className="text-[11px] font-semibold px-2 py-0.5 bg-[#F1EFE8] border border-[#E4E1D9] rounded-md text-[#687080]">
+                    <span className="text-[11px] font-semibold px-2 py-0.5 bg-[var(--surface-soft)] border border-[var(--border)] rounded-md text-[var(--text-secondary)]">
                       Özel
                     </span>
                   )}
@@ -490,8 +490,8 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                     onClick={handlePlayAudio}
                     className={`p-2 rounded-xl transition-all cursor-pointer ${
                       isPlayingAudio
-                        ? 'bg-[#EEECFA] text-[#4F46A5]'
-                        : 'text-[#8E95A2] hover:bg-[#F1EFE8] hover:text-[#4F46A5]'
+                        ? 'bg-[var(--primary-soft)] text-[var(--primary)]'
+                        : 'text-[var(--text-muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--primary)]'
                     }`}
                     title="Telaffuzu dinle"
                     aria-label="Telaffuzu dinle"
@@ -506,8 +506,8 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                     }}
                     className={`p-2 rounded-xl transition-all cursor-pointer ${
                       isFavorite
-                        ? 'text-[#B75D6A] hover:bg-[#FDF0F2]'
-                        : 'text-[#8E95A2] hover:bg-[#FDF0F2] hover:text-[#B75D6A]'
+                        ? 'text-[var(--favorite)] hover:bg-[var(--favorite-soft)]'
+                        : 'text-[var(--text-muted)] hover:bg-[var(--favorite-soft)] hover:text-[var(--favorite)]'
                     }`}
                     title={isFavorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}
                     aria-label="Favori"
@@ -523,7 +523,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                           e.stopPropagation();
                           setIsMenuOpen(!isMenuOpen);
                         }}
-                        className="p-2 text-[#8E95A2] hover:bg-[#F1EFE8] hover:text-[#1E2430] rounded-xl transition-colors cursor-pointer"
+                        className="p-2 text-[var(--text-muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--text-primary)] rounded-xl transition-colors cursor-pointer"
                         aria-label="Seçenekler"
                         aria-expanded={isMenuOpen}
                       >
@@ -532,7 +532,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
 
                       {isMenuOpen && (
                         <div
-                          className="absolute right-0 top-full mt-1.5 w-44 bg-[#FFFFFF] rounded-xl border border-[#E4E1D9] shadow-[var(--elev-4)] py-1.5 z-30 animate-fadeIn"
+                          className="absolute right-0 top-full mt-1.5 w-44 bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-[var(--elev-4)] py-1.5 z-30 animate-fadeIn"
                           onClick={(e) => e.stopPropagation()}
                         >
                           {onOpenAddToCollection && (
@@ -541,9 +541,9 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                                 setIsMenuOpen(false);
                                 onOpenAddToCollection(currentCard);
                               }}
-                              className="w-full px-3 py-1.5 text-xs text-left text-[#1E2430] hover:bg-[#F8F7F3] flex items-center gap-2 cursor-pointer"
+                              className="w-full px-3 py-1.5 text-xs text-left text-[var(--text-primary)] hover:bg-[var(--bg)] flex items-center gap-2 cursor-pointer"
                             >
-                              <BookmarkPlus className="w-3.5 h-3.5 text-[#4F46A5]" />
+                              <BookmarkPlus className="w-3.5 h-3.5 text-[var(--primary)]" />
                               <span>Sete Ekle</span>
                             </button>
                           )}
@@ -554,9 +554,9 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                                 setIsMenuOpen(false);
                                 onOpenEditCard(currentCard);
                               }}
-                              className="w-full px-3 py-1.5 text-xs text-left text-[#1E2430] hover:bg-[#F8F7F3] flex items-center gap-2 cursor-pointer"
+                              className="w-full px-3 py-1.5 text-xs text-left text-[var(--text-primary)] hover:bg-[var(--bg)] flex items-center gap-2 cursor-pointer"
                             >
-                              <Edit2 className="w-3.5 h-3.5 text-[#687080]" />
+                              <Edit2 className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
                               <span>Kartı Düzenle</span>
                             </button>
                           )}
@@ -569,7 +569,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                                   onDeleteCard(currentCard.id);
                                 }
                               }}
-                              className="w-full px-3 py-1.5 text-xs text-left text-[#C65D55] hover:bg-[#FAECEA] flex items-center gap-2 cursor-pointer"
+                              className="w-full px-3 py-1.5 text-xs text-left text-[var(--danger)] hover:bg-[var(--danger-soft)] flex items-center gap-2 cursor-pointer"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                               <span>Kartı Sil</span>
@@ -588,19 +588,19 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                   type="button"
                   onClick={handleToggleReveal}
                   aria-expanded={isMeaningRevealed}
-                  className="group flex flex-col items-center gap-2 cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F46A5] focus-visible:ring-offset-4 rounded-2xl"
+                  className="group flex flex-col items-center gap-2 cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-4 rounded-2xl"
                 >
-                  <h2 className="text-[2rem] sm:text-[2.75rem] leading-[1.1] font-black text-[#1E2430] tracking-[-0.03em]">
+                  <h2 className="text-[2rem] sm:text-[2.75rem] leading-[1.1] font-black text-[var(--text-primary)] tracking-[-0.03em]">
                     {currentCard.word}
                   </h2>
                   {formatPhonetic(currentCard.phonetic) && (
-                    <span className="text-xs sm:text-sm font-mono text-[#A9A499]">
+                    <span className="text-xs sm:text-sm font-mono text-[var(--neutral-500)]">
                       {formatPhonetic(currentCard.phonetic)}
                     </span>
                   )}
 
                   {!isMeaningRevealed && (
-                    <span className="mt-5 text-[11px] font-semibold text-[#A9A499] group-hover:text-[#4F46A5] transition-colors tracking-wide">
+                    <span className="mt-5 text-[11px] font-semibold text-[var(--neutral-500)] group-hover:text-[var(--primary)] transition-colors tracking-wide">
                       Anlamı için dokun
                     </span>
                   )}
@@ -610,10 +610,10 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                   <div className="w-full mt-5 animate-riseIn">
                     {/* Çerçeve yerine ince bir ayraç: gözü kelimeden anlama
                         taşır, kutu üstüne kutu koymaz. */}
-                    <div className="w-10 h-px bg-[#E4E1D9] mx-auto mb-5" />
+                    <div className="w-10 h-px bg-[var(--border)] mx-auto mb-5" />
 
                     {currentCard.turkishMeaning ? (
-                      <p className="text-xl sm:text-2xl font-bold text-[#1E2430] leading-snug">
+                      <p className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] leading-snug">
                         {currentCard.turkishMeaning}
                       </p>
                     ) : (
@@ -622,14 +622,14 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                        * göstermek yerine durumu açıkça söylüyoruz: yanlış anlam
                        * öğretmek, boş bırakmaktan çok daha zararlıdır.
                        */
-                      <p className="text-sm text-[#8E95A2] leading-relaxed">
+                      <p className="text-sm text-[var(--text-muted)] leading-relaxed">
                         Bu kelimenin Türkçe karşılığı henüz hazırlanmadı.
                       </p>
                     )}
 
                     {currentCard.contextualMeaning &&
                       currentCard.contextualMeaning !== currentCard.turkishMeaning && (
-                        <p className="text-xs text-[#4F46A5] font-medium pt-2">
+                        <p className="text-xs text-[var(--primary)] font-medium pt-2">
                           Bağlam anlamı: {currentCard.contextualMeaning}
                         </p>
                       )}
@@ -638,11 +638,11 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                       <div className="w-full text-left mt-5">
                         <button
                           onClick={() => setIsExamplesExpanded(!isExamplesExpanded)}
-                          className="w-full px-3.5 py-2.5 hover:bg-[#F8F7F3] text-xs font-semibold text-[#687080] rounded-xl border border-[#EFECE6] flex items-center justify-between transition-colors cursor-pointer"
+                          className="w-full px-3.5 py-2.5 hover:bg-[var(--bg)] text-xs font-semibold text-[var(--text-secondary)] rounded-xl border border-[var(--border-light)] flex items-center justify-between transition-colors cursor-pointer"
                           aria-expanded={isExamplesExpanded}
                         >
                           <span className="flex items-center gap-1.5">
-                            <BookOpen className="w-3.5 h-3.5 text-[#4F46A5]" />
+                            <BookOpen className="w-3.5 h-3.5 text-[var(--primary)]" />
                             <span>Örnek cümleler ({examples.length})</span>
                           </span>
                           {isExamplesExpanded ? (
@@ -657,10 +657,10 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                             {examples.map((ex, idx) => (
                               <div
                                 key={idx}
-                                className="pl-3 border-l-2 border-[#E4E1D9] space-y-1"
+                                className="pl-3 border-l-2 border-[var(--border)] space-y-1"
                               >
                                 <div className="flex items-start justify-between gap-2">
-                                  <p className="text-[13px] font-medium text-[#1E2430] leading-relaxed">
+                                  <p className="text-[13px] font-medium text-[var(--text-primary)] leading-relaxed">
                                     {ex.en}
                                   </p>
                                   <button
@@ -668,14 +668,14 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                                       e.stopPropagation();
                                       speakText(ex.en);
                                     }}
-                                    className="p-1 -mt-0.5 text-[#C3BEB4] hover:text-[#4F46A5] rounded transition-colors shrink-0 cursor-pointer"
+                                    className="p-1 -mt-0.5 text-[var(--neutral-400)] hover:text-[var(--primary)] rounded transition-colors shrink-0 cursor-pointer"
                                     title="Cümleyi dinle"
                                     aria-label="Cümleyi dinle"
                                   >
                                     <Volume2 className="w-3.5 h-3.5" />
                                   </button>
                                 </div>
-                                <p className="text-[12px] text-[#8E95A2] leading-relaxed">
+                                <p className="text-[12px] text-[var(--text-muted)] leading-relaxed">
                                   {ex.tr}
                                 </p>
                               </div>
@@ -689,7 +689,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
               </div>
 
               {/* Alt şerit: öğrenme durumu */}
-              <div className="pt-5 border-t border-[#F1EFE8]">
+              <div className="pt-5 border-t border-[var(--surface-soft)]">
                 <WordStatusActions
                   status={currentStatus}
                   onSetStatus={(st) => onSetStatus(currentCard.id, st)}
@@ -708,20 +708,20 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
         <button
           onClick={handlePrevCard}
           disabled={!hasPrev}
-          className="w-11 h-11 flex items-center justify-center bg-[#FFFFFF] text-[#1E2430] rounded-full border border-[#E4E1D9] shadow-[var(--elev-1)] transition-all cursor-pointer hover:border-[#D7D2F4] hover:text-[#4F46A5] active:scale-95 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:border-[#E4E1D9] disabled:hover:text-[#1E2430]"
+          className="w-11 h-11 flex items-center justify-center bg-[var(--surface)] text-[var(--text-primary)] rounded-full border border-[var(--border)] shadow-[var(--elev-1)] transition-all cursor-pointer hover:border-[var(--primary-border)] hover:text-[var(--primary)] active:scale-95 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:border-[var(--border)] disabled:hover:text-[var(--text-primary)]"
           aria-label="Önceki kelime"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
 
-        <p className="text-[11px] text-[#A9A499] text-center min-w-[150px]">
+        <p className="text-[11px] text-[var(--neutral-500)] text-center min-w-[150px]">
           <span className="sm:hidden">Geçmek için kartı kaydır</span>
           <span className="hidden sm:inline">
             Kartı sürükle ya da{' '}
-            <kbd className="px-1 py-0.5 bg-[#FFFFFF] border border-[#E4E1D9] rounded text-[10px] font-mono">
+            <kbd className="px-1 py-0.5 bg-[var(--surface)] border border-[var(--border)] rounded text-[10px] font-mono">
               ←
             </kbd>{' '}
-            <kbd className="px-1 py-0.5 bg-[#FFFFFF] border border-[#E4E1D9] rounded text-[10px] font-mono">
+            <kbd className="px-1 py-0.5 bg-[var(--surface)] border border-[var(--border)] rounded text-[10px] font-mono">
               →
             </kbd>{' '}
             kullan
@@ -731,7 +731,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
         <button
           onClick={handleNextCard}
           disabled={!hasNext}
-          className="w-11 h-11 flex items-center justify-center bg-[#4F46A5] text-white rounded-full shadow-[var(--elev-2)] transition-all cursor-pointer hover:bg-[#433B91] active:scale-95 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-[#4F46A5]"
+          className="w-11 h-11 flex items-center justify-center bg-[var(--primary)] text-white rounded-full shadow-[var(--elev-2)] transition-all cursor-pointer hover:bg-[var(--primary-hover)] active:scale-95 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-[var(--primary)]"
           aria-label="Sonraki kelime"
         >
           <ChevronRight className="w-5 h-5" />

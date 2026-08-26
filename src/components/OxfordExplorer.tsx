@@ -230,15 +230,15 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
   return (
     <div className="space-y-6 pb-safe-nav max-w-[1180px] mx-auto animate-fadeIn">
       {/* Başlık */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#FFFFFF] p-6 rounded-2xl border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-xl sm:text-2xl font-bold text-[#1E2430]">Oxford 5000</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">Oxford 5000</h2>
             {selectedLevel !== 'ALL' && (
               <CEFRBadge level={selectedLevel === 'B2_EK' ? 'B2 EK' : selectedLevel} />
             )}
           </div>
-          <p className="text-xs sm:text-sm text-[#687080] mt-1">
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1">
             A1'den C1'e kadar {levelCounts.ALL.toLocaleString('tr-TR')} kayıt, tek listede.
           </p>
         </div>
@@ -247,7 +247,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
           {onStartQuiz && filteredWords.length >= 4 && (
             <button
               onClick={() => onStartQuiz(filteredWords)}
-              className="px-3.5 py-2 bg-[#F1EFE8] hover:bg-[#EEECFA] text-[#4F46A5] border border-[#D7D2F4] font-semibold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-2 bg-[var(--surface-soft)] hover:bg-[var(--primary-soft)] text-[var(--primary)] border border-[var(--primary-border)] font-semibold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <BrainCircuit className="w-3.5 h-3.5" />
               <span>Sınav Başlat</span>
@@ -256,17 +256,17 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
 
           <button
             onClick={handlePlayAllWordsInList}
-            className="px-3 py-2 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#1E2430] border border-[#E4E1D9] font-medium text-xs rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer"
+            className="px-3 py-2 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] border border-[var(--border)] font-medium text-xs rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer"
             title="Listeden ilk 10 kelimeyi seslendir"
           >
-            <Volume2 className="w-3.5 h-3.5 text-[#4F46A5]" />
+            <Volume2 className="w-3.5 h-3.5 text-[var(--primary)]" />
             <span>Sesli Dinle</span>
           </button>
         </div>
       </div>
 
       {/* Filtreler */}
-      <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#E4E1D9] space-y-4 shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
+      <div className="bg-[var(--surface)] p-5 rounded-2xl border border-[var(--border)] space-y-4 shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
         {/* Seviye düğmeleri */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1">
           {LEVEL_KEYS.map(key => {
@@ -278,14 +278,14 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
                 onClick={() => setSelectedLevel(key)}
                 className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap border flex items-center gap-2 cursor-pointer ${
                   isSelected
-                    ? 'bg-[#4F46A5] text-white border-[#4F46A5] shadow-xs'
-                    : 'bg-[#F8F7F3] text-[#1E2430] border-[#E4E1D9] hover:bg-[#F1EFE8]'
+                    ? 'bg-[var(--primary)] text-white border-[var(--primary)] shadow-xs'
+                    : 'bg-[var(--bg)] text-[var(--text-primary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
                 }`}
               >
                 <span>{LEVEL_LABEL[key]}</span>
                 <span
                   className={`px-1.5 py-0.2 rounded-md text-[10px] font-bold ${
-                    isSelected ? 'bg-white/20 text-white' : 'bg-[#E4E1D9] text-[#687080]'
+                    isSelected ? 'bg-white/20 text-white' : 'bg-[var(--border)] text-[var(--text-secondary)]'
                   }`}
                 >
                   {count}
@@ -299,9 +299,9 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
          * Durum özeti. Her sayı bir düğmedir: kullanıcı "30 Öğrendim"e
          * dokununca liste o otuz kelimeye iner.
          */}
-        <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-[#F8F7F3] rounded-xl border border-[#E4E1D9] text-xs">
-          <div className="text-[#687080] font-medium">
-            Toplam <strong className="text-[#1E2430]">{levelStats.total}</strong> kelime içinde:
+        <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-[var(--bg)] rounded-xl border border-[var(--border)] text-xs">
+          <div className="text-[var(--text-secondary)] font-medium">
+            Toplam <strong className="text-[var(--text-primary)]">{levelStats.total}</strong> kelime içinde:
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
             <button
@@ -309,13 +309,13 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
               onClick={() => setStatusFilter(statusFilter === 'LEARNED' ? 'ALL' : 'LEARNED')}
               className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg font-semibold transition-colors cursor-pointer border ${
                 statusFilter === 'LEARNED'
-                  ? 'bg-[#4F806A] text-white border-[#4F806A]'
-                  : 'text-[#4F806A] border-transparent hover:bg-[#E6F0EA]'
+                  ? 'bg-[var(--learned)] text-white border-[var(--learned)]'
+                  : 'text-[var(--learned)] border-transparent hover:bg-[var(--learned-soft-hover)]'
               }`}
             >
               <span
                 className={`w-2 h-2 rounded-full ${
-                  statusFilter === 'LEARNED' ? 'bg-white' : 'bg-[#4F806A]'
+                  statusFilter === 'LEARNED' ? 'bg-white' : 'bg-[var(--learned)]'
                 }`}
               />
               {levelStats.learnedCount} Öğrendim
@@ -326,13 +326,13 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
               onClick={() => setStatusFilter(statusFilter === 'LEARNING' ? 'ALL' : 'LEARNING')}
               className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg font-semibold transition-colors cursor-pointer border ${
                 statusFilter === 'LEARNING'
-                  ? 'bg-[#B97922] text-white border-[#B97922]'
-                  : 'text-[#B97922] border-transparent hover:bg-[#F7EEDF]'
+                  ? 'bg-[var(--learning)] text-white border-[var(--learning)]'
+                  : 'text-[var(--learning)] border-transparent hover:bg-[var(--learning-soft-hover)]'
               }`}
             >
               <span
                 className={`w-2 h-2 rounded-full ${
-                  statusFilter === 'LEARNING' ? 'bg-white' : 'bg-[#B97922]'
+                  statusFilter === 'LEARNING' ? 'bg-white' : 'bg-[var(--learning)]'
                 }`}
               />
               {levelStats.learningCount} Tekrar Et
@@ -343,8 +343,8 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
               onClick={() => setStatusFilter(statusFilter === 'UNSEEN' ? 'ALL' : 'UNSEEN')}
               className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg font-medium transition-colors cursor-pointer border ${
                 statusFilter === 'UNSEEN'
-                  ? 'bg-[#687080] text-white border-[#687080]'
-                  : 'text-[#8E95A2] border-transparent hover:bg-[#F1EFE8]'
+                  ? 'bg-[var(--text-secondary)] text-white border-[var(--text-secondary)]'
+                  : 'text-[var(--text-muted)] border-transparent hover:bg-[var(--surface-soft)]'
               }`}
             >
               {levelStats.unseenCount} İncelenmedi
@@ -355,18 +355,18 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
         {/* Arama, tür ve durum */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
           <div className="relative">
-            <Search className="w-4 h-4 text-[#8E95A2] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[var(--text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Kelime ara..."
-              className="w-full pl-9 pr-8 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:outline-none focus:bg-[#FFFFFF] focus:border-[#4F46A5] focus:ring-1 focus:ring-[#4F46A5] font-medium text-[#1E2430] transition-colors"
+              className="w-full pl-9 pr-8 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:outline-none focus:bg-[var(--surface)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] font-medium text-[var(--text-primary)] transition-colors"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8E95A2] hover:text-[#1E2430]"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                 aria-label="Aramayı temizle"
               >
                 <X className="w-3.5 h-3.5" />
@@ -377,7 +377,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
           <select
             value={partOfSpeechFilter}
             onChange={e => setPartOfSpeechFilter(e.target.value)}
-            className="w-full py-2 px-3 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:outline-none focus:bg-[#FFFFFF] focus:border-[#4F46A5] focus:ring-1 focus:ring-[#4F46A5] font-medium text-[#1E2430]"
+            className="w-full py-2 px-3 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:outline-none focus:bg-[var(--surface)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] font-medium text-[var(--text-primary)]"
           >
             <option value="ALL">Tüm Sözcük Türleri</option>
             <option value="n.">İsimler (n.)</option>
@@ -391,7 +391,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
           <select
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value as StatusFilter)}
-            className="w-full py-2 px-3 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:outline-none focus:bg-[#FFFFFF] focus:border-[#4F46A5] focus:ring-1 focus:ring-[#4F46A5] font-medium text-[#1E2430]"
+            className="w-full py-2 px-3 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:outline-none focus:bg-[var(--surface)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] font-medium text-[var(--text-primary)]"
           >
             <option value="ALL">Tümü</option>
             <option value="LEARNED">✓ Öğrendiklerim</option>
@@ -407,18 +407,18 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
         <button
           type="button"
           onClick={() => setIsStudyingFlashcards(true)}
-          className="w-full p-4 sm:p-5 bg-[#EEECFA] hover:bg-[#E3DFF7] border-2 border-[#D7D2F4] hover:border-[#4F46A5] rounded-2xl transition-all cursor-pointer text-left flex items-center justify-between group shadow-xs active:scale-[0.99]"
+          className="w-full p-4 sm:p-5 bg-[var(--primary-soft)] hover:bg-[var(--primary-soft-strong)] border-2 border-[var(--primary-border)] hover:border-[var(--primary)] rounded-2xl transition-all cursor-pointer text-left flex items-center justify-between group shadow-xs active:scale-[0.99]"
         >
           <div className="space-y-0.5">
-            <div className="text-base sm:text-lg font-bold text-[#1E2430] group-hover:text-[#4F46A5] flex items-center gap-2">
+            <div className="text-base sm:text-lg font-bold text-[var(--text-primary)] group-hover:text-[var(--primary)] flex items-center gap-2">
               <span>Kartlarla Çalış</span>
-              <span className="text-[#4F46A5]">→</span>
+              <span className="text-[var(--primary)]">→</span>
             </div>
-            <p className="text-xs text-[#687080] font-medium">
+            <p className="text-xs text-[var(--text-secondary)] font-medium">
               Şimdi çalışmaya başla ({filteredWords.length} kelime)
             </p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-[#4F46A5] text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-[var(--primary)] text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
             <Play className="w-4 h-4 fill-current ml-0.5" />
           </div>
         </button>
@@ -447,22 +447,22 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
             <button
               type="button"
               onClick={() => setVisibleCount(count => count + PAGE_SIZE)}
-              className="w-full py-3 bg-[#FFFFFF] hover:bg-[#F1EFE8] text-[#4F46A5] border border-[#E4E1D9] font-semibold text-xs rounded-2xl transition-colors cursor-pointer"
+              className="w-full py-3 bg-[var(--surface)] hover:bg-[var(--surface-soft)] text-[var(--primary)] border border-[var(--border)] font-semibold text-xs rounded-2xl transition-colors cursor-pointer"
             >
               Daha fazla göster ({filteredWords.length - visibleCount} kelime kaldı)
             </button>
           )}
         </>
       ) : (
-        <div className="text-center py-16 bg-[#FFFFFF] rounded-2xl border border-[#E4E1D9] space-y-3">
-          <BookOpen className="w-8 h-8 text-[#8E95A2] mx-auto" />
-          <h3 className="text-base font-bold text-[#1E2430]">Eşleşen kelime bulunamadı</h3>
-          <p className="text-xs text-[#687080] max-w-sm mx-auto">
+        <div className="text-center py-16 bg-[var(--surface)] rounded-2xl border border-[var(--border)] space-y-3">
+          <BookOpen className="w-8 h-8 text-[var(--text-muted)] mx-auto" />
+          <h3 className="text-base font-bold text-[var(--text-primary)]">Eşleşen kelime bulunamadı</h3>
+          <p className="text-xs text-[var(--text-secondary)] max-w-sm mx-auto">
             Arama kriterlerinizi veya filtreleri temizleyerek tüm kelimeleri görebilirsiniz.
           </p>
           <button
             onClick={clearFilters}
-            className="px-4 py-2 bg-[#F1EFE8] hover:bg-[#EEECFA] text-[#4F46A5] text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+            className="px-4 py-2 bg-[var(--surface-soft)] hover:bg-[var(--primary-soft)] text-[var(--primary)] text-xs font-semibold rounded-xl transition-colors cursor-pointer"
           >
             Filtreleri Temizle
           </button>

@@ -150,23 +150,23 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
               <img
                 src={branding.logoDataUri}
                 alt=""
-                className="w-11 h-11 rounded-2xl object-contain bg-white border border-[#E4E1D9] p-1"
+                className="w-11 h-11 rounded-2xl object-contain bg-white border border-[var(--border)] p-1"
               />
             )}
-            <h1 className="text-3xl sm:text-4xl font-black text-[#1E2430] tracking-tight">
+            <h1 className="text-3xl sm:text-4xl font-black text-[var(--text-primary)] tracking-tight">
               {branding.appName || BRAND.name}
             </h1>
           </div>
-          <p className="text-lg sm:text-xl font-semibold text-[#4F46A5] tracking-tight">
+          <p className="text-lg sm:text-xl font-semibold text-[var(--primary)] tracking-tight">
             {branding.slogan || BRAND.slogan}
           </p>
         </div>
-        <p className="text-xs text-[#687080] max-w-2xl leading-relaxed">
+        <p className="text-xs text-[var(--text-secondary)] max-w-2xl leading-relaxed">
           {branding.homeIntro || (
             <>
               Kendi kelime setlerini oluştur veya Oxford 5000 kelimelerini seviyene
               göre çalış. Eklediğin kelime uygulamanın sözlüğünde varsa Türkçe
-              anlamı ve <strong className="text-[#1E2430]">üç örnek cümlesi
+              anlamı ve <strong className="text-[var(--text-primary)]">üç örnek cümlesi
               çevirisiyle birlikte</strong> hazır gelir — internet gerekmeden.
               Kelimeleri öğren, bildiklerini işaretle ve tekrar ederek aklında tut.
             </>
@@ -183,12 +183,12 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           {announcements.slice(0, 2).map(item => (
             <div
               key={item.id}
-              className="bg-[#EEECFA] border border-[#D7D2F4] rounded-2xl p-4 flex items-start gap-3"
+              className="bg-[var(--primary-soft)] border border-[var(--primary-border)] rounded-2xl p-4 flex items-start gap-3"
             >
-              <Megaphone className="w-4 h-4 text-[#4F46A5] shrink-0 mt-0.5" />
+              <Megaphone className="w-4 h-4 text-[var(--primary)] shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-bold text-[#1E2430]">{item.title}</p>
-                <p className="text-xs text-[#687080] mt-0.5 leading-relaxed">{item.body}</p>
+                <p className="text-sm font-bold text-[var(--text-primary)]">{item.title}</p>
+                <p className="text-xs text-[var(--text-secondary)] mt-0.5 leading-relaxed">{item.body}</p>
               </div>
             </div>
           ))}
@@ -204,28 +204,28 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
         ise en altta — plan bir özet, bir başlangıç noktası değil.
       */}
       {/* 1. KELİME SETLERİM */}
-      <div className="bg-[#FFFFFF] rounded-2xl p-6 sm:p-7 border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
+      <div className="bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="space-y-2 max-w-xl">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-[#EEECFA] text-[#4F46A5] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center">
                 <Layers className="w-4 h-4" />
               </div>
-              <h2 className="text-xl font-bold text-[#1E2430]">Kelime Setlerim</h2>
+              <h2 className="text-xl font-bold text-[var(--text-primary)]">Kelime Setlerim</h2>
             </div>
-            <p className="text-sm text-[#687080] leading-relaxed">
+            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
               {branding.setsIntro ||
                 'Dizi, kitap, ders veya günlük hayatta karşılaştığın kelimelerden kendi setlerini oluştur.'}
             </p>
 
             {/* AI Callout */}
-            <div className="p-3 bg-[#EEECFA]/80 rounded-xl border border-[#D7D2F4] text-xs text-[#1E2430] flex items-start gap-2.5">
-              <Sparkles className="w-4 h-4 text-[#4F46A5] shrink-0 mt-0.5" />
+            <div className="p-3 bg-[var(--primary-soft)]/80 rounded-xl border border-[var(--primary-border)] text-xs text-[var(--text-primary)] flex items-start gap-2.5">
+              <Sparkles className="w-4 h-4 text-[var(--primary)] shrink-0 mt-0.5" />
               <div>
-                <span className="font-bold text-[#4F46A5] block">
+                <span className="font-bold text-[var(--primary)] block">
                   {branding.lookupTitle || 'Kelimeyi yaz, gerisini Anlora getirsin'}
                 </span>
-                <p className="text-[#687080] text-[11px] mt-0.5">
+                <p className="text-[var(--text-secondary)] text-[11px] mt-0.5">
                   {branding.lookupBody || (
                     <>
                       Yazdığın kelime {branding.appName || BRAND.name} sözlüğünde varsa
@@ -241,7 +241,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           <div className="shrink-0 flex items-center gap-2">
             <button
               onClick={handleCreateSetClick}
-              className="px-4 py-2.5 bg-[#4F46A5] hover:bg-[#433B91] active:scale-[0.98] text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-2 shadow-xs cursor-pointer"
+              className="px-4 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-2 shadow-xs cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>+ Kelime Seti Oluştur</span>
@@ -251,7 +251,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
 
         {/* Set Listesi veya İlk Set Onboarding */}
         {hasSets ? (
-          <div className="space-y-3 pt-2 border-t border-[#EFECE6]">
+          <div className="space-y-3 pt-2 border-t border-[var(--border-light)]">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               {collections.slice(0, 3).map((deck) => {
                 const count = memberships.filter((m) => m.collectionId === deck.id).length;
@@ -272,25 +272,25 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
                   <div
                     key={deck.id}
                     onClick={() => onNavigateToTab('collections')}
-                    className="p-4 rounded-xl bg-[#F8F7F3] hover:bg-[#F1EFE8] border border-[#E4E1D9] hover:border-[#D5D0C5] transition-all cursor-pointer flex flex-col justify-between group"
+                    className="p-4 rounded-xl bg-[var(--bg)] hover:bg-[var(--surface-soft)] border border-[var(--border)] hover:border-[var(--neutral-300)] transition-all cursor-pointer flex flex-col justify-between group"
                   >
                     <div>
-                      <h4 className="font-bold text-[#1E2430] text-sm group-hover:text-[#4F46A5] transition-colors truncate">
+                      <h4 className="font-bold text-[var(--text-primary)] text-sm group-hover:text-[var(--primary)] transition-colors truncate">
                         {deck.name}
                       </h4>
-                      <p className="text-xs text-[#687080] mt-0.5 font-medium">
+                      <p className="text-xs text-[var(--text-secondary)] mt-0.5 font-medium">
                         {count} kelime
                       </p>
                     </div>
 
-                    <div className="mt-4 space-y-1.5 pt-2 border-t border-[#E4E1D9]">
-                      <div className="flex items-center justify-between text-[11px] font-semibold text-[#687080]">
-                        <span className="text-[#4F806A]">{learned} Öğrendim</span>
-                        <span className="text-[#B97922]">{learning} Tekrar Et</span>
+                    <div className="mt-4 space-y-1.5 pt-2 border-t border-[var(--border)]">
+                      <div className="flex items-center justify-between text-[11px] font-semibold text-[var(--text-secondary)]">
+                        <span className="text-[var(--learned)]">{learned} Öğrendim</span>
+                        <span className="text-[var(--learning)]">{learning} Tekrar Et</span>
                       </div>
-                      <div className="h-1.5 w-full bg-[#E4E1D9] rounded-full overflow-hidden">
+                      <div className="h-1.5 w-full bg-[var(--border)] rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-[#4F806A] rounded-full transition-all"
+                          className="h-full bg-[var(--learned)] rounded-full transition-all"
                           style={{ width: `${learnedPercent}%` }}
                         />
                       </div>
@@ -303,7 +303,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
             <div className="pt-2 flex justify-end">
               <button
                 onClick={() => onNavigateToTab('collections')}
-                className="text-xs font-semibold text-[#4F46A5] hover:text-[#433B91] flex items-center gap-1 group cursor-pointer"
+                className="text-xs font-semibold text-[var(--primary)] hover:text-[var(--primary-hover)] flex items-center gap-1 group cursor-pointer"
               >
                 <span>Tüm Setlerimi Gör ({collections.length})</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
@@ -311,17 +311,17 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
             </div>
           </div>
         ) : (
-          <div className="p-5 rounded-xl bg-[#F8F7F3] border border-[#E4E1D9] space-y-2">
-            <h3 className="font-bold text-[#1E2430] text-sm">
+          <div className="p-5 rounded-xl bg-[var(--bg)] border border-[var(--border)] space-y-2">
+            <h3 className="font-bold text-[var(--text-primary)] text-sm">
               Henüz bir Kelime Setin yok
             </h3>
-            <p className="text-xs text-[#687080] leading-relaxed">
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
               İlk setini oluştur ve karşılaştığın kelimeleri biriktirmeye başla.
             </p>
             <div className="pt-1">
               <button
                 onClick={handleCreateSetClick}
-                className="px-3.5 py-2 bg-[#4F46A5] hover:bg-[#433B91] text-white text-xs font-semibold rounded-xl transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                className="px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-xs font-semibold rounded-xl transition-all inline-flex items-center gap-1.5 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>İlk Setimi Oluştur</span>
@@ -332,23 +332,23 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
       </div>
 
       {/* 2. OXFORD 5000 */}
-      <div className="bg-[#FFFFFF] rounded-2xl p-6 sm:p-7 border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-5">
+      <div className="bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-[#EDF4F0] text-[#4F806A] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-[var(--cefr-a1-soft)] text-[var(--learned)] flex items-center justify-center">
                 <BookOpen className="w-4 h-4" />
               </div>
-              <h2 className="text-xl font-bold text-[#1E2430]">Oxford 5000</h2>
+              <h2 className="text-xl font-bold text-[var(--text-primary)]">Oxford 5000</h2>
             </div>
-            <p className="text-sm text-[#687080]">
+            <p className="text-sm text-[var(--text-secondary)]">
               A1'den C1'e İngilizce kelimelerini seviyene göre çalış.
             </p>
           </div>
 
           <button
             onClick={() => onNavigateToTab('oxford')}
-            className="text-xs font-semibold text-[#4F46A5] hover:text-[#433B91] flex items-center gap-1 self-start sm:self-auto shrink-0 cursor-pointer"
+            className="text-xs font-semibold text-[var(--primary)] hover:text-[var(--primary-hover)] flex items-center gap-1 self-start sm:self-auto shrink-0 cursor-pointer"
           >
             <span>Tüm Oxford 5000'i Gör</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -362,37 +362,37 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
               level: 'A1' as const,
               title: 'A1 Başlangıç',
               stats: oxfordLevelStats.A1,
-              topBorder: 'border-t-2 border-t-[#5F806D]'
+              topBorder: 'border-t-2 border-t-[var(--cefr-a1)]'
             },
             {
               level: 'A2' as const,
               title: 'A2 Temel',
               stats: oxfordLevelStats.A2,
-              topBorder: 'border-t-2 border-t-[#4E7D80]'
+              topBorder: 'border-t-2 border-t-[var(--cefr-a2)]'
             },
             {
               level: 'B1' as const,
               title: 'B1 Orta Seviye',
               stats: oxfordLevelStats.B1,
-              topBorder: 'border-t-2 border-t-[#6258A5]'
+              topBorder: 'border-t-2 border-t-[var(--cefr-b1)]'
             },
             {
               level: 'B2' as const,
               title: 'B2 İleri Orta',
               stats: oxfordLevelStats.B2,
-              topBorder: 'border-t-2 border-t-[#795F87]'
+              topBorder: 'border-t-2 border-t-[var(--cefr-b2)]'
             },
             {
               level: 'B2_EK' as const,
               title: 'B2 Ek',
               stats: oxfordLevelStats.B2_EK,
-              topBorder: 'border-t-2 border-t-[#8A6A9A]'
+              topBorder: 'border-t-2 border-t-[var(--cefr-b2-strong)]'
             },
             {
               level: 'C1' as const,
               title: 'C1 İleri',
               stats: oxfordLevelStats.C1,
-              topBorder: 'border-t-2 border-t-[#593E91]'
+              topBorder: 'border-t-2 border-t-[var(--primary-deep)]'
             }
           ].map((lvl) => {
             const learnedPercent =
@@ -405,29 +405,29 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
                   if (onSelectLevel) onSelectLevel(lvl.level);
                   onNavigateToTab('oxford');
                 }}
-                className={`p-4 rounded-xl bg-[#F8F7F3] hover:bg-[#F1EFE8] border border-[#E4E1D9] hover:border-[#D5D0C5] text-left transition-all group relative cursor-pointer ${lvl.topBorder}`}
+                className={`p-4 rounded-xl bg-[var(--bg)] hover:bg-[var(--surface-soft)] border border-[var(--border)] hover:border-[var(--neutral-300)] text-left transition-all group relative cursor-pointer ${lvl.topBorder}`}
               >
                 <div className="flex items-center justify-between">
                   <CEFRBadge level={lvl.level === 'B2_EK' ? 'B2 EK' : lvl.level} size="sm" />
-                  <ChevronRight className="w-4 h-4 text-[#8E95A2] group-hover:text-[#4F46A5] group-hover:translate-x-0.5 transition-transform" />
+                  <ChevronRight className="w-4 h-4 text-[var(--text-muted)] group-hover:text-[var(--primary)] group-hover:translate-x-0.5 transition-transform" />
                 </div>
 
                 <div className="mt-3">
-                  <div className="text-xs font-bold text-[#1E2430]">{lvl.title}</div>
-                  <div className="text-[11px] text-[#687080] mt-0.5">
+                  <div className="text-xs font-bold text-[var(--text-primary)]">{lvl.title}</div>
+                  <div className="text-[11px] text-[var(--text-secondary)] mt-0.5">
                     {lvl.stats.total} Kelime
                   </div>
                 </div>
 
                 {/* Progress bar */}
                 <div className="mt-3 space-y-1">
-                  <div className="flex justify-between text-[10px] font-semibold text-[#687080]">
+                  <div className="flex justify-between text-[10px] font-semibold text-[var(--text-secondary)]">
                     <span>{lvl.stats.learned} Öğrendim</span>
                     <span>%{learnedPercent}</span>
                   </div>
-                  <div className="h-1.5 w-full bg-[#E4E1D9] rounded-full overflow-hidden">
+                  <div className="h-1.5 w-full bg-[var(--border)] rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-[#4F806A] rounded-full transition-all"
+                      className="h-full bg-[var(--learned)] rounded-full transition-all"
                       style={{ width: `${learnedPercent}%` }}
                     />
                   </div>
@@ -440,24 +440,24 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
       <AdSlot slot="home-bottom" className="rounded-2xl" />
 
       {/* 3. BUGÜNÜN PLANI: bekleyen tekrar, yeni kelime ve günlük seri */}
-      <div className="bg-[#FFFFFF] rounded-2xl p-5 sm:p-6 border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
+      <div className="bg-[var(--surface)] rounded-2xl p-5 sm:p-6 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-[#EEECFA] text-[#4F46A5] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center">
               <Target className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-[#1E2430]">Bugünün Planı</h2>
-              <p className="text-[11px] text-[#687080]">
+              <h2 className="text-base font-bold text-[var(--text-primary)]">Bugünün Planı</h2>
+              <p className="text-[11px] text-[var(--text-secondary)]">
                 Günlük hedefin: {reviewGoal} tekrar + {newGoal} yeni kelime
               </p>
             </div>
           </div>
 
           {streakDays > 0 && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FBF1DE] border border-[#E7C98F] self-start">
-              <Flame className="w-3.5 h-3.5 text-[#B97922]" />
-              <span className="text-xs font-bold text-[#8A5A18]">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--learning-soft)] border border-[var(--learning-border)] self-start">
+              <Flame className="w-3.5 h-3.5 text-[var(--learning)]" />
+              <span className="text-xs font-bold text-[var(--learning-text)]">
                 {streakDays} günlük seri
               </span>
             </div>
@@ -465,19 +465,19 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
         </div>
 
         <div className="grid grid-cols-2 gap-3 mt-4">
-          <div className="p-3.5 rounded-xl bg-[#FAF9F5] border border-[#EFECE6]">
-            <div className="text-2xl font-black text-[#4F46A5] tabular-nums">
+          <div className="p-3.5 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-light)]">
+            <div className="text-2xl font-black text-[var(--primary)] tabular-nums">
               {todayQueue.dueCount}
             </div>
-            <div className="text-[10px] font-bold text-[#687080] uppercase tracking-wide mt-0.5">
+            <div className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wide mt-0.5">
               Bekleyen tekrar
             </div>
           </div>
-          <div className="p-3.5 rounded-xl bg-[#FAF9F5] border border-[#EFECE6]">
-            <div className="text-2xl font-black text-[#4F806A] tabular-nums">
+          <div className="p-3.5 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-light)]">
+            <div className="text-2xl font-black text-[var(--learned)] tabular-nums">
               {todayQueue.newCount}
             </div>
-            <div className="text-[10px] font-bold text-[#687080] uppercase tracking-wide mt-0.5">
+            <div className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wide mt-0.5">
               Hiç çalışılmamış
             </div>
           </div>
@@ -487,7 +487,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           <button
             onClick={() => onStartStudy()}
             disabled={plannedTotal === 0}
-            className="w-full mt-4 py-3 bg-[#4F46A5] hover:bg-[#433B91] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full mt-4 py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <Play className="w-4 h-4" />
             <span>

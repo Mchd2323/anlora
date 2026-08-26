@@ -39,6 +39,49 @@
     --correct: #3F7C63;
     --correct-soft: #E8F3ED;
 
+
+    /* Genişletilmiş ton listesi.
+       Karanlık mod için HER rengin bir değişkenden geçmesi gerekiyor:
+       bileşenlerde kalan sabit bir kod, tema değişince olduğu yerde
+       kalır ve okunmaz bir yüzey üretir. */
+    --cefr-b2-deep: #634870;
+    --cefr-b2-strong: #8A6A9A;
+    --danger-border-strong: #E8C2BD;
+    --danger-soft-hover: #F6DFDC;
+    --danger-soft-strong: #F5D7D3;
+    --danger-tint: #F2CCD3;
+    --favorite-strong: #D96B82;
+    --ink-hover: #2B3342;
+    --learned-deep: #426451;
+    --learned-hover: #3F6A57;
+    --learned-soft-hover: #E6F0EA;
+    --learned-soft-strong: #DCEDE3;
+    --learned-tint: #D5EADF;
+    --learning-deep: #69533B;
+    --learning-hover: #A3681B;
+    --learning-soft-hover: #F7EEDF;
+    --learning-soft-strong: #F6E7CB;
+    --learning-strong: #B4761F;
+    --learning-tint: #F5E2BE;
+    --neutral-100: #F3EFEA;
+    --neutral-200: #E9E6DE;
+    --neutral-25: #FDFBF7;
+    --neutral-250: #DDD3C7;
+    --neutral-300: #D5D0C5;
+    --neutral-400: #C3BEB4;
+    --neutral-50: #F7F5EF;
+    --neutral-500: #A9A499;
+    --primary-border-strong: #D4C4F0;
+    --primary-deep: #593E91;
+    --primary-soft-hover: #E3DFF6;
+    --primary-soft-strong: #E3DFF7;
+    --primary-tint: #F4EFFC;
+    --teal: #1F6F6B;
+    --teal-border: #B7D9D6;
+    --teal-hover: #195B58;
+    --teal-soft: #E2F0EE;
+    --teal-text: #3B6265;
+
     /* CEFR Tokens */
     --cefr-a1: #5F806D;
     --cefr-a1-soft: #EDF4F0;
@@ -84,6 +127,196 @@
     font-family: 'Manrope', 'Plus Jakarta Sans', system-ui, sans-serif;
     letter-spacing: -0.02em;
   }
+}
+
+
+/* ==========================================================================
+   Karanlık mod
+   ==========================================================================
+
+   TERS ÇEVİRME DEĞİL. Her ton koyu zemin için ayrıca seçildi: aynı moru koyu
+   zemine koymak düğmeleri kaybettirir, aynı yeşili koymak "öğrendim"
+   işaretini okunmaz kılar. Marka rengi ve durum renkleri koyu zeminde
+   AÇILIR, yüzeyler ve kenarlıklar koyulaşır.
+
+   ÜÇ DURUM VAR, İKİ DEĞİL:
+     * Kullanıcı açıkça seçtiyse kökte `data-theme` durur.
+     * Hiç seçmediyse ("sistem") hiçbir işaret olmaz; ayrımı yalnızca
+       `prefers-color-scheme` yapar.
+   Bu yüzden karanlık, hem medya sorgusunda hem de `[data-theme="dark"]`
+   altında tanımlanır; medya sorgusu `[data-theme="light"]` ile geçersiz
+   kılınabilsin diye korumalıdır — kullanıcı sistemi koyu olsa da açık temayı
+   seçebilmeli.
+*/
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14161B;
+    --border: #2E323C;
+    --border-light: #262A33;
+    --cefr-a1: #8FB89C;
+    --cefr-a1-border: #2E4536;
+    --cefr-a1-soft: #1B2A21;
+    --cefr-a2: #84B4B7;
+    --cefr-a2-border: #2A4547;
+    --cefr-a2-soft: #182A2B;
+    --cefr-b1: #9A92D8;
+    --cefr-b1-border: #39345C;
+    --cefr-b1-soft: #22203A;
+    --cefr-b2: #B195BE;
+    --cefr-b2-border: #42334A;
+    --cefr-b2-deep: #9A7FA8;
+    --cefr-b2-soft: #291F2E;
+    --cefr-b2-strong: #BFA6C9;
+    --correct: #7FBF9E;
+    --correct-soft: #1A2B23;
+    --danger: #E58C84;
+    --danger-border: #4C2E2A;
+    --danger-border-strong: #5A3733;
+    --danger-soft: #2D1B19;
+    --danger-soft-hover: #36211E;
+    --danger-soft-strong: #3B2522;
+    --danger-tint: #331F1D;
+    --favorite: #E08596;
+    --favorite-soft: #2D1B21;
+    --favorite-strong: #EA9AA9;
+    --ink-hover: #2A2E38;
+    --learned: #86BFA0;
+    --learned-border: #2F4B3B;
+    --learned-deep: #6FAE8A;
+    --learned-hover: #9BCEB1;
+    --learned-soft: #1A2B23;
+    --learned-soft-hover: #20342A;
+    --learned-soft-strong: #243A2E;
+    --learned-text: #A9D8BE;
+    --learned-tint: #1E3128;
+    --learning: #E0A65A;
+    --learning-border: #4C3D20;
+    --learning-deep: #C4883A;
+    --learning-hover: #E9B673;
+    --learning-soft: #2C2316;
+    --learning-soft-hover: #342A1B;
+    --learning-soft-strong: #3A2F1E;
+    --learning-strong: #D89945;
+    --learning-text: #EEC98F;
+    --learning-tint: #302718;
+    --neutral-100: #22262E;
+    --neutral-200: #2A2E38;
+    --neutral-25: #1A1D23;
+    --neutral-250: #333743;
+    --neutral-300: #3C414E;
+    --neutral-400: #565C6B;
+    --neutral-50: #1E2128;
+    --neutral-500: #6E7484;
+    --primary: #A79EF0;
+    --primary-border: #3D3768;
+    --primary-border-strong: #4A4380;
+    --primary-deep: #8E82E4;
+    --primary-hover: #BEB7F5;
+    --primary-soft: #272343;
+    --primary-soft-hover: #2F2A50;
+    --primary-soft-strong: #332D58;
+    --primary-tint: #221F3A;
+    --surface: #1D2027;
+    --surface-soft: #252932;
+    --surface-subtle: #191C22;
+    --teal: #6FC7C0;
+    --teal-border: #27544F;
+    --teal-hover: #8AD5CF;
+    --teal-soft: #142B2A;
+    --teal-text: #93D9D3;
+    --text-muted: #7C7D77;
+    --text-primary: #ECE9E1;
+    --text-secondary: #A5A69F;
+  }
+}
+
+:root[data-theme="dark"] {
+    --bg: #14161B;
+    --border: #2E323C;
+    --border-light: #262A33;
+    --cefr-a1: #8FB89C;
+    --cefr-a1-border: #2E4536;
+    --cefr-a1-soft: #1B2A21;
+    --cefr-a2: #84B4B7;
+    --cefr-a2-border: #2A4547;
+    --cefr-a2-soft: #182A2B;
+    --cefr-b1: #9A92D8;
+    --cefr-b1-border: #39345C;
+    --cefr-b1-soft: #22203A;
+    --cefr-b2: #B195BE;
+    --cefr-b2-border: #42334A;
+    --cefr-b2-deep: #9A7FA8;
+    --cefr-b2-soft: #291F2E;
+    --cefr-b2-strong: #BFA6C9;
+    --correct: #7FBF9E;
+    --correct-soft: #1A2B23;
+    --danger: #E58C84;
+    --danger-border: #4C2E2A;
+    --danger-border-strong: #5A3733;
+    --danger-soft: #2D1B19;
+    --danger-soft-hover: #36211E;
+    --danger-soft-strong: #3B2522;
+    --danger-tint: #331F1D;
+    --favorite: #E08596;
+    --favorite-soft: #2D1B21;
+    --favorite-strong: #EA9AA9;
+    --ink-hover: #2A2E38;
+    --learned: #86BFA0;
+    --learned-border: #2F4B3B;
+    --learned-deep: #6FAE8A;
+    --learned-hover: #9BCEB1;
+    --learned-soft: #1A2B23;
+    --learned-soft-hover: #20342A;
+    --learned-soft-strong: #243A2E;
+    --learned-text: #A9D8BE;
+    --learned-tint: #1E3128;
+    --learning: #E0A65A;
+    --learning-border: #4C3D20;
+    --learning-deep: #C4883A;
+    --learning-hover: #E9B673;
+    --learning-soft: #2C2316;
+    --learning-soft-hover: #342A1B;
+    --learning-soft-strong: #3A2F1E;
+    --learning-strong: #D89945;
+    --learning-text: #EEC98F;
+    --learning-tint: #302718;
+    --neutral-100: #22262E;
+    --neutral-200: #2A2E38;
+    --neutral-25: #1A1D23;
+    --neutral-250: #333743;
+    --neutral-300: #3C414E;
+    --neutral-400: #565C6B;
+    --neutral-50: #1E2128;
+    --neutral-500: #6E7484;
+    --primary: #A79EF0;
+    --primary-border: #3D3768;
+    --primary-border-strong: #4A4380;
+    --primary-deep: #8E82E4;
+    --primary-hover: #BEB7F5;
+    --primary-soft: #272343;
+    --primary-soft-hover: #2F2A50;
+    --primary-soft-strong: #332D58;
+    --primary-tint: #221F3A;
+    --surface: #1D2027;
+    --surface-soft: #252932;
+    --surface-subtle: #191C22;
+    --teal: #6FC7C0;
+    --teal-border: #27544F;
+    --teal-hover: #8AD5CF;
+    --teal-soft: #142B2A;
+    --teal-text: #93D9D3;
+    --text-muted: #7C7D77;
+    --text-primary: #ECE9E1;
+    --text-secondary: #A5A69F;
+}
+
+/* Tarayıcının kendi arayüzü (kaydırma çubuğu, form denetimleri) de temayı
+   izlesin; aksi hâlde koyu sayfanın kenarında parlak bir çubuk kalır. */
+:root[data-theme="dark"] { color-scheme: dark; }
+:root[data-theme="light"] { color-scheme: light; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { color-scheme: dark; }
 }
 
 /* ==========================================================================

@@ -92,28 +92,28 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
 
   return (
     <div
-      className={`group relative bg-[#FFFFFF] rounded-2xl border transition-all duration-200 flex flex-col justify-between hover:-translate-y-0.5 ${
+      className={`group relative bg-[var(--surface)] rounded-2xl border transition-all duration-200 flex flex-col justify-between hover:-translate-y-0.5 ${
         currentStatus === 'learned'
-          ? 'border-[#BFD7C8] shadow-[0_2px_12px_-2px_rgba(79,128,106,0.08)]'
+          ? 'border-[var(--learned-border)] shadow-[0_2px_12px_-2px_rgba(79,128,106,0.08)]'
           : currentStatus === 'learning'
-          ? 'border-[#E7C98F] shadow-[0_2px_12px_-2px_rgba(185,121,34,0.08)]'
-          : 'border-[#E4E1D9] hover:border-[#D5D0C5] shadow-[0_1px_3px_rgba(30,36,48,0.03)]'
+          ? 'border-[var(--learning-border)] shadow-[0_2px_12px_-2px_rgba(185,121,34,0.08)]'
+          : 'border-[var(--border)] hover:border-[var(--neutral-300)] shadow-[0_1px_3px_rgba(30,36,48,0.03)]'
       }`}
     >
       <div>
         {/* Top Header: CEFR & POS info, Collections tag & Actions */}
-        <div className="flex items-center justify-between p-4 pb-3 border-b border-[#EFECE6]">
+        <div className="flex items-center justify-between p-4 pb-3 border-b border-[var(--border-light)]">
           <div className="flex flex-wrap items-center gap-2">
             {!card.isCustom && card.sourceType !== 'custom' && card.level && (
               <CEFRBadge level={card.level} size="sm" />
             )}
-            <span className="text-xs font-semibold text-[#687080]">
+            <span className="text-xs font-semibold text-[var(--text-secondary)]">
               {card.partOfSpeech}
             </span>
 
             {card.isCustom && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium bg-[#F1EFE8] text-[#1E2430] border border-[#E4E1D9] rounded-md">
-                <Sparkles className="w-2.5 h-2.5 text-[#4F46A5]" /> Özel
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium bg-[var(--surface-soft)] text-[var(--text-primary)] border border-[var(--border)] rounded-md">
+                <Sparkles className="w-2.5 h-2.5 text-[var(--primary)]" /> Özel
               </span>
             )}
           </div>
@@ -126,7 +126,7 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
                   onOpenAddToCollection(card);
                 }}
                 title="Sete Ekle"
-                className="p-1.5 text-[#8E95A2] hover:text-[#4F46A5] hover:bg-[#EEECFA] rounded-lg transition-colors cursor-pointer"
+                className="p-1.5 text-[var(--text-muted)] hover:text-[var(--primary)] hover:bg-[var(--primary-soft)] rounded-lg transition-colors cursor-pointer"
               >
                 <BookmarkPlus className="w-4 h-4" />
               </button>
@@ -139,7 +139,7 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
                   onReportWord(card);
                 }}
                 title="Bu kelimede hata bildir"
-                className="p-1.5 text-[#8E95A2] hover:text-[#C65D55] hover:bg-[#FAECEA] rounded-lg transition-colors cursor-pointer"
+                className="p-1.5 text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger-soft)] rounded-lg transition-colors cursor-pointer"
               >
                 <MessageSquareWarning className="w-4 h-4" />
               </button>
@@ -154,8 +154,8 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
               title={isFavorite ? 'Favorilerden Çıkar' : 'Favorilere Ekle'}
               className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                 isFavorite
-                  ? 'text-[#B75D6A] bg-[#FDF0F2]'
-                  : 'text-[#8E95A2] hover:text-[#B75D6A] hover:bg-[#FDF0F2]'
+                  ? 'text-[var(--favorite)] bg-[var(--favorite-soft)]'
+                  : 'text-[var(--text-muted)] hover:text-[var(--favorite)] hover:bg-[var(--favorite-soft)]'
               }`}
             >
               <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : 'stroke-[1.8]'}`} />
@@ -171,7 +171,7 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
                       onEditCustom(card);
                     }}
                     title="Kartı Düzenle"
-                    className="p-1.5 text-[#8E95A2] hover:text-[#4F46A5] hover:bg-[#EEECFA] rounded-lg transition-colors cursor-pointer"
+                    className="p-1.5 text-[var(--text-muted)] hover:text-[var(--primary)] hover:bg-[var(--primary-soft)] rounded-lg transition-colors cursor-pointer"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
                   </button>
@@ -185,7 +185,7 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
                       }
                     }}
                     title="Kartı Sil"
-                    className="p-1.5 text-[#8E95A2] hover:text-[#C65D55] hover:bg-[#FAECEA] rounded-lg transition-colors cursor-pointer"
+                    className="p-1.5 text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger-soft)] rounded-lg transition-colors cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -201,9 +201,9 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
             {collectionNames.map((cName, idx) => (
               <span
                 key={idx}
-                className="text-[11px] font-medium px-2 py-0.5 bg-[#F1EFE8] text-[#687080] rounded-md flex items-center gap-1 border border-[#E4E1D9]"
+                className="text-[11px] font-medium px-2 py-0.5 bg-[var(--surface-soft)] text-[var(--text-secondary)] rounded-md flex items-center gap-1 border border-[var(--border)]"
               >
-                <Layers className="w-2.5 h-2.5 text-[#4F46A5]" />
+                <Layers className="w-2.5 h-2.5 text-[var(--primary)]" />
                 {cName}
               </span>
             ))}
@@ -218,19 +218,19 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
           <div className="flex items-start justify-between gap-3">
             <div>
               {/* English Word: High visual hierarchy */}
-              <h3 className="text-3xl sm:text-4xl font-bold text-[#1E2430] tracking-tight group-hover:text-[#4F46A5] transition-colors leading-none">
+              <h3 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] tracking-tight group-hover:text-[var(--primary)] transition-colors leading-none">
                 {card.word}
               </h3>
               {card.phonetic && (
-                <p className="text-xs font-mono text-[#687080] mt-1 tracking-normal">
+                <p className="text-xs font-mono text-[var(--text-secondary)] mt-1 tracking-normal">
                   {card.phonetic}
                 </p>
               )}
 
               {/* Source Context Quote */}
               {card.sourceContext && (
-                <div className="mt-2.5 p-2.5 bg-[#F1EFE8] border border-[#E4E1D9] rounded-xl text-xs text-[#1E2430]">
-                  <span className="font-semibold text-[#4F46A5] block text-[10px] uppercase tracking-wider mb-0.5">
+                <div className="mt-2.5 p-2.5 bg-[var(--surface-soft)] border border-[var(--border)] rounded-xl text-xs text-[var(--text-primary)]">
+                  <span className="font-semibold text-[var(--primary)] block text-[10px] uppercase tracking-wider mb-0.5">
                     Bağlam:
                   </span>
                   <p className="italic font-normal">"{card.sourceContext}"</p>
@@ -241,7 +241,7 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
             {/* Audio Button */}
             <button
               onClick={(e) => handlePlayAudio(e, card.word)}
-              className={`p-2.5 rounded-xl bg-[#EEECFA] text-[#4F46A5] hover:bg-[#E3DFF6] transition-all active:scale-95 shrink-0 cursor-pointer ${
+              className={`p-2.5 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] hover:bg-[var(--primary-soft-hover)] transition-all active:scale-95 shrink-0 cursor-pointer ${
                 isPlayingAudio ? 'opacity-70' : ''
               }`}
               title="Kelime Telaffuzu Dinle"
@@ -253,19 +253,19 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
           {/* Turkish Meaning Area */}
           <div className="pt-2">
             {isFlipped ? (
-              <div className="p-4 bg-[#F7F5EF] rounded-xl border border-[#E4E1D9] animate-fadeIn space-y-2">
+              <div className="p-4 bg-[var(--neutral-50)] rounded-xl border border-[var(--border)] animate-fadeIn space-y-2">
                 <div>
-                  <span className="text-[10px] font-bold text-[#4F46A5] uppercase tracking-wider block mb-0.5">
+                  <span className="text-[10px] font-bold text-[var(--primary)] uppercase tracking-wider block mb-0.5">
                     Türkçe Anlamı
                   </span>
                   {card.turkishMeaning ? (
-                    <p className="text-lg font-bold text-[#1E2430] leading-snug">
+                    <p className="text-lg font-bold text-[var(--text-primary)] leading-snug">
                       {card.turkishMeaning}
                     </p>
                   ) : (
                     /* Anlamı henüz hazırlanmamış kayıt: uydurma karşılık
                        göstermek yerine durum açıkça söylenir. */
-                    <p className="text-sm text-[#8E95A2] leading-relaxed">
+                    <p className="text-sm text-[var(--text-muted)] leading-relaxed">
                       Bu kelimenin Türkçe karşılığı henüz hazırlanmadı.
                     </p>
                   )}
@@ -273,13 +273,13 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
 
                 {/* Multiple senses breakdown if available */}
                 {card.senses && card.senses.some((s) => s.turkishMeanings.length > 0) && (
-                  <div className="pt-2 border-t border-[#E4E1D9] space-y-1.5">
+                  <div className="pt-2 border-t border-[var(--border)] space-y-1.5">
                     {card.senses.filter((s) => s.turkishMeanings.length > 0).map((s, sIdx) => (
                       <div key={sIdx} className="text-xs">
-                        <span className="font-bold text-[#4F46A5] mr-1.5">{s.partOfSpeech}</span>
-                        <span className="text-[#1E2430] font-medium">{s.turkishMeanings.join('; ')}</span>
+                        <span className="font-bold text-[var(--primary)] mr-1.5">{s.partOfSpeech}</span>
+                        <span className="text-[var(--text-primary)] font-medium">{s.turkishMeanings.join('; ')}</span>
                         {s.usageNoteTr && (
-                          <span className="block text-[11px] text-[#687080] italic mt-0.5">
+                          <span className="block text-[11px] text-[var(--text-secondary)] italic mt-0.5">
                             {s.usageNoteTr}
                           </span>
                         )}
@@ -289,9 +289,9 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
                 )}
               </div>
             ) : (
-              <div className="flex items-center justify-between py-1.5 text-xs text-[#687080] font-medium group-hover:text-[#4F46A5] transition-colors">
+              <div className="flex items-center justify-between py-1.5 text-xs text-[var(--text-secondary)] font-medium group-hover:text-[var(--primary)] transition-colors">
                 <span className="flex items-center gap-1.5">
-                  <RotateCw className="w-3.5 h-3.5 text-[#8E95A2] group-hover:text-[#4F46A5]" />
+                  <RotateCw className="w-3.5 h-3.5 text-[var(--text-muted)] group-hover:text-[var(--primary)]" />
                   <span>Türkçe anlamı görmek için dokunun</span>
                 </span>
               </div>
@@ -304,7 +304,7 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
               {card.collocations.map((col, idx) => (
                 <span
                   key={idx}
-                  className="text-[11px] font-medium px-2 py-0.5 bg-[#F1EFE8] text-[#687080] rounded-md border border-[#E4E1D9]"
+                  className="text-[11px] font-medium px-2 py-0.5 bg-[var(--surface-soft)] text-[var(--text-secondary)] rounded-md border border-[var(--border)]"
                 >
                   🔗 {col}
                 </span>
@@ -317,16 +317,16 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
         <div className="px-4 pb-3">
           <button
             onClick={() => setShowExamples(!showExamples)}
-            className="w-full flex items-center justify-between py-2 px-3 text-xs font-semibold text-[#687080] bg-[#F8F7F3] hover:bg-[#F1EFE8] rounded-xl transition-colors border border-[#E4E1D9] cursor-pointer"
+            className="w-full flex items-center justify-between py-2 px-3 text-xs font-semibold text-[var(--text-secondary)] bg-[var(--bg)] hover:bg-[var(--surface-soft)] rounded-xl transition-colors border border-[var(--border)] cursor-pointer"
           >
             <span className="flex items-center gap-1.5">
-              <BookOpen className="w-3.5 h-3.5 text-[#4F46A5]" />
+              <BookOpen className="w-3.5 h-3.5 text-[var(--primary)]" />
               Örnek Cümleler ({card.examples?.length || 0})
             </span>
             {showExamples ? (
-              <ChevronUp className="w-3.5 h-3.5 text-[#8E95A2]" />
+              <ChevronUp className="w-3.5 h-3.5 text-[var(--text-muted)]" />
             ) : (
-              <ChevronDown className="w-3.5 h-3.5 text-[#8E95A2]" />
+              <ChevronDown className="w-3.5 h-3.5 text-[var(--text-muted)]" />
             )}
           </button>
 
@@ -336,21 +336,21 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
                 card.examples.map((ex, idx) => (
                   <div
                     key={idx}
-                    className="p-3 bg-[#F8F7F3] rounded-xl border border-[#E4E1D9] space-y-1"
+                    className="p-3 bg-[var(--bg)] rounded-xl border border-[var(--border)] space-y-1"
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <p className="text-xs text-[#1E2430] leading-relaxed font-medium">
-                        <strong className="text-[#4F46A5] mr-1">{idx + 1}.</strong> {ex.en}
+                      <p className="text-xs text-[var(--text-primary)] leading-relaxed font-medium">
+                        <strong className="text-[var(--primary)] mr-1">{idx + 1}.</strong> {ex.en}
                       </p>
                       <button
                         onClick={(e) => handlePlayAudio(e, ex.en)}
-                        className="p-1 text-[#8E95A2] hover:text-[#4F46A5] rounded transition-colors shrink-0 cursor-pointer"
+                        className="p-1 text-[var(--text-muted)] hover:text-[var(--primary)] rounded transition-colors shrink-0 cursor-pointer"
                         title="Cümleyi Sesli Dinle"
                       >
                         <Volume2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
-                    <p className="text-[#687080] italic pl-2.5 border-l-2 border-[#D7D2F4] text-[11px]">
+                    <p className="text-[var(--text-secondary)] italic pl-2.5 border-l-2 border-[var(--primary-border)] text-[11px]">
                       "{ex.tr}"
                     </p>
                   </div>
@@ -362,7 +362,7 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
                  * göstermektense durumu açıkça söylüyoruz: yanlış kalıp
                  * öğretmek, örnek göstermemekten kötüdür.
                  */
-                <p className="text-[#8E95A2] text-center py-3 text-[11px] leading-relaxed">
+                <p className="text-[var(--text-muted)] text-center py-3 text-[11px] leading-relaxed">
                   Bu kelime için doğrulanmış örnek cümle henüz yok.
                   <br />
                   Kendi kartını oluşturup {BRAND.aiName} ile örnek cümle hazırlatabilirsin.
@@ -374,7 +374,7 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
       </div>
 
       {/* Two Prominent Action Buttons: Öğrendim & Öğreniyorum */}
-      <div className="p-4 pt-2 border-t border-[#EFECE6]">
+      <div className="p-4 pt-2 border-t border-[var(--border-light)]">
         <LearningStatusControl
           status={currentStatus}
           onSetStatus={handleSetStatus}

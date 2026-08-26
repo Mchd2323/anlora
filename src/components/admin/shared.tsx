@@ -12,7 +12,7 @@ export const Card: React.FC<{ children: React.ReactNode; className?: string }> =
   children,
   className = ''
 }) => (
-  <div className={`bg-[#FFFFFF] p-5 rounded-2xl border border-[#E4E1D9] ${className}`}>
+  <div className={`bg-[var(--surface)] p-5 rounded-2xl border border-[var(--border)] ${className}`}>
     {children}
   </div>
 );
@@ -21,7 +21,7 @@ export const SectionTitle: React.FC<{ icon?: React.ReactNode; children: React.Re
   icon,
   children
 }) => (
-  <h3 className="text-xs font-bold uppercase tracking-wider text-[#8E95A2] flex items-center gap-1.5">
+  <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-1.5">
     {icon}
     {children}
   </h3>
@@ -33,17 +33,17 @@ export const Field: React.FC<{
   children: React.ReactNode;
 }> = ({ label, hint, children }) => (
   <div>
-    <label className="block text-[10px] font-bold uppercase tracking-wider text-[#8E95A2] mb-1">
+    <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">
       {label}
     </label>
     {children}
-    {hint && <p className="text-[10px] text-[#8E95A2] mt-1 leading-relaxed">{hint}</p>}
+    {hint && <p className="text-[10px] text-[var(--text-muted)] mt-1 leading-relaxed">{hint}</p>}
   </div>
 );
 
 export const inputClass =
-  'w-full px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl ' +
-  'focus:bg-white focus:outline-none focus:border-[#4F46A5] text-[#1E2430]';
+  'w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl ' +
+  'focus:bg-white focus:outline-none focus:border-[var(--primary)] text-[var(--text-primary)]';
 
 export const Button: React.FC<{
   children: React.ReactNode;
@@ -54,10 +54,10 @@ export const Button: React.FC<{
   className?: string;
 }> = ({ children, onClick, type = 'button', tone = 'quiet', disabled, className = '' }) => {
   const tones: Record<string, string> = {
-    primary: 'bg-[#4F46A5] hover:bg-[#433B91] text-white',
-    teal: 'bg-[#1F6F6B] hover:bg-[#195B58] text-white',
-    quiet: 'bg-[#F1EFE8] hover:bg-[#E4E1D9] text-[#1E2430]',
-    danger: 'bg-[#FAECEA] hover:bg-[#F6DFDC] text-[#C65D55]'
+    primary: 'bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white',
+    teal: 'bg-[var(--teal)] hover:bg-[var(--teal-hover)] text-white',
+    quiet: 'bg-[var(--surface-soft)] hover:bg-[var(--border)] text-[var(--text-primary)]',
+    danger: 'bg-[var(--danger-soft)] hover:bg-[var(--danger-soft-hover)] text-[var(--danger)]'
   };
   return (
     <button
@@ -78,9 +78,9 @@ export const Notice: React.FC<{ tone: 'error' | 'ok' | 'warn'; children: React.R
   children
 }) => {
   const tones = {
-    error: 'bg-[#FAECEA] border-[#F0CBC7] text-[#C65D55]',
-    ok: 'bg-[#E9F3ED] border-[#BFD7C8] text-[#35654E]',
-    warn: 'bg-[#FBF1DE] border-[#E7C98F] text-[#8A5A18]'
+    error: 'bg-[var(--danger-soft)] border-[var(--danger-border)] text-[var(--danger)]',
+    ok: 'bg-[var(--learned-soft)] border-[var(--learned-border)] text-[var(--learned-text)]',
+    warn: 'bg-[var(--learning-soft)] border-[var(--learning-border)] text-[var(--learning-text)]'
   };
   return (
     <div className={`p-3 rounded-xl border text-[11px] leading-relaxed ${tones[tone]}`}>
@@ -112,7 +112,7 @@ export const BarSeries: React.FC<{
           return (
             <div key={d.day} className="flex-1 flex flex-col justify-end items-center gap-1 group relative">
               {(i === peak || isLast) && d.count > 0 && (
-                <span className="text-[9px] font-bold text-[#687080] tabular-nums">{d.count}</span>
+                <span className="text-[9px] font-bold text-[var(--text-secondary)] tabular-nums">{d.count}</span>
               )}
               <div
                 className="w-full rounded-t-[4px] transition-opacity"
@@ -124,7 +124,7 @@ export const BarSeries: React.FC<{
               />
               <span
                 className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap
-                           rounded-lg bg-[#1E2430] px-2 py-1 text-[10px] font-semibold text-white opacity-0
+                           rounded-lg bg-[var(--text-primary)] px-2 py-1 text-[10px] font-semibold text-white opacity-0
                            group-hover:opacity-100 transition-opacity z-10"
               >
                 {d.day.slice(5)} · {d.count}
@@ -133,7 +133,7 @@ export const BarSeries: React.FC<{
           );
         })}
       </div>
-      <div className="flex justify-between text-[10px] text-[#8E95A2] font-medium">
+      <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-medium">
         <span>{data[0]?.day.slice(5)}</span>
         <span>bugün</span>
       </div>
@@ -149,12 +149,12 @@ export const StatTile: React.FC<{
 }> = ({ label, value, hint, tone = 'plain' }) => (
   <div
     className={`rounded-xl border p-3.5 ${
-      tone === 'accent' ? 'bg-[#EEECFA] border-[#D7D2F4]' : 'bg-[#F8F7F3] border-[#E4E1D9]'
+      tone === 'accent' ? 'bg-[var(--primary-soft)] border-[var(--primary-border)]' : 'bg-[var(--bg)] border-[var(--border)]'
     }`}
   >
-    <div className="text-[10px] font-bold uppercase tracking-wider text-[#8E95A2]">{label}</div>
-    <div className="text-2xl font-bold text-[#1E2430] mt-1 tabular-nums">{value}</div>
-    {hint && <div className="text-[11px] text-[#687080] mt-0.5">{hint}</div>}
+    <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">{label}</div>
+    <div className="text-2xl font-bold text-[var(--text-primary)] mt-1 tabular-nums">{value}</div>
+    {hint && <div className="text-[11px] text-[var(--text-secondary)] mt-0.5">{hint}</div>}
   </div>
 );
 

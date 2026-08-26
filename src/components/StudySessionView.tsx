@@ -288,22 +288,22 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
   if (!isSessionStarted) {
     return (
       <div className="max-w-[760px] mx-auto space-y-6 pb-safe-nav animate-fadeIn">
-        <div className="bg-[#FFFFFF] rounded-2xl p-6 sm:p-8 border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
+        <div className="bg-[var(--surface)] rounded-2xl p-6 sm:p-8 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
           <div className="text-center space-y-1.5">
-            <div className="w-10 h-10 rounded-xl bg-[#EEECFA] text-[#4F46A5] flex items-center justify-center mx-auto">
+            <div className="w-10 h-10 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center mx-auto">
               <Brain className="w-5 h-5" />
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-[#1E2430]">
+            <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
               Kartları Çalış
             </h2>
-            <p className="text-xs sm:text-sm text-[#687080] max-w-md mx-auto">
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)] max-w-md mx-auto">
               Aralıklı tekrar algoritması ile kelimeleri hafızana al.
             </p>
           </div>
 
           {/* Select Study Source */}
           <div className="space-y-2.5">
-            <label className="block text-xs font-bold text-[#687080] uppercase tracking-wider">
+            <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
               1. Çalışılacak Kaynağı Seç:
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -312,15 +312,15 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
                 onClick={() => setSelectedSource('DUE_TODAY')}
                 className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
                   selectedSource === 'DUE_TODAY'
-                    ? 'bg-[#EEECFA] border-[#4F46A5] text-[#1E2430] font-bold shadow-xs'
-                    : 'bg-[#F8F7F3] border-[#E4E1D9] text-[#1E2430] hover:bg-[#F1EFE8]'
+                    ? 'bg-[var(--primary-soft)] border-[var(--primary)] text-[var(--text-primary)] font-bold shadow-xs'
+                    : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-soft)]'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold">Bugünkü Tekrarlar</span>
-                  <Flame className="w-4 h-4 text-[#B97922]" />
+                  <Flame className="w-4 h-4 text-[var(--learning)]" />
                 </div>
-                <p className="text-[11px] text-[#687080] mt-0.5">Zamanı gelen kelimeler</p>
+                <p className="text-[11px] text-[var(--text-secondary)] mt-0.5">Zamanı gelen kelimeler</p>
               </button>
 
               <button
@@ -328,15 +328,15 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
                 onClick={() => setSelectedSource('WEAK_WORDS')}
                 className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
                   selectedSource === 'WEAK_WORDS'
-                    ? 'bg-[#EEECFA] border-[#4F46A5] text-[#1E2430] font-bold shadow-xs'
-                    : 'bg-[#F8F7F3] border-[#E4E1D9] text-[#1E2430] hover:bg-[#F1EFE8]'
+                    ? 'bg-[var(--primary-soft)] border-[var(--primary)] text-[var(--text-primary)] font-bold shadow-xs'
+                    : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-soft)]'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold">Zorlanılan Kelimeler</span>
-                  <Zap className="w-4 h-4 text-[#B75D6A]" />
+                  <Zap className="w-4 h-4 text-[var(--favorite)]" />
                 </div>
-                <p className="text-[11px] text-[#687080] mt-0.5">Hata yapılan kelimeler</p>
+                <p className="text-[11px] text-[var(--text-secondary)] mt-0.5">Hata yapılan kelimeler</p>
               </button>
 
               {collections.map(col => (
@@ -346,15 +346,15 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
                   onClick={() => setSelectedSource(col.id)}
                   className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
                     selectedSource === col.id
-                      ? 'bg-[#EEECFA] border-[#4F46A5] text-[#1E2430] font-bold shadow-xs'
-                      : 'bg-[#F8F7F3] border-[#E4E1D9] text-[#1E2430] hover:bg-[#F1EFE8]'
+                      ? 'bg-[var(--primary-soft)] border-[var(--primary)] text-[var(--text-primary)] font-bold shadow-xs'
+                      : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-soft)]'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold truncate">{col.name}</span>
-                    <Layers className="w-3.5 h-3.5 text-[#8E95A2]" />
+                    <Layers className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                   </div>
-                  <p className="text-[11px] text-[#687080] mt-0.5 truncate">{col.description || 'Özel Set'}</p>
+                  <p className="text-[11px] text-[var(--text-secondary)] mt-0.5 truncate">{col.description || 'Özel Set'}</p>
                 </button>
               ))}
             </div>
@@ -362,7 +362,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
 
           {/* Select Study Mode */}
           <div className="space-y-2.5 pt-1">
-            <label className="block text-xs font-bold text-[#687080] uppercase tracking-wider">
+            <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
               2. Hatırlama Modu:
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -378,12 +378,12 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
                   onClick={() => setStudyMode(m.id as any)}
                   className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
                     studyMode === m.id
-                      ? 'bg-[#4F46A5] border-[#4F46A5] text-white font-bold shadow-xs'
-                      : 'bg-[#F8F7F3] border-[#E4E1D9] text-[#1E2430] hover:bg-[#F1EFE8]'
+                      ? 'bg-[var(--primary)] border-[var(--primary)] text-white font-bold shadow-xs'
+                      : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-soft)]'
                   }`}
                 >
                   <span className="text-xs font-semibold block">{m.label}</span>
-                  <span className={`text-[10px] block mt-0.5 ${studyMode === m.id ? 'opacity-80' : 'text-[#687080]'}`}>
+                  <span className={`text-[10px] block mt-0.5 ${studyMode === m.id ? 'opacity-80' : 'text-[var(--text-secondary)]'}`}>
                     {m.desc}
                   </span>
                 </button>
@@ -394,7 +394,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
           {/* Start Button */}
           <button
             onClick={initializeQueue}
-            className="w-full py-3.5 bg-[#4F46A5] hover:bg-[#433B91] text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
+            className="w-full py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
           >
             <span>Seansı Başlat</span>
             <ArrowRight className="w-4 h-4" />
@@ -410,31 +410,31 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
   if (isCompleted) {
     return (
       <div className="max-w-[600px] mx-auto space-y-6 pb-safe-nav animate-fadeIn">
-        <div className="bg-[#FFFFFF] rounded-2xl p-8 border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)] text-center space-y-5">
-          <div className="w-12 h-12 rounded-xl bg-[#E9F3ED] text-[#4F806A] flex items-center justify-center mx-auto">
+        <div className="bg-[var(--surface)] rounded-2xl p-8 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] text-center space-y-5">
+          <div className="w-12 h-12 rounded-xl bg-[var(--learned-soft)] text-[var(--learned)] flex items-center justify-center mx-auto">
             <Award className="w-6 h-6" />
           </div>
 
           <div className="space-y-1">
-            <h2 className="text-2xl font-bold text-[#1E2430]">Tebrikler!</h2>
-            <p className="text-xs text-[#687080]">
+            <h2 className="text-2xl font-bold text-[var(--text-primary)]">Tebrikler!</h2>
+            <p className="text-xs text-[var(--text-secondary)]">
               Bu seanstaki tüm kartlar hafıza döngüne işlendi.
             </p>
           </div>
 
           {/* Summary Metric Badges */}
           <div className="grid grid-cols-3 gap-3">
-            <div className="p-3.5 bg-[#F8F7F3] rounded-xl border border-[#E4E1D9]">
-              <span className="text-[10px] font-bold text-[#8E95A2] block uppercase">ÇALIŞILAN</span>
-              <span className="text-xl font-bold text-[#1E2430]">{reviewedCount}</span>
+            <div className="p-3.5 bg-[var(--bg)] rounded-xl border border-[var(--border)]">
+              <span className="text-[10px] font-bold text-[var(--text-muted)] block uppercase">ÇALIŞILAN</span>
+              <span className="text-xl font-bold text-[var(--text-primary)]">{reviewedCount}</span>
             </div>
-            <div className="p-3.5 bg-[#E9F3ED] rounded-xl border border-[#BFD7C8]">
-              <span className="text-[10px] font-bold text-[#35654E] block uppercase">GÜÇLENEN</span>
-              <span className="text-xl font-bold text-[#35654E]">{upgradedCount}</span>
+            <div className="p-3.5 bg-[var(--learned-soft)] rounded-xl border border-[var(--learned-border)]">
+              <span className="text-[10px] font-bold text-[var(--learned-text)] block uppercase">GÜÇLENEN</span>
+              <span className="text-xl font-bold text-[var(--learned-text)]">{upgradedCount}</span>
             </div>
-            <div className="p-3.5 bg-[#FAECEA] rounded-xl border border-[#F0CBC7]">
-              <span className="text-[10px] font-bold text-[#C65D55] block uppercase">HATA</span>
-              <span className="text-xl font-bold text-[#C65D55]">{mistakeWordIds.size}</span>
+            <div className="p-3.5 bg-[var(--danger-soft)] rounded-xl border border-[var(--danger-border)]">
+              <span className="text-[10px] font-bold text-[var(--danger)] block uppercase">HATA</span>
+              <span className="text-xl font-bold text-[var(--danger)]">{mistakeWordIds.size}</span>
             </div>
           </div>
 
@@ -444,13 +444,13 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
                 setIsSessionStarted(false);
                 setIsCompleted(false);
               }}
-              className="flex-1 py-2.5 bg-[#4F46A5] hover:bg-[#433B91] text-white font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+              className="flex-1 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
             >
               Yeni Seans Başlat
             </button>
             <button
               onClick={onExitSession}
-              className="flex-1 py-2.5 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#1E2430] font-semibold text-xs rounded-xl border border-[#E4E1D9] transition-all cursor-pointer"
+              className="flex-1 py-2.5 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] font-semibold text-xs rounded-xl border border-[var(--border)] transition-all cursor-pointer"
             >
               Tamamla ve Dön
             </button>
@@ -486,35 +486,35 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
       <div className="flex items-center justify-between gap-4">
         <button
           onClick={onExitSession}
-          className="text-xs font-semibold text-[#687080] hover:text-[#1E2430] transition-colors cursor-pointer"
+          className="text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
         >
           &larr; Seanstan Çık
         </button>
 
         <div className="flex items-center gap-3 flex-1 max-w-xs">
-          <div className="flex-1 h-2 bg-[#E4E1D9] rounded-full overflow-hidden">
+          <div className="flex-1 h-2 bg-[var(--border)] rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#4F46A5] transition-all duration-300 rounded-full"
+              className="h-full bg-[var(--primary)] transition-all duration-300 rounded-full"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
-          <span className="text-xs font-bold text-[#687080] whitespace-nowrap font-mono">
+          <span className="text-xs font-bold text-[var(--text-secondary)] whitespace-nowrap font-mono">
             {currentIndex + 1} / {queue.length}
           </span>
         </div>
       </div>
 
       {/* Main Flashcard Container */}
-      <div className="bg-[#FFFFFF] rounded-2xl border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)] overflow-hidden">
+      <div className="bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] overflow-hidden">
         {/* Card Header Bar */}
-        <div className="p-4 pb-3 border-b border-[#EFECE6] flex items-center justify-between text-xs">
+        <div className="p-4 pb-3 border-b border-[var(--border-light)] flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
             <CEFRBadge level={card.level || 'B1'} size="sm" />
-            <span className="font-semibold text-[#687080]">
+            <span className="font-semibold text-[var(--text-secondary)]">
               {card.partOfSpeech}
             </span>
             {currentItem.collectionName && (
-              <span className="text-[11px] text-[#8E95A2] truncate max-w-[150px]">
+              <span className="text-[11px] text-[var(--text-muted)] truncate max-w-[150px]">
                 • {currentItem.collectionName}
               </span>
             )}
@@ -522,7 +522,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
 
           <button
             onClick={() => speakText(card.word)}
-            className="p-1.5 text-[#4F46A5] hover:bg-[#EEECFA] rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 text-[var(--primary)] hover:bg-[var(--primary-soft)] rounded-lg transition-colors cursor-pointer"
             title="Kelime Telaffuzu"
           >
             <Volume2 className="w-4 h-4" />
@@ -537,36 +537,36 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
               onClick={() => setIsFlipped(!isFlipped)}
               className="cursor-pointer select-none space-y-3 w-full"
             >
-              <h3 className="text-3xl sm:text-4xl font-bold text-[#1E2430] tracking-tight">
+              <h3 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] tracking-tight">
                 {card.word}
               </h3>
               {card.phonetic && (
-                <p className="text-xs font-mono text-[#687080]">{card.phonetic}</p>
+                <p className="text-xs font-mono text-[var(--text-secondary)]">{card.phonetic}</p>
               )}
 
               {/* Source Context Anchor */}
               {currentItem.sourceContext && (
-                <div className="p-3 bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl text-xs text-[#1E2430] italic max-w-md mx-auto">
+                <div className="p-3 bg-[var(--bg)] border border-[var(--border)] rounded-xl text-xs text-[var(--text-primary)] italic max-w-md mx-auto">
                   "{currentItem.sourceContext}"
                 </div>
               )}
 
               <div className="pt-3">
                 {isFlipped ? (
-                  <div className="p-4 bg-[#F7F5EF] rounded-xl border border-[#E4E1D9] text-[#1E2430] animate-fadeIn space-y-1">
-                    <span className="text-[10px] font-bold text-[#4F46A5] uppercase tracking-wider block">
+                  <div className="p-4 bg-[var(--neutral-50)] rounded-xl border border-[var(--border)] text-[var(--text-primary)] animate-fadeIn space-y-1">
+                    <span className="text-[10px] font-bold text-[var(--primary)] uppercase tracking-wider block">
                       TÜRKÇE ANLAMI
                     </span>
-                    <p className="text-lg font-bold text-[#1E2430]">{card.turkishMeaning}</p>
+                    <p className="text-lg font-bold text-[var(--text-primary)]">{card.turkishMeaning}</p>
                     {card.examples && card.examples[0] && (
-                      <p className="text-xs text-[#687080] italic pt-2 border-t border-[#E4E1D9]">
+                      <p className="text-xs text-[var(--text-secondary)] italic pt-2 border-t border-[var(--border)]">
                         "{card.examples[0].en}" — {card.examples[0].tr}
                       </p>
                     )}
                   </div>
                 ) : (
-                  <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#F8F7F3] hover:bg-[#F1EFE8] rounded-xl text-xs font-semibold text-[#687080] transition-colors border border-[#E4E1D9]">
-                    <RotateCw className="w-3.5 h-3.5 text-[#8E95A2]" />
+                  <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[var(--bg)] hover:bg-[var(--surface-soft)] rounded-xl text-xs font-semibold text-[var(--text-secondary)] transition-colors border border-[var(--border)]">
+                    <RotateCw className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                     <span>Anlamı Görmek İçin Dokun</span>
                   </div>
                 )}
@@ -578,12 +578,12 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
           {currentMode === 'typed' && (
             <div className="w-full space-y-4">
               <div className="space-y-1">
-                <span className="text-[10px] font-bold text-[#8E95A2] uppercase tracking-wider">
+                <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
                   TÜRKÇE ANLAMI:
                 </span>
-                <h3 className="text-2xl font-bold text-[#1E2430]">{card.turkishMeaning}</h3>
+                <h3 className="text-2xl font-bold text-[var(--text-primary)]">{card.turkishMeaning}</h3>
                 {card.partOfSpeech && (
-                  <span className="text-xs text-[#4F46A5] font-semibold">({card.partOfSpeech})</span>
+                  <span className="text-xs text-[var(--primary)] font-semibold">({card.partOfSpeech})</span>
                 )}
               </div>
 
@@ -595,31 +595,31 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
                     onChange={(e) => setTypedInput(e.target.value)}
                     placeholder="İngilizce kelimeyi yaz..."
                     autoFocus
-                    className="w-full px-4 py-2.5 text-center text-sm font-bold bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:outline-none focus:border-[#4F46A5] text-[#1E2430]"
+                    className="w-full px-4 py-2.5 text-center text-sm font-bold bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] text-[var(--text-primary)]"
                   />
                   <button
                     type="submit"
                     disabled={!typedInput.trim()}
-                    className="w-full py-2 bg-[#4F46A5] hover:bg-[#433B91] disabled:opacity-50 text-white text-xs font-semibold rounded-xl transition-all cursor-pointer"
+                    className="w-full py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 text-white text-xs font-semibold rounded-xl transition-all cursor-pointer"
                   >
                     Cevabı Kontrol Et
                   </button>
                 </form>
               ) : (
                 <div className="space-y-2 animate-fadeIn">
-                  <div className={`p-3.5 rounded-xl border ${typedResult?.isCorrect ? 'bg-[#E9F3ED] border-[#BFD7C8]' : 'bg-[#FAECEA] border-[#F0CBC7]'}`}>
+                  <div className={`p-3.5 rounded-xl border ${typedResult?.isCorrect ? 'bg-[var(--learned-soft)] border-[var(--learned-border)]' : 'bg-[var(--danger-soft)] border-[var(--danger-border)]'}`}>
                     <div className="flex items-center justify-center gap-1.5 mb-1">
                       {typedResult?.isCorrect ? (
-                        <CheckCircle2 className="w-4 h-4 text-[#4F806A]" />
+                        <CheckCircle2 className="w-4 h-4 text-[var(--learned)]" />
                       ) : (
-                        <XCircle className="w-4 h-4 text-[#C65D55]" />
+                        <XCircle className="w-4 h-4 text-[var(--danger)]" />
                       )}
-                      <span className={`text-xs font-bold ${typedResult?.isCorrect ? 'text-[#35654E]' : 'text-[#C65D55]'}`}>
+                      <span className={`text-xs font-bold ${typedResult?.isCorrect ? 'text-[var(--learned-text)]' : 'text-[var(--danger)]'}`}>
                         {typedResult?.isCorrect ? (typedResult.isTypo ? 'Doğru (Küçük İmla Farkı)' : 'Doğru Cevap') : 'Yanlış Cevap'}
                       </span>
                     </div>
 
-                    <p className="text-base font-bold text-[#1E2430]">{card.word}</p>
+                    <p className="text-base font-bold text-[var(--text-primary)]">{card.word}</p>
                   </div>
                 </div>
               )}
@@ -631,22 +631,22 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
             <div className="w-full space-y-4">
               <button
                 onClick={() => speakText(card.word)}
-                className="w-14 h-14 rounded-2xl bg-[#EEECFA] text-[#4F46A5] flex items-center justify-center mx-auto hover:bg-[#E3DFF6] transition-transform active:scale-95 cursor-pointer"
+                className="w-14 h-14 rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center mx-auto hover:bg-[var(--primary-soft-hover)] transition-transform active:scale-95 cursor-pointer"
               >
                 <Volume2 className="w-6 h-6 stroke-[2.2]" />
               </button>
-              <p className="text-xs text-[#687080]">Telaffuzu dinle ve kelimeyi hatırla</p>
+              <p className="text-xs text-[var(--text-secondary)]">Telaffuzu dinle ve kelimeyi hatırla</p>
 
               <div className="pt-1">
                 {isFlipped ? (
-                  <div className="p-4 bg-[#F7F5EF] rounded-xl border border-[#E4E1D9] animate-fadeIn space-y-1">
-                    <h3 className="text-xl font-bold text-[#1E2430]">{card.word}</h3>
-                    <p className="text-xs font-bold text-[#4F46A5]">{card.turkishMeaning}</p>
+                  <div className="p-4 bg-[var(--neutral-50)] rounded-xl border border-[var(--border)] animate-fadeIn space-y-1">
+                    <h3 className="text-xl font-bold text-[var(--text-primary)]">{card.word}</h3>
+                    <p className="text-xs font-bold text-[var(--primary)]">{card.turkishMeaning}</p>
                   </div>
                 ) : (
                   <button
                     onClick={() => setIsFlipped(true)}
-                    className="px-4 py-2 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#1E2430] text-xs font-semibold rounded-xl border border-[#E4E1D9] cursor-pointer"
+                    className="px-4 py-2 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] text-xs font-semibold rounded-xl border border-[var(--border)] cursor-pointer"
                   >
                     Kartı Çevir
                   </button>
@@ -658,25 +658,25 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
           {/* Mode 4: Cloze Context */}
           {currentMode === 'cloze' && (
             <div className="w-full space-y-3">
-              <span className="text-[10px] font-bold text-[#8E95A2] uppercase tracking-wider block">
+              <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block">
                 CÜMLEDEKİ BOŞLUĞU TAMAMLA:
               </span>
 
               {clozeSentence ? (
-                <div className="p-4 bg-[#F8F7F3] rounded-xl border border-[#E4E1D9] text-xs font-medium text-[#1E2430] leading-relaxed max-w-lg mx-auto">
+                <div className="p-4 bg-[var(--bg)] rounded-xl border border-[var(--border)] text-xs font-medium text-[var(--text-primary)] leading-relaxed max-w-lg mx-auto">
                   {clozeSentence.blanked}
-                  <p className="text-[11px] text-[#687080] italic mt-1.5">
+                  <p className="text-[11px] text-[var(--text-secondary)] italic mt-1.5">
                     "{clozeSentence.tr}"
                   </p>
                 </div>
               ) : (
-                <p className="text-sm font-bold text-[#1E2430]">{card.turkishMeaning}</p>
+                <p className="text-sm font-bold text-[var(--text-primary)]">{card.turkishMeaning}</p>
               )}
 
               {isFlipped ? (
-                <div className="p-3 bg-[#E9F3ED] rounded-xl border border-[#BFD7C8] animate-fadeIn">
-                  <span className="text-[11px] font-bold text-[#35654E]">Doğru Kelime:</span>
-                  <p className="text-lg font-bold text-[#35654E]">{card.word}</p>
+                <div className="p-3 bg-[var(--learned-soft)] rounded-xl border border-[var(--learned-border)] animate-fadeIn">
+                  <span className="text-[11px] font-bold text-[var(--learned-text)]">Doğru Kelime:</span>
+                  <p className="text-lg font-bold text-[var(--learned-text)]">{card.word}</p>
                 </div>
               ) : (
                 <button
@@ -684,7 +684,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
                     setIsFlipped(true);
                     speakText(card.word);
                   }}
-                  className="px-4 py-2 bg-[#4F46A5] text-white text-xs font-semibold rounded-xl hover:bg-[#433B91] cursor-pointer"
+                  className="px-4 py-2 bg-[var(--primary)] text-white text-xs font-semibold rounded-xl hover:bg-[var(--primary-hover)] cursor-pointer"
                 >
                   Cevabı Göster
                 </button>
@@ -706,14 +706,14 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
           * çevriliyor, aralık merdiveni ve ustalık puanı aynen çalışıyor.
           */}
         {(isFlipped || isAnswerSubmitted) && (
-          <div className="p-4 bg-[#F8F7F3] border-t border-[#EFECE6] space-y-2.5 animate-fadeIn">
-            <span className="text-[10px] font-bold text-[#8E95A2] uppercase tracking-wider block text-center">
+          <div className="p-4 bg-[var(--bg)] border-t border-[var(--border-light)] space-y-2.5 animate-fadeIn">
+            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block text-center">
               Bu kelimeyi biliyor musun?
             </span>
             <div className="grid grid-cols-2 gap-2.5">
               <button
                 onClick={() => handleGradeResponse('again')}
-                className="py-3 px-3 rounded-xl bg-[#FBF1DE] hover:bg-[#F5E2BE] text-[#8A5A18] border border-[#E7C98F] text-sm font-bold transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer min-h-[48px]"
+                className="py-3 px-3 rounded-xl bg-[var(--learning-soft)] hover:bg-[var(--learning-tint)] text-[var(--learning-text)] border border-[var(--learning-border)] text-sm font-bold transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer min-h-[48px]"
               >
                 <RotateCcw className="w-4 h-4" />
                 <span>Tekrar Et</span>
@@ -721,7 +721,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
 
               <button
                 onClick={() => handleGradeResponse('good')}
-                className="py-3 px-3 rounded-xl bg-[#E9F3ED] hover:bg-[#D5EADF] text-[#35654E] border border-[#BFD7C8] text-sm font-bold transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer min-h-[48px]"
+                className="py-3 px-3 rounded-xl bg-[var(--learned-soft)] hover:bg-[var(--learned-tint)] text-[var(--learned-text)] border border-[var(--learned-border)] text-sm font-bold transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer min-h-[48px]"
               >
                 <Check className="w-4 h-4" />
                 <span>Öğrendim</span>

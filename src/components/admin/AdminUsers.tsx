@@ -98,9 +98,9 @@ export const AdminUsers: React.FC = () => {
 
       <Card className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <SectionTitle>Kullanıcılar {total > 0 && <span className="text-[#687080]">({total})</span>}</SectionTitle>
+          <SectionTitle>Kullanıcılar {total > 0 && <span className="text-[var(--text-secondary)]">({total})</span>}</SectionTitle>
           <div className="relative sm:w-64">
-            <Search className="w-4 h-4 text-[#8E95A2] absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[var(--text-muted)] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={query}
@@ -112,46 +112,46 @@ export const AdminUsers: React.FC = () => {
         </div>
 
         {users.length === 0 ? (
-          <p className="text-xs text-[#687080] py-8 text-center">Eşleşen hesap yok.</p>
+          <p className="text-xs text-[var(--text-secondary)] py-8 text-center">Eşleşen hesap yok.</p>
         ) : (
           <div className="space-y-2">
             {users.map(user => (
-              <div key={user.email} className="rounded-xl border border-[#E4E1D9] p-3.5 space-y-2.5 bg-[#FAF9F5]">
+              <div key={user.email} className="rounded-xl border border-[var(--border)] p-3.5 space-y-2.5 bg-[var(--surface-subtle)]">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-bold text-[#1E2430] break-all">{user.email}</span>
+                    <span className="text-sm font-bold text-[var(--text-primary)] break-all">{user.email}</span>
                     {user.isAdmin && (
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#1E2430] text-white">YÖNETİCİ</span>
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[var(--text-primary)] text-white">YÖNETİCİ</span>
                     )}
                     {user.banned && (
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#FAECEA] text-[#C65D55]">ENGELLİ</span>
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[var(--danger-soft)] text-[var(--danger)]">ENGELLİ</span>
                     )}
                     {user.emailVerified ? (
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#E9F3ED] text-[#35654E]">DOĞRULANMIŞ</span>
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[var(--learned-soft)] text-[var(--learned-text)]">DOĞRULANMIŞ</span>
                     ) : (
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#FBF1DE] text-[#8A5A18]">BEKLİYOR</span>
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[var(--learning-soft)] text-[var(--learning-text)]">BEKLİYOR</span>
                     )}
                   </div>
-                  <p className="text-[11px] text-[#687080] mt-0.5">
+                  <p className="text-[11px] text-[var(--text-secondary)] mt-0.5">
                     {user.name || 'İsimsiz'}
                     {user.city ? ` · ${user.city}` : ''}
                     {user.country ? `, ${user.country}` : ''} · {user.authProvider} · kayıt{' '}
                     {formatDate(user.createdAt)} · son görülme {formatDate(user.lastActive)}
                   </p>
                   {user.banned && user.bannedReason && (
-                    <p className="text-[11px] text-[#C65D55] mt-0.5">Engel sebebi: {user.bannedReason}</p>
+                    <p className="text-[11px] text-[var(--danger)] mt-0.5">Engel sebebi: {user.bannedReason}</p>
                   )}
                 </div>
 
-                <div className="flex flex-wrap gap-1.5 text-[10px] font-semibold text-[#687080]">
-                  <span className="px-2 py-1 rounded-lg bg-white border border-[#E4E1D9]">{user.counts.collections} set</span>
-                  <span className="px-2 py-1 rounded-lg bg-white border border-[#E4E1D9]">{user.counts.customWords} kendi kelimesi</span>
-                  <span className="px-2 py-1 rounded-lg bg-white border border-[#E4E1D9]">{user.counts.learningStates} çalışılan</span>
-                  <span className="px-2 py-1 rounded-lg bg-white border border-[#E4E1D9]">{user.activeSessions} oturum</span>
-                  <span className="px-2 py-1 rounded-lg bg-white border border-[#E4E1D9]">yedek {formatBytes(user.backupBytes)}</span>
+                <div className="flex flex-wrap gap-1.5 text-[10px] font-semibold text-[var(--text-secondary)]">
+                  <span className="px-2 py-1 rounded-lg bg-white border border-[var(--border)]">{user.counts.collections} set</span>
+                  <span className="px-2 py-1 rounded-lg bg-white border border-[var(--border)]">{user.counts.customWords} kendi kelimesi</span>
+                  <span className="px-2 py-1 rounded-lg bg-white border border-[var(--border)]">{user.counts.learningStates} çalışılan</span>
+                  <span className="px-2 py-1 rounded-lg bg-white border border-[var(--border)]">{user.activeSessions} oturum</span>
+                  <span className="px-2 py-1 rounded-lg bg-white border border-[var(--border)]">yedek {formatBytes(user.backupBytes)}</span>
                 </div>
 
-                <div className="flex flex-wrap gap-1.5 pt-1 border-t border-[#EFECE6]">
+                <div className="flex flex-wrap gap-1.5 pt-1 border-t border-[var(--border-light)]">
                   {!user.emailVerified && (
                     <Button disabled={busy === user.email} onClick={() => void act(user.email, 'verify')}>
                       <CheckCircle2 className="w-3.5 h-3.5" /> Elle doğrula
@@ -204,12 +204,12 @@ export const AdminUsers: React.FC = () => {
         <Card className="space-y-3">
           <div className="flex items-center justify-between">
             <SectionTitle>Hesabı engelle</SectionTitle>
-            <button type="button" onClick={() => setBanTarget(null)} className="p-1.5 text-[#8E95A2] cursor-pointer" aria-label="Kapat">
+            <button type="button" onClick={() => setBanTarget(null)} className="p-1.5 text-[var(--text-muted)] cursor-pointer" aria-label="Kapat">
               <X className="w-4 h-4" />
             </button>
           </div>
-          <p className="text-xs text-[#687080] leading-relaxed">
-            <b className="text-[#1E2430]">{banTarget.email}</b> giriş yapamaz ve açık oturumları
+          <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+            <b className="text-[var(--text-primary)]">{banTarget.email}</b> giriş yapamaz ve açık oturumları
             kapanır. Engel <b>silme değildir</b>: verisi durur, istediğinde geri alabilirsin.
           </p>
           <Field label="Sebep" hint="Kullanıcıya giriş ekranında gösterilir.">
@@ -241,12 +241,12 @@ export const AdminUsers: React.FC = () => {
         <Card className="space-y-3">
           <div className="flex items-center justify-between">
             <SectionTitle>Hesabı kalıcı olarak sil</SectionTitle>
-            <button type="button" onClick={() => setDeleteTarget(null)} className="p-1.5 text-[#8E95A2] cursor-pointer" aria-label="Kapat">
+            <button type="button" onClick={() => setDeleteTarget(null)} className="p-1.5 text-[var(--text-muted)] cursor-pointer" aria-label="Kapat">
               <X className="w-4 h-4" />
             </button>
           </div>
-          <p className="text-xs text-[#687080] leading-relaxed">
-            <b className="text-[#1E2430]">{deleteTarget.email}</b> hesabı ve bulut yedeği kalıcı
+          <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+            <b className="text-[var(--text-primary)]">{deleteTarget.email}</b> hesabı ve bulut yedeği kalıcı
             olarak silinecek. Geri alınamaz. Onaylamak için e-posta adresini birebir yaz.
           </p>
           <input

@@ -213,38 +213,38 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   return (
     <div className="space-y-6 pb-safe-nav max-w-[880px] mx-auto animate-fadeIn">
       {/* 1. Profil Başlık ve Hesap Kartı */}
-      <div className="bg-[#FFFFFF] rounded-2xl p-6 sm:p-7 border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
+      <div className="bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
         <div className="flex items-center gap-3.5">
-          <div className="w-13 h-13 rounded-2xl bg-[#EEECFA] text-[#4F46A5] flex items-center justify-center font-bold text-xl border border-[#D7D2F4]">
+          <div className="w-13 h-13 rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center font-bold text-xl border border-[var(--primary-border)]">
             {profile.isLoggedIn && profile.name
               ? profile.name.slice(0, 1).toUpperCase()
               : <User className="w-6 h-6" />}
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold text-[#1E2430]">
+              <h2 className="text-xl font-bold text-[var(--text-primary)]">
                 {profile.isLoggedIn ? profile.name || 'Öğrenci' : 'Misafir Kullanıcı'}
               </h2>
               {profile.isLoggedIn && (
                 <div className="flex items-center gap-1.5">
-                  <span className="px-2 py-0.5 rounded-md bg-[#E9F3ED] text-[#35654E] font-bold text-[10px] border border-[#BFD7C8]">
+                  <span className="px-2 py-0.5 rounded-md bg-[var(--learned-soft)] text-[var(--learned-text)] font-bold text-[10px] border border-[var(--learned-border)]">
                     Üye
                   </span>
                   {profile.emailVerified && (
-                    <span className="px-2 py-0.5 rounded-md bg-[#EEECFA] text-[#4F46A5] font-bold text-[10px] border border-[#D7D2F4]">
+                    <span className="px-2 py-0.5 rounded-md bg-[var(--primary-soft)] text-[var(--primary)] font-bold text-[10px] border border-[var(--primary-border)]">
                       Doğrulandı
                     </span>
                   )}
                 </div>
               )}
             </div>
-            <p className="text-xs text-[#687080] mt-0.5">
+            <p className="text-xs text-[var(--text-secondary)] mt-0.5">
               {profile.isLoggedIn
                 ? profile.email || 'Hesabın senkronize ediliyor'
                 : 'İlerlemen bu tarayıcıda kaydedilmektedir.'}
             </p>
             {profile.isLoggedIn && profile.city && (
-              <p className="text-[11px] font-medium text-[#8E95A2] mt-0.5 flex items-center gap-1">
+              <p className="text-[11px] font-medium text-[var(--text-muted)] mt-0.5 flex items-center gap-1">
                 <span>📍 {profile.city}, {profile.country || 'Türkiye'}</span>
               </p>
             )}
@@ -255,15 +255,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           {profile.isLoggedIn ? (
             <button
               onClick={onLogout}
-              className="px-3.5 py-2 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#1E2430] text-xs font-semibold rounded-xl border border-[#E4E1D9] transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-2 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] text-xs font-semibold rounded-xl border border-[var(--border)] transition-colors flex items-center gap-1.5 cursor-pointer"
             >
-              <LogOut className="w-3.5 h-3.5 text-[#687080]" />
+              <LogOut className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
               <span>Çıkış Yap</span>
             </button>
           ) : (
             <button
               onClick={onOpenAuthModal}
-              className="px-4 py-2 bg-[#4F46A5] hover:bg-[#433B91] active:scale-[0.98] text-white text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-white text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <LogIn className="w-3.5 h-3.5" />
               <span>Giriş Yap / Ücretsiz Hesap Aç</span>
@@ -274,18 +274,18 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
       {/* Guest Callout if not logged in */}
       {!profile.isLoggedIn && (
-        <div className="p-5 rounded-2xl bg-[#FBF1DE]/60 border border-[#E7C98F] text-[#8A5A18] space-y-2">
-          <div className="font-bold text-xs flex items-center gap-1.5 text-[#8A5A18]">
-            <Shield className="w-4 h-4 text-[#B97922]" />
+        <div className="p-5 rounded-2xl bg-[var(--learning-soft)]/60 border border-[var(--learning-border)] text-[var(--learning-text)] space-y-2">
+          <div className="font-bold text-xs flex items-center gap-1.5 text-[var(--learning-text)]">
+            <Shield className="w-4 h-4 text-[var(--learning)]" />
             <span>Anlora'yı misafir olarak kullanıyorsun</span>
           </div>
-          <p className="text-xs text-[#8A5A18] leading-relaxed">
+          <p className="text-xs text-[var(--learning-text)] leading-relaxed">
             Oxford ilerlemen bu cihazda saklanıyor. Kendi Kelime Setlerini oluşturmak için hesap açabilirsin.
           </p>
           <div className="pt-0.5">
             <button
               onClick={onOpenAuthModal}
-              className="px-3.5 py-1.5 bg-[#B97922] hover:bg-[#A3681B] text-white font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+              className="px-3.5 py-1.5 bg-[var(--learning)] hover:bg-[var(--learning-hover)] text-white font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
             >
               Hesap Oluştur
             </button>
@@ -294,9 +294,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       )}
 
       {/* 2. Genel Öğrenme İstatistikleri */}
-      <div className="bg-[#FFFFFF] rounded-2xl p-6 sm:p-7 border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-4">
-        <h3 className="text-sm font-bold text-[#1E2430] flex items-center gap-1.5">
-          <Award className="w-4 h-4 text-[#4F46A5]" />
+      <div className="bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-4">
+        <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+          <Award className="w-4 h-4 text-[var(--primary)]" />
           <span>Genel Öğrenme Durumu</span>
         </h3>
 
@@ -304,54 +304,54 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <button
             type="button"
             onClick={() => onOpenOxfordStatus?.('LEARNED')}
-            className="p-4 bg-[#E9F3ED] rounded-xl border border-[#BFD7C8] text-center transition-colors hover:bg-[#DCEDE3] cursor-pointer"
+            className="p-4 bg-[var(--learned-soft)] rounded-xl border border-[var(--learned-border)] text-center transition-colors hover:bg-[var(--learned-soft-strong)] cursor-pointer"
           >
-            <CheckCircle2 className="w-5 h-5 text-[#4F806A] mx-auto mb-1" />
-            <div className="text-2xl font-bold text-[#35654E]">
+            <CheckCircle2 className="w-5 h-5 text-[var(--learned)] mx-auto mb-1" />
+            <div className="text-2xl font-bold text-[var(--learned-text)]">
               {learningSummary.learnedCount}
             </div>
-            <div className="text-[10px] font-bold text-[#35654E] uppercase mt-0.5">
+            <div className="text-[10px] font-bold text-[var(--learned-text)] uppercase mt-0.5">
               Öğrendim
             </div>
-            <div className="text-[9px] text-[#4F806A] mt-1 font-semibold">Listeyi aç →</div>
+            <div className="text-[9px] text-[var(--learned)] mt-1 font-semibold">Listeyi aç →</div>
           </button>
 
           <button
             type="button"
             onClick={() => onOpenOxfordStatus?.('LEARNING')}
-            className="p-4 bg-[#FBF1DE] rounded-xl border border-[#E7C98F] text-center transition-colors hover:bg-[#F6E7CB] cursor-pointer"
+            className="p-4 bg-[var(--learning-soft)] rounded-xl border border-[var(--learning-border)] text-center transition-colors hover:bg-[var(--learning-soft-strong)] cursor-pointer"
           >
-            <RefreshCw className="w-5 h-5 text-[#B97922] mx-auto mb-1" />
-            <div className="text-2xl font-bold text-[#8A5A18]">
+            <RefreshCw className="w-5 h-5 text-[var(--learning)] mx-auto mb-1" />
+            <div className="text-2xl font-bold text-[var(--learning-text)]">
               {learningSummary.learningCount}
             </div>
-            <div className="text-[10px] font-bold text-[#8A5A18] uppercase mt-0.5">
+            <div className="text-[10px] font-bold text-[var(--learning-text)] uppercase mt-0.5">
               Öğreniyorum
             </div>
-            <div className="text-[9px] text-[#B97922] mt-1 font-semibold">Listeyi aç →</div>
+            <div className="text-[9px] text-[var(--learning)] mt-1 font-semibold">Listeyi aç →</div>
           </button>
 
           <button
             type="button"
             onClick={() => onOpenOxfordStatus?.('FAVORITES')}
-            className="p-4 bg-[#FAECEA] rounded-xl border border-[#F0CBC7] text-center transition-colors hover:bg-[#F6DFDC] cursor-pointer"
+            className="p-4 bg-[var(--danger-soft)] rounded-xl border border-[var(--danger-border)] text-center transition-colors hover:bg-[var(--danger-soft-hover)] cursor-pointer"
           >
-            <Heart className="w-5 h-5 text-[#B75D6A] mx-auto mb-1" />
-            <div className="text-2xl font-bold text-[#C65D55]">
+            <Heart className="w-5 h-5 text-[var(--favorite)] mx-auto mb-1" />
+            <div className="text-2xl font-bold text-[var(--danger)]">
               {favorites.length}
             </div>
-            <div className="text-[10px] font-bold text-[#C65D55] uppercase mt-0.5">
+            <div className="text-[10px] font-bold text-[var(--danger)] uppercase mt-0.5">
               Favori Kelimem
             </div>
-            <div className="text-[9px] text-[#B75D6A] mt-1 font-semibold">Listeyi aç →</div>
+            <div className="text-[9px] text-[var(--favorite)] mt-1 font-semibold">Listeyi aç →</div>
           </button>
 
-          <div className="p-4 bg-[#EEECFA] rounded-xl border border-[#D7D2F4] text-center">
-            <BrainCircuit className="w-5 h-5 text-[#4F46A5] mx-auto mb-1" />
-            <div className="text-2xl font-bold text-[#4F46A5]">
+          <div className="p-4 bg-[var(--primary-soft)] rounded-xl border border-[var(--primary-border)] text-center">
+            <BrainCircuit className="w-5 h-5 text-[var(--primary)] mx-auto mb-1" />
+            <div className="text-2xl font-bold text-[var(--primary)]">
               {stats.totalQuizzesTaken || 0}
             </div>
-            <div className="text-[10px] font-bold text-[#4F46A5] uppercase mt-0.5">
+            <div className="text-[10px] font-bold text-[var(--primary)] uppercase mt-0.5">
               Çözülen Sınav
             </div>
           </div>
@@ -359,17 +359,17 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       </div>
 
       {/* 3. Oxford 5000 Seviye İlerlemesi */}
-      <div className="bg-[#FFFFFF] rounded-2xl p-6 sm:p-7 border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-4">
+      <div className="bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-[#1E2430] flex items-center gap-1.5">
-            <BookOpen className="w-4 h-4 text-[#4F46A5]" />
+          <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+            <BookOpen className="w-4 h-4 text-[var(--primary)]" />
             <span>Oxford 5000 Seviye Dağılımı</span>
           </h3>
 
           {onNavigateToTab && (
             <button
               onClick={() => onNavigateToTab('oxford')}
-              className="text-xs font-bold text-[#4F46A5] hover:text-[#433B91] cursor-pointer"
+              className="text-xs font-bold text-[var(--primary)] hover:text-[var(--primary-hover)] cursor-pointer"
             >
               Oxford 5000'e Git →
             </button>
@@ -391,37 +391,37 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   if (onSelectLevel) onSelectLevel(lvl);
                   if (onNavigateToTab) onNavigateToTab('oxford');
                 }}
-                className="p-4 rounded-xl bg-[#F8F7F3] border border-[#E4E1D9] hover:border-[#4F46A5] transition-all cursor-pointer group space-y-2"
+                className="p-4 rounded-xl bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition-all cursor-pointer group space-y-2"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <CEFRBadge level={lvl} size="sm" />
-                    <span className="font-bold text-xs text-[#1E2430] group-hover:text-[#4F46A5] transition-colors">
+                    <span className="font-bold text-xs text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors">
                       {lvl} ({data.total} Kelime)
                     </span>
                   </div>
-                  <span className="text-xs font-bold text-[#4F806A]">
+                  <span className="text-xs font-bold text-[var(--learned)]">
                     %{learnedPercent} Öğrenildi
                   </span>
                 </div>
 
-                <div className="h-1.5 w-full bg-[#E4E1D9] rounded-full overflow-hidden flex">
+                <div className="h-1.5 w-full bg-[var(--border)] rounded-full overflow-hidden flex">
                   <div
-                    className="h-full bg-[#4F806A]"
+                    className="h-full bg-[var(--learned)]"
                     style={{ width: `${learnedPercent}%` }}
                     title={`Öğrenildi: ${data.learned}`}
                   />
                   <div
-                    className="h-full bg-[#B97922]"
+                    className="h-full bg-[var(--learning)]"
                     style={{ width: `${learningPercent}%` }}
                     title={`Öğreniliyor: ${data.learning}`}
                   />
                 </div>
 
-                <div className="flex justify-between text-[11px] font-semibold text-[#687080] pt-0.5">
-                  <span className="text-[#4F806A]">{data.learned} Öğrendim</span>
-                  <span className="text-[#B97922]">{data.learning} Öğreniyorum</span>
-                  <span className="text-[#8E95A2]">{data.total - data.learned - data.learning} Kalan</span>
+                <div className="flex justify-between text-[11px] font-semibold text-[var(--text-secondary)] pt-0.5">
+                  <span className="text-[var(--learned)]">{data.learned} Öğrendim</span>
+                  <span className="text-[var(--learning)]">{data.learning} Öğreniyorum</span>
+                  <span className="text-[var(--text-muted)]">{data.total - data.learned - data.learning} Kalan</span>
                 </div>
               </div>
             );
@@ -434,7 +434,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         <button
           type="button"
           onClick={onOpenAdminPanel}
-          className="w-full bg-[#1E2430] hover:bg-[#2B3342] text-white rounded-2xl p-5 flex items-center justify-between gap-3 transition-colors cursor-pointer text-left"
+          className="w-full bg-[var(--text-primary)] hover:bg-[var(--ink-hover)] text-white rounded-2xl p-5 flex items-center justify-between gap-3 transition-colors cursor-pointer text-left"
         >
           <div>
             <div className="text-sm font-bold flex items-center gap-2">
@@ -453,33 +453,33 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         <button
           type="button"
           onClick={onOpenFeedback}
-          className="w-full bg-[#FFFFFF] hover:bg-[#F8F7F3] border border-[#E4E1D9] rounded-2xl p-5 flex items-center justify-between gap-3 transition-colors cursor-pointer text-left"
+          className="w-full bg-[var(--surface)] hover:bg-[var(--bg)] border border-[var(--border)] rounded-2xl p-5 flex items-center justify-between gap-3 transition-colors cursor-pointer text-left"
         >
           <div>
-            <div className="text-sm font-bold text-[#1E2430] flex items-center gap-2">
-              <MessageSquareWarning className="w-4 h-4 text-[#4F46A5]" />
+            <div className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
+              <MessageSquareWarning className="w-4 h-4 text-[var(--primary)]" />
               Hata bildir · bize yaz
             </div>
-            <p className="text-[11px] text-[#687080] mt-0.5">
+            <p className="text-[11px] text-[var(--text-secondary)] mt-0.5">
               Kelime hatası, tasarım sorunu ya da önerin varsa buradan ulaştır.
             </p>
           </div>
-          <span className="text-[#8E95A2] text-lg">→</span>
+          <span className="text-[var(--text-muted)] text-lg">→</span>
         </button>
       )}
 
       <SettingsPanel settings={settings} onChange={onUpdateSettings} />
 
       {/* 5. Veri Yönetimi & Yedekleme */}
-      <div className="bg-[#FFFFFF] rounded-2xl p-6 sm:p-7 border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-4">
-        <h3 className="text-sm font-bold text-[#1E2430] flex items-center gap-1.5">
-          <Settings className="w-4 h-4 text-[#687080]" />
+      <div className="bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-4">
+        <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+          <Settings className="w-4 h-4 text-[var(--text-secondary)]" />
           <span>Veri ve Yedekleme</span>
         </h3>
 
         {showExportSuccess && (
-          <div className="p-3 bg-[#E9F3ED] text-[#35654E] text-xs font-semibold rounded-xl border border-[#BFD7C8] flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#4F806A]" />
+          <div className="p-3 bg-[var(--learned-soft)] text-[var(--learned-text)] text-xs font-semibold rounded-xl border border-[var(--learned-border)] flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-[var(--learned)]" />
             <span>Yedek dosyan başarıyla indirildi.</span>
           </div>
         )}
@@ -487,7 +487,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         {importError && (
           <div
             role="alert"
-            className="p-3 bg-[#FAECEA] text-[#C65D55] text-xs font-medium rounded-xl border border-[#F0CBC7]"
+            className="p-3 bg-[var(--danger-soft)] text-[var(--danger)] text-xs font-medium rounded-xl border border-[var(--danger-border)]"
           >
             {importError}
           </div>
@@ -496,9 +496,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={handleExportData}
-            className="px-3.5 py-2 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#1E2430] text-xs font-semibold rounded-xl border border-[#E4E1D9] transition-colors flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 py-2 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] text-xs font-semibold rounded-xl border border-[var(--border)] transition-colors flex items-center gap-1.5 cursor-pointer"
           >
-            <Download className="w-3.5 h-3.5 text-[#4F46A5]" />
+            <Download className="w-3.5 h-3.5 text-[var(--primary)]" />
             <span>Verilerimi Yedekle (JSON İndir)</span>
           </button>
 
@@ -513,15 +513,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           />
           <button
             onClick={() => importInputRef.current?.click()}
-            className="px-3.5 py-2 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#1E2430] text-xs font-semibold rounded-xl border border-[#E4E1D9] transition-colors flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 py-2 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] text-xs font-semibold rounded-xl border border-[var(--border)] transition-colors flex items-center gap-1.5 cursor-pointer"
           >
-            <Upload className="w-3.5 h-3.5 text-[#4F46A5]" />
+            <Upload className="w-3.5 h-3.5 text-[var(--primary)]" />
             <span>Yedekten Geri Yükle</span>
           </button>
 
           <button
             onClick={handleResetData}
-            className="px-3.5 py-2 bg-[#FAECEA] hover:bg-[#F5D7D3] text-[#C65D55] text-xs font-semibold rounded-xl border border-[#F0CBC7] transition-colors flex items-center gap-1.5 ml-auto cursor-pointer"
+            className="px-3.5 py-2 bg-[var(--danger-soft)] hover:bg-[var(--danger-soft-strong)] text-[var(--danger)] text-xs font-semibold rounded-xl border border-[var(--danger-border)] transition-colors flex items-center gap-1.5 ml-auto cursor-pointer"
           >
             <Trash2 className="w-3.5 h-3.5" />
             <span>Tüm Verileri Sıfırla</span>

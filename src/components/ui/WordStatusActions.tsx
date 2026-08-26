@@ -58,12 +58,12 @@ export const WordStatusActions: React.FC<WordStatusActionsProps> = ({
         aria-pressed={isReview}
         className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl font-semibold transition-all duration-150 border cursor-pointer select-none active:scale-[0.98] ${btnPadding} ${
           isReview
-            ? 'bg-[#FBF1DE] text-[#8A5A18] border-[#E7C98F] shadow-xs font-bold'
-            : 'bg-[#F8F7F3] hover:bg-[#FBF1DE]/70 text-[#687080] hover:text-[#8A5A18] border-[#E4E1D9]'
+            ? 'bg-[var(--learning-soft)] text-[var(--learning-text)] border-[var(--learning-border)] shadow-xs font-bold'
+            : 'bg-[var(--bg)] hover:bg-[var(--learning-soft)]/70 text-[var(--text-secondary)] hover:text-[var(--learning-text)] border-[var(--border)]'
         }`}
         title="Tekrar Et listesine ekle / çıkar"
       >
-        <RefreshCw className={`w-3.5 h-3.5 ${isReview ? 'text-[#B97922]' : 'text-[#8E95A2]'}`} />
+        <RefreshCw className={`w-3.5 h-3.5 ${isReview ? 'text-[var(--learning)]' : 'text-[var(--text-muted)]'}`} />
         <span>Tekrar Et</span>
       </button>
 
@@ -74,12 +74,12 @@ export const WordStatusActions: React.FC<WordStatusActionsProps> = ({
         aria-pressed={isLearned}
         className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl font-semibold transition-all duration-150 border cursor-pointer select-none active:scale-[0.98] ${btnPadding} ${
           isLearned
-            ? 'bg-[#E9F3ED] text-[#35654E] border-[#BFD7C8] shadow-xs font-bold'
-            : 'bg-[#F8F7F3] hover:bg-[#E9F3ED]/70 text-[#687080] hover:text-[#35654E] border-[#E4E1D9]'
+            ? 'bg-[var(--learned-soft)] text-[var(--learned-text)] border-[var(--learned-border)] shadow-xs font-bold'
+            : 'bg-[var(--bg)] hover:bg-[var(--learned-soft)]/70 text-[var(--text-secondary)] hover:text-[var(--learned-text)] border-[var(--border)]'
         }`}
         title="Öğrendim olarak işaretle / çıkar"
       >
-        <Check className={`w-3.5 h-3.5 stroke-[2.5] ${isLearned ? 'text-[#4F806A]' : 'text-[#8E95A2]'}`} />
+        <Check className={`w-3.5 h-3.5 stroke-[2.5] ${isLearned ? 'text-[var(--learned)]' : 'text-[var(--text-muted)]'}`} />
         <span>Öğrendim</span>
       </button>
     </div>

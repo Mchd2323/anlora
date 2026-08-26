@@ -317,16 +317,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain"
+      className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain"
       onClick={onClose}
     >
       <div
-        className="bg-[#FFFFFF] rounded-2xl max-w-md w-full p-6 sm:p-7 border border-[#E4E1D9] shadow-xl relative space-y-4 max-h-[90vh] overflow-y-auto"
+        className="bg-[var(--surface)] rounded-2xl max-w-md w-full p-6 sm:p-7 border border-[var(--border)] shadow-xl relative space-y-4 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-[#8E95A2] hover:text-[#1E2430] rounded-xl hover:bg-[#F1EFE8] transition-colors cursor-pointer"
+          className="absolute top-4 right-4 p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-xl hover:bg-[var(--surface-soft)] transition-colors cursor-pointer"
           aria-label="Kapat"
         >
           <X className="w-4 h-4" />
@@ -338,7 +338,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           çevrimdışı derlenmiş olabilir.
         */}
         {serverAvailable === false && !profile.isLoggedIn && (
-          <div className="p-3.5 rounded-xl bg-[#FBF1DE] border border-[#E7C98F] text-[11px] leading-relaxed text-[#8A5A18]">
+          <div className="p-3.5 rounded-xl bg-[var(--learning-soft)] border border-[var(--learning-border)] text-[11px] leading-relaxed text-[var(--learning-text)]">
             <b>Bu sürümde hesap özelliği kapalı.</b> Uygulama tamamen
             çevrimdışı çalışıyor: kelimelerin, setlerin ve ilerlemen zaten
             telefonunda saklanıyor ve hiçbir yere gönderilmiyor. Hesap yalnızca
@@ -350,28 +350,28 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         {/* LOGGED-IN PROFILE VIEW */}
         {profile.isLoggedIn && authStep !== 'guest_migration' ? (
           <div className="space-y-5 text-center pt-2">
-            <div className="w-14 h-14 rounded-2xl bg-[#E9F3ED] text-[#4F806A] flex items-center justify-center mx-auto border border-[#BFD7C8]">
+            <div className="w-14 h-14 rounded-2xl bg-[var(--learned-soft)] text-[var(--learned)] flex items-center justify-center mx-auto border border-[var(--learned-border)]">
               <CloudCheck className="w-7 h-7" />
             </div>
 
             <div>
-              <h3 id="anlora-auth-modal-title" className="text-lg font-bold text-[#1E2430]">
+              <h3 id="anlora-auth-modal-title" className="text-lg font-bold text-[var(--text-primary)]">
                 {profile.name || 'Anlora Üyesi'}
               </h3>
-              <p className="text-xs text-[#687080] mt-0.5">{profile.email}</p>
+              <p className="text-xs text-[var(--text-secondary)] mt-0.5">{profile.email}</p>
               {profile.city && (
-                <p className="text-xs text-[#8E95A2] flex items-center justify-center gap-1 mt-1">
-                  <MapPin className="w-3.5 h-3.5 text-[#4F46A5]" />
+                <p className="text-xs text-[var(--text-muted)] flex items-center justify-center gap-1 mt-1">
+                  <MapPin className="w-3.5 h-3.5 text-[var(--primary)]" />
                   <span>{profile.city}, {profile.country || 'Türkiye'}</span>
                 </p>
               )}
             </div>
 
-            <div className="bg-[#E9F3ED] p-3.5 rounded-xl border border-[#BFD7C8] text-left text-xs space-y-1 text-[#35654E]">
+            <div className="bg-[var(--learned-soft)] p-3.5 rounded-xl border border-[var(--learned-border)] text-left text-xs space-y-1 text-[var(--learned-text)]">
               <p className="font-bold flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-[#4F806A]" /> Hesabın Güvende
+                <ShieldCheck className="w-4 h-4 text-[var(--learned)]" /> Hesabın Güvende
               </p>
-              <p className="text-[11px] text-[#35654E]">
+              <p className="text-[11px] text-[var(--learned-text)]">
                 Kendi Kelime Setlerin, Oxford ilerlemen ve favori kelimelerin güvenli şekilde hesabına eşitlenmektedir.
               </p>
             </div>
@@ -379,13 +379,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <div className="flex flex-col gap-2 pt-1">
               <button
                 onClick={onSyncNow}
-                className="w-full py-2.5 bg-[#4F46A5] hover:bg-[#433B91] text-white font-semibold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
+                className="w-full py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-semibold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
               >
                 Verileri Şimdi Eşitle
               </button>
               <button
                 onClick={handleLogout}
-                className="w-full py-2.5 bg-[#F8F7F3] hover:bg-[#FAECEA] hover:text-[#C65D55] text-[#1E2430] font-semibold text-xs rounded-xl border border-[#E4E1D9] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full py-2.5 bg-[var(--bg)] hover:bg-[var(--danger-soft)] hover:text-[var(--danger)] text-[var(--text-primary)] font-semibold text-xs rounded-xl border border-[var(--border)] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>Çıkış Yap</span>
@@ -395,28 +395,28 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         ) : authStep === 'guest_migration' ? (
           /* GUEST PROGRESS MIGRATION PROMPT */
           <div className="space-y-4 text-center pt-2">
-            <div className="w-13 h-13 rounded-2xl bg-[#EEECFA] text-[#4F46A5] flex items-center justify-center mx-auto border border-[#D7D2F4]">
+            <div className="w-13 h-13 rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center mx-auto border border-[var(--primary-border)]">
               <Sparkles className="w-6 h-6" />
             </div>
 
             <div className="space-y-1">
-              <h3 className="text-base font-bold text-[#1E2430]">
+              <h3 className="text-base font-bold text-[var(--text-primary)]">
                 İlerlemeni Aktaralım mı?
               </h3>
-              <p className="text-xs text-[#687080] leading-relaxed">
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                 Bu cihazdaki Oxford çalışma ilerlemeni ve favorilerini yeni hesabına bağlayabilirsin.
               </p>
             </div>
 
-            <div className="p-3 bg-[#F8F7F3] rounded-xl border border-[#E4E1D9] text-xs text-left text-[#687080] space-y-1">
-              <div className="flex items-center gap-1.5 font-semibold text-[#1E2430]">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#4F806A]" /> Oxford 3000 İlerlemesi
+            <div className="p-3 bg-[var(--bg)] rounded-xl border border-[var(--border)] text-xs text-left text-[var(--text-secondary)] space-y-1">
+              <div className="flex items-center gap-1.5 font-semibold text-[var(--text-primary)]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[var(--learned)]" /> Oxford 3000 İlerlemesi
               </div>
-              <div className="flex items-center gap-1.5 font-semibold text-[#1E2430]">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#4F806A]" /> Öğrenilen & Öğrenilen Kelimeler
+              <div className="flex items-center gap-1.5 font-semibold text-[var(--text-primary)]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[var(--learned)]" /> Öğrenilen & Öğrenilen Kelimeler
               </div>
-              <div className="flex items-center gap-1.5 font-semibold text-[#1E2430]">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#4F806A]" /> Favori Kelimeler
+              <div className="flex items-center gap-1.5 font-semibold text-[var(--text-primary)]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[var(--learned)]" /> Favori Kelimeler
               </div>
             </div>
 
@@ -426,13 +426,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   if (onMigrateGuestProgress) onMigrateGuestProgress();
                   onClose();
                 }}
-                className="w-full py-2.5 bg-[#4F46A5] hover:bg-[#433B91] text-white font-semibold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
+                className="w-full py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-semibold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
               >
                 İlerlememi Hesabıma Aktar
               </button>
               <button
                 onClick={onClose}
-                className="w-full py-2 text-xs font-semibold text-[#8E95A2] hover:text-[#1E2430] transition-colors cursor-pointer"
+                className="w-full py-2 text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
               >
                 Şimdilik Değil, Devam Et
               </button>
@@ -443,39 +443,39 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div className="space-y-4">
             <button
               onClick={() => setAuthStep('email_form')}
-              className="flex items-center gap-1 text-xs text-[#687080] hover:text-[#1E2430] font-semibold transition-colors cursor-pointer"
+              className="flex items-center gap-1 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-semibold transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Geri Dön</span>
             </button>
 
             <div className="text-center space-y-1">
-              <div className="w-12 h-12 rounded-2xl bg-[#EEECFA] text-[#4F46A5] flex items-center justify-center mx-auto border border-[#D7D2F4]">
+              <div className="w-12 h-12 rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center mx-auto border border-[var(--primary-border)]">
                 <KeyRound className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-bold text-[#1E2430]">
+              <h3 className="text-base font-bold text-[var(--text-primary)]">
                 E-postanı Doğrula
               </h3>
-              <p className="text-xs text-[#687080]">
-                <span className="font-semibold text-[#1E2430]">{email}</span> adresine 6 haneli doğrulama kodu gönderdik.
+              <p className="text-xs text-[var(--text-secondary)]">
+                <span className="font-semibold text-[var(--text-primary)]">{email}</span> adresine 6 haneli doğrulama kodu gönderdik.
               </p>
             </div>
 
             {devCodePreview && (
-              <div className="p-2.5 bg-[#FBF1DE] rounded-xl border border-[#E7C98F] text-[11px] text-[#8A5A18] text-center font-mono font-bold">
+              <div className="p-2.5 bg-[var(--learning-soft)] rounded-xl border border-[var(--learning-border)] text-[11px] text-[var(--learning-text)] text-center font-mono font-bold">
                 Doğrulama Kodu: {devCodePreview}
               </div>
             )}
 
             {error && (
-              <div className="p-3 bg-[#FAECEA] rounded-xl border border-[#E8C2BD] text-xs text-[#C65D55] flex items-start gap-2">
+              <div className="p-3 bg-[var(--danger-soft)] rounded-xl border border-[var(--danger-border-strong)] text-xs text-[var(--danger)] flex items-start gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{error}</span>
               </div>
             )}
 
             {message && !error && (
-              <div className="p-3 bg-[#E9F3ED] rounded-xl border border-[#BFD7C8] text-xs text-[#35654E] flex items-start gap-2">
+              <div className="p-3 bg-[var(--learned-soft)] rounded-xl border border-[var(--learned-border)] text-xs text-[var(--learned-text)] flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{message}</span>
               </div>
@@ -483,7 +483,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
             <form onSubmit={handleVerifyCodeSubmit} className="space-y-3.5">
               <div>
-                <label className="block text-xs font-bold text-[#687080] uppercase mb-1">
+                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
                   6 Haneli Kod
                 </label>
                 <input
@@ -493,14 +493,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
                   placeholder="123456"
-                  className="w-full text-center tracking-[0.4em] font-mono text-lg py-2.5 bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:outline-none focus:border-[#4F46A5] font-bold text-[#1E2430]"
+                  className="w-full text-center tracking-[0.4em] font-mono text-lg py-2.5 bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] font-bold text-[var(--text-primary)]"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading || verificationCode.length < 6}
-                className="w-full py-2.5 bg-[#4F46A5] hover:bg-[#433B91] disabled:opacity-50 text-white font-semibold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 text-white font-semibold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 {isLoading ? (
                   <>
@@ -517,7 +517,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   type="button"
                   onClick={handleResendCode}
                   disabled={resendCooldown > 0 || isLoading}
-                  className="text-xs font-semibold text-[#4F46A5] hover:text-[#433B91] disabled:text-[#8E95A2] transition-colors cursor-pointer"
+                  className="text-xs font-semibold text-[var(--primary)] hover:text-[var(--primary-hover)] disabled:text-[var(--text-muted)] transition-colors cursor-pointer"
                 >
                   {resendCooldown > 0
                     ? `Kodu Tekrar Gönder (${resendCooldown}s)`
@@ -531,14 +531,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div className="space-y-3.5">
             <button
               onClick={() => setAuthStep('main')}
-              className="flex items-center gap-1 text-xs text-[#687080] hover:text-[#1E2430] font-semibold transition-colors cursor-pointer"
+              className="flex items-center gap-1 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-semibold transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Geri Dön</span>
             </button>
 
             {/* Mode switch */}
-            <div className="flex p-1 bg-[#F8F7F3] rounded-xl border border-[#E4E1D9]">
+            <div className="flex p-1 bg-[var(--bg)] rounded-xl border border-[var(--border)]">
               <button
                 type="button"
                 onClick={() => {
@@ -547,8 +547,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 }}
                 className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                   isRegisterMode
-                    ? 'bg-[#FFFFFF] text-[#1E2430] shadow-xs'
-                    : 'text-[#687080] hover:text-[#1E2430]'
+                    ? 'bg-[var(--surface)] text-[var(--text-primary)] shadow-xs'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 Hesap Oluştur
@@ -561,8 +561,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 }}
                 className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                   !isRegisterMode
-                    ? 'bg-[#FFFFFF] text-[#1E2430] shadow-xs'
-                    : 'text-[#687080] hover:text-[#1E2430]'
+                    ? 'bg-[var(--surface)] text-[var(--text-primary)] shadow-xs'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 Giriş Yap
@@ -570,7 +570,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
 
             {error && (
-              <div className="p-3 bg-[#FAECEA] rounded-xl border border-[#E8C2BD] text-xs text-[#C65D55] flex items-start gap-2">
+              <div className="p-3 bg-[var(--danger-soft)] rounded-xl border border-[var(--danger-border-strong)] text-xs text-[var(--danger)] flex items-start gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{error}</span>
               </div>
@@ -592,7 +592,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
               {isRegisterMode && (
                 <div>
-                  <label className="block text-[11px] font-bold text-[#687080] uppercase mb-1">
+                  <label className="block text-[11px] font-bold text-[var(--text-secondary)] uppercase mb-1">
                     Ad Soyad
                   </label>
                   <input
@@ -600,41 +600,41 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Adınız"
-                    className="w-full px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:outline-none focus:border-[#4F46A5] font-semibold text-[#1E2430]"
+                    className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] font-semibold text-[var(--text-primary)]"
                   />
                 </div>
               )}
 
               <div>
-                <label className="block text-[11px] font-bold text-[#687080] uppercase mb-1">
+                <label className="block text-[11px] font-bold text-[var(--text-secondary)] uppercase mb-1">
                   E-posta Adresi
                 </label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-[#8E95A2] absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Mail className="w-4 h-4 text-[var(--text-muted)] absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="ornek@email.com"
-                    className="w-full pl-9 pr-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:outline-none focus:border-[#4F46A5] font-semibold text-[#1E2430]"
+                    className="w-full pl-9 pr-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] font-semibold text-[var(--text-primary)]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-[#687080] uppercase mb-1">
-                  Şifre {isRegisterMode && <span className="text-[#8E95A2] font-normal">(en az 8 karakter)</span>}
+                <label className="block text-[11px] font-bold text-[var(--text-secondary)] uppercase mb-1">
+                  Şifre {isRegisterMode && <span className="text-[var(--text-muted)] font-normal">(en az 8 karakter)</span>}
                 </label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-[#8E95A2] absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Lock className="w-4 h-4 text-[var(--text-muted)] absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full pl-9 pr-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:outline-none focus:border-[#4F46A5] font-semibold text-[#1E2430]"
+                    className="w-full pl-9 pr-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] font-semibold text-[var(--text-primary)]"
                   />
                 </div>
               </div>
@@ -644,15 +644,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <div className="grid grid-cols-2 gap-2.5 pt-0.5">
                   {/* Country */}
                   <div>
-                    <label className="block text-[11px] font-bold text-[#687080] uppercase mb-1">
+                    <label className="block text-[11px] font-bold text-[var(--text-secondary)] uppercase mb-1">
                       Ülke
                     </label>
                     <div className="relative">
-                      <Globe className="w-3.5 h-3.5 text-[#8E95A2] absolute left-2.5 top-1/2 -translate-y-1/2" />
+                      <Globe className="w-3.5 h-3.5 text-[var(--text-muted)] absolute left-2.5 top-1/2 -translate-y-1/2" />
                       <select
                         value={country}
                         onChange={(e) => setCountry(e.target.value)}
-                        className="w-full pl-8 pr-2 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:outline-none focus:border-[#4F46A5] font-semibold text-[#1E2430] appearance-none"
+                        className="w-full pl-8 pr-2 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] font-semibold text-[var(--text-primary)] appearance-none"
                       >
                         {COUNTRIES.map((c) => (
                           <option key={c.code} value={c.name}>
@@ -665,29 +665,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
                   {/* 81 Turkish Cities Searchable Dropdown */}
                   <div className="relative">
-                    <label className="block text-[11px] font-bold text-[#687080] uppercase mb-1">
+                    <label className="block text-[11px] font-bold text-[var(--text-secondary)] uppercase mb-1">
                       Şehir (81 İl)
                     </label>
                     <button
                       type="button"
                       onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
-                      className="w-full flex items-center justify-between px-2.5 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-[#FFFFFF] focus:outline-none focus:border-[#4F46A5] font-semibold text-[#1E2430] text-left cursor-pointer"
+                      className="w-full flex items-center justify-between px-2.5 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] font-semibold text-[var(--text-primary)] text-left cursor-pointer"
                     >
                       <span className="truncate">{city}</span>
-                      <MapPin className="w-3.5 h-3.5 text-[#8E95A2] shrink-0" />
+                      <MapPin className="w-3.5 h-3.5 text-[var(--text-muted)] shrink-0" />
                     </button>
 
                     {isCityDropdownOpen && (
-                      <div className="absolute left-0 right-0 top-full mt-1 bg-[#FFFFFF] rounded-xl border border-[#E4E1D9] shadow-lg z-30 p-2 space-y-1.5">
+                      <div className="absolute left-0 right-0 top-full mt-1 bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-lg z-30 p-2 space-y-1.5">
                         <div className="relative">
-                          <Search className="w-3 h-3 text-[#8E95A2] absolute left-2 top-1/2 -translate-y-1/2" />
+                          <Search className="w-3 h-3 text-[var(--text-muted)] absolute left-2 top-1/2 -translate-y-1/2" />
                           <input
                             type="text"
                             autoFocus
                             placeholder="İl ara (örn. Elazığ, İzmir)..."
                             value={citySearch}
                             onChange={(e) => setCitySearch(e.target.value)}
-                            className="w-full pl-7 pr-2 py-1 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-lg focus:outline-none font-medium text-[#1E2430]"
+                            className="w-full pl-7 pr-2 py-1 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-lg focus:outline-none font-medium text-[var(--text-primary)]"
                           />
                         </div>
 
@@ -703,8 +703,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                               }}
                               className={`w-full text-left px-2 py-1.5 text-xs rounded-lg transition-colors cursor-pointer ${
                                 city === c
-                                  ? 'bg-[#EEECFA] text-[#4F46A5] font-bold'
-                                  : 'text-[#1E2430] hover:bg-[#F8F7F3]'
+                                  ? 'bg-[var(--primary-soft)] text-[var(--primary)] font-bold'
+                                  : 'text-[var(--text-primary)] hover:bg-[var(--bg)]'
                               }`}
                             >
                               {c}
@@ -720,7 +720,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full mt-2 py-2.5 bg-[#4F46A5] hover:bg-[#433B91] disabled:opacity-50 text-white font-semibold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full mt-2 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 text-white font-semibold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 {isLoading ? (
                   <>
@@ -737,19 +737,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           /* PRIMARY AUTH MODAL (MAIN VIEW) */
           <div className="space-y-4">
             <div className="space-y-1.5 text-center pb-1">
-              <div className="text-2xl font-black text-[#1E2430] tracking-tight">
+              <div className="text-2xl font-black text-[var(--text-primary)] tracking-tight">
                 {BRAND.name}
               </div>
-              <div className="text-xs font-semibold text-[#4F46A5]">
+              <div className="text-xs font-semibold text-[var(--primary)]">
                 {BRAND.slogan}
               </div>
-              <p className="text-xs text-[#687080] pt-1">
+              <p className="text-xs text-[var(--text-secondary)] pt-1">
                 Kendi Kelime Setlerini oluşturmak ve ilerlemeni kaydetmek için giriş yap.
               </p>
             </div>
 
             {error && (
-              <div className="p-3 bg-[#FAECEA] rounded-xl border border-[#E8C2BD] text-xs text-[#C65D55] flex items-start gap-2">
+              <div className="p-3 bg-[var(--danger-soft)] rounded-xl border border-[var(--danger-border-strong)] text-xs text-[var(--danger)] flex items-start gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{error}</span>
               </div>
@@ -761,7 +761,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 type="button"
                 onClick={() => handleGoogleAuth()}
                 disabled={isLoading}
-                className="w-full py-2.5 px-4 bg-[#FFFFFF] hover:bg-[#F8F7F3] text-[#1E2430] font-semibold text-xs rounded-xl border border-[#E4E1D9] shadow-2xs transition-colors flex items-center justify-center gap-2.5 cursor-pointer"
+                className="w-full py-2.5 px-4 bg-[var(--surface)] hover:bg-[var(--bg)] text-[var(--text-primary)] font-semibold text-xs rounded-xl border border-[var(--border)] shadow-2xs transition-colors flex items-center justify-center gap-2.5 cursor-pointer"
               >
                 <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                   <path
@@ -785,9 +785,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </button>
 
               <div className="flex items-center gap-2 my-2">
-                <div className="flex-1 h-px bg-[#EFECE6]" />
-                <span className="text-[11px] font-semibold text-[#8E95A2] uppercase">veya</span>
-                <div className="flex-1 h-px bg-[#EFECE6]" />
+                <div className="flex-1 h-px bg-[var(--border-light)]" />
+                <span className="text-[11px] font-semibold text-[var(--text-muted)] uppercase">veya</span>
+                <div className="flex-1 h-px bg-[var(--border-light)]" />
               </div>
 
               {/* Email Form Trigger */}
@@ -796,7 +796,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   setIsRegisterMode(true);
                   setAuthStep('email_form');
                 }}
-                className="w-full py-2.5 px-4 bg-[#4F46A5] hover:bg-[#433B91] text-white font-semibold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-2.5 px-4 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-semibold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Mail className="w-4 h-4" />
                 <span>E-posta ile Hesap Oluştur</span>
@@ -807,9 +807,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   setIsRegisterMode(false);
                   setAuthStep('email_form');
                 }}
-                className="w-full py-2 text-xs font-semibold text-[#687080] hover:text-[#1E2430] transition-colors text-center cursor-pointer"
+                className="w-full py-2 text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors text-center cursor-pointer"
               >
-                Zaten hesabın var mı? <span className="text-[#4F46A5] underline font-bold">Giriş Yap</span>
+                Zaten hesabın var mı? <span className="text-[var(--primary)] underline font-bold">Giriş Yap</span>
               </button>
             </div>
           </div>

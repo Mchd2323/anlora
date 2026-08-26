@@ -300,15 +300,15 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
     <div className="max-w-[760px] mx-auto space-y-6 pb-safe-nav animate-fadeIn">
       {/* 1. Sınav Kurulum Ekranı */}
       {quizState === 'IDLE' && (
-        <div className="bg-[#FFFFFF] p-6 sm:p-8 rounded-2xl border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
+        <div className="bg-[var(--surface)] p-6 sm:p-8 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
           <div className="text-center space-y-1.5">
-            <div className="w-10 h-10 rounded-xl bg-[#EEECFA] text-[#4F46A5] flex items-center justify-center mx-auto">
+            <div className="w-10 h-10 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center mx-auto">
               <GraduationCap className="w-5 h-5" />
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-[#1E2430]">
+            <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
               Sınav Modu
             </h2>
-            <p className="text-xs sm:text-sm text-[#687080] max-w-md mx-auto">
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)] max-w-md mx-auto">
               Kelimeleri çoktan seçmeli veya yazarak test et.
             </p>
           </div>
@@ -316,7 +316,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
           <div className="space-y-5 pt-1">
             {/* 1. Sınav Türü Seçimi */}
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-[#687080] uppercase tracking-wider">
+              <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
                 1. Sınav Türü
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -332,12 +332,12 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                     onClick={() => setQuizMode(m.id as QuizMode)}
                     className={`p-3 rounded-xl text-left border transition-all cursor-pointer ${
                       quizMode === m.id
-                        ? 'bg-[#EEECFA] border-[#4F46A5] text-[#1E2430] font-bold shadow-xs'
-                        : 'bg-[#F8F7F3] border-[#E4E1D9] text-[#1E2430] hover:bg-[#F1EFE8]'
+                        ? 'bg-[var(--primary-soft)] border-[var(--primary)] text-[var(--text-primary)] font-bold shadow-xs'
+                        : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-soft)]'
                     }`}
                   >
                     <div className="text-xs font-bold">{m.label}</div>
-                    <div className="text-[11px] text-[#687080] mt-0.5">{m.desc}</div>
+                    <div className="text-[11px] text-[var(--text-secondary)] mt-0.5">{m.desc}</div>
                   </button>
                 ))}
               </div>
@@ -346,13 +346,13 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
             {/* 2. Sınav Kaynakları Seçimi (Çoklu Seçim) */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-bold text-[#687080] uppercase tracking-wider">
+                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
                   2. Kelime Kaynakları (Birden Fazla Seçilebilir)
                 </label>
                 <button
                   type="button"
                   onClick={handleSelectAllOxford}
-                  className="text-[11px] font-semibold text-[#4F46A5] hover:underline cursor-pointer"
+                  className="text-[11px] font-semibold text-[var(--primary)] hover:underline cursor-pointer"
                 >
                   Tüm Oxford Seviyelerini Seç
                 </button>
@@ -360,7 +360,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
 
               {/* Oxford Levels */}
               <div className="space-y-1.5">
-                <div className="text-[11px] font-semibold text-[#8E95A2]">Oxford kelimeleri:</div>
+                <div className="text-[11px] font-semibold text-[var(--text-muted)]">Oxford kelimeleri:</div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {OXFORD_GROUP_KEYS.map((lvl) => {
                     const isSelected = selectedSources.includes(lvl);
@@ -372,19 +372,19 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                         onClick={() => handleToggleSource(lvl)}
                         className={`p-2.5 rounded-xl text-xs font-semibold transition-all border flex items-center justify-between cursor-pointer ${
                           isSelected
-                            ? 'bg-[#EEECFA] text-[#4F46A5] border-[#4F46A5] font-bold'
-                            : 'bg-[#F8F7F3] text-[#1E2430] border-[#E4E1D9] hover:bg-[#F1EFE8]'
+                            ? 'bg-[var(--primary-soft)] text-[var(--primary)] border-[var(--primary)] font-bold'
+                            : 'bg-[var(--bg)] text-[var(--text-primary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
                         }`}
                       >
                         <div className="flex items-center gap-1.5">
                           {isSelected ? (
-                            <CheckSquare className="w-3.5 h-3.5 text-[#4F46A5]" />
+                            <CheckSquare className="w-3.5 h-3.5 text-[var(--primary)]" />
                           ) : (
-                            <Square className="w-3.5 h-3.5 text-[#8E95A2]" />
+                            <Square className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                           )}
                           <span>{OXFORD_GROUP_LABELS[lvl]}</span>
                         </div>
-                        <span className="text-[10px] text-[#8E95A2]">{count}</span>
+                        <span className="text-[10px] text-[var(--text-muted)]">{count}</span>
                       </button>
                     );
                   })}
@@ -394,7 +394,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
               {/* Custom Sets */}
               {collections.length > 0 && (
                 <div className="space-y-1.5 pt-1.5">
-                  <div className="text-[11px] font-semibold text-[#8E95A2]">Kelime Setlerim:</div>
+                  <div className="text-[11px] font-semibold text-[var(--text-muted)]">Kelime Setlerim:</div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {collections.map((col) => {
                       const isSelected = selectedSources.includes(col.id);
@@ -406,19 +406,19 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                           onClick={() => handleToggleSource(col.id)}
                           className={`p-2.5 rounded-xl text-xs font-semibold transition-all border flex items-center justify-between truncate cursor-pointer ${
                             isSelected
-                              ? 'bg-[#EEECFA] text-[#4F46A5] border-[#4F46A5] font-bold'
-                              : 'bg-[#F8F7F3] text-[#1E2430] border-[#E4E1D9] hover:bg-[#F1EFE8]'
+                              ? 'bg-[var(--primary-soft)] text-[var(--primary)] border-[var(--primary)] font-bold'
+                              : 'bg-[var(--bg)] text-[var(--text-primary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
                           }`}
                         >
                           <div className="flex items-center gap-1.5 truncate">
                             {isSelected ? (
-                              <CheckSquare className="w-3.5 h-3.5 text-[#4F46A5] shrink-0" />
+                              <CheckSquare className="w-3.5 h-3.5 text-[var(--primary)] shrink-0" />
                             ) : (
-                              <Square className="w-3.5 h-3.5 text-[#8E95A2] shrink-0" />
+                              <Square className="w-3.5 h-3.5 text-[var(--text-muted)] shrink-0" />
                             )}
                             <span className="truncate">{col.name}</span>
                           </div>
-                          <span className="text-[10px] text-[#8E95A2] shrink-0 ml-1">{count}</span>
+                          <span className="text-[10px] text-[var(--text-muted)] shrink-0 ml-1">{count}</span>
                         </button>
                       );
                     })}
@@ -429,7 +429,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
 
             {/* 3. Durum Filtresi */}
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-[#687080] uppercase tracking-wider">
+              <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
                 3. Durum Filtresi
               </label>
               <div className="flex flex-wrap gap-2">
@@ -438,8 +438,8 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                   onClick={() => setStatusFilter('ALL')}
                   className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all border cursor-pointer ${
                     statusFilter === 'ALL'
-                      ? 'bg-[#1E2430] text-white border-[#1E2430]'
-                      : 'bg-[#F8F7F3] text-[#687080] border-[#E4E1D9] hover:bg-[#F1EFE8]'
+                      ? 'bg-[var(--text-primary)] text-white border-[var(--text-primary)]'
+                      : 'bg-[var(--bg)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
                   }`}
                 >
                   Tüm Kelimeler
@@ -449,8 +449,8 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                   onClick={() => setStatusFilter('LEARNING')}
                   className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all border cursor-pointer ${
                     statusFilter === 'LEARNING'
-                      ? 'bg-[#B97922] text-white border-[#B97922]'
-                      : 'bg-[#F8F7F3] text-[#687080] border-[#E4E1D9] hover:bg-[#F1EFE8]'
+                      ? 'bg-[var(--learning)] text-white border-[var(--learning)]'
+                      : 'bg-[var(--bg)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
                   }`}
                 >
                   ↻ Tekrar Etmem Gerekenler
@@ -460,8 +460,8 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                   onClick={() => setStatusFilter('LEARNED')}
                   className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all border cursor-pointer ${
                     statusFilter === 'LEARNED'
-                      ? 'bg-[#4F806A] text-white border-[#4F806A]'
-                      : 'bg-[#F8F7F3] text-[#687080] border-[#E4E1D9] hover:bg-[#F1EFE8]'
+                      ? 'bg-[var(--learned)] text-white border-[var(--learned)]'
+                      : 'bg-[var(--bg)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
                   }`}
                 >
                   ✓ Öğrendiklerim (Pekiştirme)
@@ -471,7 +471,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
 
             {/* 4. Soru Sayısı Seçimi */}
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-[#687080] uppercase tracking-wider">
+              <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
                 4. Soru Sayısı
               </label>
               <div className="grid grid-cols-4 gap-2">
@@ -482,8 +482,8 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                     onClick={() => setQuestionCount(count)}
                     className={`p-2.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                       questionCount === count
-                        ? 'bg-[#4F46A5] text-white border-[#4F46A5] shadow-xs'
-                        : 'bg-[#F8F7F3] text-[#1E2430] border-[#E4E1D9] hover:bg-[#F1EFE8]'
+                        ? 'bg-[var(--primary)] text-white border-[var(--primary)] shadow-xs'
+                        : 'bg-[var(--bg)] text-[var(--text-primary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
                     }`}
                   >
                     {count} Soru
@@ -493,11 +493,11 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
             </div>
 
             {/* Pool summary badge */}
-            <div className="p-3 bg-[#F8F7F3] rounded-xl border border-[#E4E1D9] flex items-center justify-between text-xs">
-              <span className="text-[#687080] font-medium">
+            <div className="p-3 bg-[var(--bg)] rounded-xl border border-[var(--border)] flex items-center justify-between text-xs">
+              <span className="text-[var(--text-secondary)] font-medium">
                 Seçilen kriterlere uygun havuz:
               </span>
-              <span className="font-bold text-[#4F46A5]">
+              <span className="font-bold text-[var(--primary)]">
                 {currentPool.length} Kelime
               </span>
             </div>
@@ -508,7 +508,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
             * sınav mevcut kelime sayısıyla hazırlanır (talimat 53).
             */}
           {currentPool.length >= MIN_POOL_SIZE && currentPool.length < questionCount && (
-            <div className="mb-3 px-4 py-3 rounded-xl bg-[#FBF1DE] border border-[#E7C98F] text-[#8A5A18] text-xs font-medium leading-relaxed">
+            <div className="mb-3 px-4 py-3 rounded-xl bg-[var(--learning-soft)] border border-[var(--learning-border)] text-[var(--learning-text)] text-xs font-medium leading-relaxed">
               Seçtiğin kaynaklarda {currentPool.length} uygun kelime var. Sınav{' '}
               {currentPool.length} soruyla hazırlanacak.
             </div>
@@ -517,7 +517,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
           {setupError && (
             <div
               role="alert"
-              className="mb-3 px-4 py-3 rounded-xl bg-[#FAECEA] border border-[#F0CBC7] text-[#C65D55] text-xs font-medium leading-relaxed"
+              className="mb-3 px-4 py-3 rounded-xl bg-[var(--danger-soft)] border border-[var(--danger-border)] text-[var(--danger)] text-xs font-medium leading-relaxed"
             >
               {setupError}
             </div>
@@ -526,9 +526,9 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
           <button
             onClick={startQuiz}
             disabled={currentPool.length < MIN_POOL_SIZE}
-            className="w-full py-3.5 bg-[#4F46A5] hover:bg-[#433B91] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <Sparkles className="w-4 h-4 text-[#FBF1DE]" />
+            <Sparkles className="w-4 h-4 text-[var(--learning-soft)]" />
             <span>Sınavı Başlat ({Math.min(questionCount, currentPool.length)} Soru)</span>
           </button>
         </div>
@@ -536,18 +536,18 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
 
       {/* 2. Aktif Soru Ekranı */}
       {quizState === 'ACTIVE' && currentQ && (
-        <div className="bg-[#FFFFFF] p-6 sm:p-8 rounded-2xl border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
+        <div className="bg-[var(--surface)] p-6 sm:p-8 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
           {/* Progress Header */}
-          <div className="flex items-center justify-between border-b border-[#EFECE6] pb-3.5">
+          <div className="flex items-center justify-between border-b border-[var(--border-light)] pb-3.5">
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setQuizState('IDLE')}
-                className="text-xs font-semibold text-[#687080] hover:text-[#1E2430] flex items-center gap-1 cursor-pointer mr-2"
+                className="text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 cursor-pointer mr-2"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Çık</span>
               </button>
-              <span className="px-2.5 py-1 text-xs font-bold bg-[#EEECFA] text-[#4F46A5] rounded-lg border border-[#D7D2F4]">
+              <span className="px-2.5 py-1 text-xs font-bold bg-[var(--primary-soft)] text-[var(--primary)] rounded-lg border border-[var(--primary-border)]">
                 Soru {currentQuestionIndex + 1} / {questions.length}
               </span>
               {!currentQ.word.isCustom && currentQ.word.sourceType !== 'custom' && currentQ.word.level && (
@@ -555,15 +555,15 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
               )}
             </div>
 
-            <div className="text-xs font-bold text-[#4F806A]">
+            <div className="text-xs font-bold text-[var(--learned)]">
               Doğru: {score}
             </div>
           </div>
 
           {/* Progress bar */}
-          <div className="h-1.5 w-full bg-[#E4E1D9] rounded-full overflow-hidden">
+          <div className="h-1.5 w-full bg-[var(--border)] rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#4F46A5] transition-all duration-300 rounded-full"
+              className="h-full bg-[var(--primary)] transition-all duration-300 rounded-full"
               style={{
                 width: `${Math.round(((currentQuestionIndex + 1) / questions.length) * 100)}%`
               }}
@@ -572,18 +572,18 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
 
           {/* Question Prompt */}
           <div className="space-y-4 py-1">
-            <div className="bg-[#F8F7F3] p-6 rounded-xl border border-[#E4E1D9] text-center space-y-2">
+            <div className="bg-[var(--bg)] p-6 rounded-xl border border-[var(--border)] text-center space-y-2">
               {(currentQ.type === 'listening' || currentQ.type === 'multiple-choice-tr') && (
                 <button
                   onClick={() => speakText(currentQ.word.word)}
-                  className="px-3 py-1.5 bg-[#FFFFFF] hover:bg-[#F1EFE8] text-[#1E2430] font-semibold text-xs rounded-xl border border-[#E4E1D9] transition-transform active:scale-95 inline-flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 py-1.5 bg-[var(--surface)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] font-semibold text-xs rounded-xl border border-[var(--border)] transition-transform active:scale-95 inline-flex items-center gap-1.5 cursor-pointer"
                 >
-                  <Volume2 className="w-3.5 h-3.5 text-[#4F46A5]" />
+                  <Volume2 className="w-3.5 h-3.5 text-[var(--primary)]" />
                   <span>Telaffuzu Dinle</span>
                 </button>
               )}
 
-              <h3 className="text-lg sm:text-xl font-bold text-[#1E2430] leading-snug whitespace-pre-line">
+              <h3 className="text-lg sm:text-xl font-bold text-[var(--text-primary)] leading-snug whitespace-pre-line">
                 {currentQ.questionText}
               </h3>
             </div>
@@ -598,13 +598,13 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                   disabled={isAnswered}
                   placeholder="İngilizce kelimeyi buraya yaz..."
                   autoFocus
-                  className="w-full p-4 text-base bg-[#F8F7F3] border-2 border-[#E4E1D9] focus:bg-[#FFFFFF] focus:border-[#4F46A5] rounded-xl focus:outline-none font-bold text-[#1E2430] text-center"
+                  className="w-full p-4 text-base bg-[var(--bg)] border-2 border-[var(--border)] focus:bg-[var(--surface)] focus:border-[var(--primary)] rounded-xl focus:outline-none font-bold text-[var(--text-primary)] text-center"
                 />
 
                 {!isAnswered && (
                   <button
                     type="submit"
-                    className="w-full py-3 bg-[#4F46A5] hover:bg-[#433B91] text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+                    className="w-full py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
                   >
                     Cevabı Kontrol Et
                   </button>
@@ -615,15 +615,15 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
                 {currentQ.options.map((opt, idx) => {
                   let btnStyle =
-                    'bg-[#FFFFFF] border-[#E4E1D9] text-[#1E2430] hover:bg-[#EEECFA] hover:border-[#D7D2F4]';
+                    'bg-[var(--surface)] border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--primary-soft)] hover:border-[var(--primary-border)]';
 
                   if (isAnswered) {
                     if (opt === currentQ.correctAnswer) {
-                      btnStyle = 'bg-[#E9F3ED] text-[#35654E] border-[#BFD7C8] font-bold shadow-xs';
+                      btnStyle = 'bg-[var(--learned-soft)] text-[var(--learned-text)] border-[var(--learned-border)] font-bold shadow-xs';
                     } else if (opt === selectedAnswer) {
-                      btnStyle = 'bg-[#FAECEA] text-[#C65D55] border-[#F0CBC7] font-bold shadow-xs';
+                      btnStyle = 'bg-[var(--danger-soft)] text-[var(--danger)] border-[var(--danger-border)] font-bold shadow-xs';
                     } else {
-                      btnStyle = 'bg-[#F8F7F3] text-[#8E95A2] border-[#E4E1D9] opacity-60';
+                      btnStyle = 'bg-[var(--bg)] text-[var(--text-muted)] border-[var(--border)] opacity-60';
                     }
                   }
 
@@ -636,10 +636,10 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                     >
                       <span>{opt}</span>
                       {isAnswered && opt === currentQ.correctAnswer && (
-                        <CheckCircle2 className="w-4 h-4 text-[#4F806A] shrink-0" />
+                        <CheckCircle2 className="w-4 h-4 text-[var(--learned)] shrink-0" />
                       )}
                       {isAnswered && opt === selectedAnswer && opt !== currentQ.correctAnswer && (
-                        <XCircle className="w-4 h-4 text-[#C65D55] shrink-0" />
+                        <XCircle className="w-4 h-4 text-[var(--danger)] shrink-0" />
                       )}
                     </button>
                   );
@@ -650,23 +650,23 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
 
           {/* Answer Feedback & Next Button */}
           {isAnswered && (
-            <div className="pt-3.5 border-t border-[#EFECE6] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="pt-3.5 border-t border-[var(--border-light)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="text-xs">
                 {selectedAnswer?.toLowerCase() === currentQ.correctAnswer.toLowerCase() ? (
-                  <span className="text-[#4F806A] font-bold flex items-center gap-1">
+                  <span className="text-[var(--learned)] font-bold flex items-center gap-1">
                     <CheckCircle2 className="w-4 h-4" /> Doğru cevap!
                   </span>
                 ) : (
-                  <span className="text-[#C65D55] font-bold flex items-center gap-1">
+                  <span className="text-[var(--danger)] font-bold flex items-center gap-1">
                     <XCircle className="w-4 h-4" /> Doğru Cevap:{' '}
-                    <strong className="text-[#1E2430] ml-1">{currentQ.correctAnswer}</strong>
+                    <strong className="text-[var(--text-primary)] ml-1">{currentQ.correctAnswer}</strong>
                   </span>
                 )}
               </div>
 
               <button
                 onClick={handleNextQuestion}
-                className="px-5 py-2.5 bg-[#4F46A5] hover:bg-[#433B91] text-white font-semibold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
+                className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-semibold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
               >
                 <span>
                   {currentQuestionIndex < questions.length - 1 ? 'Sonraki Soru' : 'Sınavı Bitir'}
@@ -680,56 +680,56 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
 
       {/* 3. Sınav Sonuç ve Durum Güncelleme Ekranı */}
       {quizState === 'FINISHED' && (
-        <div className="bg-[#FFFFFF] p-6 sm:p-8 rounded-2xl border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
+        <div className="bg-[var(--surface)] p-6 sm:p-8 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
           <div className="text-center space-y-1.5">
-            <div className="w-12 h-12 rounded-xl bg-[#E9F3ED] text-[#4F806A] flex items-center justify-center mx-auto">
+            <div className="w-12 h-12 rounded-xl bg-[var(--learned-soft)] text-[var(--learned)] flex items-center justify-center mx-auto">
               <Award className="w-6 h-6" />
             </div>
             {score / questions.length >= 0.7 ? (
               <div className="space-y-1">
-                <div className="text-base font-bold text-[#4F46A5]">
+                <div className="text-base font-bold text-[var(--primary)]">
                   {BRAND.slogan}
                 </div>
-                <h2 className="text-2xl font-bold text-[#1E2430]">
+                <h2 className="text-2xl font-bold text-[var(--text-primary)]">
                   Sınav Başarıyla Tamamlandı
                 </h2>
               </div>
             ) : (
-              <h2 className="text-2xl font-bold text-[#1E2430]">
+              <h2 className="text-2xl font-bold text-[var(--text-primary)]">
                 Sınav Tamamlandı
               </h2>
             )}
-            <p className="text-xs text-[#687080]">
+            <p className="text-xs text-[var(--text-secondary)]">
               {questions.length} soruda {score} Doğru · {questions.length - score} Yanlış
             </p>
           </div>
 
           {/* Score Summary Badges */}
           <div className="grid grid-cols-3 gap-3 max-w-md mx-auto py-1">
-            <div className="p-3.5 bg-[#E9F3ED] rounded-xl border border-[#BFD7C8] text-center">
-              <span className="text-xl font-bold text-[#35654E]">{score}</span>
-              <p className="text-[10px] text-[#35654E] font-bold uppercase mt-0.5">Doğru</p>
+            <div className="p-3.5 bg-[var(--learned-soft)] rounded-xl border border-[var(--learned-border)] text-center">
+              <span className="text-xl font-bold text-[var(--learned-text)]">{score}</span>
+              <p className="text-[10px] text-[var(--learned-text)] font-bold uppercase mt-0.5">Doğru</p>
             </div>
-            <div className="p-3.5 bg-[#FAECEA] rounded-xl border border-[#F0CBC7] text-center">
-              <span className="text-xl font-bold text-[#C65D55]">
+            <div className="p-3.5 bg-[var(--danger-soft)] rounded-xl border border-[var(--danger-border)] text-center">
+              <span className="text-xl font-bold text-[var(--danger)]">
                 {questions.length - score}
               </span>
-              <p className="text-[10px] text-[#C65D55] font-bold uppercase mt-0.5">Yanlış</p>
+              <p className="text-[10px] text-[var(--danger)] font-bold uppercase mt-0.5">Yanlış</p>
             </div>
-            <div className="p-3.5 bg-[#EEECFA] rounded-xl border border-[#D7D2F4] text-center">
-              <span className="text-xl font-bold text-[#4F46A5]">
+            <div className="p-3.5 bg-[var(--primary-soft)] rounded-xl border border-[var(--primary-border)] text-center">
+              <span className="text-xl font-bold text-[var(--primary)]">
                 %{Math.round((score / questions.length) * 100)}
               </span>
-              <p className="text-[10px] text-[#4F46A5] font-bold uppercase mt-0.5">Başarı</p>
+              <p className="text-[10px] text-[var(--primary)] font-bold uppercase mt-0.5">Başarı</p>
             </div>
           </div>
 
           {/* Sınavda Çıkan Kelimeler ve Hızlı Durum Güncelleme */}
-          <div className="space-y-2.5 pt-3 border-t border-[#EFECE6]">
-            <h4 className="text-xs font-bold text-[#687080] uppercase tracking-wider">
+          <div className="space-y-2.5 pt-3 border-t border-[var(--border-light)]">
+            <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
               Sınav Kelimeleri & Durumları
             </h4>
-            <div className="divide-y divide-[#EFECE6] border border-[#E4E1D9] rounded-xl overflow-hidden">
+            <div className="divide-y divide-[var(--border-light)] border border-[var(--border)] rounded-xl overflow-hidden">
               {userAnswers.map(({ question, isCorrect }) => {
                 const card = question.word;
                 const status = getUserWordStatus(card.id, learningStates);
@@ -738,12 +738,12 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                 return (
                   <div
                     key={card.id}
-                    className="p-3 bg-[#FFFFFF] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+                    className="p-3 bg-[var(--surface)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
                   >
                     <div className="flex items-center gap-2.5">
                       <div
                         className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
-                          isCorrect ? 'bg-[#E9F3ED] text-[#4F806A]' : 'bg-[#FAECEA] text-[#C65D55]'
+                          isCorrect ? 'bg-[var(--learned-soft)] text-[var(--learned)]' : 'bg-[var(--danger-soft)] text-[var(--danger)]'
                         }`}
                       >
                         {isCorrect ? (
@@ -754,15 +754,15 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-xs text-[#1E2430]">{card.word}</span>
-                          <span className="text-[10px] text-[#8E95A2]">
+                          <span className="font-bold text-xs text-[var(--text-primary)]">{card.word}</span>
+                          <span className="text-[10px] text-[var(--text-muted)]">
                             {card.partOfSpeech || 'n.'}
                           </span>
                           {!isCustom && card.level && (
                             <CEFRBadge level={card.level} size="sm" />
                           )}
                         </div>
-                        <p className="text-xs text-[#687080]">{card.turkishMeaning}</p>
+                        <p className="text-xs text-[var(--text-secondary)]">{card.turkishMeaning}</p>
                       </div>
                     </div>
 
@@ -781,17 +781,17 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
           </div>
 
           {/* Action buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-2.5 pt-3 border-t border-[#EFECE6]">
+          <div className="flex flex-wrap items-center justify-center gap-2.5 pt-3 border-t border-[var(--border-light)]">
             <button
               onClick={startQuiz}
-              className="px-5 py-2.5 bg-[#4F46A5] hover:bg-[#433B91] text-white font-semibold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+              className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-semibold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Yeniden Sına</span>
             </button>
             <button
               onClick={() => setQuizState('IDLE')}
-              className="px-5 py-2.5 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#1E2430] font-semibold text-xs rounded-xl border border-[#E4E1D9] transition-all cursor-pointer"
+              className="px-5 py-2.5 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] font-semibold text-xs rounded-xl border border-[var(--border)] transition-all cursor-pointer"
             >
               Sınav Ayarlarına Dön
             </button>

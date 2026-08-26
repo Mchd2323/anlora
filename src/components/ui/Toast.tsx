@@ -37,45 +37,45 @@ const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void
     switch (toast.type) {
       case 'learned':
         return {
-          bg: 'bg-[#FFFFFF]',
-          border: 'border-[#BFD7C8]',
-          text: 'text-[#1E2430]',
-          icon: <Check className="w-4 h-4 text-[#4F806A] stroke-[2.5]" />
+          bg: 'bg-[var(--surface)]',
+          border: 'border-[var(--learned-border)]',
+          text: 'text-[var(--text-primary)]',
+          icon: <Check className="w-4 h-4 text-[var(--learned)] stroke-[2.5]" />
         };
       case 'learning':
         return {
-          bg: 'bg-[#FFFFFF]',
-          border: 'border-[#E7C98F]',
-          text: 'text-[#1E2430]',
-          icon: <RefreshCw className="w-4 h-4 text-[#B97922]" />
+          bg: 'bg-[var(--surface)]',
+          border: 'border-[var(--learning-border)]',
+          text: 'text-[var(--text-primary)]',
+          icon: <RefreshCw className="w-4 h-4 text-[var(--learning)]" />
         };
       case 'favorite':
         return {
-          bg: 'bg-[#FFFFFF]',
-          border: 'border-[#F2CCD3]',
-          text: 'text-[#1E2430]',
-          icon: <Heart className="w-4 h-4 text-[#B75D6A] fill-current" />
+          bg: 'bg-[var(--surface)]',
+          border: 'border-[var(--danger-tint)]',
+          text: 'text-[var(--text-primary)]',
+          icon: <Heart className="w-4 h-4 text-[var(--favorite)] fill-current" />
         };
       case 'unfavorite':
         return {
-          bg: 'bg-[#FFFFFF]',
-          border: 'border-[#E4E1D9]',
-          text: 'text-[#687080]',
-          icon: <Heart className="w-4 h-4 text-[#8E95A2]" />
+          bg: 'bg-[var(--surface)]',
+          border: 'border-[var(--border)]',
+          text: 'text-[var(--text-secondary)]',
+          icon: <Heart className="w-4 h-4 text-[var(--text-muted)]" />
         };
       case 'error':
         return {
-          bg: 'bg-[#FFFFFF]',
-          border: 'border-[#F0CBC7]',
-          text: 'text-[#1E2430]',
-          icon: <AlertCircle className="w-4 h-4 text-[#C65D55]" />
+          bg: 'bg-[var(--surface)]',
+          border: 'border-[var(--danger-border)]',
+          text: 'text-[var(--text-primary)]',
+          icon: <AlertCircle className="w-4 h-4 text-[var(--danger)]" />
         };
       default:
         return {
-          bg: 'bg-[#FFFFFF]',
-          border: 'border-[#D7D2F4]',
-          text: 'text-[#1E2430]',
-          icon: <Check className="w-4 h-4 text-[#4F46A5]" />
+          bg: 'bg-[var(--surface)]',
+          border: 'border-[var(--primary-border)]',
+          text: 'text-[var(--text-primary)]',
+          icon: <Check className="w-4 h-4 text-[var(--primary)]" />
         };
     }
   };
@@ -93,7 +93,7 @@ const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void
       </div>
       <button
         onClick={() => onDismiss(toast.id)}
-        className="p-1 text-[#8E95A2] hover:text-[#1E2430] rounded-lg transition-colors"
+        className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-lg transition-colors"
       >
         <X className="w-3.5 h-3.5" />
       </button>

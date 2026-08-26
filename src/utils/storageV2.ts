@@ -52,7 +52,9 @@ const DEFAULT_SETTINGS: UserSettings = {
   dailyNewWordsGoal: 5,
   autoPlayAudioOnCard: false,
   preferredStudyMode: 'mixed',
-  enableTypoTolerance: true
+  enableTypoTolerance: true,
+  theme: 'system',
+  fontScale: 1
 };
 
 const MAX_REVIEW_LOGS_RETENTION = 500;
