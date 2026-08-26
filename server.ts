@@ -1359,10 +1359,51 @@ app.post('/api/auth/register', blockDuringMaintenance, (req, res) => {
     return res.status(400).json({ error: 'Bu e-posta adresiyle kayıtlı bir hesap zaten var.' });
   }
 
-  const code = generateVerificationCode();
   const user = createEmptyUser(cleanEmail, cleanName, cleanCountry, cleanCity, 'email');
-  user.emailVerified = false;
   user.credential = hashPassword(cleanPassword);
+
+  /*
+   * E-posta doğrulaması ancak gönderim yapılabiliyorsa istenir.
+   *
+   * Posta sağlayıcısı yapılandırılmamışken eski davranış hesabı
+   * doğrulanmamış olarak açıyor, kodu yalnızca sunucu günlüğüne yazıyordu.
+   * Kullanıcı kodu hiçbir zaman göremediği için ne doğrulayabiliyor ne de
+   * giriş yapabiliyordu: kayıt akışının sonu çıkmaz sokaktı (ölçüldü —
+   * kayıt sonrası giriş EMAIL_NOT_VERIFIED ile reddediliyor). Yani posta
+   * anahtarı verilmeden yapılan bir dağıtımda hiç kimse üye olamazdı.
+   *
+   * Doğrulamanın amacı adresin gerçekten kullanıcıya ait olduğunu
+   * kanıtlamak. Gönderilemeyen bir kod bunu kanıtlamaz, yalnızca herkesi
+   * dışarıda bırakır. Bu yüzden gönderim yoksa adım atlanıyor ve durum
+   * günlüğe açıkça yazılıyor. RESEND_API_KEY tanımlandığı anda doğrulama
+   * kendiliğinden geri geliyor; kod değişikliği gerekmiyor.
+   */
+  if (!isMailConfigured()) {
+    user.emailVerified = true;
+    cloudUsersDatabase[cleanEmail] = user;
+    persistUsers();
+
+    console.warn(
+      `[ANLORA AUTH] Posta sağlayıcısı yapılandırılmadığı için ${cleanEmail} ` +
+        'e-posta doğrulaması yapılmadan açıldı. Doğrulamayı açmak için ' +
+        'RESEND_API_KEY ve ANLORA_MAIL_FROM tanımlayın.'
+    );
+
+    const session = createSession(cleanEmail);
+    return res.json({
+      message: 'Hesap oluşturuldu.',
+      token: session.token,
+      expiresAt: session.expiresAt,
+      email: cleanEmail,
+      name: cleanName,
+      country: cleanCountry,
+      city: cleanCity,
+      emailVerified: true
+    });
+  }
+
+  const code = generateVerificationCode();
+  user.emailVerified = false;
   user.verification = {
     codeHash: hashVerificationCode(code),
     expiresAt: Date.now() + VERIFICATION_TTL_MS,
@@ -1677,7 +1718,12 @@ app.post('/api/auth/login', (req, res) => {
     });
   }
 
-  if (!user.emailVerified) {
+  /*
+   * Posta gönderimi yoksa doğrulama kapısı da kapalı: aksi halde sağlayıcı
+   * yapılandırılmadan önce açılmış hesaplar, kodu hiçbir zaman alamayacakları
+   * için kalıcı olarak dışarıda kalırdı.
+   */
+  if (!user.emailVerified && isMailConfigured()) {
     return res.status(403).json({
       error: 'E-posta adresiniz henüz doğrulanmadı. Lütfen size gönderilen kodu girin.',
       code: 'EMAIL_NOT_VERIFIED',

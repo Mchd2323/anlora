@@ -291,6 +291,23 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
             Tüm ekranı birlikte büyütür. Değişiklik anında görünür.
           </p>
         </div>
+
+        {/*
+          Kısayollar zaten çalışıyordu ama yalnızca "?" tuşuna basmayı
+          bilenler bulabiliyordu; hiçbir yerde yazmıyordu. Ekranda sürekli
+          duran bir şerit mobilde yalnızca yer kaplar, bu yüzden yalnızca
+          klavyesi olan geniş ekranlarda görünen bir satır bırakıldı.
+        */}
+        <p className="hidden md:block text-[11px] text-[var(--text-muted)] pt-1">
+          Klavye kısayolları:{' '}
+          <kbd className="px-1 py-0.5 rounded border border-[var(--border)] bg-[var(--bg)] font-mono">1</kbd>–
+          <kbd className="px-1 py-0.5 rounded border border-[var(--border)] bg-[var(--bg)] font-mono">5</kbd>{' '}
+          sekmeler,{' '}
+          <kbd className="px-1 py-0.5 rounded border border-[var(--border)] bg-[var(--bg)] font-mono">s</kbd>{' '}
+          çalışma,{' '}
+          <kbd className="px-1 py-0.5 rounded border border-[var(--border)] bg-[var(--bg)] font-mono">?</kbd>{' '}
+          tam liste.
+        </p>
       </div>
 
       {/* Bildirimler */}
