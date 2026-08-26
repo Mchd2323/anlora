@@ -1960,6 +1960,21 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Kelime kartın hazır.</span>
                 </div>
+
+                {/*
+                  DOĞRULANMADI UYARISI.
+
+                  İçerik yapay zekâ tarafından üretildi ve henüz kimse
+                  denetlemedi. Bunu söylememek, uydurulmuş olabilecek bir
+                  anlamı sözlük bilgisiymiş gibi göstermek olurdu. Kullanıcı
+                  kaydetmeden önce gözden geçirebilsin diye kartın üstünde
+                  duruyor.
+                */}
+                <div className="p-3 rounded-xl bg-[var(--learning-soft)] border border-[var(--learning-border)] text-[11px] text-[var(--learning-text)] leading-relaxed">
+                  <b>Otomatik hazırlandı, doğrulanmadı.</b> Anlamı ve örnekleri
+                  kaydetmeden önce bir okuyup gözden geçir; yanlış bir yer varsa
+                  "Düzenle" ile değiştirebilirsin.
+                </div>
                 <div className="p-4 rounded-xl bg-[var(--bg)] border border-[var(--border)] space-y-3">
                   <div className="flex items-start justify-between">
                     <div>

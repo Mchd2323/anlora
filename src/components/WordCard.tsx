@@ -107,6 +107,20 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
             {!card.isCustom && card.sourceType !== 'custom' && card.level && (
               <CEFRBadge level={card.level} size="sm" />
             )}
+
+            {/*
+              Yapay zekâ ile hazırlanmış kart olduğu görünsün.
+              Kaynağını gizlemek, elle yazılmış sözlük kaydıyla otomatik
+              üretimi aynı güvenilirlikte göstermek olurdu.
+            */}
+            {card.isAiGenerated && (
+              <span
+                className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[var(--learning-soft)] text-[var(--learning-text)] border border-[var(--learning-border)]"
+                title="Bu kartın içeriği yapay zekâ tarafından hazırlandı"
+              >
+                AI
+              </span>
+            )}
             <span className="text-xs font-semibold text-[var(--text-secondary)]">
               {card.partOfSpeech}
             </span>

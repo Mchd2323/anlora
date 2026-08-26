@@ -242,7 +242,15 @@ app.post('/api/ai/generate-word', blockDuringMaintenance, async (req, res) => {
     cached.hits++;
     aiCache.callsAvoided++;
     persistAiCache();
-    return res.json({ ...cached.card, isAiGenerated: true, fromCache: true });
+    return res.json({
+      ...cached.card,
+      isAiGenerated: true,
+      fromCache: true,
+      // Arayüz bunu kullanıcıya söyler: içerik otomatik hazırlandı, henüz
+      // kimse doğrulamadı. Sessizce sunmak, uydurma bir anlamı sözlük
+      // bilgisiymiş gibi göstermek olurdu.
+      unverified: !cached.approved
+    });
   }
 
   /*
@@ -392,6 +400,7 @@ Return valid JSON with the following structure:
         approved: false,
         flagged: false,
         hits: 0,
+        reports: 0,
         createdAt: new Date().toISOString()
       };
       persistAiCache();
@@ -400,7 +409,8 @@ Return valid JSON with the following structure:
 
     return res.json({
       ...finalCard,
-      isAiGenerated: true
+      isAiGenerated: true,
+      unverified: true
     });
   } catch (error: any) {
     console.error('Gemini API hatası:', error);
@@ -776,12 +786,31 @@ const AI_CACHE_FILE = path.join(DATA_DIR, 'ai-cache.json');
 interface CachedCard {
   word: string;
   card: Record<string, unknown>;
-  /** Yönetici onayı. Onaysız kart da servis edilir; işaret kalite içindir. */
+  /**
+   * Yönetici onayı.
+   *
+   * Onaysız kart da servis edilir — aksi hâlde önbellek, yönetici her kaydı
+   * tek tek görene kadar hiçbir işe yaramaz ve maliyet düşürme amacı ortadan
+   * kalkardı. Onun yerine kart "doğrulanmadı" diye İŞARETLENEREK gönderilir
+   * ve kullanıcı bildirimleriyle kendiliğinden karantinaya alınabilir.
+   */
   approved: boolean;
   flagged: boolean;
   hits: number;
+  /** Kullanıcıların "bu kelimede hata var" bildirim sayısı. */
+  reports: number;
   createdAt: string;
 }
+
+/**
+ * Kaç bildirimden sonra kart kendiliğinden karantinaya alınır?
+ *
+ * Tek bir bildirim yanılma olabilir; üç ayrı kişi aynı kelimeyi işaretliyorsa
+ * ortada gerçek bir sorun vardır. Karantina kartı SİLER, böylece o kelime bir
+ * sonraki istekte yeniden üretilir — yanlış içerik dolaşımdan çıkar ve
+ * kullanıcı beklemek zorunda kalmaz.
+ */
+const AUTO_QUARANTINE_REPORTS = 3;
 
 interface AiCacheStore {
   cards: Record<string, CachedCard>;
@@ -1890,6 +1919,31 @@ app.post('/api/feedback', blockDuringMaintenance, (req, res) => {
   if (appContent.feedback.length > 2000) appContent.feedback.length = 2000;
   persistContent();
 
+  /*
+   * KENDİLİĞİNDEN KARANTİNA.
+   *
+   * Bildirilen kelime yapay zekâ önbelleğindeyse sayacı artar. Eşiğe
+   * ulaşınca kayıt SİLİNİR: yanlış içerik dolaşımdan çıkar ve o kelime bir
+   * sonraki istekte yeniden üretilir. Yöneticiyi beklemek, yanlış anlamın
+   * günlerce herkese servis edilmesi demek olurdu.
+   *
+   * Yalnızca 'word' türü bildirimler sayılır; tasarım şikâyeti bir kelimenin
+   * içeriği hakkında hiçbir şey söylemez.
+   */
+  if (entry.kind === 'word' && entry.word) {
+    const key = cacheKey(entry.word);
+    const cached = aiCache.cards[key];
+    if (cached) {
+      cached.reports = (cached.reports || 0) + 1;
+      if (cached.reports >= AUTO_QUARANTINE_REPORTS) {
+        delete aiCache.cards[key];
+      } else {
+        cached.flagged = true;
+      }
+      persistAiCache();
+    }
+  }
+
   return res.json({ ok: true, id: entry.id });
 });
 
@@ -2926,6 +2980,7 @@ app.get('/api/admin/ai', requireAuth, requireAdmin, (_req, res) => {
         approved: entry.approved,
         flagged: entry.flagged,
         hits: entry.hits,
+        reports: entry.reports || 0,
         createdAt: entry.createdAt,
         turkishMeaning: String((entry.card as any)?.turkishMeaning || '')
       }))
