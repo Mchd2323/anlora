@@ -141,11 +141,22 @@ export interface Collection {
    * Setteki kelimelerin sırası.
    *
    * 'added' (varsayılan): sete eklendiği sıra korunur — kullanıcı kelimeyi
-   * nereye koyduğunu hatırlar. 'alphabetical': A–Z sıralanır; uzun setlerde
-   * aranan kelimeyi gözle bulmayı kolaylaştırır. Tercih set başınadır, çünkü
-   * "diziden topladıklarım" ile "sınav kelimeleri" farklı düzen ister.
+   * nereye koyduğunu hatırlar. 'alphabetical': A–Z. 'level': CEFR
+   * seviyesine göre kolaydan zora. 'date': en son eklenen üstte.
+   * 'status': önce tekrar edilecekler, sonra hiç görülmemişler, en sonda
+   * öğrenilenler — çalışmaya nereden devam edileceğini gösterir.
+   *
+   * Tercih set başınadır, çünkü "diziden topladıklarım" ile "sınav
+   * kelimeleri" farklı düzen ister.
    */
-  sortMode?: 'added' | 'alphabetical';
+  sortMode?: 'added' | 'alphabetical' | 'level' | 'date' | 'status';
+  /**
+   * Set bağlantıyla paylaşıldıysa sunucudan dönen kod.
+   *
+   * Yoksa set GİZLİDİR ve yalnızca cihazda durur. Paylaşım açık bir
+   * eylemdir; hiçbir set kullanıcı istemeden dışarı çıkmaz.
+   */
+  shareCode?: string;
   createdAt: string;
   updatedAt: string;
 }

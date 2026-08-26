@@ -16,6 +16,15 @@ import {
   Sparkles,
   BookOpen,
   GraduationCap,
+  Tv,
+  Briefcase,
+  Plane,
+  Download,
+  Upload,
+  Merge,
+  MoveRight,
+  X,
+  Share2,
   Pin,
   Trash2,
   Edit2,
@@ -40,6 +49,7 @@ import { speakText } from '../utils/speech';
 import { getUserWordStatus } from '../utils/storageV2';
 import { UserProfile } from '../types';
 import { apiUrl } from '../config/api';
+import { apiFetch } from '../utils/authClient';
 import { formatPhonetic } from '../utils/phonetic';
 import {
   hasExtendedWord,
@@ -70,6 +80,41 @@ interface CollectionsViewProps {
   onOpenAddToCollection: (card: WordCard) => void;
   onOpenAuthModal?: () => void;
   onSetWordStatus?: (id: string, status: 'learned' | 'learning' | 'unseen') => void;
+}
+
+/**
+ * Set rengi seçenekleri.
+ *
+ * Altı renk yeter: daha fazlası seti tanınır kılmaz, yalnızca seçimi
+ * zorlaştırır. Değerler uygulamanın kendi jetonlarından geliyor, rastgele
+ * seçilmiş tonlar değil.
+ */
+const DECK_COLORS: { id: string; label: string; hex: string }[] = [
+  { id: 'indigo', label: 'Mor', hex: '#4F46A5' },
+  { id: 'teal', label: 'Petrol', hex: '#1F6F6B' },
+  { id: 'emerald', label: 'Yeşil', hex: '#4F806A' },
+  { id: 'amber', label: 'Kehribar', hex: '#B4761F' },
+  { id: 'rose', label: 'Gül', hex: '#B75D6A' },
+  { id: 'slate', label: 'Gri', hex: '#687080' }
+];
+
+const DECK_ICONS: { id: string; label: string; Icon: React.ElementType }[] = [
+  { id: 'Layers', label: 'Katman', Icon: Layers },
+  { id: 'BookOpen', label: 'Kitap', Icon: BookOpen },
+  { id: 'Tv', label: 'Dizi', Icon: Tv },
+  { id: 'Briefcase', label: 'İş', Icon: Briefcase },
+  { id: 'GraduationCap', label: 'Sınav', Icon: GraduationCap },
+  { id: 'Plane', label: 'Seyahat', Icon: Plane }
+];
+
+export function deckColorHex(color?: string): string {
+  return DECK_COLORS.find(item => item.id === color)?.hex || DECK_COLORS[0].hex;
+}
+
+export function DeckIcon({ name, className }: { name?: string; className?: string }) {
+  const entry = DECK_ICONS.find(item => item.id === name) || DECK_ICONS[0];
+  const Icon = entry.Icon;
+  return <Icon className={className} />;
 }
 
 export const CollectionsView: React.FC<CollectionsViewProps> = ({
@@ -182,6 +227,28 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   const [newDeckDesc, setNewDeckDesc] = useState('');
   const [editingDeck, setEditingDeck] = useState<Collection | null>(null);
 
+  /*
+   * TOPLU SEÇİM.
+   *
+   * Seçim aktif setle birlikte sıfırlanır: başka bir sete geçip önceki
+   * setten seçili kalan kelimeleri yanlışlıkla silmek, geri alınamaz bir
+   * kaza olurdu.
+   */
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkTarget, setBulkTarget] = useState<'move' | 'copy' | null>(null);
+  const [mergeSource, setMergeSource] = useState<string>('');
+  const [showMerge, setShowMerge] = useState(false);
+  const [showShare, setShowShare] = useState(false);
+  const [importText, setImportText] = useState('');
+  const [showImport, setShowImport] = useState(false);
+  const [setNotice, setSetNotice] = useState('');
+  const [isSharing, setIsSharing] = useState(false);
+  const [shareError, setShareError] = useState('');
+
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [activeDeckId]);
+
   // Active Deck Object
   const activeDeck = collections.find((c) => c.id === activeDeckId) || collections[0] || null;
 
@@ -200,13 +267,61 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
       .map((id) => allWordsMap.get(id))
       .filter((w): w is WordCard => !!w);
 
-    if (activeDeck.sortMode === 'alphabetical') {
-      // Türkçe yerel ayarıyla karşılaştırılır; 'ı' ve 'i' doğru sırada
-      // dursun diye. Kaynak dizi kopyalanır, üyelik sırası bozulmaz.
-      return [...cards].sort((a, b) => a.word.localeCompare(b.word, 'tr'));
+    /*
+     * Sıralama. Kaynak dizi hep kopyalanır; üyelik sırası bozulmaz, çünkü
+     * "eklediğim sıra" seçeneği ona geri dönebilmeli.
+     *
+     * Karşılaştırmalar Türkçe yerel ayarıyla yapılır: 'ı' ve 'i' aksi hâlde
+     * yanlış yere düşer.
+     */
+    const membershipDate = new Map(
+      memberships
+        .filter(m => m.collectionId === activeDeck.id)
+        .map(m => [m.wordId, m.addedAt])
+    );
+
+    switch (activeDeck.sortMode) {
+      case 'alphabetical':
+        return [...cards].sort((a, b) => a.word.localeCompare(b.word, 'tr'));
+
+      case 'level': {
+        // Seviyesi olmayan kartlar (kullanıcının kendi kelimeleri) sona düşer:
+        // uydurma bir seviye atamaktansa listenin sonunda dursunlar.
+        const order = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+        const rank = (card: WordCard) => {
+          const index = card.level ? order.indexOf(card.level) : -1;
+          return index < 0 ? order.length : index;
+        };
+        return [...cards].sort(
+          (a, b) => rank(a) - rank(b) || a.word.localeCompare(b.word, 'tr')
+        );
+      }
+
+      case 'date':
+        return [...cards].sort((a, b) =>
+          String(membershipDate.get(b.id) || '').localeCompare(
+            String(membershipDate.get(a.id) || '')
+          )
+        );
+
+      case 'status': {
+        // Önce tekrar edilecekler, sonra hiç görülmemişler, en sonda
+        // öğrenilenler: çalışmaya nereden devam edileceği listenin başında.
+        const rank = (card: WordCard) => {
+          const status = getUserWordStatus(card.id, learningStates);
+          if (status === 'learning') return 0;
+          if (status === 'unseen') return 1;
+          return 2;
+        };
+        return [...cards].sort(
+          (a, b) => rank(a) - rank(b) || a.word.localeCompare(b.word, 'tr')
+        );
+      }
+
+      default:
+        return cards;
     }
-    return cards;
-  }, [activeDeck, memberships, customWords, oxfordWords]);
+  }, [activeDeck, memberships, customWords, oxfordWords, learningStates]);
 
   // Filtered words in the active deck
   const filteredWords = useMemo(() => {
@@ -346,6 +461,259 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     setLookup({ kind: 'idle' });
   };
 
+  /** Seçimi tersine çevirir. */
+  const toggleSelected = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  /**
+   * Seçili kelimeleri başka bir sete taşır ya da kopyalar.
+   *
+   * Kopyalamada kelime iki sette birden durur — kart tek, üyelik iki
+   * tanedir. Taşımada yalnızca üyelik değişir; kartın kendisi ve kullanıcının
+   * o kelimedeki ilerlemesi olduğu gibi kalır.
+   */
+  const moveSelected = (targetId: string, mode: 'move' | 'copy') => {
+    if (!activeDeck || selectedIds.size === 0) return;
+
+    selectedIds.forEach(wordId => {
+      const alreadyThere = memberships.some(
+        m => m.wordId === wordId && m.collectionId === targetId
+      );
+      if (!alreadyThere) onAddWordToCollection(wordId, targetId);
+      if (mode === 'move') onRemoveWordFromCollection(wordId, activeDeck.id);
+    });
+
+    const target = collections.find(c => c.id === targetId);
+    setSetNotice(
+      `${selectedIds.size} kelime "${target?.name || 'set'}" setine ${
+        mode === 'move' ? 'taşındı' : 'kopyalandı'
+      }.`
+    );
+    setSelectedIds(new Set());
+    setBulkTarget(null);
+  };
+
+  /** Seçili kelimeleri bu setten çıkarır (kartlar silinmez). */
+  const removeSelected = () => {
+    if (!activeDeck || selectedIds.size === 0) return;
+    selectedIds.forEach(id => onRemoveWordFromCollection(id, activeDeck.id));
+    setSetNotice(`${selectedIds.size} kelime bu setten çıkarıldı.`);
+    setSelectedIds(new Set());
+  };
+
+  /**
+   * Başka bir seti bu sete katar.
+   *
+   * Kaynak setteki kelimeler hedefe eklenir, sonra kaynak set silinir.
+   * Kelimeler silinmez — yalnızca setin kendisi ortadan kalkar. Zaten
+   * hedefte olan kelime ikinci kez eklenmez.
+   */
+  const mergeInto = () => {
+    if (!activeDeck || !mergeSource) return;
+    const source = collections.find(c => c.id === mergeSource);
+    if (!source) return;
+
+    const sourceWordIds = memberships
+      .filter(m => m.collectionId === source.id)
+      .map(m => m.wordId);
+
+    let added = 0;
+    sourceWordIds.forEach(wordId => {
+      const alreadyThere = memberships.some(
+        m => m.wordId === wordId && m.collectionId === activeDeck.id
+      );
+      if (!alreadyThere) {
+        onAddWordToCollection(wordId, activeDeck.id);
+        added++;
+      }
+    });
+
+    onDeleteCollection(source.id);
+    setSetNotice(
+      `"${source.name}" seti katıldı: ${added} yeni kelime geldi, set silindi.`
+    );
+    setMergeSource('');
+    setShowMerge(false);
+  };
+
+  /**
+   * Seti bağlantıyla paylaşır.
+   *
+   * GİZLİ VARSAYILAN: bu düğmeye basılmadan sunucuya tek bir kelime bile
+   * gitmez. Paylaşılan içerik bir KOPYADIR; sonradan sete eklediğin kelime
+   * bağlantıya yansımaz, yeniden paylaşman gerekir. Aksi hâlde karşı tarafın
+   * gördüğü şey senin haberin olmadan değişirdi.
+   */
+  const shareDeck = async () => {
+    if (!activeDeck) return;
+    setIsSharing(true);
+    setShareError('');
+    try {
+      const payload = {
+        name: activeDeck.name,
+        description: activeDeck.description,
+        previousCode: activeDeck.shareCode,
+        words: activeDeckWords.map(card => ({
+          word: card.word,
+          phonetic: card.phonetic,
+          level: card.level,
+          partOfSpeech: card.partOfSpeech,
+          turkishMeaning: card.turkishMeaning,
+          examples: card.examples
+        }))
+      };
+
+      const result = await apiFetch<{ code: string; wordCount: number }>('/api/sets/share', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+
+      onUpdateCollection({ ...activeDeck, shareCode: result.code });
+      setSetNotice(`Set paylaşıldı: ${result.wordCount} kelime.`);
+    } catch (err: any) {
+      setShareError(
+        err?.message || 'Paylaşım için giriş yapman ve sunucuya ulaşman gerekiyor.'
+      );
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
+  /** Paylaşımı kaldırır; bağlantı geçersizleşir ve set yeniden gizli olur. */
+  const unshareDeck = async () => {
+    if (!activeDeck?.shareCode) return;
+    setIsSharing(true);
+    setShareError('');
+    try {
+      await apiFetch(`/api/sets/share/${activeDeck.shareCode}`, { method: 'DELETE' });
+      onUpdateCollection({ ...activeDeck, shareCode: undefined });
+      setSetNotice('Paylaşım kaldırıldı. Set yeniden gizli.');
+    } catch (err: any) {
+      setShareError(err?.message || 'Paylaşım kaldırılamadı.');
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
+  /**
+   * Seti CSV olarak indirir.
+   *
+   * Biçim yönetim panelindekiyle AYNI sütunları kullanır; kullanıcı bir
+   * setini dışa aktarıp başka bir sete ya da başka bir cihaza aynı dosyayla
+   * taşıyabilir.
+   */
+  const exportDeckCsv = () => {
+    if (!activeDeck) return;
+
+    const cell = (value: string) =>
+      /[",\n;]/.test(value || '') ? `"${String(value).replace(/"/g, '""')}"` : String(value || '');
+
+    const rows = ['kelime;telaffuz;seviye;tur;anlamlar;ornek1_en;ornek1_tr;ornek2_en;ornek2_tr'];
+    activeDeckWords.forEach(card => {
+      const ex = card.examples || [];
+      rows.push(
+        [
+          card.word,
+          card.phonetic || '',
+          card.level || '',
+          card.partOfSpeech || '',
+          card.turkishMeaning || '',
+          ex[0]?.en || '',
+          ex[0]?.tr || '',
+          ex[1]?.en || '',
+          ex[1]?.tr || ''
+        ]
+          .map(cell)
+          .join(';')
+      );
+    });
+
+    // Excel'in Türkçe karakterleri doğru açması için BOM.
+    const blob = new Blob(['\uFEFF' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${activeDeck.name.replace(/[^\p{L}\p{N}]+/gu, '-')}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  /**
+   * CSV'den bu sete kelime ekler.
+   *
+   * Sette zaten olan kelime atlanır. Hatalı satır tüm yüklemeyi düşürmez.
+   */
+  const importDeckCsv = () => {
+    if (!activeDeck || !importText.trim()) return;
+
+    const lines = importText.replace(/^\uFEFF/, '').split(/\r?\n/).filter(l => l.trim());
+    if (lines.length < 2) {
+      setSetNotice('CSV en az bir başlık ve bir satır içermeli.');
+      return;
+    }
+
+    const delimiter =
+      (lines[0].match(/;/g) || []).length >= (lines[0].match(/,/g) || []).length ? ';' : ',';
+    const header = lines[0].split(delimiter).map(h => h.trim().toLowerCase());
+    const columnOf = (name: string) => header.indexOf(name);
+
+    const wordCol = columnOf('kelime');
+    const meaningCol = columnOf('anlamlar');
+    if (wordCol < 0 || meaningCol < 0) {
+      setSetNotice('Başlıkta "kelime" ve "anlamlar" sütunları olmalı.');
+      return;
+    }
+
+    const existing = new Set(activeDeckWords.map(c => c.word.trim().toLowerCase()));
+    let added = 0;
+    let skipped = 0;
+
+    for (let i = 1; i < lines.length; i++) {
+      const cells = lines[i].split(delimiter).map(c => c.trim().replace(/^"|"$/g, ''));
+      const word = cells[wordCol];
+      const meaning = cells[meaningCol];
+      if (!word || !meaning) {
+        skipped++;
+        continue;
+      }
+      if (existing.has(word.toLowerCase())) {
+        skipped++;
+        continue;
+      }
+
+      const exEn = columnOf('ornek1_en') >= 0 ? cells[columnOf('ornek1_en')] : '';
+      const exTr = columnOf('ornek1_tr') >= 0 ? cells[columnOf('ornek1_tr')] : '';
+
+      onAddCustomWord(
+        {
+          id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          word,
+          partOfSpeech: columnOf('tur') >= 0 ? cells[columnOf('tur')] : '',
+          turkishMeaning: meaning.replace(/\|/g, ', '),
+          phonetic: columnOf('telaffuz') >= 0 ? cells[columnOf('telaffuz')] : undefined,
+          examples: exEn && exTr ? [{ en: exEn, tr: exTr }] : [],
+          isCustom: true,
+          sourceType: 'custom',
+          dateAdded: new Date().toISOString().slice(0, 10),
+          isAiGenerated: false
+        },
+        activeDeck.id
+      );
+      existing.add(word.toLowerCase());
+      added++;
+    }
+
+    setSetNotice(`${added} kelime eklendi${skipped ? `, ${skipped} satır atlandı` : ''}.`);
+    setImportText('');
+    setShowImport(false);
+  };
+
   const handleExampleChange = (index: number, field: 'en' | 'tr', value: string) => {
     setManualExamples(list => {
       const next = [...list];
@@ -475,7 +843,24 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
         customWords,
         oxfordWords
       });
-      if (check.type !== 'NONE') {
+
+      /*
+       * SATIR İÇİ PANEL ZATEN SÖYLEDİYSE İKİNCİ PENCERE AÇILMAZ.
+       *
+       * Kullanıcı kelimeyi yazdığında panel "bu kelime sözlükte var" diyor ve
+       * hazır kartı ekleme düğmesini gösteriyor. Buna rağmen kendi anlamını
+       * yazıp kaydete bastıysa kararını vermiştir; aynı bilgiyi ikinci bir
+       * pencerede tekrar sormak akışı kesmekten başka bir işe yaramaz.
+       *
+       * Pencere yalnızca panelin GÖSTERMEDİĞİ durumlar için kalır: kelimenin
+       * bu sette zaten olması ve çekimli biçim uyarısı. İkisi de kullanıcının
+       * henüz görmediği bir bilgi taşır.
+       */
+      const alreadyShownInline =
+        lookup.kind === 'found' &&
+        (check.type === 'EXACT_IN_OXFORD' || check.type === 'EXACT_IN_OTHER_COLLECTION');
+
+      if (check.type !== 'NONE' && !alreadyShownInline) {
         setDuplicateOrigin('FORM');
         setDuplicateResult(check);
         setShowDuplicateModal(true);
@@ -631,7 +1016,19 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
+                    <div className="min-w-0 flex-1 flex items-start gap-2.5">
+                      {/*
+                        Setin rengi ve simgesi. Uzun listede seti adından önce
+                        bunlar tanıtır; kullanıcı okumadan bulur.
+                      */}
+                      <span
+                        className="w-8 h-8 rounded-xl flex items-center justify-center text-white shrink-0 mt-0.5"
+                        style={{ background: deckColorHex(deck.color) }}
+                        aria-hidden="true"
+                      >
+                        <DeckIcon name={deck.iconName} className="w-4 h-4" />
+                      </span>
+                      <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
                         <h4 className="text-sm font-bold text-[#1E2430] truncate">
                           {deck.name}
@@ -645,6 +1042,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                           {deck.description}
                         </p>
                       )}
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-1 shrink-0">
@@ -774,6 +1172,48 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     <Layers className="w-3.5 h-3.5 text-[#687080]" />
                     <span>Toplu Ekle</span>
                   </button>
+
+                  <button
+                    onClick={exportDeckCsv}
+                    title="Bu seti CSV olarak indir"
+                    className="px-3 py-2 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#1E2430] text-xs font-semibold rounded-xl border border-[#E4E1D9] transition-colors flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5 text-[#687080]" />
+                    <span className="hidden sm:inline">CSV</span>
+                  </button>
+
+                  <button
+                    onClick={() => setShowImport(true)}
+                    title="CSV'den bu sete kelime ekle"
+                    className="px-3 py-2 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#1E2430] text-xs font-semibold rounded-xl border border-[#E4E1D9] transition-colors flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Upload className="w-3.5 h-3.5 text-[#687080]" />
+                  </button>
+
+                  <button
+                    onClick={() => setShowShare(true)}
+                    title={activeDeck.shareCode ? 'Paylaşım bağlantısı' : 'Bu seti paylaş'}
+                    className={`px-3 py-2 text-xs font-semibold rounded-xl border transition-colors flex items-center gap-1.5 cursor-pointer ${
+                      activeDeck.shareCode
+                        ? 'bg-[#E2F0EE] text-[#1F6F6B] border-[#B7D9D6]'
+                        : 'bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#1E2430] border-[#E4E1D9]'
+                    }`}
+                  >
+                    <Share2 className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">
+                      {activeDeck.shareCode ? 'Paylaşıldı' : 'Paylaş'}
+                    </span>
+                  </button>
+
+                  {collections.length > 1 && (
+                    <button
+                      onClick={() => setShowMerge(true)}
+                      title="Başka bir seti bu sete kat"
+                      className="px-3 py-2 bg-[#F8F7F3] hover:bg-[#F1EFE8] text-[#1E2430] text-xs font-semibold rounded-xl border border-[#E4E1D9] transition-colors flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Merge className="w-3.5 h-3.5 text-[#687080]" />
+                    </button>
+                  )}
                 </div>
 
                 {/* Search in Set */}
@@ -812,6 +1252,77 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               </button>
             )}
 
+            {setNotice && (
+              <div className="p-3 rounded-xl bg-[#E9F3ED] border border-[#BFD7C8] text-[11px] font-semibold text-[#35654E] flex items-center justify-between gap-2">
+                <span>{setNotice}</span>
+                <button
+                  type="button"
+                  onClick={() => setSetNotice('')}
+                  className="text-[#35654E] hover:opacity-70 cursor-pointer"
+                  aria-label="Kapat"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+
+            {/*
+              TOPLU SEÇİM ARAÇ ÇUBUĞU.
+              Yalnızca bir şey seçiliyken görünür; hiçbir şey seçili değilken
+              ekranda duran boş bir araç çubuğu yer kaplamaktan başka işe
+              yaramaz.
+            */}
+            {filteredWords.length > 0 && (
+              <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSelectedIds(
+                      selectedIds.size === filteredWords.length
+                        ? new Set()
+                        : new Set(filteredWords.map(c => c.id))
+                    )
+                  }
+                  className="text-[11px] font-semibold text-[#4F46A5] hover:text-[#433B91] cursor-pointer"
+                >
+                  {selectedIds.size === filteredWords.length ? 'Seçimi kaldır' : 'Tümünü seç'}
+                </button>
+
+                {selectedIds.size > 0 && (
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="text-[11px] font-bold text-[#1E2430]">
+                      {selectedIds.size} seçili
+                    </span>
+                    {collections.length > 1 && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setBulkTarget('move')}
+                          className="px-2.5 py-1.5 text-[11px] font-semibold rounded-lg bg-[#F1EFE8] hover:bg-[#E4E1D9] text-[#1E2430] cursor-pointer inline-flex items-center gap-1"
+                        >
+                          <MoveRight className="w-3.5 h-3.5" /> Taşı
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setBulkTarget('copy')}
+                          className="px-2.5 py-1.5 text-[11px] font-semibold rounded-lg bg-[#F1EFE8] hover:bg-[#E4E1D9] text-[#1E2430] cursor-pointer inline-flex items-center gap-1"
+                        >
+                          <Copy className="w-3.5 h-3.5" /> Kopyala
+                        </button>
+                      </>
+                    )}
+                    <button
+                      type="button"
+                      onClick={removeSelected}
+                      className="px-2.5 py-1.5 text-[11px] font-semibold rounded-lg bg-[#FAECEA] hover:bg-[#F6DFDC] text-[#C65D55] cursor-pointer inline-flex items-center gap-1"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> Setten çıkar
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Words Grid or Empty State */}
             {filteredWords.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -827,8 +1338,29 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     sourceName: membership?.sourceName || card.sourceName
                   };
 
+                  const isSelected = selectedIds.has(card.id);
+
                   return (
-                    <div key={card.id} className="relative group">
+                    <div
+                      key={card.id}
+                      className={`relative group rounded-2xl transition-shadow ${
+                        isSelected ? 'ring-2 ring-[#4F46A5] ring-offset-2' : ''
+                      }`}
+                    >
+                      <label
+                        className="absolute top-2 left-2 z-10 w-7 h-7 rounded-lg bg-white/90 border border-[#E4E1D9]
+                                   flex items-center justify-center cursor-pointer shadow-xs"
+                        title="Seç"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleSelected(card.id)}
+                          className="accent-[#4F46A5] cursor-pointer"
+                          aria-label={`${card.word} kelimesini seç`}
+                        />
+                      </label>
+
                       <WordCardComponent
                         card={displayCard}
                         isFavorite={favorites.includes(card.id)}
@@ -1001,6 +1533,55 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               </div>
 
               <div>
+                <label className="block text-xs font-bold text-[#687080] uppercase mb-1.5">
+                  Renk
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {DECK_COLORS.map((color) => (
+                    <button
+                      key={color.id}
+                      type="button"
+                      onClick={() => setEditingDeck({ ...editingDeck, color: color.id })}
+                      title={color.label}
+                      aria-label={color.label}
+                      aria-pressed={(editingDeck.color || 'indigo') === color.id}
+                      className={`w-8 h-8 rounded-xl transition-transform cursor-pointer ${
+                        (editingDeck.color || 'indigo') === color.id
+                          ? 'ring-2 ring-offset-2 ring-[#1E2430] scale-105'
+                          : 'hover:scale-105'
+                      }`}
+                      style={{ background: color.hex }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#687080] uppercase mb-1.5">
+                  Simge
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {DECK_ICONS.map(({ id, label, Icon }) => (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => setEditingDeck({ ...editingDeck, iconName: id })}
+                      title={label}
+                      aria-label={label}
+                      aria-pressed={(editingDeck.iconName || 'Layers') === id}
+                      className={`w-8 h-8 rounded-xl border flex items-center justify-center transition-colors cursor-pointer ${
+                        (editingDeck.iconName || 'Layers') === id
+                          ? 'bg-[#1E2430] text-white border-[#1E2430]'
+                          : 'bg-[#F8F7F3] text-[#687080] border-[#E4E1D9] hover:bg-[#F1EFE8]'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
                 <label className="block text-xs font-bold text-[#687080] uppercase mb-1">
                   Kelime Sırası
                 </label>
@@ -1009,13 +1590,16 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   onChange={(e) =>
                     setEditingDeck({
                       ...editingDeck,
-                      sortMode: e.target.value as 'added' | 'alphabetical'
+                      sortMode: e.target.value as Collection['sortMode']
                     })
                   }
                   className="w-full px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl font-semibold text-[#1E2430]"
                 >
                   <option value="added">Eklediğim sıraya göre</option>
                   <option value="alphabetical">Alfabetik (A–Z)</option>
+                  <option value="level">Seviyeye göre (kolaydan zora)</option>
+                  <option value="date">Tarihe göre (en yeni üstte)</option>
+                  <option value="status">Öğrenme durumuna göre</option>
                 </select>
                 <p className="text-[11px] text-[#8E95A2] mt-1">
                   Sıra yalnızca görünümü değiştirir; kelimeler silinmez.
@@ -1452,6 +2036,285 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               </div>
             )}
 
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: SEÇİLENLERİ TAŞI / KOPYALA */}
+      {bulkTarget && activeDeck && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
+          <div className="bg-[#FFFFFF] rounded-2xl max-w-md w-full border border-[#E4E1D9] shadow-xl p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold text-[#1E2430]">
+                {selectedIds.size} kelimeyi {bulkTarget === 'move' ? 'taşı' : 'kopyala'}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setBulkTarget(null)}
+                className="p-1.5 text-[#8E95A2] hover:text-[#1E2430] rounded-lg cursor-pointer"
+                aria-label="Kapat"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs text-[#687080] leading-relaxed">
+              {bulkTarget === 'move'
+                ? 'Kelimeler bu setten çıkıp seçtiğin sete geçecek. Kartlar ve ilerlemen silinmez.'
+                : 'Kelimeler iki sette birden duracak. Kart tek kalır, ilerlemen ortaktır.'}
+            </p>
+
+            <div className="space-y-1.5 max-h-64 overflow-y-auto">
+              {collections
+                .filter(deck => deck.id !== activeDeck.id)
+                .map(deck => (
+                  <button
+                    key={deck.id}
+                    type="button"
+                    onClick={() => moveSelected(deck.id, bulkTarget)}
+                    className="w-full text-left px-3.5 py-2.5 rounded-xl border border-[#E4E1D9] bg-[#F8F7F3] hover:bg-[#EEECFA] hover:border-[#D7D2F4] transition-colors cursor-pointer flex items-center gap-2.5"
+                  >
+                    <span
+                      className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0"
+                      style={{ background: deckColorHex(deck.color) }}
+                    >
+                      <DeckIcon name={deck.iconName} className="w-3.5 h-3.5" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-xs font-bold text-[#1E2430] truncate">
+                        {deck.name}
+                      </span>
+                      <span className="block text-[10px] text-[#687080]">
+                        {memberships.filter(m => m.collectionId === deck.id).length} kelime
+                      </span>
+                    </span>
+                  </button>
+                ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: SETİ PAYLAŞ */}
+      {showShare && activeDeck && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
+          <div className="bg-[#FFFFFF] rounded-2xl max-w-md w-full border border-[#E4E1D9] shadow-xl p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold text-[#1E2430] flex items-center gap-2">
+                <Share2 className="w-4 h-4 text-[#1F6F6B]" />
+                Seti paylaş
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowShare(false)}
+                className="p-1.5 text-[#8E95A2] hover:text-[#1E2430] rounded-lg cursor-pointer"
+                aria-label="Kapat"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {activeDeck.shareCode ? (
+              <>
+                <div className="p-3 rounded-xl bg-[#E2F0EE] border border-[#B7D9D6] text-[11px] text-[#1F6F6B] leading-relaxed">
+                  Bu set paylaşımda. Bağlantıyı alan herkes kelimeleri görebilir; kimin
+                  açtığını göremezsin. Paylaşılan içerik <b>o anki kopyadır</b> — sonradan
+                  eklediğin kelimeler için yeniden paylaşman gerekir.
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-[#8E95A2] mb-1">
+                    Bağlantı
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      readOnly
+                      value={`${window.location.origin}/?set=${activeDeck.shareCode}`}
+                      onFocus={e => e.currentTarget.select()}
+                      className="flex-1 px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl text-[#1E2430] font-mono"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void navigator.clipboard
+                          ?.writeText(`${window.location.origin}/?set=${activeDeck.shareCode}`)
+                          .then(() => setSetNotice('Bağlantı kopyalandı.'))
+                          .catch(() => setShareError('Kopyalanamadı; bağlantıyı elle seçebilirsin.'));
+                      }}
+                      className="px-3 py-2 bg-[#F1EFE8] hover:bg-[#E4E1D9] text-[#1E2430] text-xs font-semibold rounded-xl cursor-pointer"
+                    >
+                      Kopyala
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => void shareDeck()}
+                    disabled={isSharing}
+                    className="px-4 py-2 bg-[#F1EFE8] hover:bg-[#E4E1D9] text-[#1E2430] text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-40"
+                  >
+                    Güncel hâliyle yenile
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void unshareDeck()}
+                    disabled={isSharing}
+                    className="px-4 py-2 bg-[#FAECEA] hover:bg-[#F6DFDC] text-[#C65D55] text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40"
+                  >
+                    Paylaşımı kaldır
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-xs text-[#687080] leading-relaxed">
+                  Bu set şu an <b className="text-[#1E2430]">gizli</b> ve yalnızca bu cihazda
+                  duruyor. Paylaşırsan kelimeler sunucuya kopyalanır ve bağlantıyı verdiğin
+                  kişiler görebilir. İstediğin an geri alabilirsin.
+                </p>
+                <p className="text-[11px] text-[#8E95A2]">
+                  {activeDeckWords.length} kelime paylaşılacak. Paylaşmak için giriş yapmış
+                  olman gerekiyor.
+                </p>
+
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowShare(false)}
+                    className="px-4 py-2 text-xs font-semibold text-[#687080] hover:bg-[#F1EFE8] rounded-xl cursor-pointer"
+                  >
+                    Vazgeç
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void shareDeck()}
+                    disabled={isSharing || activeDeckWords.length === 0}
+                    className="px-4 py-2 bg-[#1F6F6B] hover:bg-[#195B58] text-white text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {isSharing ? 'Paylaşılıyor…' : 'Bağlantı oluştur'}
+                  </button>
+                </div>
+              </>
+            )}
+
+            {shareError && (
+              <div className="p-3 rounded-xl bg-[#FAECEA] border border-[#F0CBC7] text-[11px] text-[#C65D55]">
+                {shareError}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: SET BİRLEŞTİR */}
+      {showMerge && activeDeck && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
+          <div className="bg-[#FFFFFF] rounded-2xl max-w-md w-full border border-[#E4E1D9] shadow-xl p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold text-[#1E2430]">Seti bu sete kat</h3>
+              <button
+                type="button"
+                onClick={() => setShowMerge(false)}
+                className="p-1.5 text-[#8E95A2] hover:text-[#1E2430] rounded-lg cursor-pointer"
+                aria-label="Kapat"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs text-[#687080] leading-relaxed">
+              Seçtiğin setteki kelimeler <b className="text-[#1E2430]">{activeDeck.name}</b> setine
+              eklenir, sonra o set silinir. <b>Kelimeler silinmez</b> — yalnızca setin kendisi
+              ortadan kalkar. Zaten burada olan kelime ikinci kez eklenmez.
+            </p>
+
+            <select
+              value={mergeSource}
+              onChange={e => setMergeSource(e.target.value)}
+              className="w-full px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl font-semibold text-[#1E2430]"
+            >
+              <option value="">Katılacak seti seç…</option>
+              {collections
+                .filter(deck => deck.id !== activeDeck.id)
+                .map(deck => (
+                  <option key={deck.id} value={deck.id}>
+                    {deck.name} ({memberships.filter(m => m.collectionId === deck.id).length} kelime)
+                  </option>
+                ))}
+            </select>
+
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowMerge(false)}
+                className="px-4 py-2 text-xs font-semibold text-[#687080] hover:bg-[#F1EFE8] rounded-xl cursor-pointer"
+              >
+                Vazgeç
+              </button>
+              <button
+                type="button"
+                onClick={mergeInto}
+                disabled={!mergeSource}
+                className="px-4 py-2 bg-[#4F46A5] hover:bg-[#433B91] text-white text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Katıp seti sil
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: CSV'DEN EKLE */}
+      {showImport && activeDeck && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[#1E2430]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
+          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full border border-[#E4E1D9] shadow-xl p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold text-[#1E2430]">CSV'den kelime ekle</h3>
+              <button
+                type="button"
+                onClick={() => setShowImport(false)}
+                className="p-1.5 text-[#8E95A2] hover:text-[#1E2430] rounded-lg cursor-pointer"
+                aria-label="Kapat"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-3 rounded-xl bg-[#FBF1DE] border border-[#E7C98F] text-[11px] text-[#8A5A18] leading-relaxed">
+              En az <b>kelime</b> ve <b>anlamlar</b> sütunları gerekli. İsteğe bağlı:{' '}
+              <b>telaffuz, seviye, tur, ornek1_en, ornek1_tr</b>. Excel'den kaydettiğin dosyayı
+              açıp içeriğini buraya yapıştırabilirsin. Sette zaten olan kelime atlanır. Örnek
+              dosyayı "CSV" düğmesiyle indirebilirsin.
+            </div>
+
+            <textarea
+              value={importText}
+              onChange={e => setImportText(e.target.value)}
+              rows={8}
+              placeholder={'kelime;anlamlar\nthrive;gelişmek'}
+              className="w-full px-3 py-2 text-xs bg-[#F8F7F3] border border-[#E4E1D9] rounded-xl focus:bg-white focus:outline-none focus:border-[#4F46A5] font-mono text-[#1E2430]"
+            />
+
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowImport(false)}
+                className="px-4 py-2 text-xs font-semibold text-[#687080] hover:bg-[#F1EFE8] rounded-xl cursor-pointer"
+              >
+                Vazgeç
+              </button>
+              <button
+                type="button"
+                onClick={importDeckCsv}
+                disabled={!importText.trim()}
+                className="px-4 py-2 bg-[#4F46A5] hover:bg-[#433B91] text-white text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Ekle
+              </button>
+            </div>
           </div>
         </div>
       )}

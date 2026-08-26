@@ -2482,6 +2482,154 @@ app.get('/api/admin/stats', requireAuth, requireAdmin, (_req, res) => {
   });
 });
 
+// ---------------------------------------------------------------------------
+// Set paylaşımı
+// ---------------------------------------------------------------------------
+//
+// GİZLİ VARSAYILAN. Hiçbir set kendiliğinden paylaşılmaz; kullanıcı açıkça
+// "paylaş" demeden sunucuya tek bir kelime bile gitmez. Paylaşım geri
+// alınabilir: bağlantı kaldırıldığında kod geçersizleşir.
+//
+// Paylaşılan set bir KOPYADIR, canlı bir ayna değil. Kaynak set sonradan
+// değişirse bağlantıdaki içerik değişmez; kullanıcı isterse yeniden paylaşır.
+// Canlı ayna, karşı tarafın gördüğü şeyi sahibinin haberi olmadan
+// değiştirebilmek demek olurdu.
+
+const SHARES_FILE = path.join(DATA_DIR, 'shares.json');
+
+interface SharedSet {
+  code: string;
+  name: string;
+  description?: string;
+  /** Paylaşan hesabın e-postası; kaldırma yetkisi için. */
+  owner: string;
+  words: {
+    word: string;
+    phonetic?: string;
+    level?: string;
+    partOfSpeech?: string;
+    turkishMeaning: string;
+    examples: { en: string; tr: string }[];
+  }[];
+  createdAt: string;
+}
+
+function loadShares(): Record<string, SharedSet> {
+  try {
+    if (fs.existsSync(SHARES_FILE)) {
+      const parsed = JSON.parse(fs.readFileSync(SHARES_FILE, 'utf8'));
+      if (parsed && typeof parsed === 'object') return parsed;
+    }
+  } catch (err) {
+    console.error('Paylaşım dosyası okunamadı:', err);
+  }
+  return {};
+}
+
+const shares: Record<string, SharedSet> = loadShares();
+
+let sharesTimer: NodeJS.Timeout | null = null;
+function persistShares(): void {
+  if (sharesTimer) return;
+  sharesTimer = setTimeout(() => {
+    sharesTimer = null;
+    try {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+      fs.writeFileSync(SHARES_FILE, JSON.stringify(shares, null, 2), 'utf8');
+    } catch (err) {
+      console.error('Paylaşım dosyası yazılamadı:', err);
+    }
+  }, 250);
+}
+
+/**
+ * Seti paylaşıma açar ve kodunu döndürür.
+ *
+ * Giriş gerekir: sahipsiz paylaşım kaldırılamaz ve kötüye kullanıma açık
+ * olurdu. Kod tahmin edilemez olmalı, bu yüzden kriptografik rastgele.
+ */
+app.post('/api/sets/share', requireAuth, (req: AuthedRequest, res) => {
+  const user = req.authUser!;
+  const name = sanitizeString(req.body?.name, 80);
+  const rawWords = Array.isArray(req.body?.words) ? req.body.words : [];
+
+  if (!name) return res.status(400).json({ error: 'Setin adı gerekli.' });
+  if (rawWords.length === 0) return res.status(400).json({ error: 'Boş set paylaşılamaz.' });
+  if (rawWords.length > 2000) return res.status(400).json({ error: 'Set çok büyük (en fazla 2000 kelime).' });
+
+  const words = rawWords
+    .map((item: any) => ({
+      word: sanitizeString(item?.word, 80),
+      phonetic: sanitizeString(item?.phonetic, 80) || undefined,
+      level: sanitizeString(item?.level, 4) || undefined,
+      partOfSpeech: sanitizeString(item?.partOfSpeech, 30) || undefined,
+      turkishMeaning: sanitizeString(item?.turkishMeaning, 300),
+      examples: (Array.isArray(item?.examples) ? item.examples : [])
+        .slice(0, 3)
+        .map((ex: any) => ({
+          en: sanitizeString(ex?.en, 300),
+          tr: sanitizeString(ex?.tr, 300)
+        }))
+        .filter((ex: { en: string; tr: string }) => ex.en && ex.tr)
+    }))
+    .filter((item: { word: string; turkishMeaning: string }) => item.word && item.turkishMeaning);
+
+  if (words.length === 0) {
+    return res.status(400).json({ error: 'Paylaşılabilir kelime bulunamadı.' });
+  }
+
+  // Önceki paylaşımı varsa yenisiyle DEĞİŞTİRİLİR; her paylaşımda yeni bir
+  // kod üretmek, kullanıcının dağıttığı eski bağlantıları çöpe atardı.
+  const previous = sanitizeString(req.body?.previousCode, 40);
+  const code =
+    previous && shares[previous] && shares[previous].owner === user.email
+      ? previous
+      : crypto.randomBytes(6).toString('base64url');
+
+  shares[code] = {
+    code,
+    name,
+    description: sanitizeString(req.body?.description, 200) || undefined,
+    owner: user.email,
+    words,
+    createdAt: new Date().toISOString()
+  };
+  persistShares();
+
+  return res.json({ code, wordCount: words.length });
+});
+
+/** Paylaşımı kaldırır; bağlantı geçersizleşir. */
+app.delete('/api/sets/share/:code', requireAuth, (req: AuthedRequest, res) => {
+  const user = req.authUser!;
+  const entry = shares[String(req.params.code || '')];
+  if (!entry) return res.status(404).json({ error: 'Paylaşım bulunamadı.' });
+  if (entry.owner !== user.email) {
+    return res.status(403).json({ error: 'Bu paylaşım sana ait değil.' });
+  }
+
+  delete shares[entry.code];
+  persistShares();
+  return res.json({ removed: entry.code });
+});
+
+/**
+ * Paylaşılan seti okur. Giriş gerekmez: bağlantıyı alan herkes görebilmeli.
+ * Kodu bilmeyen bulamaz; liste ucu yoktur.
+ */
+app.get('/api/sets/shared/:code', (req, res) => {
+  const entry = shares[String(req.params.code || '')];
+  if (!entry) return res.status(404).json({ error: 'Bu bağlantı geçersiz ya da kaldırılmış.' });
+
+  return res.json({
+    name: entry.name,
+    description: entry.description,
+    wordCount: entry.words.length,
+    words: entry.words,
+    createdAt: entry.createdAt
+  });
+});
+
 // --- Yönetim: reklam alanları ----------------------------------------------
 
 app.get('/api/admin/ads', requireAuth, requireAdmin, (_req, res) => {

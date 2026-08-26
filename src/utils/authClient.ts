@@ -110,6 +110,24 @@ export async function apiFetch<T = any>(
 
   if (!response.ok) {
     if (response.status === 401) clearSession();
+
+    /*
+     * Yanıt JSON değilse bu bir uygulama hatası değil, sunucusuzluktur.
+     *
+     * Sunucu adresi tanımlı olmayan bir kurulumda `/api/...` isteği web
+     * sunucusunun 404 sayfasına ya da uygulamanın kendi index.html'ine
+     * gider. Kullanıcıya "İstek tamamlanamadı, tekrar dene" demek onu
+     * sonsuza kadar denemeye iter; asıl sebebi söylemek gerekir.
+     */
+    if (data === null) {
+      throw toApiError(
+        'Sunucuya ulaşılamadı. Bu sürüm çevrimdışı çalışıyor; hesap, bulut ' +
+          'yedeği ve paylaşım için sunucu adresi tanımlı değil.',
+        response.status,
+        'NO_SERVER'
+      );
+    }
+
     throw toApiError(
       data?.error || 'İstek tamamlanamadı. Lütfen tekrar deneyin.',
       response.status,
