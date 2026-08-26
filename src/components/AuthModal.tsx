@@ -148,6 +148,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         city: data.user.city,
         emailVerified: true,
         authProvider: 'google',
+        isAdmin: !!data.user.isAdmin,
         isLoggedIn: true,
         lastSyncTime: new Date().toLocaleTimeString('tr-TR')
       });
@@ -217,6 +218,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           city: data.user.city,
           emailVerified: data.user.emailVerified,
           authProvider: 'email',
+          isAdmin: !!data.user.isAdmin,
           isLoggedIn: true,
           lastSyncTime: new Date().toLocaleTimeString('tr-TR')
         };
@@ -262,6 +264,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         city: data.user.city,
         emailVerified: true,
         authProvider: 'email',
+        isAdmin: !!data.user.isAdmin,
         isLoggedIn: true,
         lastSyncTime: new Date().toLocaleTimeString('tr-TR')
       };

@@ -398,7 +398,16 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     setAiError(null);
 
     try {
-      const response = await fetch(apiUrl('/api/ai/generate-card'), {
+      /*
+       * Uç adı `generate-word`.
+       *
+       * Burada `generate-card` yazıyordu; sunucuda öyle bir uç hiç olmadı.
+       * İstek 404 dönüyor, arayüz de bunu "yapay zekâ yanıt veremedi" diye
+       * gösteriyordu: özellik hiçbir zaman çalışmamış ama hata mesajı suçu
+       * yapay zekâya atıyordu. Yanıt şekli (word, phonetic, partOfSpeech,
+       * turkishMeaning, senses, examples) zaten bu ucun döndürdüğüyle aynı.
+       */
+      const response = await fetch(apiUrl('/api/ai/generate-word'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

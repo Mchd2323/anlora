@@ -9,6 +9,7 @@ import { StatsAndBadges } from './components/StatsAndBadges';
 import { FavoritesView } from './components/FavoritesView';
 import { ProfileView } from './components/ProfileView';
 import { AuthModal } from './components/AuthModal';
+import { AdminPanel } from './components/AdminPanel';
 import { AddToCollectionModal } from './components/AddToCollectionModal';
 import { EditCardModal } from './components/EditCardModal';
 
@@ -121,6 +122,14 @@ export default function App() {
 
   // Modal States
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  /*
+   * Yönetim paneli açık mı?
+   *
+   * Sekme olarak durmuyor: gezinme çubuğu her kullanıcıya aynı görünmeli,
+   * yönetim ise istisnai bir iş. Profil ekranından açılıyor ve yalnızca
+   * sunucunun yönetici dediği hesapta görünüyor.
+   */
+  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [cardToAddToCollection, setCardToAddToCollection] = useState<WordCard | null>(null);
   const [editingCard, setEditingCard] = useState<WordCard | null>(null);
 
@@ -363,6 +372,7 @@ export default function App() {
     // Sunucudaki oturum jetonunu da geçersiz kıl; yalnızca yerel profili
     // temizlemek jetonu geçerli bırakırdı.
     void logout();
+    setIsAdminPanelOpen(false);
     const guestProfile: UserProfile = {
       email: null,
       name: 'Misafir Kullanıcı',
@@ -570,7 +580,11 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'profile' && (
+        {activeTab === 'profile' && isAdminPanelOpen && profile.isAdmin && (
+          <AdminPanel onClose={() => setIsAdminPanelOpen(false)} />
+        )}
+
+        {activeTab === 'profile' && !(isAdminPanelOpen && profile.isAdmin) && (
           <ProfileView
             profile={profile}
             stats={stats}
@@ -594,6 +608,7 @@ export default function App() {
               setOxfordStatusFilter(status);
               setActiveTab('oxford');
             }}
+            onOpenAdminPanel={profile.isAdmin ? () => setIsAdminPanelOpen(true) : undefined}
           />
         )}
         </>

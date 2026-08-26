@@ -219,6 +219,7 @@ function guardAiRequest(req: express.Request, res: express.Response): boolean {
 
 app.post('/api/ai/generate-word', async (req, res) => {
   if (!guardAiRequest(req, res)) return;
+  recordAiRequest();
   try {
     const { word, context } = req.body;
     if (!word || typeof word !== 'string' || !word.trim()) {
@@ -360,6 +361,7 @@ Return valid JSON with the following structure:
 // AI Endpoint: Independent Sense Validation & Sense-Specific Examples Generator
 app.post('/api/ai/validate-senses', async (req, res) => {
   if (!guardAiRequest(req, res)) return;
+  recordAiRequest();
   try {
     const { word, contextSentence, userSenses } = req.body;
     if (!word || typeof word !== 'string' || !word.trim()) {
@@ -461,6 +463,7 @@ Return valid JSON with structure:
 // AI Endpoint: Generate natural examples for user-defined Turkish meaning (Hybrid mode)
 app.post('/api/ai/generate-examples', async (req, res) => {
   if (!guardAiRequest(req, res)) return;
+  recordAiRequest();
   try {
     const { word, turkishMeaning, partOfSpeech, context } = req.body;
     if (!word || typeof word !== 'string') {
@@ -621,6 +624,69 @@ function persistUsers(): void {
   }, 250);
 }
 
+// ---------------------------------------------------------------------------
+// Kullanım ölçümleri
+// ---------------------------------------------------------------------------
+//
+// Yalnızca SAYI tutulur: hangi kullanıcının hangi kelimeyi sorduğu değil,
+// gün başına kaç yapay zekâ isteği geldiği. Yönetim panelinin "bu ay ne kadar
+// kullanılmış" sorusuna yanıt vermesi için bu yeterli; kimseyi izlemek için
+// gereken veri hiç toplanmıyor.
+
+const METRICS_FILE = path.join(DATA_DIR, 'metrics.json');
+
+interface Metrics {
+  /** GG biçiminde tarih (YYYY-AA-GG) → istek sayısı. */
+  aiRequestsByDay: Record<string, number>;
+  aiRequestsTotal: number;
+}
+
+function loadMetrics(): Metrics {
+  try {
+    if (fs.existsSync(METRICS_FILE)) {
+      const parsed = JSON.parse(fs.readFileSync(METRICS_FILE, 'utf8'));
+      if (parsed && typeof parsed === 'object') {
+        return {
+          aiRequestsByDay: parsed.aiRequestsByDay || {},
+          aiRequestsTotal: Number(parsed.aiRequestsTotal) || 0
+        };
+      }
+    }
+  } catch (err) {
+    console.error('Ölçüm dosyası okunamadı:', err);
+  }
+  return { aiRequestsByDay: {}, aiRequestsTotal: 0 };
+}
+
+const metrics: Metrics = loadMetrics();
+
+let metricsTimer: NodeJS.Timeout | null = null;
+function persistMetrics(): void {
+  if (metricsTimer) return;
+  metricsTimer = setTimeout(() => {
+    metricsTimer = null;
+    try {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+      fs.writeFileSync(METRICS_FILE, JSON.stringify(metrics), 'utf8');
+    } catch (err) {
+      console.error('Ölçüm dosyası yazılamadı:', err);
+    }
+  }, 1000);
+}
+
+function recordAiRequest(): void {
+  const day = new Date().toISOString().slice(0, 10);
+  metrics.aiRequestsByDay[day] = (metrics.aiRequestsByDay[day] || 0) + 1;
+  metrics.aiRequestsTotal++;
+
+  // Dosya sonsuza kadar büyümesin: son 90 gün yeter.
+  const keys = Object.keys(metrics.aiRequestsByDay).sort();
+  if (keys.length > 90) {
+    keys.slice(0, keys.length - 90).forEach(key => delete metrics.aiRequestsByDay[key]);
+  }
+  persistMetrics();
+}
+
 process.on('exit', () => {
   if (persistTimer) {
     clearTimeout(persistTimer);
@@ -726,7 +792,101 @@ function publicUserView(user: CloudUserData) {
     country: user.country,
     city: user.city,
     emailVerified: !!user.emailVerified,
-    authProvider: user.authProvider || 'email'
+    authProvider: user.authProvider || 'email',
+    // Arayüz yönetim girişini yalnızca yetkili kullanıcıya göstersin diye.
+    // Yetki DENETİMİ burada değil, her yönetim ucunda ayrıca yapılır: bu
+    // alanla oynayan bir istemci hiçbir şey kazanmaz.
+    isAdmin: isAdminEmail(user.email)
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Yönetim yetkisi
+// ---------------------------------------------------------------------------
+//
+// Yönetici listesi ortam değişkeninden okunur; veritabanında "rol" alanı
+// tutulmaz. Gerekçe: rolü veriye yazmak, veriyi ele geçiren birinin kendini
+// yönetici yapmasına kapı açar. Ortam değişkeni sunucuyu çalıştıranın
+// elindedir ve uygulama içinden değiştirilemez.
+//
+// Değer virgülle ayrılmış e-posta listesidir:
+//   ANLORA_ADMIN_EMAILS="ben@ornek.com,ortak@ornek.com"
+// Tanımlı değilse yönetim uçlarının tamamı kapalıdır.
+
+const ADMIN_EMAILS = new Set(
+  (process.env.ANLORA_ADMIN_EMAILS || '')
+    .split(',')
+    .map(entry => entry.trim().toLowerCase())
+    .filter(Boolean)
+);
+
+function isAdminEmail(email: string | undefined): boolean {
+  if (!email) return false;
+  return ADMIN_EMAILS.has(email.trim().toLowerCase());
+}
+
+/**
+ * Yönetim uçlarını korur. `requireAuth`'tan SONRA zincire girer.
+ *
+ * Yetkisiz istek 403 değil 404 alır. 403 "burada bir yönetim ucu var ama
+ * sana kapalı" demektir; bu bilgi bile saldırgana yol gösterir. 404, ucun
+ * varlığını hiç açık etmez.
+ */
+function requireAdmin(req: AuthedRequest, res: express.Response, next: express.NextFunction) {
+  const user = req.authUser;
+  if (!user || !isAdminEmail(user.email)) {
+    return res.status(404).json({ error: 'Bulunamadı.' });
+  }
+  next();
+}
+
+/**
+ * Yönetim panelinde gösterilen kullanıcı görünümü.
+ *
+ * GİZLİLİK: parola özeti, doğrulama kodu, oturum jetonu ve kullanıcının
+ * kelimelerinin KENDİSİ asla dönmez. Yönetici hesabı yönetebilmeli ama
+ * insanların ne çalıştığını okuyamamalı; bu yüzden yalnızca sayılar verilir.
+ */
+function adminUserView(user: CloudUserData) {
+  const data = (user.userData || {}) as Record<string, unknown>;
+  const countOf = (key: string): number => {
+    const value = data[key];
+    if (Array.isArray(value)) return value.length;
+    if (value && typeof value === 'object') return Object.keys(value).length;
+    return 0;
+  };
+
+  let backupBytes = 0;
+  try {
+    backupBytes = user.userData ? JSON.stringify(user.userData).length : 0;
+  } catch {
+    backupBytes = 0;
+  }
+
+  let activeSessions = 0;
+  for (const session of sessions.values()) {
+    if (session.email === user.email && session.expiresAt > Date.now()) activeSessions++;
+  }
+
+  return {
+    email: user.email,
+    name: user.name || '',
+    country: user.country || '',
+    city: user.city || '',
+    authProvider: user.authProvider || 'email',
+    emailVerified: !!user.emailVerified,
+    isAdmin: isAdminEmail(user.email),
+    createdAt: user.createdAt || null,
+    lastActive: user.lastActive || null,
+    activeSessions,
+    hasPendingVerification: !!user.verification,
+    backupBytes,
+    counts: {
+      collections: countOf('collections'),
+      customWords: countOf('customWords'),
+      favorites: countOf('favorites'),
+      learningStates: countOf('learningStates')
+    }
   };
 }
 
@@ -1181,6 +1341,150 @@ app.delete('/api/custom-cards/:id', requireAuth, (req: AuthedRequest, res) => {
   const cards = readUserCards(req.authUser!).filter(c => c.id !== id);
   writeUserCards(req.authUser!, cards);
   return res.json({ message: 'Kart silindi.', totalCount: cards.length });
+});
+
+// ---------------------------------------------------------------------------
+// Yönetim paneli uçları
+// ---------------------------------------------------------------------------
+//
+// Hepsi `requireAuth` + `requireAdmin` zincirinden geçer. Yetki, veritabanında
+// değil `ANLORA_ADMIN_EMAILS` ortam değişkeninde tanımlıdır; bu değişken
+// tanımlı değilse uçların tamamı 404 döner ve panel hiç açılmaz.
+//
+// GİZLİLİK SINIRI: yönetici hesapları görebilir ve yönetebilir, ama insanların
+// kelimelerini OKUYAMAZ. Uçlar yalnızca sayı ve meta veri döndürür.
+
+app.get('/api/admin/overview', requireAuth, requireAdmin, (_req, res) => {
+  const users = Object.values(cloudUsersDatabase);
+  const now = Date.now();
+  const daysAgo = (days: number) => now - days * 24 * 60 * 60 * 1000;
+
+  const activeSince = (since: number) =>
+    users.filter(u => u.lastActive && Date.parse(u.lastActive) >= since).length;
+
+  const newSince = (since: number) =>
+    users.filter(u => u.createdAt && Date.parse(u.createdAt) >= since).length;
+
+  let activeSessions = 0;
+  for (const session of sessions.values()) {
+    if (session.expiresAt > now) activeSessions++;
+  }
+
+  // Son 14 günün yapay zekâ kullanımı; panelde çubuk olarak çizilir.
+  const aiDaily: { day: string; count: number }[] = [];
+  for (let i = 13; i >= 0; i--) {
+    const day = new Date(now - i * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    aiDaily.push({ day, count: metrics.aiRequestsByDay[day] || 0 });
+  }
+
+  return res.json({
+    users: {
+      total: users.length,
+      verified: users.filter(u => u.emailVerified).length,
+      pendingVerification: users.filter(u => u.verification).length,
+      withCloudBackup: users.filter(u => u.userData && Object.keys(u.userData).length > 0).length,
+      activeLast7Days: activeSince(daysAgo(7)),
+      activeLast30Days: activeSince(daysAgo(30)),
+      newLast7Days: newSince(daysAgo(7))
+    },
+    sessions: { active: activeSessions },
+    ai: {
+      total: metrics.aiRequestsTotal,
+      today: metrics.aiRequestsByDay[new Date().toISOString().slice(0, 10)] || 0,
+      daily: aiDaily,
+      configured: !!process.env.GEMINI_API_KEY
+    },
+    server: {
+      googleSignInConfigured: !!process.env.GOOGLE_CLIENT_ID,
+      adminCount: ADMIN_EMAILS.size
+    }
+  });
+});
+
+app.get('/api/admin/users', requireAuth, requireAdmin, (req, res) => {
+  const query = String(req.query.q || '').trim().toLowerCase();
+  const limit = Math.min(Math.max(Number(req.query.limit) || 25, 1), 100);
+  const offset = Math.max(Number(req.query.offset) || 0, 0);
+
+  let list = Object.values(cloudUsersDatabase);
+  if (query) {
+    list = list.filter(
+      u =>
+        (u.email || '').toLowerCase().includes(query) ||
+        (u.name || '').toLowerCase().includes(query)
+    );
+  }
+
+  // En son görülen en üstte: yönetici çoğunlukla "kim aktif" diye bakar.
+  list.sort((a, b) => Date.parse(b.lastActive || '0') - Date.parse(a.lastActive || '0'));
+
+  return res.json({
+    total: list.length,
+    offset,
+    limit,
+    users: list.slice(offset, offset + limit).map(adminUserView)
+  });
+});
+
+/** Yönetim uçlarında hedef kullanıcıyı çözer. */
+function findTargetUser(req: express.Request): CloudUserData | null {
+  const email = String(req.params.email || '').trim().toLowerCase();
+  if (!email) return null;
+  return cloudUsersDatabase[email] || null;
+}
+
+/**
+ * E-postayı elle doğrulanmış sayar.
+ *
+ * Kod e-postası ulaşmadığında kullanıcı hesabına giremiyor. Destek adımı
+ * olarak gerekli; kaydı silip yeniden açtırmaktan çok daha az zarar verir.
+ */
+app.post('/api/admin/users/:email/verify', requireAuth, requireAdmin, (req, res) => {
+  const user = findTargetUser(req);
+  if (!user) return res.status(404).json({ error: 'Kullanıcı bulunamadı.' });
+
+  user.emailVerified = true;
+  delete user.verification;
+  persistUsers();
+  return res.json({ user: adminUserView(user) });
+});
+
+/** Kullanıcının tüm oturumlarını kapatır (cihaz kaybı, şüpheli erişim). */
+app.post('/api/admin/users/:email/revoke-sessions', requireAuth, requireAdmin, (req, res) => {
+  const user = findTargetUser(req);
+  if (!user) return res.status(404).json({ error: 'Kullanıcı bulunamadı.' });
+
+  revokeSessionsFor(user.email);
+  return res.json({ user: adminUserView(user) });
+});
+
+/**
+ * Hesabı ve bulut yedeğini siler.
+ *
+ * Silme, e-postanın gövdede TEKRAR yazılmasını ister. Tek tıkla geri
+ * alınamaz bir işlem yapmak, yanlış satıra dokunan yöneticiyi felakete
+ * götürür. Ayrıca yönetici kendi hesabını silemez: paneli kilitleyecek
+ * bir kaza olurdu.
+ */
+app.delete('/api/admin/users/:email', requireAuth, requireAdmin, (req: AuthedRequest, res) => {
+  const user = findTargetUser(req);
+  if (!user) return res.status(404).json({ error: 'Kullanıcı bulunamadı.' });
+
+  const confirm = String(req.body?.confirmEmail || '').trim().toLowerCase();
+  if (confirm !== user.email.toLowerCase()) {
+    return res.status(400).json({
+      error: 'Silmek için e-posta adresini birebir yazman gerekiyor.'
+    });
+  }
+
+  if (req.authUser && req.authUser.email.toLowerCase() === user.email.toLowerCase()) {
+    return res.status(400).json({ error: 'Kendi yönetici hesabını buradan silemezsin.' });
+  }
+
+  revokeSessionsFor(user.email);
+  delete cloudUsersDatabase[user.email];
+  persistUsers();
+  return res.json({ deleted: user.email });
 });
 
 app.post('/api/custom-cards/sync', requireAuth, (req: AuthedRequest, res) => {

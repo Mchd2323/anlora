@@ -45,6 +45,8 @@ interface ProfileViewProps {
    * Sayı bir kapıdır: dokununca o listeye gidilir.
    */
   onOpenOxfordStatus?: (status: 'LEARNED' | 'LEARNING' | 'FAVORITES') => void;
+  /** Yalnızca yönetici hesabında tanımlıdır; tanımsızsa giriş hiç çizilmez. */
+  onOpenAdminPanel?: () => void;
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
@@ -60,7 +62,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onLogout,
   onNavigateToTab,
   onSelectLevel,
-  onOpenOxfordStatus
+  onOpenOxfordStatus,
+  onOpenAdminPanel
 }) => {
   const [showExportSuccess, setShowExportSuccess] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
@@ -423,6 +426,25 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       </div>
 
       {/* 4. Çalışma Ayarları */}
+      {onOpenAdminPanel && (
+        <button
+          type="button"
+          onClick={onOpenAdminPanel}
+          className="w-full bg-[#1E2430] hover:bg-[#2B3342] text-white rounded-2xl p-5 flex items-center justify-between gap-3 transition-colors cursor-pointer text-left"
+        >
+          <div>
+            <div className="text-sm font-bold flex items-center gap-2">
+              <Shield className="w-4 h-4" />
+              Yönetim Paneli
+            </div>
+            <p className="text-[11px] text-white/70 mt-0.5">
+              Hesaplar, oturumlar ve yapay zekâ kullanımı.
+            </p>
+          </div>
+          <span className="text-white/70 text-lg">→</span>
+        </button>
+      )}
+
       <SettingsPanel settings={settings} onChange={onUpdateSettings} />
 
       {/* 5. Veri Yönetimi & Yedekleme */}

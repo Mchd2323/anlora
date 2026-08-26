@@ -393,6 +393,13 @@ export interface UserProfile {
   emailVerified?: boolean;
   authProvider?: 'google' | 'email' | 'guest';
   lastSyncTime?: string;
+  /**
+   * Yönetim paneli girişi gösterilsin mi?
+   *
+   * Sunucudan gelir; yetkinin KENDİSİ değildir. Yetki her yönetim ucunda
+   * ayrıca denetlenir, bu alanla oynayan bir istemci hiçbir şeye erişemez.
+   */
+  isAdmin?: boolean;
 }
 
 // Complete Version 2 Backup Archive
