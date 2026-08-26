@@ -28,6 +28,7 @@ import { summarizeQueue } from '../utils/srsEngine';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { BRAND } from '../config/brand';
 import { AdSlot } from './AdSlot';
+import { HomeHeroArt } from './HomeHeroArt';
 
 interface TodayDashboardProps {
   collections: Collection[];
@@ -166,14 +167,29 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
         <p className="text-xs text-[var(--text-secondary)] max-w-2xl leading-relaxed">
           {branding.homeIntro || (
             <>
-              Kendi kelime setlerini oluştur veya Oxford 5000 kelimelerini seviyene
-              göre çalış. Eklediğin kelime uygulamanın sözlüğünde varsa Türkçe
-              anlamı ve <strong className="text-[var(--text-primary)]">üç örnek cümlesi
-              çevirisiyle birlikte</strong> hazır gelir — internet gerekmeden.
-              Kelimeleri öğren, bildiklerini işaretle ve tekrar ederek aklında tut.
+              Kendi kelime setlerini oluştur ya da Oxford 5000'i seviyene göre çalış.
+              Bildiklerini işaretle, aralıklı tekrarla aklında tut.
             </>
           )}
         </p>
+      </div>
+
+      {/*
+        Ana sayfa görseli. Yalnızca geniş ekranda metnin yanında durur;
+        dar ekranda metnin altına iner ve yer kaplamaması için küçülür.
+      */}
+      <div className="rounded-2xl bg-[var(--surface)] border border-[var(--border)] p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+        <div className="flex-1 min-w-0 order-2 sm:order-1">
+          <p className="text-sm font-bold text-[var(--text-primary)]">
+            Kelimeyi yaz, gerisi hazır gelsin
+          </p>
+          <p className="text-xs text-[var(--text-secondary)] mt-1 leading-relaxed">
+            Aradığın kelime {branding.appName || BRAND.name} sözlüğünde varsa Türkçe anlamı,
+            telaffuzu ve <b className="text-[var(--text-primary)]">üç örnek cümlesi</b> anında
+            gelir — internet gerekmeden.
+          </p>
+        </div>
+        <HomeHeroArt className="w-full max-w-[260px] sm:max-w-[300px] h-auto order-1 sm:order-2 shrink-0" />
       </div>
 
       {/*
@@ -225,14 +241,13 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
               <Sparkles className="w-4 h-4 text-[var(--primary)] shrink-0 mt-0.5" />
               <div>
                 <span className="font-bold text-[var(--primary)] block">
-                  {branding.lookupTitle || 'Kelimeyi yaz, gerisini Anlora getirsin'}
+                  {branding.lookupTitle || 'Her set kendi bağlamını taşır'}
                 </span>
                 <p className="text-[var(--text-secondary)] text-[11px] mt-0.5">
                   {branding.lookupBody || (
                     <>
-                      Yazdığın kelime {branding.appName || BRAND.name} sözlüğünde varsa
-                      anlamı ve üç örnek cümlesi anında gelir. Yoksa {BRAND.aiName}{' '}
-                      hazırlar ya da kendin yazarsın.
+                      Kelimeyi hangi dizide ya da kitapta gördüğünü not edebilirsin;
+                      çalışırken o cümleyle birlikte karşına çıkar.
                     </>
                   )}
                 </p>
