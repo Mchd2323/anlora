@@ -495,3 +495,41 @@
     line-height: 2.75rem;
   }
 }
+
+/*
+ * Klavye odak halkası.
+ *
+ * Uygulamada hiç odak stili tanımlı değildi: bazı düğmeler Tailwind'in
+ * focus: sınıflarıyla kendi halkasını çiziyordu, geri kalanı sekme tuşuyla
+ * gezilirken hiçbir iz bırakmıyordu — klavyeyle kullanan biri nerede
+ * olduğunu göremiyordu. Bu kural boşluğu tek yerden kapatır.
+ *
+ * :focus-visible kullanılıyor, :focus değil: fareyle tıklayan kullanıcıya
+ * halka gösterilmez, yalnızca klavye/yardımcı teknoloji odağında çıkar.
+ * outline (border/shadow değil) seçildi çünkü yerleşimi kaydırmaz ve
+ * Windows yüksek karşıtlık kipinde de görünür kalır.
+ */
+button:focus-visible,
+a[href]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:not([tabindex='-1']):focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  /*
+   * Halka anında çıkmalı. Düğmelerin çoğu transition-all taşıyor; bu,
+   * outline-width'i de animasyona sokup halkayı 300 ms boyunca yavaşça
+   * açıyordu — klavyeyle hızlı gezen biri nerede olduğunu geç görüyordu.
+   * Listede outline yok, diğer geçişler (renk, gölge, ölçek) korunuyor.
+   */
+  transition-property: background-color, border-color, color, box-shadow, transform, opacity;
+}
+
+/*
+ * Özgüllük notu: önce :where() ile yazılmıştı ama Tailwind'in kendi
+ * outline yardımcıları (outline-style/outline-width'i ayrı ayrı kuran
+ * değişken tabanlı kurallar) sıfır özgüllüklü seçiciyi geçiyor ve halkanın
+ * KALINLIĞINI sıfırlıyordu: ölçümde renk ve çizgi tipi geliyor, genişlik
+ * 0px kalıyordu — yani halka görünmüyordu. Seçiciler artık düz yazıldı.
+ */

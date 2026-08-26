@@ -379,7 +379,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
             <div className="pt-2 flex justify-end">
               <button
                 onClick={() => onNavigateToTab('collections')}
-                className="text-xs font-semibold text-[var(--primary)] hover:text-[var(--primary-hover)] flex items-center gap-1 group cursor-pointer"
+                className="text-xs font-semibold text-[var(--primary)] hover:text-[var(--primary-hover)] flex items-center gap-1 group cursor-pointer py-2 -my-1"
               >
                 <span>Tüm Setlerimi Gör ({collections.length})</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
@@ -424,7 +424,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
 
           <button
             onClick={() => onNavigateToTab('oxford')}
-            className="text-xs font-semibold text-[var(--primary)] hover:text-[var(--primary-hover)] flex items-center gap-1 self-start sm:self-auto shrink-0 cursor-pointer"
+            className="text-xs font-semibold text-[var(--primary)] hover:text-[var(--primary-hover)] flex items-center gap-1 self-start sm:self-auto shrink-0 cursor-pointer py-2 -my-1"
           >
             <span>Tüm Oxford 5000'i Gör</span>
             <ArrowRight className="w-3.5 h-3.5" />

@@ -14,7 +14,18 @@ interface ToastProps {
 
 export const ToastContainer: React.FC<ToastProps> = ({ toasts, onDismiss }) => {
   return (
-    <div className="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-50 flex flex-col gap-2 pointer-events-none max-w-sm w-full px-2">
+    /*
+     * Ekran okuyucu bildirimleri buradan duyurur. Kabın kendisi sayfa
+     * yüklenirken var olmalı ki içine eklenen metinler "canlı" sayılsın;
+     * sonradan oluşturulan bir aria-live kabı çoğu okuyucuda sessiz kalır.
+     * polite: kullanıcının o an okuduğu şeyi kesmez, sırasını bekler.
+     */
+    <div
+      role="status"
+      aria-live="polite"
+      aria-atomic="false"
+      className="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-50 flex flex-col gap-2 pointer-events-none max-w-sm w-full px-2"
+    >
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onDismiss={onDismiss} />
       ))}
@@ -88,11 +99,12 @@ const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void
       style={{ boxShadow: '0 4px 20px -2px rgba(30, 36, 48, 0.08)' }}
     >
       <div className="flex items-center gap-2.5">
-        <div className="shrink-0">{style.icon}</div>
+        <div className="shrink-0" aria-hidden="true">{style.icon}</div>
         <span>{toast.text}</span>
       </div>
       <button
         onClick={() => onDismiss(toast.id)}
+        aria-label="Bildirimi kapat"
         className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-lg transition-colors"
       >
         <X className="w-3.5 h-3.5" />

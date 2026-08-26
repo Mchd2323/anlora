@@ -156,7 +156,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               ) : (
                 <button
                   onClick={onOpenAuthModal}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[var(--primary-soft)] hover:bg-[var(--primary-soft-hover)] text-[var(--primary)] border border-[var(--primary-border)] text-xs font-semibold transition-all active:scale-95 cursor-pointer"
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--primary-soft)] hover:bg-[var(--primary-soft-hover)] text-[var(--primary)] border border-[var(--primary-border)] text-xs font-semibold transition-all active:scale-95 cursor-pointer"
                 >
                   <LogIn className="w-3.5 h-3.5" />
                   <span>Giriş Yap</span>
