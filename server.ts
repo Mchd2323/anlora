@@ -1352,8 +1352,104 @@ app.post('/api/auth/register', blockDuringMaintenance, (req, res) => {
  * Bu kurulumda e-posta gönderimi yok; kod sunucu günlüğüne yazılır. Gerçek bir
  * dağıtımda burası bir e-posta sağlayıcısına bağlanmalıdır.
  */
+// ---------------------------------------------------------------------------
+// E-posta gönderimi (Resend)
+// ---------------------------------------------------------------------------
+//
+// ANAHTAR YOKSA ÖZELLİK KAPALI. `RESEND_API_KEY` tanımlı değilse kod yalnızca
+// sunucu günlüğüne yazılır — geliştirme sırasında işe yarar ama gerçek
+// kullanıcıya ulaşmaz. Bu durumda sahte bir "e-posta gönderildi" mesajı
+// vermemek gerekir; kullanıcı beklediği kodu asla almaz.
+//
+// GÖNDEREN ADRESİ doğrulanmış bir alan adına ait olmalı. Doğrulanmamış
+// adresten çıkan posta ya reddedilir ya da spam klasörüne düşer; bu yüzden
+// adres ortam değişkeninden geliyor ve varsayılan yok.
+
+const RESEND_API_KEY = (process.env.RESEND_API_KEY || '').trim();
+const MAIL_FROM = (process.env.ANLORA_MAIL_FROM || '').trim();
+
+export interface MailResult {
+  ok: boolean;
+  reason?: string;
+}
+
+/** E-posta gönderimi yapılandırıldı mı? */
+function isMailConfigured(): boolean {
+  return !!RESEND_API_KEY && !!MAIL_FROM;
+}
+
+/**
+ * Tek bir e-posta gönderir.
+ *
+ * Hata durumunda çağıran akış DÜŞMEZ: kullanıcı kaydı e-posta yüzünden
+ * başarısız olmamalı. Yönetici günlükten görebilsin diye sebep yazılır.
+ */
+async function sendMail(to: string, subject: string, html: string): Promise<MailResult> {
+  if (!isMailConfigured()) {
+    return { ok: false, reason: 'NOT_CONFIGURED' };
+  }
+
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ from: MAIL_FROM, to: [to], subject, html })
+    });
+
+    if (response.ok) return { ok: true };
+
+    const detail = await response.text();
+    console.error('[ANLORA MAIL] Gönderilemedi:', response.status, detail.slice(0, 300));
+    return { ok: false, reason: `HTTP ${response.status}` };
+  } catch (err: any) {
+    console.error('[ANLORA MAIL] İstek başarısız:', err?.message);
+    return { ok: false, reason: 'NETWORK' };
+  }
+}
+
+/** Uygulamanın posta şablonu; her yerde aynı görünsün diye tek yerde. */
+function mailTemplate(baslik: string, govde: string): string {
+  return `<!doctype html>
+<html lang="tr"><body style="margin:0;padding:24px;background:#F6F4EE;font-family:system-ui,-apple-system,'Segoe UI',sans-serif">
+  <div style="max-width:480px;margin:0 auto;background:#FFFFFF;border:1px solid #E2DED3;border-radius:16px;padding:28px">
+    <div style="font-size:20px;font-weight:800;color:#4F46A5;letter-spacing:-0.4px">Anlora</div>
+    <h1 style="font-size:18px;color:#1B2028;margin:18px 0 10px">${baslik}</h1>
+    <div style="font-size:14px;line-height:1.6;color:#5C5F66">${govde}</div>
+    <p style="font-size:12px;color:#8A857A;margin-top:24px;padding-top:16px;border-top:1px solid #E2DED3">
+      Bu e-postayı beklemiyorsan görmezden gelebilirsin.
+    </p>
+  </div>
+</body></html>`;
+}
+
 function deliverVerificationCode(email: string, code: string): void {
-  console.log(`[ANLORA AUTH] Doğrulama kodu: ${email} -> ${code}`);
+  if (!isMailConfigured()) {
+    // Yapılandırma yoksa kod yalnızca günlüğe düşer. Geliştirmede işe yarar.
+    console.log(`[ANLORA AUTH] Doğrulama kodu: ${email} -> ${code}`);
+    return;
+  }
+
+  void sendMail(
+    email,
+    'Anlora doğrulama kodun',
+    mailTemplate(
+      'Doğrulama kodun',
+      `<p>Hesabını doğrulamak için aşağıdaki kodu uygulamaya gir:</p>
+       <p style="font-size:30px;font-weight:800;letter-spacing:6px;color:#1B2028;
+                 background:#F1EFE8;border-radius:12px;padding:14px;text-align:center;
+                 margin:16px 0">${code}</p>
+       <p>Kod <b>15 dakika</b> geçerli.</p>`
+    )
+  ).then(result => {
+    if (!result.ok) {
+      // Posta gitmediyse kullanıcı kodu alamaz; günlükte dursun ki
+      // yönetici destek verebilsin.
+      console.log(`[ANLORA AUTH] Posta gönderilemedi (${result.reason}); kod: ${email} -> ${code}`);
+    }
+  });
 }
 
 /**
@@ -3236,6 +3332,8 @@ app.get('/api/health', (_req, res) => {
     users: Object.keys(cloudUsersDatabase).length,
     dictionaryWords: dictionary.words.length,
     aiConfigured: !!process.env.GEMINI_API_KEY,
+    mailConfigured: isMailConfigured(),
+    pushConfigured: !!getServiceAccount(),
     version: process.env.npm_package_version || 'dev'
   });
 });
@@ -3391,6 +3489,413 @@ app.post('/api/admin/system/restore', requireAuth, requireAdmin, (req: AuthedReq
   } catch (err: any) {
     return res.status(500).json({ error: 'Geri yükleme başarısız: ' + (err?.message || '') });
   }
+});
+
+// ---------------------------------------------------------------------------
+// Anlık bildirim (Firebase Cloud Messaging)
+// ---------------------------------------------------------------------------
+//
+// KİMLİK DOĞRULAMA: FCM'in eski "server key" yöntemi kapatıldı; güncel yol
+// HTTP v1 API'si ve bir hizmet hesabıdır. Hizmet hesabıyla önce imzalı bir
+// JWT üretilip erişim jetonuna çevriliyor, sonra bildirim gönderiliyor.
+// Bunun için ek bir kütüphaneye gerek yok: Node'un kendi `crypto` modülü
+// RS256 imzalamayı zaten yapıyor.
+//
+// ANAHTAR YOKSA ÖZELLİK KAPALI. `ANLORA_FCM_SERVICE_ACCOUNT` tanımlı değilse
+// gönderim uçları dürüstçe "yapılandırılmadı" der; sahte bir başarı
+// bildirmez.
+
+const DEVICES_FILE = path.join(DATA_DIR, 'devices.json');
+
+interface DeviceRecord {
+  token: string;
+  /** Giriş yapılmışsa hesabın e-postası; anonim cihazlarda boş. */
+  email?: string;
+  platform: string;
+  /** Kullanıcının almak istediği bildirim türleri. */
+  topics: { announcements: boolean; reminders: boolean };
+  createdAt: string;
+  lastSeen: string;
+}
+
+interface DeviceStore {
+  devices: Record<string, DeviceRecord>;
+  /** Gönderim geçmişi: panelde istatistik olarak gösterilir. */
+  sends: { at: string; title: string; audience: string; sent: number; failed: number }[];
+}
+
+function loadDevices(): DeviceStore {
+  try {
+    if (fs.existsSync(DEVICES_FILE)) {
+      const parsed = JSON.parse(fs.readFileSync(DEVICES_FILE, 'utf8'));
+      if (parsed && typeof parsed === 'object') {
+        return { devices: parsed.devices || {}, sends: parsed.sends || [] };
+      }
+    }
+  } catch (err) {
+    console.error('Cihaz dosyası okunamadı:', err);
+  }
+  return { devices: {}, sends: [] };
+}
+
+const deviceStore: DeviceStore = loadDevices();
+
+let devicesTimer: NodeJS.Timeout | null = null;
+function persistDevices(): void {
+  if (devicesTimer) return;
+  devicesTimer = setTimeout(() => {
+    devicesTimer = null;
+    try {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+      fs.writeFileSync(DEVICES_FILE, JSON.stringify(deviceStore), 'utf8');
+    } catch (err) {
+      console.error('Cihaz dosyası yazılamadı:', err);
+    }
+  }, 500);
+}
+
+interface ServiceAccount {
+  client_email: string;
+  private_key: string;
+  project_id: string;
+}
+
+/**
+ * Hizmet hesabını ortam değişkeninden okur.
+ *
+ * Değişken ya JSON'un kendisini ya da dosya yolunu taşıyabilir; ikisi de
+ * yaygın kullanım. Anahtar depoya ASLA girmez.
+ */
+function getServiceAccount(): ServiceAccount | null {
+  const raw = (process.env.ANLORA_FCM_SERVICE_ACCOUNT || '').trim();
+  if (!raw) return null;
+  try {
+    const text = raw.startsWith('{') ? raw : fs.readFileSync(raw, 'utf8');
+    const parsed = JSON.parse(text);
+    if (parsed?.client_email && parsed?.private_key && parsed?.project_id) return parsed;
+  } catch (err) {
+    console.error('FCM hizmet hesabı okunamadı:', err);
+  }
+  return null;
+}
+
+let cachedAccessToken: { token: string; expiresAt: number } | null = null;
+
+/**
+ * Google OAuth2 erişim jetonu alır.
+ *
+ * Jeton bir saat geçerli; her bildirimde yeniden almak gereksiz gecikme ve
+ * kota tüketimi olurdu. Bir dakikalık güvenlik payıyla önbelleklenir.
+ */
+async function getFcmAccessToken(account: ServiceAccount): Promise<string | null> {
+  if (cachedAccessToken && cachedAccessToken.expiresAt > Date.now() + 60_000) {
+    return cachedAccessToken.token;
+  }
+
+  const now = Math.floor(Date.now() / 1000);
+  const header = { alg: 'RS256', typ: 'JWT' };
+  const claim = {
+    iss: account.client_email,
+    scope: 'https://www.googleapis.com/auth/firebase.messaging',
+    aud: 'https://oauth2.googleapis.com/token',
+    iat: now,
+    exp: now + 3600
+  };
+
+  const base64url = (value: object) =>
+    Buffer.from(JSON.stringify(value)).toString('base64url');
+  const unsigned = `${base64url(header)}.${base64url(claim)}`;
+
+  let signature: string;
+  try {
+    signature = crypto
+      .createSign('RSA-SHA256')
+      .update(unsigned)
+      .sign(account.private_key, 'base64url');
+  } catch (err) {
+    console.error('JWT imzalanamadı:', err);
+    return null;
+  }
+
+  try {
+    const response = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+        assertion: `${unsigned}.${signature}`
+      })
+    });
+
+    const data: any = await response.json();
+    if (!response.ok || !data?.access_token) {
+      console.error('FCM erişim jetonu alınamadı:', data);
+      return null;
+    }
+
+    cachedAccessToken = {
+      token: data.access_token,
+      expiresAt: Date.now() + (Number(data.expires_in) || 3600) * 1000
+    };
+    return cachedAccessToken.token;
+  } catch (err) {
+    console.error('FCM jeton isteği başarısız:', err);
+    return null;
+  }
+}
+
+/**
+ * Tek bir cihaza bildirim gönderir.
+ *
+ * @returns 'ok' | 'gone' (jeton geçersiz, kayıt silinmeli) | 'error'
+ */
+async function sendToDevice(
+  account: ServiceAccount,
+  accessToken: string,
+  token: string,
+  title: string,
+  body: string
+): Promise<'ok' | 'gone' | 'error'> {
+  try {
+    const response = await fetch(
+      `https://fcm.googleapis.com/v1/projects/${account.project_id}/messages:send`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: {
+            token,
+            notification: { title, body },
+            android: { priority: 'HIGH', notification: { sound: 'default' } }
+          }
+        })
+      }
+    );
+
+    if (response.ok) return 'ok';
+
+    /*
+     * 404 ve 403 "bu jeton artık geçerli değil" demektir: uygulama
+     * kaldırılmış ya da jeton yenilenmiş olabilir. Böyle kayıtları silmek
+     * gerekir, yoksa liste ölü jetonlarla dolar ve her gönderim yavaşlar.
+     */
+    if (response.status === 404 || response.status === 403) return 'gone';
+    return 'error';
+  } catch {
+    return 'error';
+  }
+}
+
+// --- Cihaz kaydı (uygulama tarafı) ----------------------------------------
+
+/**
+ * Cihaz jetonunu kaydeder ya da tazeler.
+ *
+ * Giriş şartı yok: bildirim almak için hesap açmak zorunda bırakmak,
+ * duyuruların çoğu kullanıcıya hiç ulaşmaması demek olurdu. Giriş yapılmışsa
+ * hesap eşleştirilir; böylece "yalnızca doğrulanmış hesaplara" gönderim
+ * mümkün olur.
+ */
+app.post('/api/devices/register', (req, res) => {
+  const token = sanitizeString(req.body?.token, 400);
+  if (!token || token.length < 20) {
+    return res.status(400).json({ error: 'Geçersiz cihaz jetonu.' });
+  }
+
+  const header = req.headers.authorization || '';
+  const user = resolveSession(header.startsWith('Bearer ') ? header.slice(7).trim() : '');
+  const now = new Date().toISOString();
+  const existing = deviceStore.devices[token];
+
+  deviceStore.devices[token] = {
+    token,
+    email: user?.email || existing?.email,
+    platform: sanitizeString(req.body?.platform, 40) || 'android',
+    topics: {
+      announcements: req.body?.topics?.announcements !== false,
+      reminders: req.body?.topics?.reminders !== false
+    },
+    createdAt: existing?.createdAt || now,
+    lastSeen: now
+  };
+  persistDevices();
+
+  return res.json({ ok: true });
+});
+
+/** Kullanıcı bildirim tercihini değiştirdiğinde ya da çıkış yaptığında. */
+app.delete('/api/devices/:token', (req, res) => {
+  const token = String(req.params.token || '');
+  if (deviceStore.devices[token]) {
+    delete deviceStore.devices[token];
+    persistDevices();
+  }
+  return res.json({ ok: true });
+});
+
+// --- Yönetim: bildirim gönderme -------------------------------------------
+
+app.get('/api/admin/push', requireAuth, requireAdmin, (_req, res) => {
+  const devices = Object.values(deviceStore.devices);
+  return res.json({
+    configured: !!getServiceAccount(),
+    devices: {
+      total: devices.length,
+      signedIn: devices.filter(d => d.email).length,
+      wantAnnouncements: devices.filter(d => d.topics.announcements).length,
+      wantReminders: devices.filter(d => d.topics.reminders).length
+    },
+    sends: deviceStore.sends.slice(0, 20)
+  });
+});
+
+app.post('/api/admin/push/send', requireAuth, requireAdmin, async (req: AuthedRequest, res) => {
+  const account = getServiceAccount();
+  if (!account) {
+    return res.status(503).json({
+      error:
+        'Bildirim gönderimi yapılandırılmadı. Sunucuda ANLORA_FCM_SERVICE_ACCOUNT ' +
+        'tanımlı değil.',
+      code: 'PUSH_NOT_CONFIGURED'
+    });
+  }
+
+  const title = sanitizeString(req.body?.title, 80);
+  const body = sanitizeString(req.body?.body, 240);
+  if (!title || !body) {
+    return res.status(400).json({ error: 'Başlık ve mesaj gerekli.' });
+  }
+
+  const audience = req.body?.audience === 'verified' ? 'verified' : 'all';
+  const topic = req.body?.topic === 'reminders' ? 'reminders' : 'announcements';
+
+  /*
+   * Kullanıcının TERCİHİ HER ZAMAN ÖNCE GELİR. "Herkese gönder" desen bile,
+   * o türü kapatmış cihaza gönderilmez; aksi hâlde tercih ekranı süs olurdu.
+   */
+  let hedefler = Object.values(deviceStore.devices).filter(device => device.topics[topic]);
+
+  if (audience === 'verified') {
+    hedefler = hedefler.filter(device => {
+      if (!device.email) return false;
+      const user = cloudUsersDatabase[device.email];
+      return !!user?.emailVerified && !user.banned;
+    });
+  }
+
+  if (hedefler.length === 0) {
+    return res.json({ sent: 0, failed: 0, message: 'Bu ölçütlere uyan cihaz yok.' });
+  }
+
+  const accessToken = await getFcmAccessToken(account);
+  if (!accessToken) {
+    return res.status(502).json({ error: 'Firebase erişim jetonu alınamadı.' });
+  }
+
+  let sent = 0;
+  let failed = 0;
+  const olenler: string[] = [];
+
+  // Sıralı gönderim: yüzlerce isteği aynı anda açmak hem sunucuyu hem de
+  // FCM kotasını zorlar. Küçük gruplar hâlinde ilerlenir.
+  for (let i = 0; i < hedefler.length; i += 20) {
+    const grup = hedefler.slice(i, i + 20);
+    const sonuclar = await Promise.all(
+      grup.map(device => sendToDevice(account, accessToken, device.token, title, body))
+    );
+    sonuclar.forEach((sonuc, index) => {
+      if (sonuc === 'ok') sent++;
+      else {
+        failed++;
+        if (sonuc === 'gone') olenler.push(grup[index].token);
+      }
+    });
+  }
+
+  // Ölü jetonlar temizlenir; liste her gönderimde biraz daha yavaşlamasın.
+  olenler.forEach(token => delete deviceStore.devices[token]);
+
+  deviceStore.sends.unshift({
+    at: new Date().toISOString(),
+    title,
+    audience,
+    sent,
+    failed
+  });
+  if (deviceStore.sends.length > 100) deviceStore.sends.length = 100;
+  persistDevices();
+
+  recordAudit(req, 'anlık bildirim gönderildi', title, `${sent} başarılı, ${failed} başarısız`);
+  return res.json({ sent, failed, removed: olenler.length });
+});
+
+// --- Yönetim: toplu e-posta ------------------------------------------------
+
+/**
+ * Doğrulanmış kullanıcılara e-posta gönderir.
+ *
+ * Alıcı listesi HER ZAMAN doğrulanmış hesaplarla sınırlıdır: doğrulanmamış
+ * bir adres ya yanlış yazılmıştır ya da başkasına aittir; oraya posta
+ * göndermek spam şikâyeti demektir. Engelli hesaplar da atlanır.
+ *
+ * Gönderim yavaş ve gruplu: Resend saniyede iki isteğe izin veriyor, hepsini
+ * birden atmak istekleri reddettirir.
+ */
+app.post('/api/admin/email/send', requireAuth, requireAdmin, async (req: AuthedRequest, res) => {
+  if (!isMailConfigured()) {
+    return res.status(503).json({
+      error:
+        'E-posta gönderimi yapılandırılmadı. Sunucuda RESEND_API_KEY ve ' +
+        'ANLORA_MAIL_FROM tanımlı olmalı.',
+      code: 'MAIL_NOT_CONFIGURED'
+    });
+  }
+
+  const subject = sanitizeString(req.body?.subject, 120);
+  const body = sanitizeString(req.body?.body, 4000);
+  if (!subject || !body) {
+    return res.status(400).json({ error: 'Konu ve mesaj gerekli.' });
+  }
+
+  const testTo = sanitizeString(req.body?.testTo, 120).toLowerCase();
+
+  /*
+   * ÖNCE DENEME GÖNDERİMİ. Yönetici metni kendine gönderip görmeden yüzlerce
+   * kişiye yollamamalı; yanlış yazılmış bir posta geri alınamaz.
+   */
+  if (testTo) {
+    const result = await sendMail(testTo, subject, mailTemplate(subject, body));
+    if (!result.ok) {
+      return res.status(502).json({ error: `Deneme gönderilemedi (${result.reason}).` });
+    }
+    return res.json({ sent: 1, failed: 0, test: true });
+  }
+
+  const alicilar = Object.values(cloudUsersDatabase).filter(
+    user => user.emailVerified && !user.banned
+  );
+
+  if (alicilar.length === 0) {
+    return res.json({ sent: 0, failed: 0, message: 'Doğrulanmış alıcı yok.' });
+  }
+
+  let sent = 0;
+  let failed = 0;
+  const html = mailTemplate(subject, body);
+
+  for (const user of alicilar) {
+    const result = await sendMail(user.email, subject, html);
+    if (result.ok) sent++;
+    else failed++;
+    // Sağlayıcı hız sınırına takılmamak için aralık bırakılıyor.
+    await new Promise(resolve => setTimeout(resolve, 600));
+  }
+
+  recordAudit(req, 'toplu e-posta gönderildi', subject, `${sent} başarılı, ${failed} başarısız`);
+  return res.json({ sent, failed });
 });
 
 // --- Yönetim: reklam alanları ----------------------------------------------

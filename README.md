@@ -233,3 +233,15 @@ Yönetim paneli **Profil → Yönetim Paneli** yolundan açılır ve yalnızca
 `users.json`, `dictionary.json`, `content.json`, `ai-cache.json`,
 `stats.json`, `shares.json`, `metrics.json`, `audit.json`, `uploads/`,
 `backups/`.
+
+### Bildirim ve e-posta
+
+| Değişken | Ne işe yarar |
+|---|---|
+| `ANLORA_FCM_SERVICE_ACCOUNT` | Firebase hizmet hesabı JSON'u (metnin kendisi ya da dosya yolu). Tanımlı değilse anlık bildirim gönderimi kapalıdır; cihazlar yine kaydolur. |
+| `RESEND_API_KEY` | Resend API anahtarı. Tanımlı değilse doğrulama kodları yalnızca sunucu günlüğüne yazılır. |
+| `ANLORA_MAIL_FROM` | Gönderen adresi, örn. `Anlora <merhaba@alanadin.com>`. **Doğrulanmış bir alan adına ait olmalı.** |
+
+`android/app/google-services.json` APK'nın içine gömülür ve Firebase'in
+Android istemcisini yapılandırır; her APK'dan çıkarılabildiği için gizli
+sayılmaz. Hizmet hesabı anahtarı ise **gizlidir** ve depoya girmez.

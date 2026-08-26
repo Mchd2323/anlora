@@ -1,12 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserSettings } from '../types';
-import { Sliders, Target, Volume2, Keyboard, Layers, Download, Loader2, Sun } from 'lucide-react';
+import { Sliders, Target, Volume2, Keyboard, Layers, Download, Loader2, Sun, Bell } from 'lucide-react';
 import {
   describeSpeechSupport,
   openTtsInstall,
   speakText,
   SpeechDiagnostics
 } from '../utils/speech';
+import {
+  isPushAvailable,
+  getPushPreferences,
+  enablePush,
+  disablePush,
+  updatePushTopics,
+  PushPreferences
+} from '../services/pushNotifications';
 
 interface SettingsPanelProps {
   settings: UserSettings;
@@ -45,6 +53,44 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
    */
   const [diagnostics, setDiagnostics] = useState<SpeechDiagnostics | null>(null);
   const [isTesting, setIsTesting] = useState(false);
+
+  /*
+   * Bildirim tercihleri.
+   *
+   * İzin, uygulama açılırken DEĞİL kullanıcı bildirimleri açtığında isteniyor.
+   * Android'de bir kez reddedilen izin bir daha sorulamıyor; sebebi
+   * anlatmadan sormak, kullanıcının çoğu zaman düşünmeden reddetmesi demek.
+   */
+  const [pushAvailable, setPushAvailable] = useState<boolean | null>(null);
+  const [push, setPush] = useState<PushPreferences>(getPushPreferences);
+  const [pushBusy, setPushBusy] = useState(false);
+  const [pushNote, setPushNote] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    void isPushAvailable().then(ok => {
+      if (!cancelled) setPushAvailable(ok);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const togglePush = async (next: boolean) => {
+    setPushBusy(true);
+    setPushNote('');
+    try {
+      if (next) {
+        const result = await enablePush();
+        if (!result.ok) setPushNote(result.reason || 'Bildirimler açılamadı.');
+      } else {
+        await disablePush();
+      }
+      setPush(getPushPreferences());
+    } finally {
+      setPushBusy(false);
+    }
+  };
 
   const runSpeechTest = async () => {
     setIsTesting(true);
@@ -245,6 +291,79 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
             Tüm ekranı birlikte büyütür. Değişiklik anında görünür.
           </p>
         </div>
+      </div>
+
+      {/* Bildirimler */}
+      <div className="space-y-2 pt-2 border-t border-[var(--border-light)]">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)]">
+          <Bell className="w-3.5 h-3.5" />
+          <span>Bildirimler</span>
+        </div>
+
+        {pushAvailable === false ? (
+          <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">
+            Anlık bildirim yalnızca telefona kurulu uygulamada çalışıyor. Tarayıcıda
+            uygulama içi duyuruları yine görürsün.
+          </p>
+        ) : (
+          <>
+            <label className="flex items-start gap-2.5 p-3 rounded-xl border border-[var(--border-light)] bg-[var(--surface-subtle)] cursor-pointer hover:bg-[var(--surface-soft)] transition-colors">
+              <input
+                type="checkbox"
+                checked={push.enabled}
+                disabled={pushBusy}
+                onChange={e => void togglePush(e.target.checked)}
+                className="mt-0.5 accent-[var(--primary)] cursor-pointer"
+              />
+              <span>
+                <span className="text-xs font-bold text-[var(--text-primary)]">
+                  Bildirimleri aç
+                </span>
+                <span className="block text-[11px] text-[var(--text-secondary)]">
+                  Yeni özellikler ve tekrar hatırlatmaları telefonuna gelsin.
+                </span>
+              </span>
+            </label>
+
+            {push.enabled && (
+              <div className="pl-3 space-y-1.5">
+                <label className="flex items-center gap-2 text-[11px] text-[var(--text-primary)] cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={push.announcements}
+                    onChange={e => {
+                      void updatePushTopics({ announcements: e.target.checked });
+                      setPush(getPushPreferences());
+                    }}
+                    className="accent-[var(--primary)] cursor-pointer"
+                  />
+                  Duyurular ve yeni özellikler
+                </label>
+                <label className="flex items-center gap-2 text-[11px] text-[var(--text-primary)] cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={push.reminders}
+                    onChange={e => {
+                      void updatePushTopics({ reminders: e.target.checked });
+                      setPush(getPushPreferences());
+                    }}
+                    className="accent-[var(--primary)] cursor-pointer"
+                  />
+                  Çalışma hatırlatmaları
+                </label>
+                <p className="text-[10px] text-[var(--text-muted)] leading-relaxed">
+                  Kapattığın tür sana gönderilmez — "herkese" gönderilen bir duyuruda bile.
+                </p>
+              </div>
+            )}
+
+            {pushNote && (
+              <div className="p-3 rounded-xl bg-[var(--learning-soft)] border border-[var(--learning-border)] text-[11px] text-[var(--learning-text)] leading-relaxed">
+                {pushNote}
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       {/* Telaffuz sesi */}

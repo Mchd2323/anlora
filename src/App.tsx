@@ -66,6 +66,7 @@ import { useTheme } from './hooks/useTheme';
 import { useKeyboardShortcuts, Shortcut } from './hooks/useKeyboardShortcuts';
 import { releaseStuckScrollLocks, useModalA11y } from './hooks/useModalA11y';
 import { reportAppOpened, reportWordResult } from './services/usageReporter';
+import { getPushPreferences, disablePush } from './services/pushNotifications';
 
 export default function App() {
   const { showToast } = useToast();
@@ -432,6 +433,12 @@ export default function App() {
     // temizlemek jetonu geçerli bırakırdı.
     void logout();
     setIsAdminPanelOpen(false);
+    /*
+     * Çıkışta cihaz kaydı da düşer. Aksi hâlde "yalnızca doğrulanmış
+     * hesaplara" gönderilen bir bildirim, çıkış yapmış kişinin telefonuna
+     * gitmeye devam ederdi.
+     */
+    if (getPushPreferences().enabled) void disablePush();
     const guestProfile: UserProfile = {
       email: null,
       name: 'Misafir Kullanıcı',
