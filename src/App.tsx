@@ -10,6 +10,8 @@ import { FavoritesView } from './components/FavoritesView';
 import { ProfileView } from './components/ProfileView';
 import { AuthModal } from './components/AuthModal';
 import { AdminShell } from './components/admin/AdminShell';
+import { FeedbackModal, FeedbackKind } from './components/FeedbackModal';
+import { useAppContent } from './hooks/useAppContent';
 import { AddToCollectionModal } from './components/AddToCollectionModal';
 import { EditCardModal } from './components/EditCardModal';
 
@@ -130,6 +132,19 @@ export default function App() {
    * sunucunun yönetici dediği hesapta görünüyor.
    */
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
+  /** Hata bildirimi penceresi; kelime kartından açıldığında kelimeyi taşır. */
+  const [feedbackRequest, setFeedbackRequest] = useState<
+    { word?: string; kind?: FeedbackKind } | null
+  >(null);
+
+  /*
+   * Sunucudan gelen marka metinleri, duyurular ve reklam alanları.
+   *
+   * İlk değer önbellekten gelir, ağ beklenmez: uygulama çevrimdışı açıldığında
+   * da son bilinen metinlerle çizilir, sunucu hiç yoksa pakete gömülü
+   * varsayılanlar kullanılır.
+   */
+  const appContent = useAppContent();
   const [cardToAddToCollection, setCardToAddToCollection] = useState<WordCard | null>(null);
   const [editingCard, setEditingCard] = useState<WordCard | null>(null);
 
@@ -359,6 +374,11 @@ export default function App() {
     setCardToAddToCollection(card);
   }, []);
 
+  /** Kelime kartındaki "hata bildir"; hangi kelime olduğu forma taşınır. */
+  const handleReportWord = useCallback((card: WordCard) => {
+    setFeedbackRequest({ word: card.word, kind: 'word' });
+  }, []);
+
   const handleToggleLearnedFromList = useCallback((id: string) => {
     handleRecordStudyResult(id, 'good', 'flashcard');
   }, [handleRecordStudyResult]);
@@ -465,6 +485,8 @@ export default function App() {
             settings={settings}
             stats={stats}
             profile={profile}
+            branding={appContent.branding}
+            announcements={appContent.announcements}
             onOpenAuthModal={() => setIsAuthModalOpen(true)}
             onStartStudy={(deckId) => {
               setStudySessionInitialDeckId(deckId);
@@ -555,6 +577,7 @@ export default function App() {
             onToggleLearned={handleToggleLearnedFromList}
             onSetStatus={handleSetWordStatus}
             onOpenAddToCollection={handleOpenAddToCollection}
+            onReportWord={handleReportWord}
             onStartStudy={() => {
               setActiveTab('study');
             }}
@@ -609,6 +632,7 @@ export default function App() {
               setActiveTab('oxford');
             }}
             onOpenAdminPanel={profile.isAdmin ? () => setIsAdminPanelOpen(true) : undefined}
+            onOpenFeedback={() => setFeedbackRequest({ kind: 'bug' })}
           />
         )}
         </>
@@ -641,6 +665,14 @@ export default function App() {
           onDelete={handleDeleteCustomWord}
         />
       )}
+
+      {/* Hata bildirimi / iletişim */}
+      <FeedbackModal
+        isOpen={!!feedbackRequest}
+        onClose={() => setFeedbackRequest(null)}
+        initialWord={feedbackRequest?.word}
+        initialKind={feedbackRequest?.kind}
+      />
 
       {/* Auth / Cloud Sync Modal */}
       <AuthModal

@@ -18,12 +18,14 @@ import {
   Sparkles,
   Flame,
   Target,
-  Play
+  Play,
+  Megaphone
 } from 'lucide-react';
 import { getUserWordStatus } from '../utils/storageV2';
 import { summarizeQueue } from '../utils/srsEngine';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { BRAND } from '../config/brand';
+import { AdSlot } from './AdSlot';
 
 interface TodayDashboardProps {
   collections: Collection[];
@@ -37,6 +39,22 @@ interface TodayDashboardProps {
   settings?: UserSettings;
   stats?: UserStats;
   profile?: UserProfile;
+  /**
+   * Yöneticinin panelden düzenlediği metinler ve logo.
+   *
+   * Alanı boş gelen her şey pakete gömülü varsayılana düşer; sunucu yoksa
+   * ya da çevrimdışıysak ekran yine dolu görünür.
+   */
+  branding?: {
+    logoDataUri?: string;
+    appName?: string;
+    slogan?: string;
+    homeIntro?: string;
+    setsIntro?: string;
+    lookupTitle?: string;
+    lookupBody?: string;
+  };
+  announcements?: { id: string; title: string; body: string; createdAt: string }[];
   onNavigateToTab: (tab: string) => void;
   onSelectLevel?: (level: Level | 'B2_EK') => void;
   onOpenCreateSet?: () => void;
@@ -55,6 +73,8 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
   settings,
   stats,
   profile,
+  branding = {},
+  announcements = [],
   onNavigateToTab,
   onSelectLevel,
   onOpenCreateSet,
@@ -125,21 +145,57 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
       {/* 1. ÜST BÖLÜM: Anlora Marka Karşılama ve Slogan */}
       <div className="text-left space-y-2 pt-2">
         <div className="flex flex-col gap-1">
-          <h1 className="text-3xl sm:text-4xl font-black text-[#1E2430] tracking-tight">
-            {BRAND.name}
-          </h1>
+          <div className="flex items-center gap-3">
+            {branding.logoDataUri && (
+              <img
+                src={branding.logoDataUri}
+                alt=""
+                className="w-11 h-11 rounded-2xl object-contain bg-white border border-[#E4E1D9] p-1"
+              />
+            )}
+            <h1 className="text-3xl sm:text-4xl font-black text-[#1E2430] tracking-tight">
+              {branding.appName || BRAND.name}
+            </h1>
+          </div>
           <p className="text-lg sm:text-xl font-semibold text-[#4F46A5] tracking-tight">
-            {BRAND.slogan}
+            {branding.slogan || BRAND.slogan}
           </p>
         </div>
         <p className="text-xs text-[#687080] max-w-2xl leading-relaxed">
-          Kendi kelime setlerini oluştur veya Oxford 5000 kelimelerini seviyene
-          göre çalış. Eklediğin kelime uygulamanın sözlüğünde varsa Türkçe
-          anlamı ve <strong className="text-[#1E2430]">üç örnek cümlesi
-          çevirisiyle birlikte</strong> hazır gelir — internet gerekmeden.
-          Kelimeleri öğren, bildiklerini işaretle ve tekrar ederek aklında tut.
+          {branding.homeIntro || (
+            <>
+              Kendi kelime setlerini oluştur veya Oxford 5000 kelimelerini seviyene
+              göre çalış. Eklediğin kelime uygulamanın sözlüğünde varsa Türkçe
+              anlamı ve <strong className="text-[#1E2430]">üç örnek cümlesi
+              çevirisiyle birlikte</strong> hazır gelir — internet gerekmeden.
+              Kelimeleri öğren, bildiklerini işaretle ve tekrar ederek aklında tut.
+            </>
+          )}
         </p>
       </div>
+
+      {/*
+        Duyurular. Yönetici bir şey yayınlamadıysa burası hiç çizilmez;
+        boş bir "duyuru yok" kutusu göstermenin kimseye faydası olmaz.
+      */}
+      {announcements.length > 0 && (
+        <div className="space-y-2">
+          {announcements.slice(0, 2).map(item => (
+            <div
+              key={item.id}
+              className="bg-[#EEECFA] border border-[#D7D2F4] rounded-2xl p-4 flex items-start gap-3"
+            >
+              <Megaphone className="w-4 h-4 text-[#4F46A5] shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-bold text-[#1E2430]">{item.title}</p>
+                <p className="text-xs text-[#687080] mt-0.5 leading-relaxed">{item.body}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <AdSlot slot="home-top" className="rounded-2xl" />
 
       {/*
         SIRALAMA
@@ -158,7 +214,8 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
               <h2 className="text-xl font-bold text-[#1E2430]">Kelime Setlerim</h2>
             </div>
             <p className="text-sm text-[#687080] leading-relaxed">
-              Dizi, kitap, ders veya günlük hayatta karşılaştığın kelimelerden kendi setlerini oluştur.
+              {branding.setsIntro ||
+                'Dizi, kitap, ders veya günlük hayatta karşılaştığın kelimelerden kendi setlerini oluştur.'}
             </p>
 
             {/* AI Callout */}
@@ -166,12 +223,16 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
               <Sparkles className="w-4 h-4 text-[#4F46A5] shrink-0 mt-0.5" />
               <div>
                 <span className="font-bold text-[#4F46A5] block">
-                  Kelimeyi yaz, gerisini Anlora getirsin
+                  {branding.lookupTitle || 'Kelimeyi yaz, gerisini Anlora getirsin'}
                 </span>
                 <p className="text-[#687080] text-[11px] mt-0.5">
-                  Yazdığın kelime {BRAND.name} sözlüğünde varsa anlamı ve üç
-                  örnek cümlesi anında gelir. Yoksa {BRAND.aiName} hazırlar ya
-                  da kendin yazarsın.
+                  {branding.lookupBody || (
+                    <>
+                      Yazdığın kelime {branding.appName || BRAND.name} sözlüğünde varsa
+                      anlamı ve üç örnek cümlesi anında gelir. Yoksa {BRAND.aiName}{' '}
+                      hazırlar ya da kendin yazarsın.
+                    </>
+                  )}
                 </p>
               </div>
             </div>
@@ -376,6 +437,8 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           })}
         </div>
       </div>
+      <AdSlot slot="home-bottom" className="rounded-2xl" />
+
       {/* 3. BUGÜNÜN PLANI: bekleyen tekrar, yeni kelime ve günlük seri */}
       <div className="bg-[#FFFFFF] rounded-2xl p-5 sm:p-6 border border-[#E4E1D9] shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

@@ -70,6 +70,8 @@ interface OxfordExplorerProps {
   onToggleLearned?: (id: string) => void;
   onSetStatus?: (id: string, status: 'learned' | 'learning' | 'unseen') => void;
   onOpenAddToCollection?: (card: WordCard) => void;
+  /** Karttaki "bu kelimede hata var" bildirimi. */
+  onReportWord?: (card: WordCard) => void;
   onStartStudy?: (cards: WordCard[]) => void;
   onStartQuiz?: (cards: WordCard[]) => void;
 }
@@ -92,6 +94,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
   onToggleLearned,
   onSetStatus,
   onOpenAddToCollection,
+  onReportWord,
   onStartQuiz,
 }) => {
   const [isStudyingFlashcards, setIsStudyingFlashcards] = useState(false);
@@ -435,6 +438,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
                 onToggleLearned={onToggleLearned}
                 onSetStatus={onSetStatus}
                 onOpenAddToCollection={onOpenAddToCollection}
+                onReportWord={onReportWord}
               />
             ))}
           </div>

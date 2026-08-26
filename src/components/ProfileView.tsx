@@ -15,6 +15,7 @@ import {
   Settings,
   Sparkles,
   Shield,
+  MessageSquareWarning,
   Heart,
   BrainCircuit,
   Volume2
@@ -47,6 +48,8 @@ interface ProfileViewProps {
   onOpenOxfordStatus?: (status: 'LEARNED' | 'LEARNING' | 'FAVORITES') => void;
   /** Yalnızca yönetici hesabında tanımlıdır; tanımsızsa giriş hiç çizilmez. */
   onOpenAdminPanel?: () => void;
+  /** Hata bildirimi / iletişim penceresini açar. */
+  onOpenFeedback?: () => void;
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
@@ -63,7 +66,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onNavigateToTab,
   onSelectLevel,
   onOpenOxfordStatus,
-  onOpenAdminPanel
+  onOpenAdminPanel,
+  onOpenFeedback
 }) => {
   const [showExportSuccess, setShowExportSuccess] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
@@ -442,6 +446,25 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             </p>
           </div>
           <span className="text-white/70 text-lg">→</span>
+        </button>
+      )}
+
+      {onOpenFeedback && (
+        <button
+          type="button"
+          onClick={onOpenFeedback}
+          className="w-full bg-[#FFFFFF] hover:bg-[#F8F7F3] border border-[#E4E1D9] rounded-2xl p-5 flex items-center justify-between gap-3 transition-colors cursor-pointer text-left"
+        >
+          <div>
+            <div className="text-sm font-bold text-[#1E2430] flex items-center gap-2">
+              <MessageSquareWarning className="w-4 h-4 text-[#4F46A5]" />
+              Hata bildir · bize yaz
+            </div>
+            <p className="text-[11px] text-[#687080] mt-0.5">
+              Kelime hatası, tasarım sorunu ya da önerin varsa buradan ulaştır.
+            </p>
+          </div>
+          <span className="text-[#8E95A2] text-lg">→</span>
         </button>
       )}
 

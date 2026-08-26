@@ -11,7 +11,8 @@ import {
   Edit3,
   Trash2,
   BookmarkPlus,
-  Layers
+  Layers,
+  MessageSquareWarning
 } from 'lucide-react';
 import { speakText } from '../utils/speech';
 import { CEFRBadge } from './ui/CEFRBadge';
@@ -31,6 +32,13 @@ interface WordCardProps {
   onDeleteCustom?: (id: string) => void;
   onEditCustom?: (card: WordCardType) => void;
   onOpenAddToCollection?: (card: WordCardType) => void;
+  /**
+   * "Bu kelimede hata var" bildirimi.
+   *
+   * Kartın üzerinde durur çünkü hata tam da orada fark edilir; kullanıcı
+   * hangi kelime olduğunu ayrıca yazmak ya da hatırlamak zorunda kalmaz.
+   */
+  onReportWord?: (card: WordCardType) => void;
 }
 
 const WordCardComponentImpl: React.FC<WordCardProps> = ({
@@ -45,7 +53,8 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
   onSetStatus,
   onDeleteCustom,
   onEditCustom,
-  onOpenAddToCollection
+  onOpenAddToCollection,
+  onReportWord
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
@@ -120,6 +129,19 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
                 className="p-1.5 text-[#8E95A2] hover:text-[#4F46A5] hover:bg-[#EEECFA] rounded-lg transition-colors cursor-pointer"
               >
                 <BookmarkPlus className="w-4 h-4" />
+              </button>
+            )}
+
+            {onReportWord && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onReportWord(card);
+                }}
+                title="Bu kelimede hata bildir"
+                className="p-1.5 text-[#8E95A2] hover:text-[#C65D55] hover:bg-[#FAECEA] rounded-lg transition-colors cursor-pointer"
+              >
+                <MessageSquareWarning className="w-4 h-4" />
               </button>
             )}
 
