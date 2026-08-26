@@ -9,7 +9,7 @@ import { StatsAndBadges } from './components/StatsAndBadges';
 import { FavoritesView } from './components/FavoritesView';
 import { ProfileView } from './components/ProfileView';
 import { AuthModal } from './components/AuthModal';
-import { AdminPanel } from './components/AdminPanel';
+import { AdminShell } from './components/admin/AdminShell';
 import { AddToCollectionModal } from './components/AddToCollectionModal';
 import { EditCardModal } from './components/EditCardModal';
 
@@ -581,7 +581,7 @@ export default function App() {
         )}
 
         {activeTab === 'profile' && isAdminPanelOpen && profile.isAdmin && (
-          <AdminPanel onClose={() => setIsAdminPanelOpen(false)} />
+          <AdminShell onClose={() => setIsAdminPanelOpen(false)} />
         )}
 
         {activeTab === 'profile' && !(isAdminPanelOpen && profile.isAdmin) && (
