@@ -219,14 +219,49 @@ function guardAiRequest(req: express.Request, res: express.Response): boolean {
 
 app.post('/api/ai/generate-word', async (req, res) => {
   if (!guardAiRequest(req, res)) return;
+
+  const { word, context } = req.body;
+  if (!word || typeof word !== 'string' || !word.trim()) {
+    return res.status(400).json({ error: 'Kelime girilmedi.' });
+  }
+
+  const trimmedWord = word.trim();
+  const key = cacheKey(trimmedWord);
+  const hasContext = typeof context === 'string' && context.trim().length > 0;
+
+  /*
+   * ADIM 3: DAHA ÖNCE ÜRETİLMİŞ İÇERİK.
+   *
+   * Aynı kelime için ikinci kez yapay zekâ çağrılmaz. Bağlam cümlesi
+   * verilmişse önbellek atlanır: bağlama özel anlam seçimi zaten önbellekteki
+   * genel kartta yok, onu döndürmek kullanıcının sorduğu soruyu yanıtsız
+   * bırakmak olurdu.
+   */
+  const cached = aiCache.cards[key];
+  if (cached && !hasContext) {
+    cached.hits++;
+    aiCache.callsAvoided++;
+    persistAiCache();
+    return res.json({ ...cached.card, isAiGenerated: true, fromCache: true });
+  }
+
+  /*
+   * ADIM 4: KOTA.
+   *
+   * Kelime eklemek sınırsız; sınırlanan yalnızca yeni üretim. Kota dolduysa
+   * kullanıcıya ne yapabileceği söylenir, boş bir hata verilmez.
+   */
+  const userKey =
+    resolveSession((req.headers.authorization || '').replace('Bearer ', '').trim())?.email ||
+    req.ip ||
+    'anon';
+  const quota = checkAiQuota(userKey);
+  if (!quota.allowed) {
+    return res.status(429).json({ error: quota.reason, code: 'AI_QUOTA_EXCEEDED' });
+  }
+
   recordAiRequest();
   try {
-    const { word, context } = req.body;
-    if (!word || typeof word !== 'string' || !word.trim()) {
-      return res.status(400).json({ error: 'Kelime girilmedi.' });
-    }
-
-    const trimmedWord = word.trim();
     const ai = getGenAIClient();
     if (!ai) {
       return res.status(503).json({
@@ -343,6 +378,25 @@ Return valid JSON with the following structure:
         code: 'AI_VALIDATION_FAILED'
       });
     }
+
+    /*
+     * ADIM 5: ÜRETİLEN SONUÇ ORTAK ÖNBELLEĞE YAZILIR.
+     *
+     * Bağlama özel üretimler yazılmaz: onlar bir kullanıcının cümlesine göre
+     * seçilmiş anlamlar taşır ve başka birine yanlış gelir.
+     */
+    if (!hasContext) {
+      aiCache.cards[key] = {
+        word: trimmedWord,
+        card: finalCard,
+        approved: false,
+        flagged: false,
+        hits: 0,
+        createdAt: new Date().toISOString()
+      };
+      persistAiCache();
+    }
+    consumeAiQuota(userKey);
 
     return res.json({
       ...finalCard,
@@ -696,6 +750,144 @@ function recordAiRequest(): void {
   }
   persistMetrics();
 }
+
+// ---------------------------------------------------------------------------
+// Ortak yapay zekâ önbelleği ve kota
+// ---------------------------------------------------------------------------
+//
+// ARAMA SIRASI (uygulama + sunucu birlikte)
+//   1. Oxford çekirdek sözlüğü          — istemcide, bellekte
+//   2. Genel Dağarcık                   — istemcide, harf dosyasından
+//   3. Daha önce ÜRETİLMİŞ içerik       — burada, ortak önbellekte
+//   4. Bulunamazsa yapay zekâ           — kota içinde
+//   5. Üretilen sonuç önbelleğe yazılır
+//   6. Aynı kelime için bir daha çağrı yapılmaz
+//
+// Önbellek ORTAKTIR: bir kullanıcı için üretilen kart, aynı kelimeyi arayan
+// herkese anında gelir. Bu hem maliyeti düşürür hem de aynı kelimenin
+// kullanıcıdan kullanıcıya farklı anlatılmasını engeller.
+//
+// Önbellek anahtarı yalnızca kelimedir; kullanıcının yazdığı BAĞLAM cümlesi
+// anahtara girmez ama önbellekten dönen kartta bağlama özel alan da
+// doldurulmaz. Bağlam isteyen çağrı, önbelleği atlayıp taze üretim ister.
+
+const AI_CACHE_FILE = path.join(DATA_DIR, 'ai-cache.json');
+
+interface CachedCard {
+  word: string;
+  card: Record<string, unknown>;
+  /** Yönetici onayı. Onaysız kart da servis edilir; işaret kalite içindir. */
+  approved: boolean;
+  flagged: boolean;
+  hits: number;
+  createdAt: string;
+}
+
+interface AiCacheStore {
+  cards: Record<string, CachedCard>;
+  /** Önbellek sayesinde yapılmayan çağrı sayısı. */
+  callsAvoided: number;
+  /** Aranıp hiçbir yerde bulunamayan kelimeler: kelime → kaç kez. */
+  misses: Record<string, number>;
+}
+
+function loadAiCache(): AiCacheStore {
+  try {
+    if (fs.existsSync(AI_CACHE_FILE)) {
+      const parsed = JSON.parse(fs.readFileSync(AI_CACHE_FILE, 'utf8'));
+      if (parsed && typeof parsed === 'object') {
+        return {
+          cards: parsed.cards || {},
+          callsAvoided: Number(parsed.callsAvoided) || 0,
+          misses: parsed.misses || {}
+        };
+      }
+    }
+  } catch (err) {
+    console.error('Yapay zekâ önbelleği okunamadı:', err);
+  }
+  return { cards: {}, callsAvoided: 0, misses: {} };
+}
+
+const aiCache: AiCacheStore = loadAiCache();
+
+let aiCacheTimer: NodeJS.Timeout | null = null;
+function persistAiCache(): void {
+  if (aiCacheTimer) return;
+  aiCacheTimer = setTimeout(() => {
+    aiCacheTimer = null;
+    try {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+      fs.writeFileSync(AI_CACHE_FILE, JSON.stringify(aiCache), 'utf8');
+    } catch (err) {
+      console.error('Yapay zekâ önbelleği yazılamadı:', err);
+    }
+  }, 1000);
+}
+
+function cacheKey(word: string): string {
+  return word.trim().toLowerCase();
+}
+
+/**
+ * Günlük yeni üretim kotası.
+ *
+ * KELİME EKLEMEK SINIRSIZDIR; sınırlanan yalnızca YENİ yapay zekâ üretimidir.
+ * Önbellekten gelen yanıt kotadan düşmez, çünkü kimseye maliyeti yok.
+ *
+ * Kota dolduğunda istek reddedilmez gibi davranılmaz: kullanıcıya durum
+ * açıkça söylenir ve kelimeyi elle ekleyebileceği hatırlatılır.
+ */
+const AI_DAILY_QUOTA = Number(process.env.ANLORA_AI_DAILY_QUOTA) || 200;
+const AI_USER_DAILY_QUOTA = Number(process.env.ANLORA_AI_USER_DAILY_QUOTA) || 25;
+
+const aiUsage = {
+  day: '',
+  total: 0,
+  perUser: new Map<string, number>()
+};
+
+function rollAiUsage(): void {
+  const today = new Date().toISOString().slice(0, 10);
+  if (aiUsage.day !== today) {
+    aiUsage.day = today;
+    aiUsage.total = 0;
+    aiUsage.perUser.clear();
+  }
+}
+
+/** Kota içinde miyiz? Değilsek sebebini döndürür. */
+function checkAiQuota(userKey: string): { allowed: boolean; reason?: string } {
+  rollAiUsage();
+
+  if (aiUsage.total >= AI_DAILY_QUOTA) {
+    return {
+      allowed: false,
+      reason:
+        'Bugünkü yapay zekâ üretim hakkı doldu. Kelimeyi kendin ekleyebilirsin; ' +
+        'anlamı ve örnek cümleyi yazman yeterli.'
+    };
+  }
+
+  const used = aiUsage.perUser.get(userKey) || 0;
+  if (used >= AI_USER_DAILY_QUOTA) {
+    return {
+      allowed: false,
+      reason:
+        'Bugün için yapay zekâ hakkını kullandın. Kelime eklemeye sınır yok — ' +
+        'anlamı kendin yazarak devam edebilirsin.'
+    };
+  }
+
+  return { allowed: true };
+}
+
+function consumeAiQuota(userKey: string): void {
+  rollAiUsage();
+  aiUsage.total++;
+  aiUsage.perUser.set(userKey, (aiUsage.perUser.get(userKey) || 0) + 1);
+}
+
 
 process.on('exit', () => {
   if (persistTimer) {
@@ -2423,6 +2615,21 @@ app.post('/api/stats/report', (req, res) => {
     }
   }
 
+  /*
+   * Aranıp hiçbir yerde bulunamayan kelimeler.
+   *
+   * Yöneticinin en çok işine yarayan sinyal bu: kullanıcıların istediği ama
+   * sözlükte olmayan kelimeler. Kimin aradığı toplanmaz, yalnızca kelime ve
+   * kaç kez arandığı.
+   */
+  const misses = Array.isArray(req.body?.misses) ? req.body.misses.slice(0, 50) : [];
+  misses.forEach((raw: any) => {
+    const word = sanitizeString(raw, 80).toLowerCase();
+    if (!word || word.length < 2) return;
+    aiCache.misses[word] = (aiCache.misses[word] || 0) + 1;
+  });
+  if (misses.length) persistAiCache();
+
   const entries = Array.isArray(req.body?.words) ? req.body.words.slice(0, 200) : [];
   entries.forEach((item: any) => {
     const id = sanitizeString(item?.id, 120);
@@ -2628,6 +2835,159 @@ app.get('/api/sets/shared/:code', (req, res) => {
     words: entry.words,
     createdAt: entry.createdAt
   });
+});
+
+// --- Yönetim: yapay zekâ önbelleği ve üretim merkezi -----------------------
+
+app.get('/api/admin/ai', requireAuth, requireAdmin, (_req, res) => {
+  rollAiUsage();
+
+  const cards = Object.values(aiCache.cards);
+  const totalHits = cards.reduce((sum, entry) => sum + entry.hits, 0);
+
+  /*
+   * En çok aranıp bulunamayan kelimeler. Yönetici bunları görüp topluca
+   * sözlüğe ekleyebilsin diye sıralı veriliyor.
+   */
+  const topMisses = Object.entries(aiCache.misses)
+    .map(([word, count]) => ({ word, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 50);
+
+  return res.json({
+    cache: {
+      size: cards.length,
+      approved: cards.filter(entry => entry.approved).length,
+      flagged: cards.filter(entry => entry.flagged).length,
+      hits: totalHits,
+      callsAvoided: aiCache.callsAvoided,
+      /* Önbellek isabet oranı: kaç isteğin çağrı yapmadan karşılandığı. */
+      hitRate:
+        totalHits + cards.length > 0
+          ? totalHits / (totalHits + cards.length)
+          : 0
+    },
+    quota: {
+      dailyLimit: AI_DAILY_QUOTA,
+      perUserLimit: AI_USER_DAILY_QUOTA,
+      usedToday: aiUsage.total,
+      configured: !!process.env.GEMINI_API_KEY
+    },
+    topMisses,
+    recent: cards
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, 30)
+      .map(entry => ({
+        word: entry.word,
+        approved: entry.approved,
+        flagged: entry.flagged,
+        hits: entry.hits,
+        createdAt: entry.createdAt,
+        turkishMeaning: String((entry.card as any)?.turkishMeaning || '')
+      }))
+  });
+});
+
+/** Üretilen kartı onaylar ya da kalitesiz olarak işaretler. */
+app.patch('/api/admin/ai/cache/:word', requireAuth, requireAdmin, (req, res) => {
+  const entry = aiCache.cards[cacheKey(String(req.params.word || ''))];
+  if (!entry) return res.status(404).json({ error: 'Kayıt bulunamadı.' });
+
+  if (typeof req.body?.approved === 'boolean') entry.approved = req.body.approved;
+  if (typeof req.body?.flagged === 'boolean') entry.flagged = req.body.flagged;
+  persistAiCache();
+  return res.json({ word: entry.word, approved: entry.approved, flagged: entry.flagged });
+});
+
+/**
+ * Önbellekten bir kaydı siler.
+ *
+ * Kalitesiz bir kart silinince aynı kelime için bir sonraki istek yeniden
+ * üretilir; düzeltmenin yolu bu.
+ */
+app.delete('/api/admin/ai/cache/:word', requireAuth, requireAdmin, (req, res) => {
+  const key = cacheKey(String(req.params.word || ''));
+  if (!aiCache.cards[key]) return res.status(404).json({ error: 'Kayıt bulunamadı.' });
+  delete aiCache.cards[key];
+  persistAiCache();
+  return res.json({ deleted: key });
+});
+
+/**
+ * Önbellekteki üretilmiş kartı yönetici sözlüğüne taşır.
+ *
+ * Böylece kart artık "üretilmiş içerik" değil, onaylanmış sözlük kaydı olur
+ * ve uygulamaya doğrudan iner.
+ */
+app.post('/api/admin/ai/cache/:word/publish', requireAuth, requireAdmin, (req, res) => {
+  const key = cacheKey(String(req.params.word || ''));
+  const entry = aiCache.cards[key];
+  if (!entry) return res.status(404).json({ error: 'Kayıt bulunamadı.' });
+
+  const card = entry.card as any;
+  const senses = Array.isArray(card?.senses) && card.senses.length
+    ? card.senses.map((sense: any) => ({
+        partOfSpeech: sanitizeString(sense?.partOfSpeech, 20) || 'n.',
+        turkishMeanings: (Array.isArray(sense?.turkishMeanings) ? sense.turkishMeanings : [])
+          .map((m: any) => sanitizeString(m, 120))
+          .filter(Boolean),
+        examples: (Array.isArray(sense?.examples) ? sense.examples : [])
+          .slice(0, 3)
+          .map((ex: any) => ({ en: sanitizeString(ex?.en, 300), tr: sanitizeString(ex?.tr, 300) }))
+          .filter((ex: any) => ex.en && ex.tr)
+      }))
+    : [
+        {
+          partOfSpeech: sanitizeString(card?.partOfSpeech, 20) || 'n.',
+          turkishMeanings: [sanitizeString(card?.turkishMeaning, 120)].filter(Boolean),
+          examples: (Array.isArray(card?.examples) ? card.examples : [])
+            .slice(0, 3)
+            .map((ex: any) => ({ en: sanitizeString(ex?.en, 300), tr: sanitizeString(ex?.tr, 300) }))
+            .filter((ex: any) => ex.en && ex.tr)
+        }
+      ];
+
+  const usable = senses.filter((sense: any) => sense.turkishMeanings.length > 0);
+  if (usable.length === 0) {
+    return res.status(400).json({ error: 'Bu kayıtta yayınlanacak Türkçe anlam yok.' });
+  }
+
+  const existingIndex = dictionary.words.findIndex(
+    item => item.word.toLowerCase() === key
+  );
+  const now = new Date().toISOString();
+  const record: AdminWord = {
+    id: existingIndex >= 0 ? dictionary.words[existingIndex].id : newId('adm'),
+    word: entry.word,
+    phonetic: sanitizeString(card?.phonetic, 80) || undefined,
+    level: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].includes(String(card?.level))
+      ? String(card.level)
+      : undefined,
+    topics: [],
+    examTags: [],
+    senses: usable,
+    status: 'published',
+    createdAt: existingIndex >= 0 ? dictionary.words[existingIndex].createdAt : now,
+    updatedAt: now
+  };
+
+  if (existingIndex >= 0) dictionary.words[existingIndex] = record;
+  else dictionary.words.unshift(record);
+  persistDictionary();
+
+  entry.approved = true;
+  persistAiCache();
+
+  return res.json({ word: record.word, published: true });
+});
+
+/** Aranıp bulunamayan kelime kaydını listeden düşürür. */
+app.delete('/api/admin/ai/misses/:word', requireAuth, requireAdmin, (req, res) => {
+  const key = cacheKey(String(req.params.word || ''));
+  if (!(key in aiCache.misses)) return res.status(404).json({ error: 'Kayıt bulunamadı.' });
+  delete aiCache.misses[key];
+  persistAiCache();
+  return res.json({ deleted: key });
 });
 
 // --- Yönetim: reklam alanları ----------------------------------------------

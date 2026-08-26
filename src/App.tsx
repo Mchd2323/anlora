@@ -64,6 +64,7 @@ import { loadExtendedIndex } from './services/extendedRepository';
 import { useToast } from './components/ui/ToastProvider';
 import { useAndroidBackButton } from './hooks/useAndroidBackButton';
 import { releaseStuckScrollLocks } from './hooks/useModalA11y';
+import { reportAppOpened, reportWordResult } from './services/usageReporter';
 
 export default function App() {
   const { showToast } = useToast();
@@ -194,6 +195,12 @@ export default function App() {
        * devam eder.
        */
       void loadExtendedIndex().catch(() => undefined);
+
+      /*
+       * Kimliksiz açılış bildirimi. Yönetim panelindeki "günlük açılış"
+       * sayacı bunu kullanıyor; kim olduğu gönderilmiyor.
+       */
+      reportAppOpened();
     });
 
     return () => {
@@ -328,6 +335,8 @@ export default function App() {
     collectionId?: string
   ) => {
     recordStudyResultV2(wordId, quality, mode, collectionId);
+    // Kimliksiz toplam: "en çok zorlanılan kelimeler" bundan çıkıyor.
+    reportWordResult(wordId, quality !== 'again');
     setLearningStates(getAllLearningStatesV2());
     setStats(getUserStatsV2());
     setUnlockedBadges(checkAndUnlockBadgesV2());

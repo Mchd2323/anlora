@@ -51,6 +51,7 @@ import { UserProfile } from '../types';
 import { apiUrl } from '../config/api';
 import { apiFetch } from '../utils/authClient';
 import { formatPhonetic } from '../utils/phonetic';
+import { reportMissingWord } from '../services/usageReporter';
 import {
   hasExtendedWord,
   getExtendedCard,
@@ -414,7 +415,11 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
         }
       }
 
-      if (!cancelled) setLookup({ kind: 'not-found' });
+      if (!cancelled) {
+        setLookup({ kind: 'not-found' });
+        // Elimizde olmayan ama istenen kelime: yöneticiye sinyal.
+        reportMissingWord(key);
+      }
     }, 350);
 
     return () => {

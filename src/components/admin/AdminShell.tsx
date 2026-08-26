@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Shield, LayoutDashboard, Users, BookMarked, MessageSquare, Palette } from 'lucide-react';
+import { Shield, LayoutDashboard, Users, BookMarked, MessageSquare, Palette, Sparkles } from 'lucide-react';
 import { AdminOverview } from './AdminOverview';
 import { AdminUsers } from './AdminUsers';
 import { AdminDictionary } from './AdminDictionary';
 import { AdminMessages } from './AdminMessages';
 import { AdminAppearance } from './AdminAppearance';
+import { AdminAI } from './AdminAI';
 
 /**
  * Yönetim panelinin kabuğu.
@@ -18,12 +19,13 @@ import { AdminAppearance } from './AdminAppearance';
  * denetlenir ve yetkisiz istek 403 değil 404 alır.
  */
 
-type TabId = 'overview' | 'users' | 'dictionary' | 'messages' | 'appearance';
+type TabId = 'overview' | 'users' | 'dictionary' | 'ai' | 'messages' | 'appearance';
 
 const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: 'overview', label: 'Genel Bakış', icon: LayoutDashboard },
   { id: 'users', label: 'Kullanıcılar', icon: Users },
   { id: 'dictionary', label: 'Sözlük', icon: BookMarked },
+  { id: 'ai', label: 'Yapay Zekâ', icon: Sparkles },
   { id: 'messages', label: 'Mesajlar', icon: MessageSquare },
   { id: 'appearance', label: 'Görünüm', icon: Palette }
 ];
@@ -80,6 +82,7 @@ export const AdminShell: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       {tab === 'overview' && <AdminOverview />}
       {tab === 'users' && <AdminUsers />}
       {tab === 'dictionary' && <AdminDictionary />}
+      {tab === 'ai' && <AdminAI />}
       {tab === 'messages' && <AdminMessages />}
       {tab === 'appearance' && <AdminAppearance />}
     </div>
