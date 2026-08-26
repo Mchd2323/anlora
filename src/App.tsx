@@ -10,6 +10,8 @@ import { ProfileView } from './components/ProfileView';
 import { AuthModal } from './components/AuthModal';
 import { AdminShell } from './components/admin/AdminShell';
 import { FeedbackModal, FeedbackKind } from './components/FeedbackModal';
+import { SignInGate } from './components/SignInGate';
+import { hasRemoteApi } from './config/api';
 import { useAppContent } from './hooks/useAppContent';
 import { AddToCollectionModal } from './components/AddToCollectionModal';
 import { EditCardModal } from './components/EditCardModal';
@@ -157,6 +159,27 @@ export default function App() {
    */
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+
+  /*
+   * Hesap özellikleri bu kurulumda kullanılabilir mi?
+   *
+   * Kelime setleri üyelik ister — ama giriş yapılamayan bir kurulumda kapı
+   * koymak, özelliği hiç kimsenin açamayacağı biçimde kilitlemek olurdu.
+   * Sunucu tanımlı değilse setler serbest çalışır.
+   */
+  const [accountsAvailable, setAccountsAvailable] = useState<boolean | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    void hasRemoteApi().then(ok => {
+      if (!cancelled) setAccountsAvailable(ok);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  /** Setler kilitli mi? Yalnızca hesap açılabiliyorken ve giriş yokken. */
+  const setsLocked = accountsAvailable === true && !profile.isLoggedIn;
   /*
    * Kısayol penceresi de diğer modallerle aynı davranışı taşır: Escape ile
    * kapanır, odak içeride kalır, kapanınca odak geri döner. Kendi elimizle
@@ -561,7 +584,15 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'collections' && (
+        {activeTab === 'collections' && setsLocked && (
+          <SignInGate
+            existingWordCount={customWords.length}
+            existingSetCount={collections.length}
+            onOpenAuth={() => setIsAuthModalOpen(true)}
+          />
+        )}
+
+        {activeTab === 'collections' && !setsLocked && (
           <CollectionsView
             collections={collections}
             memberships={memberships}

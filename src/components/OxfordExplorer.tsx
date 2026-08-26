@@ -3,7 +3,7 @@ import { WordCard, Level, LearningState } from '../types';
 import { OxfordGroupKey } from '../types/oxford';
 import { WordCardComponent } from './WordCard';
 import { StudyFlashcard } from './study/StudyFlashcard';
-import { Search, Volume2, BookOpen, Play, BrainCircuit, X, Check, RotateCw } from 'lucide-react';
+import { Search, Volume2, BookOpen, Play, BrainCircuit, X, Check, RotateCw, ChevronDown } from 'lucide-react';
 import { speakText } from '../utils/speech';
 import { getUserWordStatus } from '../utils/storageV2';
 import { CEFRBadge } from './ui/CEFRBadge';
@@ -102,6 +102,14 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
   const [partOfSpeechFilter, setPartOfSpeechFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>(initialStatusFilter);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  /*
+   * Liste KAPALI başlar.
+   *
+   * Ekranın asıl işi çalışmaya başlatmak; beş bin kartı doğrudan altına
+   * dökmek hem sayfayı uzatıyor hem de kullanıcıyı "önce şunları geçeyim"
+   * hissine sokuyordu. Görmek isteyen tek dokunuşla açıyor.
+   */
+  const [isListOpen, setIsListOpen] = useState(false);
 
   // Dışarıdan gelen istek (profilden "öğrendiklerim") filtreyi günceller.
   useEffect(() => {
@@ -185,6 +193,15 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
   }, [searchQuery, partOfSpeechFilter, statusFilter, selectedLevel]);
+
+  /*
+   * Arama yazılınca liste kendiliğinden açılır: aramanın tek amacı zaten
+   * sonucu görmek. Kullanıcıyı arama yaptıktan sonra bir de "listeyi aç"
+   * demeye zorlamak gereksiz bir adım olurdu.
+   */
+  useEffect(() => {
+    if (searchQuery.trim()) setIsListOpen(true);
+  }, [searchQuery]);
 
   const visibleWords = useMemo(
     () => filteredWords.slice(0, visibleCount),
@@ -417,8 +434,33 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
         </button>
       )}
 
-      {/* Kelime listesi */}
-      {filteredWords.length > 0 ? (
+      {/* Kelime listesi — açıp kapanabilir */}
+      {filteredWords.length > 0 && (
+        <button
+          type="button"
+          onClick={() => setIsListOpen(open => !open)}
+          aria-expanded={isListOpen}
+          className="w-full p-4 bg-[var(--surface)] hover:bg-[var(--surface-soft)] border border-[var(--border)] rounded-2xl transition-colors cursor-pointer flex items-center justify-between gap-3 text-left"
+        >
+          <span>
+            <span className="block text-sm font-bold text-[var(--text-primary)]">
+              {isListOpen ? 'Listeyi kapat' : 'Tüm kelimeleri listele'}
+            </span>
+            <span className="block text-xs text-[var(--text-secondary)] mt-0.5">
+              {isListOpen
+                ? 'Çalışmaya dönmek için kapatabilirsin'
+                : `${filteredWords.length} kelimeyi tek tek gör`}
+            </span>
+          </span>
+          <ChevronDown
+            className={`w-5 h-5 text-[var(--text-muted)] shrink-0 transition-transform ${
+              isListOpen ? 'rotate-180' : ''
+            }`}
+          />
+        </button>
+      )}
+
+      {isListOpen && filteredWords.length > 0 ? (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
             {visibleWords.map(word => (
@@ -446,7 +488,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
             </button>
           )}
         </>
-      ) : (
+      ) : filteredWords.length === 0 ? (
         <div className="text-center py-16 bg-[var(--surface)] rounded-2xl border border-[var(--border)] space-y-3">
           <BookOpen className="w-8 h-8 text-[var(--text-muted)] mx-auto" />
           <h3 className="text-base font-bold text-[var(--text-primary)]">Eşleşen kelime bulunamadı</h3>
@@ -460,7 +502,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
             Filtreleri Temizle
           </button>
         </div>
-      )}
+      ) : null}
     </div>
   );
 };

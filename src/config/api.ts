@@ -22,12 +22,52 @@ export const API_BASE = RAW_BASE.replace(/\/+$/, '');
 /**
  * Sunucuya bağlı özellikler (hesap, bulut yedeği, Anlora AI) kullanılabilir mi?
  *
- * Web'de arayüz sunucusuyla aynı kökendedir, taban boş olsa da göreli yol
- * çalışır. Yerel kabukta ise ancak tam bir adres verilmişse çalışır.
+ * VARSAYIM DEĞİL, ÖLÇÜM.
+ *
+ * Önceki sürüm "web'de arayüz sunucusuyla aynı kökendedir, öyleyse sunucu
+ * vardır" diye varsayıyordu. Bu her zaman doğru değil: uygulama statik olarak
+ * da yayınlanabilir (yalnızca dosya sunan bir barındırma, ya da geliştirmede
+ * `vite preview`). O durumda varsayım kullanıcıyı hiç açamayacağı bir giriş
+ * kapısının arkasında bırakıyordu.
+ *
+ * Artık sunucuya gerçekten soruluyor. Sonuç önbelleklenir: her ekran için
+ * yeniden yoklamak gereksiz gecikme olurdu.
  */
+let remoteProbe: Promise<boolean> | null = null;
+
 export async function hasRemoteApi(): Promise<boolean> {
-  if (API_BASE.length > 0) return true;
-  return !(await isNativeShell());
+  if (remoteProbe) return remoteProbe;
+
+  remoteProbe = (async () => {
+    try {
+      /*
+       * Kısa zaman aşımı: yanıt vermeyen bir adres yüzünden arayüz
+       * beklemesin. Sunucu yoksa kullanıcı özelliğin kapalı olduğunu
+       * hemen görür.
+       */
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 3000);
+
+      const response = await fetch(apiUrl('/api/health'), {
+        signal: controller.signal
+      });
+      clearTimeout(timer);
+
+      if (!response.ok) return false;
+
+      // Sunucu yoksa statik barındırma ya da Capacitor kendi index.html'ini
+      // 200 ile döndürür; JSON denetimi bu ikisini ayırır.
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) return false;
+
+      const data = await response.json();
+      return data?.ok !== undefined;
+    } catch {
+      return false;
+    }
+  })();
+
+  return remoteProbe;
 }
 
 /**

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   Collection,
   CollectionMembership,
@@ -21,9 +21,11 @@ import {
   Play,
   Megaphone,
   Check,
-  RotateCw
+  RotateCw,
+  CloudUpload
 } from 'lucide-react';
 import { getUserWordStatus } from '../utils/storageV2';
+import { readJSON, writeJSON } from '../utils/safeStorage';
 import { summarizeQueue } from '../utils/srsEngine';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { BRAND } from '../config/brand';
@@ -132,6 +134,20 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
 
   const hasSets = collections.length > 0;
 
+  /** Kullanıcının kendi eklediği kelime sayısı; teşvik bunun üstüne kurulu. */
+  const customWordCount = customWords.length;
+
+  /*
+   * Teşvik kapatıldı mı? Karar oturum boyunca değil KALICI saklanır:
+   * her açılışta yeniden çıkan bir uyarı okunmaz hâle gelir.
+   */
+  const [isNudgeDismissed, setIsNudgeDismissed] = useState(
+    () => readJSON<boolean>('anlora.signupNudgeDismissed.v1', false)
+  );
+  useEffect(() => {
+    if (isNudgeDismissed) writeJSON('anlora.signupNudgeDismissed.v1', true);
+  }, [isNudgeDismissed]);
+
   // Set oluşturmak giriş gerektirmez: veri zaten yerelde tutuluyor ve giriş
   // yalnızca bulut yedeklemesi içindir. İlk adımda hesap istemek, ürünün
   // "hızlı ekleme" vaadinin önündeki en büyük sürtünmeydi.
@@ -173,6 +189,45 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           )}
         </p>
       </div>
+
+      {/*
+        ÜYELİK TEŞVİKİ — zorlamadan.
+
+        Yalnızca kaybedecek bir şeyi olan kullanıcıya gösterilir: hiç kelime
+        eklememiş birine "verilerin kaybolmasın" demek boş bir uyarıdır ve
+        uygulamayı ilk açan kişiyi hesap açmaya iter. Kapatılabilir; her
+        açılışta aynı şeyi söylemek uyarıyı görünmez kılar.
+      */}
+      {!profile?.isLoggedIn && customWordCount > 0 && !isNudgeDismissed && (
+        <div className="bg-[var(--learning-soft)] border border-[var(--learning-border)] rounded-2xl p-4 flex items-start gap-3">
+          <CloudUpload className="w-4 h-4 text-[var(--learning-text)] shrink-0 mt-0.5" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-bold text-[var(--learning-text)]">
+              {customWordCount} kelimen yalnızca bu telefonda
+            </p>
+            <p className="text-xs text-[var(--learning-text)] mt-0.5 leading-relaxed opacity-90">
+              Uygulamayı silersen ya da telefonun kaybolursa bunlar da gider.
+              Hesap açmak ücretsiz; kelimelerin buluta yedeklenir.
+            </p>
+            <div className="flex flex-wrap gap-2 mt-2.5">
+              <button
+                type="button"
+                onClick={onOpenAuthModal}
+                className="px-3 py-1.5 bg-[var(--learning)] hover:opacity-90 text-white text-[11px] font-bold rounded-lg cursor-pointer"
+              >
+                Hesap aç
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsNudgeDismissed(true)}
+                className="px-3 py-1.5 text-[11px] font-semibold text-[var(--learning-text)] hover:bg-[var(--learning-soft-hover)] rounded-lg cursor-pointer"
+              >
+                Şimdi değil
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/*
         Ana sayfa görseli. Yalnızca geniş ekranda metnin yanında durur;
