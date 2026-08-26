@@ -3,13 +3,52 @@ import crypto from 'crypto';
 import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
 
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+/**
+ * Kök dizin.
+ *
+ * BU DOSYA İKİ FARKLI BİÇİMDE ÇALIŞIYOR:
+ *   * geliştirmede `tsx server.ts` ile, ES modülü olarak
+ *   * üretimde esbuild'in ürettiği CommonJS paketi olarak
+ *
+ * Eskiden burada `fileURLToPath(import.meta.url)` vardı. `import.meta` CJS
+ * biçiminde YOKTUR; esbuild bunu derleme sırasında uyarıyor ve boş bırakıyordu,
+ * dolayısıyla üretim paketi daha ilk satırda çöküyordu — `npm start` hiç
+ * açılmıyordu. Hata yalnızca üretimde çıktığı için geliştirmede fark edilmedi.
+ *
+ * `__dirname` CommonJS'te hazır gelir; ES modülünde ise tanımsızdır ve o
+ * durumda çalışma dizini doğru köktür (`tsx server.ts` proje kökünden
+ * çalıştırılıyor). Denetim çalışma zamanında yapılıyor, iki biçimde de doğru.
+ */
+const ROOT_DIR =
+  typeof __dirname !== 'undefined' ? __dirname : process.cwd();
+
+/**
+ * Web arayüzünün bulunduğu klasör.
+ *
+ * Geliştirmede paket proje kökünden çalışır ve arayüz `<kök>/dist` altındadır.
+ * Üretimde ise paketin KENDİSİ `dist/server.cjs` olduğu için `ROOT_DIR` zaten
+ * `dist`tir; oraya bir kez daha `dist` eklemek `dist/dist` üretir ve hiçbir
+ * dosya bulunamaz. Sabit bir yol yazmak yerine index.html'in nerede olduğuna
+ * bakılıyor — iki biçimde de doğru sonuç veriyor.
+ */
+const WEB_DIR = fs.existsSync(path.join(ROOT_DIR, 'index.html'))
+  ? ROOT_DIR
+  : path.join(ROOT_DIR, 'dist');
+
+/**
+ * Kullanıcı verisinin yazıldığı klasör.
+ *
+ * ÇALIŞMA DİZİNİNE bağlanır, paketin yerine değil: üretimde paket `dist`
+ * içinde durduğu için `__dirname` tabanlı bir yol veriyi `dist/data` altına
+ * yazardı ve her yeni dağıtımda silinirdi. `ANLORA_DATA_DIR` ile başka bir
+ * yola (örneğin bağlanmış bir diske) taşınabilir.
+ */
+const DATA_DIR_BASE =
+  (process.env.ANLORA_DATA_DIR || '').trim() || path.join(process.cwd(), 'data');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -623,7 +662,7 @@ Return valid JSON:
 // tarafında saklanan oturum jetonları, her uçta sahiplik kontrolü ve disk
 // üzerinde kalıcılık.
 
-const DATA_DIR = path.join(__dirname, 'data');
+const DATA_DIR = DATA_DIR_BASE;
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 gün
@@ -4139,7 +4178,7 @@ async function setupServer() {
         // bir şablon vardı; bu yüzden geliştirme ortamında `lang="tr"`, sayfa
         // başlığı, Google Fonts bağlantıları ve gövde sınıfları düşüyordu.
         // Geliştirmede görülen sayfa, üretimde yayınlanan sayfadan farklıydı.
-        const indexPath = path.resolve(__dirname, 'index.html');
+        const indexPath = path.resolve(ROOT_DIR, 'index.html');
         const raw = fs.readFileSync(indexPath, 'utf8');
         const template = await vite.transformIndexHtml(url, raw);
         res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
@@ -4149,10 +4188,9 @@ async function setupServer() {
       }
     });
   } else {
-    const distPath = path.resolve(__dirname, 'dist');
-    app.use(express.static(distPath));
+    app.use(express.static(WEB_DIR));
     app.get('*', (_req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+      res.sendFile(path.join(WEB_DIR, 'index.html'));
     });
   }
 
