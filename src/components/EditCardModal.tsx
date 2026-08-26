@@ -24,7 +24,14 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
   const [partOfSpeech, setPartOfSpeech] = useState(card.partOfSpeech);
   const [turkishMeaning, setTurkishMeaning] = useState(card.turkishMeaning);
   const [phonetic, setPhonetic] = useState(card.phonetic || '');
-  const [level, setLevel] = useState<Level>(card.level || 'B2');
+  /*
+   * SEVİYE İSTEĞE BAĞLI.
+   *
+   * Burada varsayılan 'B2' idi: seviyesi olmayan bir kartı düzenleyip
+   * kaydeden kullanıcı, farkında olmadan karta B2 yazıyordu. Kullanıcının
+   * kendi kelimesinin ölçülmüş bir CEFR seviyesi yoktur; boş kalabilmeli.
+   */
+  const [level, setLevel] = useState<Level | ''>(card.level || '');
   const [customNote, setCustomNote] = useState(card.customNote || '');
   const [examples, setExamples] = useState<ExampleSentence[]>(
     card.examples && card.examples.length > 0
@@ -75,7 +82,8 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
       partOfSpeech: partOfSpeech.trim() || 'n.',
       turkishMeaning: turkishMeaning.trim(),
       phonetic: phonetic.trim() || undefined,
-      level: level,
+      // Boş seçim seviyeyi HİÇ yazmaz; uydurulmuş bir değer kalmasın.
+      level: level || undefined,
       customNote: customNote.trim() || undefined,
       examples: examples.filter(ex => ex.en.trim() || ex.tr.trim()),
     };
@@ -139,13 +147,16 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
               </label>
               <select
                 value={level}
-                onChange={(e) => setLevel(e.target.value as Level)}
+                onChange={(e) => setLevel(e.target.value as Level | '')}
                 className="w-full px-2.5 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] font-bold text-[var(--text-primary)]"
               >
+                <option value="">Belirtilmedi</option>
                 <option value="A1">A1</option>
                 <option value="A2">A2</option>
                 <option value="B1">B1</option>
                 <option value="B2">B2</option>
+                <option value="C1">C1</option>
+                <option value="C2">C2</option>
               </select>
             </div>
           </div>

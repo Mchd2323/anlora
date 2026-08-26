@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { speakText } from '../../utils/speech';
 import { CEFRBadge } from '../ui/CEFRBadge';
+import { shouldShowCefr } from '../../types/oxford';
 import { WordStatusActions } from '../ui/WordStatusActions';
 import { getUserWordStatus } from '../../utils/storageV2';
 import { useSwipeDeck } from '../../hooks/useSwipeDeck';
@@ -470,8 +471,10 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
               {/* Üst şerit: etiketler ve eylemler */}
               <div className="flex items-start justify-between gap-2">
                 <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                  {!currentCard.isCustom && currentCard.sourceType !== 'custom' && currentCard.level && (
-                    <CEFRBadge level={currentCard.level} size="sm" />
+                  {/* Kural tek yerde: shouldShowCefr. Elle yazılan denetim
+                      buradaki kopyayla zamanla kayabilirdi. */}
+                  {shouldShowCefr(currentCard) && (
+                    <CEFRBadge level={currentCard.level!} size="sm" />
                   )}
                   {currentCard.partOfSpeech && (
                     <span className="text-[11px] font-semibold px-2 py-0.5 bg-[var(--bg)] border border-[var(--neutral-200)] rounded-md text-[var(--text-secondary)]">

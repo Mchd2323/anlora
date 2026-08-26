@@ -144,7 +144,9 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
               turkishMeaning: cardData.turkishMeaning || item.raw,
               phonetic: cardData.phonetic || '',
               examples: cardData.examples || [],
-              level: cardData.level || 'B2',
+              // Yapay zekâ seviye vermediyse UYDURULMAZ; alan boş kalır ve
+              // arayüz rozeti kendiliğinden gizler.
+              level: cardData.level || undefined,
               isCustom: true,
               dateAdded: new Date().toISOString().slice(0, 10),
               isAiGenerated: true

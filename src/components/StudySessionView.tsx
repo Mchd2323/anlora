@@ -33,6 +33,7 @@ import { isWordDueForReview } from '../utils/srsEngine';
 import { blankOutWord } from '../utils/quizGenerator';
 import { oxfordCoreRepository } from '../services/oxfordCoreRepository';
 import { CEFRBadge } from './ui/CEFRBadge';
+import { shouldShowCefr } from '../types/oxford';
 
 interface StudySessionViewProps {
   initialCollectionId?: string;
@@ -509,7 +510,16 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
         {/* Card Header Bar */}
         <div className="p-4 pb-3 border-b border-[var(--border-light)] flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
-            <CEFRBadge level={card.level || 'B1'} size="sm" />
+            {/*
+              SEVİYE UYDURULMAZ.
+
+              Burada `card.level || 'B1'` yazıyordu: seviyesi olmayan bir
+              karta B1 rozeti takılıyordu. Kullanıcının kendi eklediği
+              kelimenin ölçülmüş bir CEFR seviyesi yoktur; uydurulmuş bir
+              rozet, resmî listeden gelen bir bilgiymiş gibi görünür.
+              `shouldShowCefr` bu kuralı tek yerde tutuyor.
+            */}
+            {shouldShowCefr(card) && <CEFRBadge level={card.level!} size="sm" />}
             <span className="font-semibold text-[var(--text-secondary)]">
               {card.partOfSpeech}
             </span>
