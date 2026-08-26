@@ -217,7 +217,7 @@ function guardAiRequest(req: express.Request, res: express.Response): boolean {
   return true;
 }
 
-app.post('/api/ai/generate-word', async (req, res) => {
+app.post('/api/ai/generate-word', blockDuringMaintenance, async (req, res) => {
   if (!guardAiRequest(req, res)) return;
 
   const { word, context } = req.body;
@@ -1258,7 +1258,7 @@ app.post('/api/auth/google', async (req, res) => {
 // ---------------------------------------------------------------------------
 // 2. E-posta / parola ile kayıt
 // ---------------------------------------------------------------------------
-app.post('/api/auth/register', (req, res) => {
+app.post('/api/auth/register', blockDuringMaintenance, (req, res) => {
   const ip = req.ip || req.socket.remoteAddress || '127.0.0.1';
 
   // Honeypot check for bots
@@ -1472,8 +1472,11 @@ app.post('/api/auth/login', (req, res) => {
   const user = cloudUsersDatabase[cleanEmail];
 
   // Hesabın varlığını sızdırmamak için kimlik hatalarında tek bir mesaj.
-  const invalidCredentials = () =>
-    res.status(401).json({ error: 'E-posta adresi veya parola hatalı.' });
+  const invalidCredentials = () => {
+    // Kayıt tutulur ama yanıt hep aynı: hesabın varlığı sızdırılmaz.
+    if (cleanEmail) recordFailedLogin(cleanEmail, ip);
+    return res.status(401).json({ error: 'E-posta adresi veya parola hatalı.' });
+  };
 
   if (!cleanEmail || !EMAIL_REGEX.test(cleanEmail) || !cleanPassword) {
     return invalidCredentials();
@@ -1577,7 +1580,7 @@ app.delete('/api/account', requireAuth, (req: AuthedRequest, res) => {
   return res.json({ deleted: true });
 });
 
-app.post('/api/sync/save', requireAuth, (req: AuthedRequest, res) => {
+app.post('/api/sync/save', blockDuringMaintenance, requireAuth, (req: AuthedRequest, res) => {
   const user = req.authUser!;
   const payload = req.body?.userData;
 
@@ -1843,7 +1846,7 @@ app.get('/api/app-content', (req, res) => {
  * Giriş şartı yok. Hata bildirmek için hesap açmak zorunda bırakmak,
  * bildirimlerin çoğunun hiç gelmemesi demektir.
  */
-app.post('/api/feedback', (req, res) => {
+app.post('/api/feedback', blockDuringMaintenance, (req, res) => {
   const ip = req.ip || req.socket.remoteAddress || '127.0.0.1';
 
   // Bot koruması: gizli alan doluysa istek sessizce reddedilir.
@@ -1986,22 +1989,24 @@ function findTargetUser(req: express.Request): CloudUserData | null {
  * Kod e-postası ulaşmadığında kullanıcı hesabına giremiyor. Destek adımı
  * olarak gerekli; kaydı silip yeniden açtırmaktan çok daha az zarar verir.
  */
-app.post('/api/admin/users/:email/verify', requireAuth, requireAdmin, (req, res) => {
+app.post('/api/admin/users/:email/verify', requireAuth, requireAdmin, (req: AuthedRequest, res) => {
   const user = findTargetUser(req);
   if (!user) return res.status(404).json({ error: 'Kullanıcı bulunamadı.' });
 
   user.emailVerified = true;
   delete user.verification;
   persistUsers();
+  recordAudit(req, 'e-posta elle doğrulandı', user.email);
   return res.json({ user: adminUserView(user) });
 });
 
 /** Kullanıcının tüm oturumlarını kapatır (cihaz kaybı, şüpheli erişim). */
-app.post('/api/admin/users/:email/revoke-sessions', requireAuth, requireAdmin, (req, res) => {
+app.post('/api/admin/users/:email/revoke-sessions', requireAuth, requireAdmin, (req: AuthedRequest, res) => {
   const user = findTargetUser(req);
   if (!user) return res.status(404).json({ error: 'Kullanıcı bulunamadı.' });
 
   revokeSessionsFor(user.email);
+  recordAudit(req, 'oturumlar kapatıldı', user.email);
   return res.json({ user: adminUserView(user) });
 });
 
@@ -2031,6 +2036,7 @@ app.delete('/api/admin/users/:email', requireAuth, requireAdmin, (req: AuthedReq
   revokeSessionsFor(user.email);
   delete cloudUsersDatabase[user.email];
   persistUsers();
+  recordAudit(req, 'hesap silindi', user.email);
   return res.json({ deleted: user.email });
 });
 
@@ -2227,7 +2233,7 @@ app.get('/api/admin/dictionary', requireAuth, requireAdmin, (req, res) => {
   });
 });
 
-app.post('/api/admin/dictionary', requireAuth, requireAdmin, (req, res) => {
+app.post('/api/admin/dictionary', requireAuth, requireAdmin, (req: AuthedRequest, res) => {
   const parsed = readAdminWordBody(req.body);
   if ('error' in parsed) return res.status(400).json({ error: parsed.error });
 
@@ -2241,6 +2247,7 @@ app.post('/api/admin/dictionary', requireAuth, requireAdmin, (req, res) => {
   dictionary.words.unshift(parsed);
   registerTags(parsed);
   persistDictionary();
+  recordAudit(req, 'sözlüğe kelime eklendi', parsed.word);
   return res.json({ word: parsed });
 });
 
@@ -2257,13 +2264,15 @@ app.put('/api/admin/dictionary/:id', requireAuth, requireAdmin, (req, res) => {
   return res.json({ word: parsed });
 });
 
-app.delete('/api/admin/dictionary/:id', requireAuth, requireAdmin, (req, res) => {
+app.delete('/api/admin/dictionary/:id', requireAuth, requireAdmin, (req: AuthedRequest, res) => {
   const before = dictionary.words.length;
+  const silinen = dictionary.words.find(entry => entry.id === req.params.id);
   dictionary.words = dictionary.words.filter(entry => entry.id !== req.params.id);
   if (dictionary.words.length === before) {
     return res.status(404).json({ error: 'Kelime bulunamadı.' });
   }
   persistDictionary();
+  recordAudit(req, 'sözlükten kelime silindi', silinen?.word);
   return res.json({ deleted: req.params.id });
 });
 
@@ -2560,10 +2569,11 @@ app.post('/api/admin/users/:email/ban', requireAuth, requireAdmin, (req: AuthedR
   user.bannedAt = new Date().toISOString();
   revokeSessionsFor(user.email);
   persistUsers();
+  recordAudit(req, 'hesap engellendi', user.email, user.bannedReason);
   return res.json({ user: adminUserView(user) });
 });
 
-app.post('/api/admin/users/:email/unban', requireAuth, requireAdmin, (req, res) => {
+app.post('/api/admin/users/:email/unban', requireAuth, requireAdmin, (req: AuthedRequest, res) => {
   const user = findTargetUser(req);
   if (!user) return res.status(404).json({ error: 'Kullanıcı bulunamadı.' });
 
@@ -2571,6 +2581,7 @@ app.post('/api/admin/users/:email/unban', requireAuth, requireAdmin, (req, res) 
   delete user.bannedReason;
   delete user.bannedAt;
   persistUsers();
+  recordAudit(req, 'engel kaldırıldı', user.email);
   return res.json({ user: adminUserView(user) });
 });
 
@@ -2788,7 +2799,7 @@ function persistShares(): void {
  * Giriş gerekir: sahipsiz paylaşım kaldırılamaz ve kötüye kullanıma açık
  * olurdu. Kod tahmin edilemez olmalı, bu yüzden kriptografik rastgele.
  */
-app.post('/api/sets/share', requireAuth, (req: AuthedRequest, res) => {
+app.post('/api/sets/share', blockDuringMaintenance, requireAuth, (req: AuthedRequest, res) => {
   const user = req.authUser!;
   const name = sanitizeString(req.body?.name, 80);
   const rawWords = Array.isArray(req.body?.words) ? req.body.words : [];
@@ -3023,6 +3034,310 @@ app.delete('/api/admin/ai/misses/:word', requireAuth, requireAdmin, (req, res) =
   return res.json({ deleted: key });
 });
 
+// ---------------------------------------------------------------------------
+// Sistem: işlem günlüğü, yedekleme, bakım modu, sağlık
+// ---------------------------------------------------------------------------
+
+const AUDIT_FILE = path.join(DATA_DIR, 'audit.json');
+const BACKUP_DIR = path.join(DATA_DIR, 'backups');
+
+interface AuditEntry {
+  at: string;
+  actor: string;
+  action: string;
+  target?: string;
+  detail?: string;
+  ip?: string;
+}
+
+interface SystemState {
+  /** Bakım modu: uygulama açılır ama yazma uçları kapanır. */
+  maintenance: { enabled: boolean; message?: string; since?: string };
+  /** Geçici olarak kapatılabilen özellikler. */
+  features: Record<string, boolean>;
+}
+
+interface AuditStore {
+  entries: AuditEntry[];
+  /** Başarısız giriş denemeleri: e-posta → { count, lastAt, ips } */
+  failedLogins: Record<string, { count: number; lastAt: string; ips: string[] }>;
+  system: SystemState;
+}
+
+function loadAudit(): AuditStore {
+  try {
+    if (fs.existsSync(AUDIT_FILE)) {
+      const parsed = JSON.parse(fs.readFileSync(AUDIT_FILE, 'utf8'));
+      if (parsed && typeof parsed === 'object') {
+        return {
+          entries: Array.isArray(parsed.entries) ? parsed.entries : [],
+          failedLogins: parsed.failedLogins || {},
+          system: {
+            maintenance: parsed.system?.maintenance || { enabled: false },
+            features: parsed.system?.features || {}
+          }
+        };
+      }
+    }
+  } catch (err) {
+    console.error('Günlük dosyası okunamadı:', err);
+  }
+  return { entries: [], failedLogins: {}, system: { maintenance: { enabled: false }, features: {} } };
+}
+
+const audit: AuditStore = loadAudit();
+
+let auditTimer: NodeJS.Timeout | null = null;
+function persistAudit(): void {
+  if (auditTimer) return;
+  auditTimer = setTimeout(() => {
+    auditTimer = null;
+    try {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+      fs.writeFileSync(AUDIT_FILE, JSON.stringify(audit), 'utf8');
+    } catch (err) {
+      console.error('Günlük dosyası yazılamadı:', err);
+    }
+  }, 500);
+}
+
+/**
+ * Yönetici işlemini kaydeder.
+ *
+ * NEDEN: bir hesabın neden silindiğini ya da kimin engellendiğini sonradan
+ * sormak mümkün olmalı. Yetkiyi paylaşan iki kişi varsa "ben yapmadım"
+ * tartışmasının tek çözümü kayıttır.
+ *
+ * Kayıt yalnızca YÖNETİCİ işlemlerini tutar; sıradan kullanım izlenmez.
+ */
+function recordAudit(
+  req: AuthedRequest,
+  action: string,
+  target?: string,
+  detail?: string
+): void {
+  audit.entries.unshift({
+    at: new Date().toISOString(),
+    actor: req.authUser?.email || 'bilinmiyor',
+    action,
+    target,
+    detail,
+    ip: req.ip || req.socket.remoteAddress || undefined
+  });
+  // Sınırsız büyümesin; son 5000 işlem yeter.
+  if (audit.entries.length > 5000) audit.entries.length = 5000;
+  persistAudit();
+}
+
+/** Başarısız giriş denemesini kaydeder. */
+function recordFailedLogin(email: string, ip: string): void {
+  const entry = audit.failedLogins[email] || { count: 0, lastAt: '', ips: [] };
+  entry.count++;
+  entry.lastAt = new Date().toISOString();
+  if (ip && !entry.ips.includes(ip)) entry.ips = [...entry.ips.slice(-4), ip];
+  audit.failedLogins[email] = entry;
+  persistAudit();
+}
+
+/**
+ * Bakım modu.
+ *
+ * Uygulama AÇIK kalır ve çevrimdışı çalışmaya devam eder; kapanan yalnızca
+ * sunucuya YAZAN uçlardır. Uygulamayı tümden kapatmak, çevrimdışı çalışan
+ * bir sözlüğü sebepsiz yere erişilemez kılardı.
+ */
+function blockDuringMaintenance(req: express.Request, res: express.Response, next: express.NextFunction) {
+  if (!audit.system.maintenance.enabled) return next();
+
+  // Yönetici bakım sırasında çalışmaya devam edebilmeli.
+  const token = (req.headers.authorization || '').replace('Bearer ', '').trim();
+  const user = resolveSession(token);
+  if (user && isAdminEmail(user.email)) return next();
+
+  return res.status(503).json({
+    error:
+      audit.system.maintenance.message ||
+      'Bakım çalışması sürüyor. Kelimelerin telefonunda duruyor; kısa süre sonra tekrar dene.',
+    code: 'MAINTENANCE'
+  });
+}
+
+app.get('/api/health', (_req, res) => {
+  const uptimeSeconds = Math.round(process.uptime());
+  let dataWritable = false;
+  try {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.accessSync(DATA_DIR, fs.constants.W_OK);
+    dataWritable = true;
+  } catch {
+    dataWritable = false;
+  }
+
+  return res.json({
+    ok: dataWritable,
+    uptimeSeconds,
+    dataWritable,
+    maintenance: audit.system.maintenance.enabled,
+    users: Object.keys(cloudUsersDatabase).length,
+    dictionaryWords: dictionary.words.length,
+    aiConfigured: !!process.env.GEMINI_API_KEY,
+    version: process.env.npm_package_version || 'dev'
+  });
+});
+
+app.get('/api/admin/system', requireAuth, requireAdmin, (_req, res) => {
+  let backups: { name: string; bytes: number; at: string }[] = [];
+  try {
+    if (fs.existsSync(BACKUP_DIR)) {
+      backups = fs
+        .readdirSync(BACKUP_DIR)
+        .filter(name => name.endsWith('.json'))
+        .map(name => {
+          const stat = fs.statSync(path.join(BACKUP_DIR, name));
+          return { name, bytes: stat.size, at: stat.mtime.toISOString() };
+        })
+        .sort((a, b) => b.at.localeCompare(a.at));
+    }
+  } catch (err) {
+    console.error('Yedek listesi okunamadı:', err);
+  }
+
+  const failed = Object.entries(audit.failedLogins)
+    .map(([email, info]) => ({ email, ...info }))
+    .sort((a, b) => b.lastAt.localeCompare(a.lastAt))
+    .slice(0, 25);
+
+  return res.json({
+    maintenance: audit.system.maintenance,
+    features: audit.system.features,
+    backups,
+    failedLogins: failed,
+    auditLog: audit.entries.slice(0, 100)
+  });
+});
+
+app.put('/api/admin/system/maintenance', requireAuth, requireAdmin, (req: AuthedRequest, res) => {
+  const enabled = !!req.body?.enabled;
+  audit.system.maintenance = {
+    enabled,
+    message: sanitizeString(req.body?.message, 200) || undefined,
+    since: enabled ? new Date().toISOString() : undefined
+  };
+  recordAudit(req, enabled ? 'bakım modu açıldı' : 'bakım modu kapatıldı');
+  persistAudit();
+  return res.json({ maintenance: audit.system.maintenance });
+});
+
+/**
+ * Tam sistem yedeği.
+ *
+ * Bütün veri dosyaları tek bir JSON'da toplanır; başka bir sunucuya
+ * taşınabilir. Parola özetleri de dahildir — yedek olmadan hesaplar
+ * taşınamaz — bu yüzden dosya gizli tutulmalıdır.
+ */
+function buildBackup(): Record<string, unknown> {
+  return {
+    version: 1,
+    createdAt: new Date().toISOString(),
+    users: cloudUsersDatabase,
+    dictionary,
+    content: appContent,
+    aiCache,
+    stats,
+    shares,
+    metrics,
+    system: audit.system
+  };
+}
+
+app.post('/api/admin/system/backup', requireAuth, requireAdmin, (req: AuthedRequest, res) => {
+  try {
+    fs.mkdirSync(BACKUP_DIR, { recursive: true });
+    const name = `yedek-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+    fs.writeFileSync(path.join(BACKUP_DIR, name), JSON.stringify(buildBackup()), 'utf8');
+
+    // Son 20 yedek tutulur; disk sonsuz değil.
+    const files = fs.readdirSync(BACKUP_DIR).filter(f => f.endsWith('.json')).sort();
+    files.slice(0, Math.max(0, files.length - 20)).forEach(old => {
+      try {
+        fs.unlinkSync(path.join(BACKUP_DIR, old));
+      } catch {
+        /* silinemezse bir sonraki turda denenir */
+      }
+    });
+
+    recordAudit(req, 'yedek alındı', name);
+    return res.json({ name });
+  } catch (err: any) {
+    return res.status(500).json({ error: 'Yedek alınamadı: ' + (err?.message || '') });
+  }
+});
+
+app.get('/api/admin/system/backup/download', requireAuth, requireAdmin, (req: AuthedRequest, res) => {
+  recordAudit(req, 'yedek indirildi');
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.setHeader(
+    'Content-Disposition',
+    `attachment; filename="anlora-yedek-${new Date().toISOString().slice(0, 10)}.json"`
+  );
+  return res.send(JSON.stringify(buildBackup(), null, 2));
+});
+
+/**
+ * Yedekten geri yükleme.
+ *
+ * GERİ YÜKLEMEDEN ÖNCE OTOMATİK GÜVENLİK KOPYASI alınır. Yanlış dosyayı
+ * yükleyen yönetici, o an ayakta olan veriyi de kaybederse felaket olur;
+ * kopya bu ihtimali geri alınabilir kılar.
+ */
+app.post('/api/admin/system/restore', requireAuth, requireAdmin, (req: AuthedRequest, res) => {
+  const payload = req.body?.backup;
+  if (!payload || typeof payload !== 'object' || !payload.users) {
+    return res.status(400).json({ error: 'Geçersiz yedek dosyası.' });
+  }
+
+  try {
+    fs.mkdirSync(BACKUP_DIR, { recursive: true });
+    const safety = `geri-yukleme-oncesi-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+    fs.writeFileSync(path.join(BACKUP_DIR, safety), JSON.stringify(buildBackup()), 'utf8');
+
+    // Nesneler YERİNDE güncellenir; başka modüller bu referansları tutuyor.
+    Object.keys(cloudUsersDatabase).forEach(key => delete cloudUsersDatabase[key]);
+    Object.assign(cloudUsersDatabase, payload.users || {});
+
+    if (payload.dictionary) {
+      dictionary.words = payload.dictionary.words || [];
+      dictionary.topics = payload.dictionary.topics || [];
+      dictionary.examTags = payload.dictionary.examTags || [];
+    }
+    if (payload.content) {
+      appContent.ads = payload.content.ads || {};
+      appContent.announcements = payload.content.announcements || [];
+      appContent.feedback = payload.content.feedback || [];
+      appContent.branding = payload.content.branding || {};
+    }
+    if (payload.aiCache) {
+      aiCache.cards = payload.aiCache.cards || {};
+      aiCache.callsAvoided = payload.aiCache.callsAvoided || 0;
+      aiCache.misses = payload.aiCache.misses || {};
+    }
+
+    // Geri yükleme sonrası bütün oturumlar düşer: yedekteki hesaplar
+    // ayaktakilerden farklı olabilir.
+    sessions.clear();
+
+    persistUsers();
+    persistDictionary();
+    persistContent();
+    persistAiCache();
+
+    recordAudit(req, 'yedekten geri yüklendi', undefined, `güvenlik kopyası: ${safety}`);
+    return res.json({ restored: true, safetyCopy: safety });
+  } catch (err: any) {
+    return res.status(500).json({ error: 'Geri yükleme başarısız: ' + (err?.message || '') });
+  }
+});
+
 // --- Yönetim: reklam alanları ----------------------------------------------
 
 app.get('/api/admin/ads', requireAuth, requireAdmin, (_req, res) => {
@@ -3047,7 +3362,7 @@ app.get('/api/admin/ads', requireAuth, requireAdmin, (_req, res) => {
  * değişkenine bağlı, oturumlar 30 günde bir düşüyor ve panel yalnızca
  * doğrulanmış yönetici hesabına açık.
  */
-app.put('/api/admin/ads/:slotId', requireAuth, requireAdmin, (req, res) => {
+app.put('/api/admin/ads/:slotId', requireAuth, requireAdmin, (req: AuthedRequest, res) => {
   const slotId = String(req.params.slotId || '');
   if (!AD_SLOTS.some(slot => slot.id === slotId)) {
     return res.status(404).json({ error: 'Böyle bir reklam alanı yok.' });
@@ -3058,6 +3373,7 @@ app.put('/api/admin/ads/:slotId', requireAuth, requireAdmin, (req, res) => {
 
   appContent.ads[slotId] = { html, enabled, updatedAt: new Date().toISOString() };
   persistContent();
+  recordAudit(req, enabled ? 'reklam alanı açıldı' : 'reklam alanı kapatıldı', slotId);
   return res.json({ slotId, html, enabled });
 });
 
@@ -3165,7 +3481,7 @@ app.get('/api/admin/branding', requireAuth, requireAdmin, (_req, res) => {
  * açılışta indirileceği için büyümesine izin vermek, uygulamayı herkes için
  * yavaşlatmak demek. Boş gönderilen alan varsayılana döner.
  */
-app.put('/api/admin/branding', requireAuth, requireAdmin, (req, res) => {
+app.put('/api/admin/branding', requireAuth, requireAdmin, (req: AuthedRequest, res) => {
   const branding: Branding = { ...(appContent.branding || {}) };
 
   const textFields = ['appName', 'slogan', 'homeIntro', 'setsIntro', 'lookupTitle', 'lookupBody'] as const;
@@ -3200,6 +3516,7 @@ app.put('/api/admin/branding', requireAuth, requireAdmin, (req, res) => {
   branding.updatedAt = new Date().toISOString();
   appContent.branding = branding;
   persistContent();
+  recordAudit(req, 'marka bilgileri güncellendi');
   return res.json({ branding });
 });
 

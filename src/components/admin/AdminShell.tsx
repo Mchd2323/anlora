@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Shield, LayoutDashboard, Users, BookMarked, MessageSquare, Palette, Sparkles } from 'lucide-react';
+import { Shield, LayoutDashboard, Users, BookMarked, MessageSquare, Palette, Sparkles, Server } from 'lucide-react';
 import { AdminOverview } from './AdminOverview';
 import { AdminUsers } from './AdminUsers';
 import { AdminDictionary } from './AdminDictionary';
 import { AdminMessages } from './AdminMessages';
 import { AdminAppearance } from './AdminAppearance';
 import { AdminAI } from './AdminAI';
+import { AdminSystem } from './AdminSystem';
 
 /**
  * Yönetim panelinin kabuğu.
@@ -19,7 +20,7 @@ import { AdminAI } from './AdminAI';
  * denetlenir ve yetkisiz istek 403 değil 404 alır.
  */
 
-type TabId = 'overview' | 'users' | 'dictionary' | 'ai' | 'messages' | 'appearance';
+type TabId = 'overview' | 'users' | 'dictionary' | 'ai' | 'messages' | 'appearance' | 'system';
 
 const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: 'overview', label: 'Genel Bakış', icon: LayoutDashboard },
@@ -27,7 +28,8 @@ const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: 'dictionary', label: 'Sözlük', icon: BookMarked },
   { id: 'ai', label: 'Yapay Zekâ', icon: Sparkles },
   { id: 'messages', label: 'Mesajlar', icon: MessageSquare },
-  { id: 'appearance', label: 'Görünüm', icon: Palette }
+  { id: 'appearance', label: 'Görünüm', icon: Palette },
+  { id: 'system', label: 'Sistem', icon: Server }
 ];
 
 export const AdminShell: React.FC<{ onClose: () => void }> = ({ onClose }) => {
@@ -85,6 +87,7 @@ export const AdminShell: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       {tab === 'ai' && <AdminAI />}
       {tab === 'messages' && <AdminMessages />}
       {tab === 'appearance' && <AdminAppearance />}
+      {tab === 'system' && <AdminSystem />}
     </div>
   );
 };
