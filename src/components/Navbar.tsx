@@ -13,10 +13,13 @@ import { BRAND } from '../config/brand';
 /**
  * Uygulamadaki tüm görünümler.
  *
- * 'study' ve 'custom' gezinme çubuğunda sekme olarak görünmez ama gerçek birer
- * görünümdür (`App.tsx` bunlara `setActiveTab` ile geçer). Önceki sürümde
- * birlik listede yer almadıkları için TypeScript bu geçişleri hata olarak
- * göremiyordu; @types/react eksik olduğu için de fark edilmemişti.
+ * 'study' gezinme çubuğunda sekme olarak görünmez ama gerçek bir görünümdür
+ * (`App.tsx` ona `setActiveTab` ile geçer). Önceki sürümde birlik listede yer
+ * almadığı için TypeScript bu geçişi hata olarak göremiyordu.
+ *
+ * Listede bir de 'custom' vardı ama App onu HİÇ ele almıyordu: o sekmeye
+ * geçen bir kod boş ekran gösterirdi. Tek gönderen yer artık silinmiş olan
+ * HomeHero'ydu; tip listesinden de kaldırıldı ki bir daha yazılamasın.
  */
 export type TabType =
   | 'today'
@@ -24,8 +27,7 @@ export type TabType =
   | 'oxford'
   | 'quiz'
   | 'profile'
-  | 'study'
-  | 'custom';
+  | 'study';
 
 interface NavbarProps {
   activeTab: TabType;

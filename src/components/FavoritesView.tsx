@@ -13,6 +13,8 @@ interface FavoritesViewProps {
   onOpenAddToCollection?: (card: WordCard) => void;
   onOpenEditModal?: (card: WordCard) => void;
   onSetWordStatus?: (id: string, status: 'learned' | 'learning' | 'unseen') => void;
+  /** Profile geri döner. Verilmezse geri düğmesi çizilmez. */
+  onBack?: () => void;
 }
 
 export const FavoritesView: React.FC<FavoritesViewProps> = ({
@@ -22,7 +24,8 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({
   onToggleFavorite,
   onOpenAddToCollection,
   onOpenEditModal,
-  onSetWordStatus
+  onSetWordStatus,
+  onBack
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -41,6 +44,16 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({
   return (
     <div className="space-y-6 pb-safe-nav max-w-[1180px] mx-auto animate-fadeIn">
       {/* Header */}
+      {onBack && (
+        <button
+          type="button"
+          onClick={onBack}
+          className="text-xs font-semibold text-[var(--primary)] hover:text-[var(--primary-hover)] cursor-pointer inline-flex items-center gap-1"
+        >
+          ← Profile dön
+        </button>
+      )}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[var(--surface)] p-6 sm:p-7 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-[var(--danger-soft)] text-[var(--favorite)] flex items-center justify-center font-bold border border-[var(--danger-border)]">

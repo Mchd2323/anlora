@@ -108,6 +108,7 @@ export default function App() {
    */
   useEffect(() => {
     releaseStuckScrollLocks();
+    setIsFavoritesOpen(false);
   }, [activeTab]);
   // Seviye seçimi Oxford 3000 (A1–B2 + Tümü) ve Oxford 5000 Ek (B2 Ek, C1)
   // gruplarını birlikte kapsar.
@@ -159,6 +160,16 @@ export default function App() {
    */
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  /*
+   * Favoriler ekranı.
+   *
+   * Kullanıcı hem Oxford kelimelerini hem de kendi kartlarını favoriliyor
+   * ama ikisini bir arada gösteren bir yer yoktu: Oxford ekranındaki
+   * "Favorilerim" filtresi yalnızca Oxford havuzunu tarıyor, kişinin kendi
+   * kelimeleri o listede hiç görünmüyordu. Sekme olarak durmuyor çünkü
+   * gezinme çubuğu zaten dolu; profildeki favori sayısından açılıyor.
+   */
+  const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
 
   /*
    * Hesap özellikleri bu kurulumda kullanılabilir mi?
@@ -680,11 +691,24 @@ export default function App() {
           />
         )}
 
+        {activeTab === 'profile' && isFavoritesOpen && (
+          <FavoritesView
+            favoriteWords={favoriteWordsList}
+            favorites={favorites}
+            learningStates={learningStates}
+            onToggleFavorite={handleToggleFavorite}
+            onOpenAddToCollection={handleOpenAddToCollection}
+            onOpenEditModal={(card) => setEditingCard(card)}
+            onSetWordStatus={handleSetWordStatus}
+            onBack={() => setIsFavoritesOpen(false)}
+          />
+        )}
+
         {activeTab === 'profile' && isAdminPanelOpen && profile.isAdmin && (
           <AdminShell onClose={() => setIsAdminPanelOpen(false)} />
         )}
 
-        {activeTab === 'profile' && !(isAdminPanelOpen && profile.isAdmin) && (
+        {activeTab === 'profile' && !isFavoritesOpen && !(isAdminPanelOpen && profile.isAdmin) && (
           <ProfileView
             profile={profile}
             stats={stats}
@@ -704,6 +728,16 @@ export default function App() {
               setActiveTab('oxford');
             }}
             onOpenOxfordStatus={(status) => {
+              /*
+               * Favoriler kendi ekranına gider: orada kullanıcının KENDİ
+               * kelimeleri de görünür. Oxford ekranındaki favori filtresi
+               * yalnızca Oxford havuzunu tarıyor ve kişinin kendi
+               * kartlarını hiç göstermiyordu.
+               */
+              if (status === 'FAVORITES') {
+                setIsFavoritesOpen(true);
+                return;
+              }
               setSelectedLevel('ALL');
               setOxfordStatusFilter(status);
               setActiveTab('oxford');
