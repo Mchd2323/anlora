@@ -212,3 +212,24 @@ APK, Android SDK'nın hata ayıklama anahtarıyla imzalanır: doğrudan kurulabi
 - Kullanıcı hesapları düz bir JSON dosyasında tutulur ve oturumlar süreç belleğindedir: tek sunucu örneği için yeterli, yatay ölçeklenen bir dağıtım için değil. Gerçek bir dağıtımda bir veritabanı ve paylaşımlı oturum deposu gerekir.
 - Doğrulama kodları e-posta ile gönderilmez, sunucu günlüğüne yazılır. Üretim için `deliverVerificationCode` bir e-posta sağlayıcısına bağlanmalıdır.
 - Arayüzde hâlâ birkaç `alert()`/`confirm()` çağrısı bulunur; bildirim altyapısı (`ToastProvider`) kurulu olduğu için bunlar kademeli olarak taşınabilir.
+
+## Sunucu ortam değişkenleri
+
+| Değişken | Ne işe yarar |
+|---|---|
+| `GEMINI_API_KEY` | Yapay zekâ üretimi. Tanımlı değilse üretim kapalı; önbellekten yanıt verilmeye devam eder. |
+| `ANLORA_ADMIN_EMAILS` | Virgülle ayrılmış yönetici e-postaları. **Tanımlı değilse yönetim panelinin tamamı kapalıdır** ve uçlar 404 döner. Rol veritabanında tutulmaz: veriyi ele geçiren biri kendini yönetici yapamasın diye. |
+| `ANLORA_AI_DAILY_QUOTA` | Günlük toplam yeni yapay zekâ üretimi (varsayılan 200). Önbellekten gelen yanıtlar sayılmaz. |
+| `ANLORA_AI_USER_DAILY_QUOTA` | Kullanıcı başına günlük yeni üretim (varsayılan 25). Kelime eklemek sınırsızdır; sınır yalnızca yeni üretime uygulanır. |
+| `GOOGLE_CLIENT_ID` | Google ile giriş. Tanımlı değilse düğme dürüstçe devre dışıdır. |
+| `VITE_API_BASE_URL` | APK derlenirken sunucunun tam adresi. Verilmezse uygulama çevrimdışı kipte derlenir; hesap ve bulut yedeği kapalı olur. |
+
+Yönetim paneli **Profil → Yönetim Paneli** yolundan açılır ve yalnızca
+`ANLORA_ADMIN_EMAILS` listesindeki doğrulanmış hesaba görünür.
+
+### Veri dosyaları
+
+`data/` altında tutulur ve yedeklenmelidir:
+`users.json`, `dictionary.json`, `content.json`, `ai-cache.json`,
+`stats.json`, `shares.json`, `metrics.json`, `audit.json`, `uploads/`,
+`backups/`.
