@@ -1108,8 +1108,12 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   {/* Progress Line */}
                   <div className="mt-3 pt-2.5 border-t border-[var(--border-light)] space-y-1">
                     <div className="flex items-center justify-between text-[11px] font-semibold text-[var(--text-secondary)]">
-                      <span className="text-[var(--learned)]">{learned} Öğrendim</span>
-                      <span className="text-[var(--learning)]">{learning} Tekrar Et</span>
+                      <span className="text-[var(--learned)] inline-flex items-center gap-1">
+                          <Check className="w-3 h-3 stroke-[3]" aria-hidden="true" />{learned} Öğrendim
+                        </span>
+                      <span className="text-[var(--learning)] inline-flex items-center gap-1">
+                          <RotateCw className="w-3 h-3 stroke-[3]" aria-hidden="true" />{learning} Tekrar Et
+                        </span>
                     </div>
                     <div className="h-1.5 w-full bg-[var(--border)] rounded-full overflow-hidden">
                       <div

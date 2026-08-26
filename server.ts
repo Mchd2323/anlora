@@ -1544,6 +1544,39 @@ app.post('/api/auth/logout', (req, res) => {
 // ---------------------------------------------------------------------------
 // 7. Bulut senkronizasyonu — yalnızca oturum sahibinin kendi verisi
 // ---------------------------------------------------------------------------
+/**
+ * Kullanıcının kendi hesabını ve bulut verisini silmesi.
+ *
+ * KVKK/GDPR'ın "silinme hakkı" maddesi bunu gerektirir; ayrıca hesabını
+ * kapatmak için destek yazmak zorunda kalmak, kullanıcıyı kendi verisinin
+ * sahibi olmaktan çıkarır.
+ *
+ * Parola tekrar istenir: oturumu açık kalmış bir telefonu eline geçiren
+ * birinin hesabı silmesini engeller. Google ile açılmış hesaplarda parola
+ * yoktur; orada e-postanın birebir yazılması istenir.
+ */
+app.delete('/api/account', requireAuth, (req: AuthedRequest, res) => {
+  const user = req.authUser!;
+
+  if (user.credential) {
+    const password = typeof req.body?.password === 'string' ? req.body.password : '';
+    if (!verifyPassword(password, user.credential)) {
+      return res.status(401).json({ error: 'Parola hatalı.' });
+    }
+  } else {
+    const confirm = sanitizeString(req.body?.confirmEmail, 120).toLowerCase();
+    if (confirm !== user.email.toLowerCase()) {
+      return res.status(400).json({ error: 'Onaylamak için e-posta adresini birebir yaz.' });
+    }
+  }
+
+  revokeSessionsFor(user.email);
+  delete cloudUsersDatabase[user.email];
+  persistUsers();
+
+  return res.json({ deleted: true });
+});
+
 app.post('/api/sync/save', requireAuth, (req: AuthedRequest, res) => {
   const user = req.authUser!;
   const payload = req.body?.userData;

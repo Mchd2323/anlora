@@ -63,7 +63,8 @@ import { loadExtendedIndex } from './services/extendedRepository';
 import { useToast } from './components/ui/ToastProvider';
 import { useAndroidBackButton } from './hooks/useAndroidBackButton';
 import { useTheme } from './hooks/useTheme';
-import { releaseStuckScrollLocks } from './hooks/useModalA11y';
+import { useKeyboardShortcuts, Shortcut } from './hooks/useKeyboardShortcuts';
+import { releaseStuckScrollLocks, useModalA11y } from './hooks/useModalA11y';
 import { reportAppOpened, reportWordResult } from './services/usageReporter';
 
 export default function App() {
@@ -72,6 +73,24 @@ export default function App() {
 
   // Android donanım geri tuşu: uygulamadan çıkmak yerine önce modali kapatır,
   // sonra ana sekmeye döner.
+  /*
+   * Klavye kısayolları. Sayı tuşları sekmeler, harfler sık kullanılan
+   * eylemler. Yazarken ve modal açıkken devre dışı kalır.
+   */
+  const shortcuts = useMemo<Shortcut[]>(
+    () => [
+      { key: '1', description: 'Ana Sayfa', run: () => setActiveTab('today') },
+      { key: '2', description: 'Kelime Setlerim', run: () => setActiveTab('collections') },
+      { key: '3', description: 'Oxford 5000', run: () => setActiveTab('oxford') },
+      { key: '4', description: 'Sınav', run: () => setActiveTab('quiz') },
+      { key: '5', description: 'Profilim', run: () => setActiveTab('profile') },
+      { key: 's', description: 'Çalışmaya başla', run: () => setActiveTab('study') },
+      { key: '?', description: 'Kısayolları göster', run: () => setShowShortcuts(true) }
+    ],
+    []
+  );
+  useKeyboardShortcuts(shortcuts);
+
   const goToRootTab = useCallback(() => setActiveTab('today'), []);
   useAndroidBackButton(activeTab === 'today', goToRootTab);
 
@@ -136,6 +155,14 @@ export default function App() {
    * sunucunun yönetici dediği hesapta görünüyor.
    */
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  /*
+   * Kısayol penceresi de diğer modallerle aynı davranışı taşır: Escape ile
+   * kapanır, odak içeride kalır, kapanınca odak geri döner. Kendi elimizle
+   * yazdığımız bir pencerenin bu kuralların dışında kalması, klavye
+   * kullanıcısını tam da klavye yardımı ekranında kilitlerdi.
+   */
+  const shortcutsRef = useModalA11y(showShortcuts, () => setShowShortcuts(false));
   /** Hata bildirimi penceresi; kelime kartından açıldığında kelimeyi taşır. */
   const [feedbackRequest, setFeedbackRequest] = useState<
     { word?: string; kind?: FeedbackKind } | null
@@ -676,6 +703,58 @@ export default function App() {
           onSave={handleUpdateCustomWord}
           onDelete={handleDeleteCustomWord}
         />
+      )}
+
+      {/*
+        Klavye kısayolları yardımı. Yalnızca istendiğinde açılır; ekranda
+        sürekli duran bir ipucu şeridi mobilde yer kaplamaktan başka bir işe
+        yaramaz.
+      */}
+      {showShortcuts && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="anlora-shortcuts-title"
+          ref={shortcutsRef}
+          className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain"
+          onClick={() => setShowShortcuts(false)}
+        >
+          <div
+            className="bg-[var(--surface)] rounded-2xl max-w-sm w-full border border-[var(--border)] shadow-xl p-6 space-y-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 id="anlora-shortcuts-title" className="text-base font-bold text-[var(--text-primary)]">
+              Klavye kısayolları
+            </h3>
+            <div className="space-y-1.5">
+              {shortcuts.map((item) => (
+                <div key={item.key} className="flex items-center justify-between gap-3 text-xs">
+                  <span className="text-[var(--text-secondary)]">{item.description}</span>
+                  <kbd className="px-2 py-1 rounded-lg bg-[var(--surface-soft)] border border-[var(--border)] font-mono text-[11px] font-bold text-[var(--text-primary)]">
+                    {item.key}
+                  </kbd>
+                </div>
+              ))}
+              <div className="flex items-center justify-between gap-3 text-xs pt-2 border-t border-[var(--border-light)]">
+                <span className="text-[var(--text-secondary)]">Kartlar arasında gezin</span>
+                <span className="flex gap-1">
+                  <kbd className="px-2 py-1 rounded-lg bg-[var(--surface-soft)] border border-[var(--border)] font-mono text-[11px] font-bold text-[var(--text-primary)]">←</kbd>
+                  <kbd className="px-2 py-1 rounded-lg bg-[var(--surface-soft)] border border-[var(--border)] font-mono text-[11px] font-bold text-[var(--text-primary)]">→</kbd>
+                </span>
+              </div>
+            </div>
+            <p className="text-[11px] text-[var(--text-muted)]">
+              Kısayollar yazarken ve pencere açıkken devre dışıdır.
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowShortcuts(false)}
+              className="w-full py-2 bg-[var(--surface-soft)] hover:bg-[var(--border)] text-[var(--text-primary)] text-xs font-semibold rounded-xl cursor-pointer"
+            >
+              Kapat
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Hata bildirimi / iletişim */}

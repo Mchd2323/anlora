@@ -24,6 +24,7 @@ import { getUserWordStatus } from '../utils/storageV2';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { generateFullV2Backup, restoreFullV2Backup } from '../utils/storageV2';
 import { SettingsPanel } from './SettingsPanel';
+import { apiFetch } from '../utils/authClient';
 
 interface ProfileViewProps {
   profile: UserProfile;
@@ -69,6 +70,30 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onOpenAdminPanel,
   onOpenFeedback
 }) => {
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteAccountError, setDeleteAccountError] = useState('');
+
+  /**
+   * Hesabı sunucudan siler ve yerel oturumu kapatır.
+   *
+   * Parola tekrar istenir: oturumu açık kalmış bir telefonu eline geçiren
+   * birinin hesabı silmesini engeller.
+   */
+  const handleDeleteAccount = async () => {
+    setDeleteAccountError('');
+    try {
+      await apiFetch('/api/account', {
+        method: 'DELETE',
+        body: JSON.stringify({ password: deletePassword, confirmEmail: profile.email })
+      });
+      setIsDeletingAccount(false);
+      setDeletePassword('');
+      onLogout();
+    } catch (err: any) {
+      setDeleteAccountError(err?.message || 'Hesap silinemedi.');
+    }
+  };
   const [showExportSuccess, setShowExportSuccess] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
   const importInputRef = React.useRef<HTMLInputElement>(null);
@@ -527,6 +552,71 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <span>Tüm Verileri Sıfırla</span>
           </button>
         </div>
+
+        {/*
+          HESABI SİLME.
+          "Tüm verileri sıfırla" yalnızca bu cihazı temizler; hesap ve bulut
+          yedeği sunucuda kalır. İkisi ayrı işlerdir ve ayrı ayrı sunulmalı —
+          birini yapıp diğerini yaptığını sanmak, veri sildiğini sanıp
+          silmemek demek.
+        */}
+        {profile.isLoggedIn && (
+          <div className="pt-4 border-t border-[var(--border-light)] space-y-2">
+            <h4 className="text-xs font-bold text-[var(--text-secondary)]">Hesabı kapat</h4>
+            <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">
+              Hesabın ve bulut yedeğin sunucudan <b>kalıcı olarak</b> silinir. Bu cihazdaki
+              kelimelerin ayrıca durur; onları da silmek istersen yukarıdaki "Tüm Verileri
+              Sıfırla"yı kullan. İşlem geri alınamaz — önce yedeğini indirmek isteyebilirsin.
+            </p>
+
+            {deleteAccountError && (
+              <div className="p-3 rounded-xl bg-[var(--danger-soft)] border border-[var(--danger-border)] text-[11px] text-[var(--danger)]">
+                {deleteAccountError}
+              </div>
+            )}
+
+            {isDeletingAccount ? (
+              <div className="space-y-2">
+                <input
+                  type="password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  placeholder="Parolanı yaz"
+                  className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--danger)] text-[var(--text-primary)]"
+                />
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleDeleteAccount}
+                    disabled={!deletePassword.trim()}
+                    className="px-3.5 py-2 bg-[var(--danger)] hover:opacity-90 text-white text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    Hesabımı kalıcı olarak sil
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsDeletingAccount(false);
+                      setDeletePassword('');
+                      setDeleteAccountError('');
+                    }}
+                    className="px-3.5 py-2 text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-soft)] rounded-xl cursor-pointer"
+                  >
+                    Vazgeç
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsDeletingAccount(true)}
+                className="px-3.5 py-2 bg-[var(--danger-soft)] hover:bg-[var(--danger-soft-strong)] text-[var(--danger)] text-xs font-semibold rounded-xl border border-[var(--danger-border)] transition-colors cursor-pointer"
+              >
+                Hesabımı ve bulut verimi sil
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

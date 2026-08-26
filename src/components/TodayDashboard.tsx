@@ -19,7 +19,9 @@ import {
   Flame,
   Target,
   Play,
-  Megaphone
+  Megaphone,
+  Check,
+  RotateCw
 } from 'lucide-react';
 import { getUserWordStatus } from '../utils/storageV2';
 import { summarizeQueue } from '../utils/srsEngine';
@@ -285,8 +287,12 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
 
                     <div className="mt-4 space-y-1.5 pt-2 border-t border-[var(--border)]">
                       <div className="flex items-center justify-between text-[11px] font-semibold text-[var(--text-secondary)]">
-                        <span className="text-[var(--learned)]">{learned} Öğrendim</span>
-                        <span className="text-[var(--learning)]">{learning} Tekrar Et</span>
+                        <span className="text-[var(--learned)] inline-flex items-center gap-1">
+                          <Check className="w-3 h-3 stroke-[3]" aria-hidden="true" />{learned} Öğrendim
+                        </span>
+                        <span className="text-[var(--learning)] inline-flex items-center gap-1">
+                          <RotateCw className="w-3 h-3 stroke-[3]" aria-hidden="true" />{learning} Tekrar Et
+                        </span>
                       </div>
                       <div className="h-1.5 w-full bg-[var(--border)] rounded-full overflow-hidden">
                         <div

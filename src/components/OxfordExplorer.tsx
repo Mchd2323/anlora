@@ -3,7 +3,7 @@ import { WordCard, Level, LearningState } from '../types';
 import { OxfordGroupKey } from '../types/oxford';
 import { WordCardComponent } from './WordCard';
 import { StudyFlashcard } from './study/StudyFlashcard';
-import { Search, Volume2, BookOpen, Play, BrainCircuit, X } from 'lucide-react';
+import { Search, Volume2, BookOpen, Play, BrainCircuit, X, Check, RotateCw } from 'lucide-react';
 import { speakText } from '../utils/speech';
 import { getUserWordStatus } from '../utils/storageV2';
 import { CEFRBadge } from './ui/CEFRBadge';
@@ -313,11 +313,8 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
                   : 'text-[var(--learned)] border-transparent hover:bg-[var(--learned-soft-hover)]'
               }`}
             >
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  statusFilter === 'LEARNED' ? 'bg-white' : 'bg-[var(--learned)]'
-                }`}
-              />
+              {/* Renk tek başına ayırt etmiyor; biçim de taşınıyor. */}
+              <Check className="w-3.5 h-3.5 stroke-[3]" aria-hidden="true" />
               {levelStats.learnedCount} Öğrendim
             </button>
 
@@ -330,11 +327,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
                   : 'text-[var(--learning)] border-transparent hover:bg-[var(--learning-soft-hover)]'
               }`}
             >
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  statusFilter === 'LEARNING' ? 'bg-white' : 'bg-[var(--learning)]'
-                }`}
-              />
+              <RotateCw className="w-3.5 h-3.5 stroke-[3]" aria-hidden="true" />
               {levelStats.learningCount} Tekrar Et
             </button>
 
