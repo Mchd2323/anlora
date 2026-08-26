@@ -3678,11 +3678,45 @@ async function sendToDevice(
     if (response.ok) return 'ok';
 
     /*
-     * 404 ve 403 "bu jeton artık geçerli değil" demektir: uygulama
-     * kaldırılmış ya da jeton yenilenmiş olabilir. Böyle kayıtları silmek
-     * gerekir, yoksa liste ölü jetonlarla dolar ve her gönderim yavaşlar.
+     * ÖLÜ JETON MU, BİZİM HATAMIZ MI?
+     *
+     * Ölü jetonları silmek gerekir, yoksa liste her gönderimde biraz daha
+     * yavaşlar. Ama her hatada cihaz silmek tehlikeli: gövdesi bozuk bir
+     * mesaj da 400 döndürür ve o bizim hatamızdır — bu yüzden silmek,
+     * kendi hatamız yüzünden kullanıcıları bildirim listesinden atmak olur.
+     *
+     * Bu yüzden yanıt ayrıştırılıp hatanın JETONU işaret ettiğine bakılıyor:
+     *   * 404 UNREGISTERED — uygulama kaldırılmış ya da jeton yenilenmiş
+     *   * 403 SENDER_ID_MISMATCH — jeton başka bir projeye ait
+     *   * 400, yalnızca hata açıkça `message.token` alanını gösteriyorsa
      */
-    if (response.status === 404 || response.status === 403) return 'gone';
+    let detail: any = null;
+    try {
+      detail = await response.json();
+    } catch {
+      /* gövdesiz hata; aşağıda 'error' olarak geçer */
+    }
+
+    const errorCode: string =
+      detail?.error?.details?.find((d: any) => d?.errorCode)?.errorCode || '';
+    const fieldViolation: string =
+      detail?.error?.details
+        ?.flatMap((d: any) => d?.fieldViolations || [])
+        ?.map((v: any) => String(v?.field || ''))
+        ?.join(' ') || '';
+
+    if (errorCode === 'UNREGISTERED' || errorCode === 'SENDER_ID_MISMATCH') return 'gone';
+    if (response.status === 404) return 'gone';
+    if (response.status === 400 && /(^|\.)token$/.test(fieldViolation.trim())) return 'gone';
+
+    // Geri kalan her şey bizim tarafımızın sorunu olabilir; cihaz korunur.
+    if (!response.ok) {
+      console.error(
+        '[ANLORA PUSH] Gönderilemedi:',
+        response.status,
+        errorCode || JSON.stringify(detail?.error?.message || '').slice(0, 160)
+      );
+    }
     return 'error';
   } catch {
     return 'error';

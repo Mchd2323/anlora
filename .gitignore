@@ -17,3 +17,11 @@ __pycache__/
 # yoksayıyordu.
 /data/
 src/data/custom_cards_cloud.json
+
+# Hizmet hesabı anahtarları. `.env*` zaten yoksayılıyor ama bu dosyalar
+# çoğu zaman kendi adlarıyla iniyor ve yanlışlıkla eklenmesi kolay.
+# google-services.json BİLEREK yoksayılmıyor: APK'nın derlenmesi için
+# gerekli ve zaten her APK'dan çıkarılabildiği için gizli sayılmıyor.
+*-firebase-adminsdk-*.json
+service-account*.json
+fcm-*.json
