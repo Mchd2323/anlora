@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Uygulama verisi cihazdan DIŞARI ÇIKMAZ.
+
+  Android'in otomatik yedeklemesi, uygulama verisini Google Drive'a kopyalar
+  ve `adb backup` ile bilgisayara alınmasına izin verir. Anlora'nın WebView
+  deposunda kullanıcının oturum jetonu ve bütün kelimeleri duruyor; bunların
+  cihaz dışına çıkması, telefona kısa süre erişen birinin hesabı ele
+  geçirmesi anlamına gelir.
+
+  Kullanıcının verisi zaten kaybolmuyor: uygulama içinden JSON yedeği
+  alınabiliyor ve hesap açan kullanıcının verisi buluta eşitleniyor. Bu
+  yollar kullanıcının kendi bilgisi ve isteğiyle işliyor.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+        <exclude domain="file" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+        <exclude domain="file" />
+    </device-transfer>
+</data-extraction-rules>

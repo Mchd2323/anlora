@@ -53,6 +53,80 @@ const DATA_DIR_BASE =
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
+/*
+ * Sunucu imzası kapatılır. `X-Powered-By: Express` başlığı saldırgana hangi
+ * yığının çalıştığını söyler; hiçbir kullanıcıya faydası yoktur.
+ */
+app.disable('x-powered-by');
+
+/*
+ * VEKİL SUNUCU GÜVENİ.
+ *
+ * Hız sınırı `req.ip` üzerine kurulu. Express varsayılan olarak soketin
+ * kendi adresini kullanır; uygulama bir vekilin (nginx, Cloudflare, hosting
+ * yük dengeleyicisi) arkasındaysa BÜTÜN kullanıcılar tek bir adres olarak
+ * görünür — bir kişinin hatalı giriş denemeleri herkesi kilitler.
+ *
+ * `true` yazılmaz: o durumda `X-Forwarded-For` başlığını isteyen herkes
+ * uydurabilir ve hız sınırını tamamen atlatır. Değer ortam değişkeninden
+ * gelir ve yalnızca gerçekten bir vekilin arkasındayken ayarlanır.
+ * (Örn. ANLORA_TRUST_PROXY=1 → en yakın bir vekile güven.)
+ */
+const TRUST_PROXY = (process.env.ANLORA_TRUST_PROXY || '').trim();
+if (TRUST_PROXY) {
+  app.set('trust proxy', /^\d+$/.test(TRUST_PROXY) ? Number(TRUST_PROXY) : TRUST_PROXY);
+}
+
+/*
+ * GÜVENLİK BAŞLIKLARI.
+ *
+ * Hiç yoktu. Eksikliklerinin somut karşılıkları:
+ *   - Çerçeveleme: uygulama herhangi bir sitenin içine gömülebiliyordu.
+ *     Saldırgan görünmez bir çerçeve koyup giriş yapmış kullanıcıya
+ *     "hesabımı sil" düğmesine bastırabilir (clickjacking).
+ *   - MIME tahmini: tarayıcı içeriğe bakıp Content-Type'ı geçersiz kılabilir;
+ *     yüklenen bir dosyanın HTML gibi çalıştırılmasına kapı açar.
+ *   - Referrer: paylaşım bağlantısı tıklanınca tam adres üçüncü tarafa
+ *     gidiyordu; paylaşım kodu böyle sızabilir.
+ *
+ * CSP `script-src 'self'` diyor ama `'unsafe-inline'` DA içeriyor: reklam
+ * alanı (AdSlot) yöneticinin girdiği kodu bilerek çalıştırıyor ve reklam
+ * ağlarının kodu satır içi. Bu bilinçli bir ödün; karşılığında yükleme
+ * klasörü kendi sıkı politikasıyla ayrıca korunuyor (aşağıda).
+ */
+app.use((_req, res, next) => {
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader(
+    'Content-Security-Policy',
+    [
+      "default-src 'self'",
+      "base-uri 'self'",
+      "object-src 'none'",
+      "frame-ancestors 'none'",
+      "form-action 'self'",
+      // Reklam kodları ve Google ile giriş betiği satır içi çalışıyor.
+      "script-src 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com",
+      "style-src 'self' 'unsafe-inline'",
+      // Yazı tipleri pakete gömülü; dışarıdan yazı tipi çekilmiyor.
+      "font-src 'self'",
+      "img-src 'self' data: blob: https:",
+      "media-src 'self' data: blob:",
+      "connect-src 'self' https://oauth2.googleapis.com https://accounts.google.com",
+      "frame-src https://accounts.google.com"
+    ].join('; ')
+  );
+  // HSTS yalnızca HTTPS üzerinden anlamlı; düz HTTP'de tarayıcı yok sayar
+  // ama geliştirme sırasında localhost'u kilitlememek için de koşullu.
+  if (process.env.NODE_ENV === 'production') {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
+  next();
+});
+
 app.use(express.json({ limit: '1mb' }));
 
 // In-Memory Rate Limiting & Anti-Abuse Manager
@@ -63,8 +137,45 @@ interface RateLimitRecord {
 }
 const ipRateLimitStore = new Map<string, RateLimitRecord>();
 
+/**
+ * Hız sınırı defterinin budanması.
+ *
+ * Defter bir Map ve hiç temizlenmiyordu: her yeni adres kalıcı bir kayıt
+ * bırakıyordu. Adres değiştiren bir saldırgan — ya da yalnızca aylarca
+ * çalışan bir sunucu — belleği sınırsız büyütür. Kayıtlar zaten geçici
+ * bilgidir; penceresi dolmuş olanların tutulmasının hiçbir faydası yok.
+ *
+ * Budama her istekte değil, belirli aralıklarla yapılır: temizlik maliyeti
+ * korumanın önüne geçmemeli.
+ */
+const RATE_STORE_PRUNE_MS = 5 * 60 * 1000;
+const RATE_STORE_MAX_ENTRIES = 50_000;
+let lastRatePrune = Date.now();
+
+function pruneRateLimitStore(now: number, windowMs: number): void {
+  if (now - lastRatePrune < RATE_STORE_PRUNE_MS) return;
+  lastRatePrune = now;
+
+  for (const [adres, kayit] of ipRateLimitStore) {
+    const engelDevam = kayit.blockedUntil && kayit.blockedUntil > now;
+    const sonIstek = kayit.timestamps.length ? kayit.timestamps[kayit.timestamps.length - 1] : 0;
+    if (!engelDevam && now - sonIstek > windowMs) ipRateLimitStore.delete(adres);
+  }
+
+  /*
+   * Son çare: budamadan sonra bile defter beklenmedik biçimde büyükse
+   * tamamen boşaltılır. Bellek tükenmesi, birkaç saniyelik korumasızlıktan
+   * çok daha ağır bir sonuçtur.
+   */
+  if (ipRateLimitStore.size > RATE_STORE_MAX_ENTRIES) {
+    console.warn(`[ANLORA] Hız sınırı defteri ${ipRateLimitStore.size} kayda ulaştı, sıfırlanıyor.`);
+    ipRateLimitStore.clear();
+  }
+}
+
 function checkRateLimit(ip: string, maxRequests: number, windowMs: number): { allowed: boolean; remaining: number; retryAfter?: number } {
   const now = Date.now();
+  pruneRateLimitStore(now, windowMs);
   const record = ipRateLimitStore.get(ip) || { timestamps: [], failedAttempts: 0 };
 
   // Check if currently blocked
@@ -85,6 +196,31 @@ function checkRateLimit(ip: string, maxRequests: number, windowMs: number): { al
   record.timestamps.push(now);
   ipRateLimitStore.set(ip, record);
   return { allowed: true, remaining: maxRequests - record.timestamps.length };
+}
+
+/**
+ * Sözlük nesnesinden GÜVENLİ okuma.
+ *
+ * NEDEN GEREKLİ. `nesne[kullanıcıdanGelenAnahtar]` yazmak, JavaScript'te
+ * yalnızca nesnenin kendi anahtarlarını değil `Object.prototype` üzerindeki
+ * her şeyi de görünür kılar. `__proto__`, `constructor`, `toString` gibi bir
+ * anahtar gönderen istemci, hiç var olmayan bir kaydı VARMIŞ gibi gösterir.
+ *
+ * Ölçülen iki sonuç:
+ *   - `/api/sets/shared/constructor` — kimlik gerektirmeyen bu uç, bulunan
+ *     "kayıt" üzerinde alan okumaya çalışıp 500 veriyordu.
+ *   - `/api/admin/users/__proto__/ban` — dönen "kullanıcı" Object.prototype
+ *     olduğu için `banned = true` BÜTÜN nesnelere yazılıyordu. Sonuç:
+ *     `requireAuth` içindeki `if (user.banned)` denetimi her kullanıcı için
+ *     doğru dönüyor ve sunucu yeniden başlatılana kadar KİMSE giriş
+ *     yapamıyordu. Tek bir istekle bütün kullanıcı tabanı kilitleniyordu.
+ *
+ * `hasOwnProperty` çağrısı prototipten değil `Object.prototype`'tan alınır:
+ * nesnenin kendisinde aynı adda bir alan olabilir.
+ */
+function ownLookup<T>(store: Record<string, T>, key: unknown): T | undefined {
+  if (typeof key !== 'string' || !key) return undefined;
+  return Object.prototype.hasOwnProperty.call(store, key) ? store[key] : undefined;
 }
 
 // Input sanitizer helper
@@ -276,7 +412,7 @@ app.post('/api/ai/generate-word', blockDuringMaintenance, async (req, res) => {
    * genel kartta yok, onu döndürmek kullanıcının sorduğu soruyu yanıtsız
    * bırakmak olurdu.
    */
-  const cached = aiCache.cards[key];
+  const cached = ownLookup(aiCache.cards, key);
   if (cached && !hasContext) {
     cached.hits++;
     aiCache.callsAvoided++;
@@ -1083,7 +1219,7 @@ function resolveSession(token: string | undefined): CloudUserData | null {
     sessions.delete(token);
     return null;
   }
-  return cloudUsersDatabase[session.email] || null;
+  return ownLookup(cloudUsersDatabase, session.email) || null;
 }
 
 function revokeSessionsFor(email: string): void {
@@ -1303,7 +1439,7 @@ app.post('/api/auth/google', async (req, res) => {
   const email = String(payload.email).toLowerCase();
   const name = sanitizeString(payload.name, 100) || email.split('@')[0];
 
-  let user = cloudUsersDatabase[email];
+  let user = ownLookup(cloudUsersDatabase, email);
   if (!user) {
     user = createEmptyUser(email, name, 'Türkiye', 'İstanbul', 'google');
     cloudUsersDatabase[email] = user;
@@ -1355,7 +1491,7 @@ app.post('/api/auth/register', blockDuringMaintenance, (req, res) => {
     return res.status(400).json({ error: passwordProblem, code: 'WEAK_PASSWORD' });
   }
 
-  if (cloudUsersDatabase[cleanEmail]) {
+  if (ownLookup(cloudUsersDatabase, cleanEmail)) {
     return res.status(400).json({ error: 'Bu e-posta adresiyle kayıtlı bir hesap zaten var.' });
   }
 
@@ -1553,7 +1689,7 @@ app.post('/api/auth/verify-email', (req, res) => {
   const cleanEmail = sanitizeString(req.body?.email, 120).toLowerCase();
   const cleanCode = sanitizeString(req.body?.code, 10).trim();
 
-  const user = cloudUsersDatabase[cleanEmail];
+  const user = ownLookup(cloudUsersDatabase, cleanEmail);
   if (!user) {
     return res.status(404).json({ error: 'Kullanıcı hesabı bulunamadı.' });
   }
@@ -1633,7 +1769,7 @@ app.post('/api/auth/resend-code', (req, res) => {
   }
 
   const cleanEmail = sanitizeString(req.body?.email, 120).toLowerCase();
-  const user = cloudUsersDatabase[cleanEmail];
+  const user = ownLookup(cloudUsersDatabase, cleanEmail);
 
   // Hesabın var olup olmadığını sızdırmamak için yanıt her durumda aynı.
   const genericResponse = { message: 'Hesap varsa yeni doğrulama kodu gönderildi.' };
@@ -1674,7 +1810,7 @@ app.post('/api/auth/login', (req, res) => {
   const cleanEmail = sanitizeString(req.body?.email, 120).toLowerCase();
   const cleanPassword = typeof req.body?.password === 'string' ? req.body.password : '';
 
-  const user = cloudUsersDatabase[cleanEmail];
+  const user = ownLookup(cloudUsersDatabase, cleanEmail);
 
   // Hesabın varlığını sızdırmamak için kimlik hatalarında tek bir mesaj.
   const invalidCredentials = () => {
@@ -2023,7 +2159,7 @@ app.get('/api/app-content', (req, res) => {
 
   const ads: Record<string, string> = {};
   for (const slot of AD_SLOTS) {
-    const entry = appContent.ads[slot.id];
+    const entry = ownLookup(appContent.ads, slot.id);
     // Kapalı ya da boş alan yanıta HİÇ girmez: istemci "var ama boş" diye
     // bir durumla uğraşmasın, alan yoksa çizmesin.
     if (entry && entry.enabled && entry.html.trim()) ads[slot.id] = entry.html;
@@ -2113,7 +2249,7 @@ app.post('/api/feedback', blockDuringMaintenance, (req, res) => {
    */
   if (entry.kind === 'word' && entry.word) {
     const key = cacheKey(entry.word);
-    const cached = aiCache.cards[key];
+    const cached = ownLookup(aiCache.cards, key);
     if (cached) {
       cached.reports = (cached.reports || 0) + 1;
       if (cached.reports >= AUTO_QUARANTINE_REPORTS) {
@@ -2215,7 +2351,7 @@ app.get('/api/admin/users', requireAuth, requireAdmin, (req, res) => {
 function findTargetUser(req: express.Request): CloudUserData | null {
   const email = String(req.params.email || '').trim().toLowerCase();
   if (!email) return null;
-  return cloudUsersDatabase[email] || null;
+  return ownLookup(cloudUsersDatabase, email) || null;
 }
 
 /**
@@ -2531,8 +2667,24 @@ function registerTags(entry: AdminWord): void {
 // işi bağımlılık eklemeden görüyor.
 
 /** Bir hücreyi CSV kaçışlarıyla yazar. */
+/**
+ * CSV hücresi.
+ *
+ * TIRNAKLAMA yetmez, FORMÜL DE ETKİSİZLEŞTİRİLİR. Excel ve LibreOffice,
+ * `=`, `+`, `-`, `@`, sekme ya da satır başı ile BAŞLAYAN bir hücreyi
+ * formül sayar. Sözlükteki bir kelime `=HYPERLINK("http://kotu.site";"tıkla")`
+ * olsaydı, dışa aktarılan dosyayı açan yönetici bunu tıklanabilir bir bağlantı
+ * olarak görürdü; bazı kurulumlarda `=cmd|...` gibi daha ağır saldırılar da
+ * mümkün. Veri kaynağı bizim olmayabilir: CSV içe aktarma ve yapay zekâ
+ * üretimi de sözlüğe yazıyor.
+ *
+ * Tehlikeli bir başlangıç karakteri varsa hücrenin önüne tek tırnak konur —
+ * elektronik tablo bunu "bu bir metin" diye okur, kullanıcı ise değeri
+ * olduğu gibi görür.
+ */
 function csvCell(value: string): string {
-  const text = String(value ?? '');
+  let text = String(value ?? '');
+  if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
   return /[",\n;]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
@@ -2785,9 +2937,32 @@ app.post('/api/admin/upload', requireAuth, requireAdmin, (req, res) => {
   return res.json({ url: `/uploads/${name}`, bytes: buffer.length });
 });
 
-// Yüklenen dosyalar herkese açık servis edilir: uygulama bunları gösterecek.
-// Dizin listeleme kapalı, yalnızca doğrudan dosya adıyla erişilir.
-app.use('/uploads', express.static(UPLOADS_DIR, { index: false, maxAge: '7d' }));
+/*
+ * Yüklenen dosyalar herkese açık servis edilir: uygulama bunları gösterecek.
+ * Dizin listeleme kapalı, yalnızca doğrudan dosya adıyla erişilir.
+ *
+ * SVG SORUNU. Yüklenebilen türler arasında `image/svg+xml` var ve SVG bir
+ * BELGEDİR: içinde `<script>` taşıyabilir. Dosya uygulamanın kendi
+ * kökeninden servis edildiği için, adresine doğrudan giden biri o betiği
+ * uygulamanın kökeninde çalıştırır — yani localStorage'daki oturum
+ * jetonunu okuyabilir. Ölçüldü: içinde script olan bir SVG yüklenip
+ * `image/svg+xml` olarak, hiçbir koruma başlığı olmadan geri geliyordu.
+ *
+ * ÇÖZÜM. Bu klasöre özel, her şeyi kapatan bir politika: `sandbox` belgeyi
+ * betiksiz bir kum havuzuna alır, `default-src 'none'` dışarıyla bağını
+ * keser. `<img>` ile gösterim etkilenmez — resim olarak çizilen SVG'de
+ * betik zaten çalışmaz; kapatılan şey dosyaya DOĞRUDAN gidilmesi.
+ * `nosniff` de tarayıcının türü kendi kafasına göre yorumlamasını engeller.
+ */
+app.use(
+  '/uploads',
+  (_req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; sandbox");
+    next();
+  },
+  express.static(UPLOADS_DIR, { index: false, maxAge: '7d' })
+);
 
 // --- Yönetim: hesap engelleme ----------------------------------------------
 
@@ -2880,6 +3055,55 @@ function persistStats(): void {
  * Giriş şartı yok; kimlik de istenmiyor. Gönderilen tek şey kelime başına
  * doğru/yanlış sayısı.
  */
+/**
+ * Anahtar olarak kullanılması tehlikeli adlar.
+ *
+ * `nesne[anahtar] = değer` yazarken `__proto__` gibi bir ad, değeri alana
+ * değil NESNENİN PROTOTİPİNE yazar. Kimliksiz bir uçtan gelen veriyle
+ * çağrılan bu iki depoda anahtar tamamen istemciden geliyor.
+ */
+function isUnsafeKey(key: string): boolean {
+  return key === '__proto__' || key === 'constructor' || key === 'prototype';
+}
+
+/*
+ * SINIRSIZ BÜYÜME KAPATILDI.
+ *
+ * Bu uç kimlik istemiyor ve istek başına 50 "bulunamadı" kelimesi ile 200
+ * kelime istatistiği kabul ediyor; hepsi diske yazılıyordu. Dakikada 20
+ * isteklik hız sınırıyla bile bu, saatte on binlerce uydurma kaydın
+ * birikmesi demek — bellek ve disk zamanla doluyordu.
+ *
+ * Depolar artık tavanlı. Eleme rastgele değil: her ikisinde de en ÇOK
+ * geçen kayıtlar tutuluyor, çünkü yöneticiye asıl bunlar bir şey anlatıyor
+ * ("bu kelime çok aranıyor ama sözlükte yok"). Tek seferlik uydurma
+ * girdiler sayaçları düşük kaldığı için kendiliğinden eleniyor.
+ */
+const MAX_MISS_RECORDS = 5000;
+const MAX_WORD_STATS = 20000;
+
+function capMissRecords(): void {
+  const keys = Object.keys(aiCache.misses);
+  if (keys.length <= MAX_MISS_RECORDS) return;
+  keys
+    .sort((a, b) => (aiCache.misses[b] || 0) - (aiCache.misses[a] || 0))
+    .slice(MAX_MISS_RECORDS)
+    .forEach(key => delete aiCache.misses[key]);
+}
+
+function capWordStats(): void {
+  const keys = Object.keys(stats.words);
+  if (keys.length <= MAX_WORD_STATS) return;
+  const agirlik = (k: string) => {
+    const v = stats.words[k];
+    return (v?.correct || 0) + (v?.wrong || 0);
+  };
+  keys
+    .sort((a, b) => agirlik(b) - agirlik(a))
+    .slice(MAX_WORD_STATS)
+    .forEach(key => delete stats.words[key]);
+}
+
 app.post('/api/stats/report', (req, res) => {
   const ip = req.ip || req.socket.remoteAddress || '127.0.0.1';
   const rate = checkRateLimit(`st:${ip}`, 20, 60000);
@@ -2904,24 +3128,28 @@ app.post('/api/stats/report', (req, res) => {
   const misses = Array.isArray(req.body?.misses) ? req.body.misses.slice(0, 50) : [];
   misses.forEach((raw: any) => {
     const word = sanitizeString(raw, 80).toLowerCase();
-    if (!word || word.length < 2) return;
-    aiCache.misses[word] = (aiCache.misses[word] || 0) + 1;
+    if (!word || word.length < 2 || isUnsafeKey(word)) return;
+    aiCache.misses[word] = (ownLookup(aiCache.misses, word) || 0) + 1;
   });
-  if (misses.length) persistAiCache();
+  if (misses.length) {
+    capMissRecords();
+    persistAiCache();
+  }
 
   const entries = Array.isArray(req.body?.words) ? req.body.words.slice(0, 200) : [];
   entries.forEach((item: any) => {
     const id = sanitizeString(item?.id, 120);
-    if (!id) return;
+    if (!id || isUnsafeKey(id)) return;
     const correct = Math.max(0, Math.min(Number(item?.correct) || 0, 1000));
     const wrong = Math.max(0, Math.min(Number(item?.wrong) || 0, 1000));
     if (!correct && !wrong) return;
 
-    const existing = stats.words[id] || { correct: 0, wrong: 0 };
+    const existing = ownLookup(stats.words, id) || { correct: 0, wrong: 0 };
     existing.correct += correct;
     existing.wrong += wrong;
     stats.words[id] = existing;
   });
+  capWordStats();
 
   persistStats();
   return res.json({ ok: true });
@@ -3068,7 +3296,7 @@ app.post('/api/sets/share', blockDuringMaintenance, requireAuth, (req: AuthedReq
   // kod üretmek, kullanıcının dağıttığı eski bağlantıları çöpe atardı.
   const previous = sanitizeString(req.body?.previousCode, 40);
   const code =
-    previous && shares[previous] && shares[previous].owner === user.email
+    previous && ownLookup(shares, previous)?.owner === user.email
       ? previous
       : crypto.randomBytes(6).toString('base64url');
 
@@ -3088,7 +3316,7 @@ app.post('/api/sets/share', blockDuringMaintenance, requireAuth, (req: AuthedReq
 /** Paylaşımı kaldırır; bağlantı geçersizleşir. */
 app.delete('/api/sets/share/:code', requireAuth, (req: AuthedRequest, res) => {
   const user = req.authUser!;
-  const entry = shares[String(req.params.code || '')];
+  const entry = ownLookup(shares, String(req.params.code || ''));
   if (!entry) return res.status(404).json({ error: 'Paylaşım bulunamadı.' });
   if (entry.owner !== user.email) {
     return res.status(403).json({ error: 'Bu paylaşım sana ait değil.' });
@@ -3104,7 +3332,7 @@ app.delete('/api/sets/share/:code', requireAuth, (req: AuthedRequest, res) => {
  * Kodu bilmeyen bulamaz; liste ucu yoktur.
  */
 app.get('/api/sets/shared/:code', (req, res) => {
-  const entry = shares[String(req.params.code || '')];
+  const entry = ownLookup(shares, String(req.params.code || ''));
   if (!entry) return res.status(404).json({ error: 'Bu bağlantı geçersiz ya da kaldırılmış.' });
 
   return res.json({
@@ -3170,7 +3398,7 @@ app.get('/api/admin/ai', requireAuth, requireAdmin, (_req, res) => {
 
 /** Üretilen kartı onaylar ya da kalitesiz olarak işaretler. */
 app.patch('/api/admin/ai/cache/:word', requireAuth, requireAdmin, (req, res) => {
-  const entry = aiCache.cards[cacheKey(String(req.params.word || ''))];
+  const entry = ownLookup(aiCache.cards, cacheKey(String(req.params.word || '')));
   if (!entry) return res.status(404).json({ error: 'Kayıt bulunamadı.' });
 
   if (typeof req.body?.approved === 'boolean') entry.approved = req.body.approved;
@@ -3187,7 +3415,7 @@ app.patch('/api/admin/ai/cache/:word', requireAuth, requireAdmin, (req, res) => 
  */
 app.delete('/api/admin/ai/cache/:word', requireAuth, requireAdmin, (req, res) => {
   const key = cacheKey(String(req.params.word || ''));
-  if (!aiCache.cards[key]) return res.status(404).json({ error: 'Kayıt bulunamadı.' });
+  if (!ownLookup(aiCache.cards, key)) return res.status(404).json({ error: 'Kayıt bulunamadı.' });
   delete aiCache.cards[key];
   persistAiCache();
   return res.json({ deleted: key });
@@ -3900,7 +4128,7 @@ app.post('/api/admin/push/send', requireAuth, requireAdmin, async (req: AuthedRe
   if (audience === 'verified') {
     hedefler = hedefler.filter(device => {
       if (!device.email) return false;
-      const user = cloudUsersDatabase[device.email];
+      const user = ownLookup(cloudUsersDatabase, device.email);
       return !!user?.emailVerified && !user.banned;
     });
   }

@@ -15,9 +15,15 @@ const config: CapacitorConfig = {
   appName: 'Anlora',
   webDir: 'dist',
   android: {
-    // Kullanıcının kendi kartlarını ve ilerlemesini localStorage tutuyor.
-    // Bu bayrak, WebView'ın veriyi uygulama verisiyle birlikte saklamasını
-    // ve yedeklemeye dahil etmesini sağlar.
+    /*
+     * HTTPS sayfasında HTTP kaynak yüklenmez.
+     *
+     * (Eski açıklama bu bayrağı yedeklemeyle ilişkilendiriyordu; ilgisi yok.
+     * Yedekleme AndroidManifest'te `allowBackup="false"` ile kapatıldı:
+     * WebView deposunda kullanıcının oturum jetonu ve bütün kelimeleri
+     * duruyor, bunların Google Drive'a ya da `adb backup` ile bilgisayara
+     * çıkması hesabın ele geçirilmesi demek olurdu.)
+     */
     allowMixedContent: false
   },
   plugins: {
