@@ -232,17 +232,16 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
       )}
 
       {/*
-        UYGULAMA NE İŞE YARAR
+        UYGULAMA NE İŞE YARAR — İKİ CÜMLE
 
-        Kullanıcı uygulamayı ilk açtığında bir kart destesi görüyordu ama ne
-        için orada olduğunu anlatan bir şey yoktu. Bu blok iki şeyi söyler ve
-        sırası önemlidir: önce KENDİ kelimelerini toplayabilmesi, sonra
-        Oxford listesinde kendini ölçebilmesi.
+        Önceki sürüm doğru şeyleri söylüyordu ama uzundu: iki paragraf, iki
+        madde metni ve bir de alt not. Uygulamayı ilk açan kişi bunu okumaz.
 
-        Anlora'yı ayıran şey burada: başka uygulamalar kullanıcıya hazır
-        kelime setleri dayatır. Burada setleri kullanıcı kendi okuduğundan,
-        izlediğinden, çevirdiğinden kurar; hazır liste yalnızca kendini
-        ölçmek isteyene bir ölçek olarak durur.
+        Artık iki madde, ikisi de tek cümle. Vurgular kasıtlı: her iki yolda
+        da ÜÇ ÖRNEK CÜMLE var — uygulamanın asıl vaadi bu; ikinci maddede de
+        SEVİYELERE GÖRE kalın, çünkü kullanıcıyı asıl oraya çeken şey kendi
+        seviyesini görebilmek. Sınavlar tek satırlık bir ek olarak duruyor;
+        ana mesaj değil.
       */}
       <div className="rounded-2xl bg-[var(--surface)] border border-[var(--border)] p-5 sm:p-6 space-y-5">
         <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
@@ -251,12 +250,11 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
               Kendi kelimelerini biriktir,
               <br className="hidden sm:block" /> seviyeni kendin gör.
             </h2>
-            <p className="text-xs text-[var(--text-secondary)] mt-2 leading-relaxed">
-              {branding.homeIntro ||
-                `${branding.appName || BRAND.name} hazır kelime listeleri dayatmaz. Ne okuyorsan, ne izliyorsan
-                 oradan topladığın kelimeleri çalışırsın; Oxford listesi de kendini ölçmek istediğinde
-                 elinin altındadır.`}
-            </p>
+            {branding.homeIntro && (
+              <p className="text-xs text-[var(--text-secondary)] mt-2 leading-relaxed">
+                {branding.homeIntro}
+              </p>
+            )}
           </div>
           <HomeHeroArt className="w-full max-w-[220px] sm:max-w-[280px] h-auto order-1 sm:order-2 shrink-0" />
         </div>
@@ -270,9 +268,8 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
               <span className="text-sm font-bold text-[var(--text-primary)]">Kendi setlerin</span>
             </div>
             <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
-              Kitap, makale, dizi, film, ders — nerede bilmediğin bir kelimeye takıldıysan onu buraya
-              ekle. Metni yapıştır, bilmediklerini uygulama ayıklasın; ya da tek tek yaz. Anlamı,
-              telaffuzu ve örnek cümleleri sözlükten kendiliğinden gelir.
+              Okurken, izlerken not ettiğin kelimeleri yükle; kendi setini kur ve her birini
+              Türkçe anlamı ile <b className="text-[var(--text-primary)]">üç örnek cümle</b> eşliğinde çalış.
             </p>
           </div>
 
@@ -281,24 +278,19 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
               <span className="w-5 h-5 rounded-lg bg-[var(--primary)] text-[var(--surface)] text-[11px] font-black flex items-center justify-center shrink-0">
                 2
               </span>
-              <span className="text-sm font-bold text-[var(--text-primary)]">Seviyene göre kendini ölç</span>
+              <span className="text-sm font-bold text-[var(--text-primary)]">Oxford listesi</span>
             </div>
             <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
-              Oxford 5000'in her seviyesinde (A1'den C1'e) hangi kelimeyi bildiğini, hangisini
-              bilmediğini işaretlersin. Uygulama bunları <b className="text-[var(--text-primary)]">bildiklerin</b> ve
-              <b className="text-[var(--text-primary)]"> bilmediklerin</b> diye ayrı listelerde tutar; her seviyede yüzde kaçını
-              bitirdiğini görürsün.
+              Oxford Üniversitesi'nin <b className="text-[var(--text-primary)]">seviyelere göre</b> hazırladığı kelime ve
+              kalıpları, Türkçe anlamı ile <b className="text-[var(--text-primary)]">üç örnek cümle</b> eşliğinde çalışarak
+              kendi dağarcığını tanı ve geliştir.
             </p>
           </div>
         </div>
 
-        <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[var(--primary-soft)]/70 border border-[var(--primary-border)]">
-          <Sparkles className="w-4 h-4 text-[var(--primary)] shrink-0 mt-0.5" />
-          <p className="text-[11px] text-[var(--text-primary)] leading-relaxed">
-            <b>Kelimeyi yaz, gerisi hazır gelsin.</b> Aradığın kelime {branding.appName || BRAND.name} sözlüğünde
-            varsa Türkçe anlamı, telaffuzu ve üç örnek cümlesi anında gelir — internet gerekmeden.
-          </p>
-        </div>
+        <p className="text-[11px] text-[var(--text-muted)] text-center">
+          Ayrıca farklı türlerde sınavlarla kendini deneyebilirsin.
+        </p>
       </div>
 
       {/*

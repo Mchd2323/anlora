@@ -52,7 +52,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [city, setCity] = useState('İstanbul');
   const [citySearch, setCitySearch] = useState('');
   const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false);
-  const [honeypot, setHoneypot] = useState(''); // Anti-bot honeypot field
+  const [honeypot, setHoneypot] = useState('');
+  /**
+   * Yönetici kurulum kodu.
+   *
+   * Yalnızca yönetici olarak tanımlı bir adresin İLK hesabı açılırken
+   * gerekiyor: posta doğrulaması devrede değilken o adresi kim önce
+   * kaydederse paneli ele geçirebiliyordu. Kod sunucu günlüğüne yazılıyor,
+   * yani sunucuyu çalıştıran kişinin elinde. Normal kullanıcı bu alanı hiç
+   * görmüyor; yalnızca sunucu "kod gerekiyor" dediğinde çiziliyor.
+   */
+  const [adminClaim, setAdminClaim] = useState('');
+  const [adminClaimGerekli, setAdminClaimGerekli] = useState(false); // Anti-bot honeypot field
 
   // Verification Code state
   const [verificationCode, setVerificationCode] = useState('');
@@ -188,9 +199,47 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             password,
             country,
             city,
-            hp_website: honeypot // Anti-bot honeypot
+            hp_website: honeypot, // Anti-bot honeypot
+            // Yalnızca yönetici adresinin İLK kaydında gerekiyor; boşsa
+            // sunucu zaten görmezden geliyor.
+            adminClaim: adminClaim.trim() || undefined
           })
         });
+
+        /*
+         * SUNUCU DOĞRULAMAYI ATLADIYSA KOD EKRANI GÖSTERİLMEZ.
+         *
+         * Posta sağlayıcısı yapılandırılmamışken sunucu doğrulama adımını
+         * atlıyor ve kaydın karşılığında doğrudan bir oturum belirteci
+         * dönüyor. Arayüz bunu hiç okumuyordu: her kayıttan sonra koşulsuz
+         * olarak "doğrulama kodunu gir" ekranına geçiyor ve kullanıcıyı
+         * HİÇ GELMEYECEK bir kodu beklemeye bırakıyordu. Hesap açılmış
+         * oluyor ama kullanıcı içeri giremiyordu.
+         *
+         * Belirteç geldiyse iş bitmiştir: oturum saklanır ve giriş yapılmış
+         * gibi devam edilir. Belirteç yoksa doğrulama gerçekten gerekiyor
+         * demektir; eski akış aynen sürüyor.
+         */
+        if (data.token) {
+          storeSession(data.token, data.expiresAt);
+
+          const newProfile: UserProfile = {
+            email: data.email || email.trim(),
+            name: data.name || name.trim() || email.split('@')[0],
+            country: data.country || country,
+            city: data.city || city,
+            emailVerified: !!data.emailVerified,
+            authProvider: 'email',
+            isAdmin: !!data.isAdmin,
+            isLoggedIn: true,
+            lastSyncTime: new Date().toLocaleTimeString('tr-TR')
+          };
+
+          onUpdateProfile(newProfile);
+          setMessage('Hesabın açıldı!');
+          setAuthStep('guest_migration');
+          return;
+        }
 
         if (data.devCode) {
           setDevCodePreview(data.devCode);
@@ -228,6 +277,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         setAuthStep('guest_migration');
       }
     } catch (err: any) {
+      /*
+       * Sunucu "yönetici kurulum kodu gerekiyor" derse alanı açıyoruz.
+       * Alan baştan görünmüyor: normal kullanıcıların %99,9'u için anlamsız
+       * bir kutu olurdu ve kayıt formunu gereksiz yere korkutucu yapardı.
+       */
+      if (err?.code === 'ADMIN_CLAIM_REQUIRED') setAdminClaimGerekli(true);
       setError(err.message || 'İşlem gerçekleştirilemedi.');
     } finally {
       setIsLoading(false);
@@ -589,6 +644,36 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   autoComplete="off"
                 />
               </div>
+
+              {/*
+                Yönetici kurulum kodu.
+
+                Yalnızca sunucu istediğinde çiziliyor. Yönetici olarak
+                tanımlı bir adresin İLK hesabı açılırken gerekiyor: posta
+                doğrulaması devrede değilken o adresi kim önce kaydederse
+                paneli ele geçirebiliyordu. Kod sunucu günlüğüne yazılıyor,
+                yani sunucuyu çalıştıranın elinde.
+              */}
+              {isRegisterMode && adminClaimGerekli && (
+                <div className="p-3 rounded-xl bg-[var(--learning-soft)] border border-[var(--learning-border)] space-y-2">
+                  <label className="block text-[11px] font-bold text-[var(--learning-text)] uppercase">
+                    Yönetici kurulum kodu
+                  </label>
+                  <p className="text-[11px] text-[var(--learning-text)] leading-relaxed opacity-90">
+                    Bu adres yönetici olarak tanımlı. Hesabı açmak için sunucu günlüğüne yazılan
+                    kodu buraya yapıştır.
+                  </p>
+                  <input
+                    type="text"
+                    value={adminClaim}
+                    onChange={(e) => setAdminClaim(e.target.value)}
+                    placeholder="Sunucu günlüğündeki kod"
+                    autoComplete="off"
+                    spellCheck={false}
+                    className="w-full px-3 py-2 text-xs font-mono bg-[var(--surface)] border border-[var(--learning-border)] rounded-lg focus:outline-none focus:border-[var(--learning)] text-[var(--text-primary)]"
+                  />
+                </div>
+              )}
 
               {isRegisterMode && (
                 <div>

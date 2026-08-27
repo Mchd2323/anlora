@@ -1286,12 +1286,62 @@ function publicUserView(user: CloudUserData) {
 //   ANLORA_ADMIN_EMAILS="ben@ornek.com,ortak@ornek.com"
 // Tanımlı değilse yönetim uçlarının tamamı kapalıdır.
 
+/*
+ * Kurulum yapılmadıysa geçerli olan yönetici.
+ *
+ * Ortam değişkeni hâlâ yetkilidir ve tanımlıysa BU LİSTE HİÇ KULLANILMAZ.
+ * Varsayılanın olma sebebi şu: değişken tanımlanmadan başlatılan bir
+ * sunucuda yönetim panelinin tamamı kapalı kalıyordu ve uygulamanın sahibi
+ * kendi panelini açamıyordu. Yeni bir kurulumda paneli devralmak için
+ * ANLORA_ADMIN_EMAILS tanımlamak yeterli; o an bu varsayılan devre dışı
+ * kalır.
+ */
+const DEFAULT_ADMIN_EMAILS = ['tahae2313@gmail.com'];
+
+const configuredAdmins = (process.env.ANLORA_ADMIN_EMAILS || '')
+  .split(',')
+  .map(entry => entry.trim().toLowerCase())
+  .filter(Boolean);
+
 const ADMIN_EMAILS = new Set(
-  (process.env.ANLORA_ADMIN_EMAILS || '')
-    .split(',')
-    .map(entry => entry.trim().toLowerCase())
-    .filter(Boolean)
+  configuredAdmins.length > 0 ? configuredAdmins : DEFAULT_ADMIN_EMAILS
 );
+
+/*
+ * YÖNETİCİ HESABININ İLK KEZ AÇILMASI: TEK KULLANIMLIK TALEP KODU.
+ *
+ * Kapatılan açık şu: posta sağlayıcısı yapılandırılmamışken e-posta
+ * doğrulaması atlanıyor. Yönetici e-postasının henüz hesabı yoksa, o adresi
+ * KİM ÖNCE KAYDEDERSE paneli o ele geçiriyordu — adresin sahibi olduğunu
+ * kanıtlaması gerekmiyordu. Ölçüldü: boş bir sunucuda yabancı bir kayıt
+ * /api/admin/overview'a 200 ile giriyor ve kullanıcı listesini okuyabiliyor.
+ *
+ * Çözüm, işletmecinin zaten sahip olduğu bir şeye dayanıyor: sunucu
+ * günlüğü. Sunucu açılırken, hesabı olmayan her yönetici e-postası için
+ * rastgele bir kod üretip günlüğe yazıyor; o adresin kaydı ancak bu kodla
+ * yapılabiliyor. Kod 256 bit, tahmin edilemez ve hesap açıldığı anda
+ * siliniyor.
+ *
+ * Posta sağlayıcısı yapılandırılmışsa koda gerek yok: doğrulama e-postası
+ * zaten adresin sahibi olmayı şart koşuyor.
+ */
+const adminClaimCodes = new Map<string, string>();
+
+function issueAdminClaimCodes(): void {
+  ADMIN_EMAILS.forEach(email => {
+    if (ownLookup(cloudUsersDatabase, email)) return;
+    const code = crypto.randomBytes(24).toString('hex');
+    adminClaimCodes.set(email, code);
+    console.log(
+      `\n[ANLORA KURULUM] "${email}" yönetici hesabı henüz açılmamış.\n` +
+        `  Bu adresle kayıt olurken şu kodu göndermeniz gerekiyor:\n` +
+        `    ${code}\n` +
+        '  (Kayıt formunun altındaki "Yönetici kurulum kodu" alanına yazın.)\n' +
+        '  Kod yalnızca bu sunucu çalıştığı sürece geçerlidir ve hesap\n' +
+        '  açıldığında silinir.\n'
+    );
+  });
+}
 
 function isAdminEmail(email: string | undefined): boolean {
   if (!email) return false;
@@ -1495,6 +1545,30 @@ app.post('/api/auth/register', blockDuringMaintenance, (req, res) => {
     return res.status(400).json({ error: 'Bu e-posta adresiyle kayıtlı bir hesap zaten var.' });
   }
 
+  /*
+   * Yönetici adresinin ilk kaydı korumalı. Posta doğrulaması devredeyse
+   * adresin sahibi olmak zaten kanıtlanıyor; devrede değilse sunucu
+   * günlüğüne yazılan tek kullanımlık kod isteniyor.
+   */
+  if (isAdminEmail(cleanEmail) && !isMailConfigured()) {
+    const beklenen = adminClaimCodes.get(cleanEmail);
+    const gelen = typeof req.body?.adminClaim === 'string' ? req.body.adminClaim.trim() : '';
+    const uyuyor =
+      !!beklenen &&
+      gelen.length === beklenen.length &&
+      crypto.timingSafeEqual(Buffer.from(gelen), Buffer.from(beklenen));
+
+    if (!uyuyor) {
+      console.warn(`[ANLORA] "${cleanEmail}" için geçersiz yönetici kurulum kodu denendi.`);
+      return res.status(403).json({
+        error:
+          'Bu adres yönetici olarak tanımlı. Hesabı açmak için sunucu günlüğüne yazılan kurulum kodu gerekiyor.',
+        code: 'ADMIN_CLAIM_REQUIRED'
+      });
+    }
+    adminClaimCodes.delete(cleanEmail);
+  }
+
   const user = createEmptyUser(cleanEmail, cleanName, cleanCountry, cleanCity, 'email');
   user.credential = hashPassword(cleanPassword);
 
@@ -1534,7 +1608,13 @@ app.post('/api/auth/register', blockDuringMaintenance, (req, res) => {
       name: cleanName,
       country: cleanCountry,
       city: cleanCity,
-      emailVerified: true
+      emailVerified: true,
+      /*
+       * Yönetici bayrağı kayıt yanıtında da dönmeli. Yoksa yönetici hesabını
+       * ilk açan kişi, arayüzde yönetim düğmesini göremiyor ve paneli açmak
+       * için çıkıp yeniden girmek zorunda kalıyordu.
+       */
+      isAdmin: isAdminEmail(cleanEmail)
     });
   }
 
@@ -4467,6 +4547,9 @@ async function setupServer() {
       res.sendFile(path.join(WEB_DIR, 'index.html'));
     });
   }
+
+  // Yönetici hesabı henüz açılmamışsa kurulum kodunu günlüğe yaz.
+  issueAdminClaimCodes();
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Oxford 3000 Sunucusu http://localhost:${PORT} üzerinde çalışıyor`);
