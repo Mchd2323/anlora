@@ -14,6 +14,17 @@
  *     sonra tamamen çevrimdışı çalışır.
  *   - /api/ istekleri: asla önbelleğe alınmaz. Yapay zekâ üretimi ve
  *     senkronizasyon yanıtlarını saklamak yanlış olurdu.
+ *
+ * `ignoreVary` NEDEN HER EŞLEŞMEDE VAR
+ * Sunucu yanıtlara `Vary: Origin` koyuyor. Ön-önbelleğe alma `cache.add(url)`
+ * ile yapıldığı için saklanan istekte `Origin` başlığı YOKTUR; oysa modül
+ * betikleri (`<script type="module">`) ve stil sayfaları CORS kipinde
+ * istenir ve `Origin` gönderir. Varsayılan eşleştirme `Vary` başlığına
+ * uyduğundan bu ikisi eşleşmez: dosya önbellekte durur ama bulunamaz.
+ * Ölçülen sonuç, çevrimdışı açılışta bomboş bir ekrandı — index.html
+ * geliyor, onu çalıştıran JS gelmiyordu. `ignoreVary: true` eşleştirmeyi
+ * yalnızca adrese bakacak biçimde yapar; tek kökenli bir uygulamada
+ * `Origin` zaten hep aynıdır.
  */
 
 const VERSION = 'anlora-v1';
@@ -66,8 +77,8 @@ self.addEventListener('fetch', event => {
         })
         .catch(() =>
           caches
-            .match('/index.html')
-            .then(cached => cached || caches.match('/'))
+            .match('/index.html', { ignoreVary: true })
+            .then(cached => cached || caches.match('/', { ignoreVary: true }))
             .then(
               cached =>
                 cached ||
@@ -83,7 +94,7 @@ self.addEventListener('fetch', event => {
 
   // Statik varlıklar: önce önbellek, arka planda tazele.
   event.respondWith(
-    caches.match(request).then(cached => {
+    caches.match(request, { ignoreVary: true }).then(cached => {
       const network = fetch(request)
         .then(response => {
           if (response && response.status === 200 && response.type === 'basic') {

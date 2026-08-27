@@ -60,6 +60,32 @@ if (fs.existsSync(fontDizini)) {
   }
 }
 
+/*
+ * Oxford çekirdek sözlüğü. index.html'den bağlanmaz — uygulama açıldıktan
+ * sonra dinamik `import()` ile gelir, bu yüzden yukarıdaki HTML taraması onu
+ * görmez.
+ *
+ * Ön-önbelleğe alınması gerekiyor çünkü SÖZLÜK UYGULAMANIN KENDİSİ. İlk
+ * ziyarette dosya, servis çalışanı sayfayı devralmadan önce indiği için
+ * kendiliğinden önbelleğe girmiyordu; sonuç, çevrimdışı açılışta sonsuza
+ * kadar "Sözlük hazırlanıyor…" yazan bir ekrandı (ölçüldü).
+ *
+ * Bedeli ilk ziyarette 3 MB'lık bir arka plan indirmesi. Bu indirme
+ * kurulum sırasında olur, yani kullanıcı uygulamayı çoktan kullanmaya
+ * başlamıştır. Alternatif — sözlüksüz bir çevrimdışı uygulama — hiçbir işe
+ * yaramaz.
+ *
+ * Harf parçaları (w-a.js … w-z.js) ve kalıplar KASTEN dışarıda: onlar
+ * isteğe bağlı katmanlar ve kullanıcı girdiğinde kendiliğinden önbelleğe
+ * alınıyorlar.
+ */
+const varliklarDizini = path.join(distDir, 'assets');
+if (fs.existsSync(varliklarDizini)) {
+  for (const dosya of fs.readdirSync(varliklarDizini)) {
+    if (/^oxford-data-.*\.js$/.test(dosya)) referanslar.add(`/assets/${dosya}`);
+  }
+}
+
 const liste = ['/', '/index.html', ...[...referanslar].sort()];
 
 /*
