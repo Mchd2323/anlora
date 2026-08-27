@@ -39,6 +39,7 @@ import {
   AlertCircle,
   Volume2
 } from 'lucide-react';
+import { getPhraseCard } from '../services/phraseRepository';
 import { calculateCollectionProgress } from '../utils/srsEngine';
 import { BatchWordModal } from './BatchWordModal';
 import { TextMinerModal } from './TextMinerModal';
@@ -438,6 +439,24 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
       if (own) {
         decide(own, 'oxford');
         return;
+      }
+
+      /*
+       * Kalıplar ve deyimler. Tek kelime aramalarında hiç dokunulmaz:
+       * boşluk ya da tire yoksa kullanıcı bir kalıp yazmıyordur ve 500 KB'lık
+       * dosyayı yüklemenin anlamı olmaz. Oxford ve kendi kartlarından SONRA
+       * denenir — bir kelime her ikisinde birden varsa kelime kaydı önceliklidir.
+       */
+      if (/[\s-]/.test(key)) {
+        try {
+          const kalip = await getPhraseCard(key);
+          if (kalip) {
+            decide(kalip, 'oxford');
+            return;
+          }
+        } catch {
+          /* kalıp verisi gelmezse elle yazmaya düşülür */
+        }
       }
 
       if (hasExtendedWord(key)) {

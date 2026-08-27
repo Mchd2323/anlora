@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { WordCard, Level, LearningState } from '../types';
 import { OxfordGroupKey } from '../types/oxford';
 import { WordCardComponent } from './WordCard';
+import { loadPhrases, getPhraseCards } from '../services/phraseRepository';
 import { StudyFlashcard } from './study/StudyFlashcard';
 import { Search, Volume2, BookOpen, Play, BrainCircuit, X, Check, RotateCw, ChevronDown } from 'lucide-react';
 import { speakText } from '../utils/speech';
@@ -54,6 +55,15 @@ const LEVEL_LABEL: Record<string, string> = {
 
 type StatusFilter = 'ALL' | 'LEARNED' | 'LEARNING' | 'UNSEEN' | 'FAVORITES';
 
+/**
+ * Kalıp bölümünün durumu.
+ *
+ * Veri (750 kalıp, ~540 KB) kendiliğinden yüklenmez: kullanıcı bölümü
+ * açmadıkça tek bayt inmez. Oxford kelimeleriyle aynı ekranda dururlar ama
+ * aynı havuzda değildirler — seviye sayaçları kelime sayar, 750 kalıbı
+ * A1–C1 gruplarına katmak kullanıcının "A1'in %30'unu bitirdim" ilerlemesini
+ * bozardı.
+ */
 interface OxfordExplorerProps {
   /** Oxford 3000 (A1–B2). */
   words: WordCard[];
@@ -98,6 +108,13 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
   onStartQuiz,
 }) => {
   const [isStudyingFlashcards, setIsStudyingFlashcards] = useState(false);
+  /*
+   * Kalıp çalışması kelimelerinkiyle AYNI kart ekranını kullanır: ayrı bir
+   * çalışma akışı, ayrı bir "kaldığın yer" kaydı ve ayrı bir tasarım demek
+   * olurdu. Yalnızca destenin kimliği ayrı, böylece kelimelerde kalınan yer
+   * kalıplara geçince kaybolmaz.
+   */
+  const [kalipCalismasi, setKalipCalismasi] = useState<WordCard[] | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [partOfSpeechFilter, setPartOfSpeechFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>(initialStatusFilter);
@@ -110,6 +127,30 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
    * hissine sokuyordu. Görmek isteyen tek dokunuşla açıyor.
    */
   const [isListOpen, setIsListOpen] = useState(false);
+
+  /*
+   * Kalıplar ve deyimler. Bölüm açılana kadar veri hiç indirilmez; 750
+   * kalıp ~540 KB tutuyor ve kullanıcıların çoğu doğrudan kelimelere
+   * bakıyor. Açıldıktan sonra bellekte kalır, ikinci açılış bedava.
+   */
+  const [kaliplarAcik, setKaliplarAcik] = useState(false);
+  const [kaliplar, setKaliplar] = useState<WordCard[] | null>(null);
+  const [kaliplarYukleniyor, setKaliplarYukleniyor] = useState(false);
+  const [kalipSeviyesi, setKalipSeviyesi] = useState<Level | 'ALL'>('ALL');
+
+  useEffect(() => {
+    if (!kaliplarAcik || kaliplar) return;
+    setKaliplarYukleniyor(true);
+    void loadPhrases()
+      .then(() => setKaliplar(getPhraseCards()))
+      .finally(() => setKaliplarYukleniyor(false));
+  }, [kaliplarAcik, kaliplar]);
+
+  const gorunenKaliplar = useMemo(() => {
+    if (!kaliplar) return [];
+    if (kalipSeviyesi === 'ALL') return kaliplar;
+    return kaliplar.filter(k => k.level === kalipSeviyesi);
+  }, [kaliplar, kalipSeviyesi]);
 
   // Dışarıdan gelen istek (profilden "öğrendiklerim") filtreyi günceller.
   useEffect(() => {
@@ -225,6 +266,24 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
   }, []);
 
   const levelSuffix = selectedLevel === 'ALL' ? '' : ` (${LEVEL_LABEL[selectedLevel]})`;
+
+  if (kalipCalismasi) {
+    return (
+      <StudyFlashcard
+        title="Kalıplar ve deyimler"
+        sourceContextName="Oxford Phrase List"
+        deckKey={`phrases:${kalipSeviyesi}`}
+        words={kalipCalismasi}
+        favorites={favorites}
+        learningStates={learningStates}
+        onToggleFavorite={onToggleFavorite}
+        onSetStatus={onSetStatus || (() => {})}
+        onBack={() => setKalipCalismasi(null)}
+        onOpenAddToCollection={onOpenAddToCollection}
+        isCustomDeck={false}
+      />
+    );
+  }
 
   if (isStudyingFlashcards) {
     return (
@@ -459,6 +518,115 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
           />
         </button>
       )}
+
+      {/*
+        KALIPLAR VE DEYİMLER
+
+        Kelimelerin yanında, kendi havuzunda. Oxford 5000'in seviye
+        sayaçlarına karışmaz: o sayaçlar kelime sayar ve 750 kalıbı A1–C1
+        gruplarına katmak, kullanıcının bitirdiği yüzdeyi geriye götürürdü.
+
+        Veri yalnızca bölüm açıldığında iniyor (~540 KB). Kapalıyken tek bayt
+        indirilmez; kullanıcıların çoğu doğrudan kelimelere bakıyor.
+      */}
+      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setKaliplarAcik(a => !a)}
+          aria-expanded={kaliplarAcik}
+          className="w-full p-4 hover:bg-[var(--surface-soft)] transition-colors cursor-pointer flex items-center justify-between gap-3 text-left"
+        >
+          <span className="min-w-0">
+            <span className="block text-sm font-bold text-[var(--text-primary)]">
+              Kalıplar ve deyimler
+            </span>
+            <span className="block text-xs text-[var(--text-secondary)] mt-0.5">
+              {kaliplarAcik
+                ? 'Kapatmak için dokun'
+                : "Oxford Phrase List'ten 750 kalıp — \u0022give up\u0022, \u0022at the end of the day\u0022"}
+            </span>
+          </span>
+          <ChevronDown
+            className={`w-5 h-5 text-[var(--text-muted)] shrink-0 transition-transform ${
+              kaliplarAcik ? 'rotate-180' : ''
+            }`}
+          />
+        </button>
+
+        {kaliplarAcik && (
+          <div className="px-4 pb-4 space-y-3 border-t border-[var(--border-light)] pt-3">
+            {kaliplarYukleniyor && (
+              <p className="text-xs text-[var(--text-secondary)]">Kalıplar yükleniyor…</p>
+            )}
+
+            {kaliplar && (
+              <>
+                <div className="flex flex-wrap gap-1.5">
+                  {(['ALL', 'A1', 'A2', 'B1', 'B2', 'C1'] as const).map(seviye => {
+                    const sayi =
+                      seviye === 'ALL'
+                        ? kaliplar.length
+                        : kaliplar.filter(k => k.level === seviye).length;
+                    const secili = kalipSeviyesi === seviye;
+                    return (
+                      <button
+                        key={seviye}
+                        type="button"
+                        onClick={() => setKalipSeviyesi(seviye)}
+                        aria-pressed={secili}
+                        className={`px-2.5 py-1.5 rounded-lg text-[11px] font-semibold border transition-colors cursor-pointer ${
+                          secili
+                            ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--surface)]'
+                            : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-soft)]'
+                        }`}
+                      >
+                        {seviye === 'ALL' ? 'Tümü' : seviye} {sayi}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {gorunenKaliplar.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setKalipCalismasi(gorunenKaliplar)}
+                    className="w-full py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-bold rounded-xl cursor-pointer"
+                  >
+                    Bu {gorunenKaliplar.length} kalıbı kartlarla çalış
+                  </button>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                  {gorunenKaliplar.slice(0, 60).map(kalip => (
+                    <WordCardComponent
+                      key={kalip.id}
+                      card={kalip}
+                      isFavorite={favorites.includes(kalip.id)}
+                      learningState={learningStates[kalip.id]}
+                      onToggleFavorite={onToggleFavorite}
+                      onToggleLearned={onToggleLearned}
+                      onSetStatus={onSetStatus}
+                      onOpenAddToCollection={onOpenAddToCollection}
+                      onReportWord={onReportWord}
+                    />
+                  ))}
+                </div>
+
+                {/*
+                  Liste 60'ta kesiliyor ve bu SÖYLENİYOR. Sessizce kesmek,
+                  kullanıcıya "hepsi bu kadar" dedirtir; oysa çoğu hâlâ orada.
+                */}
+                {gorunenKaliplar.length > 60 && (
+                  <p className="text-[11px] text-[var(--text-muted)] text-center">
+                    İlk 60 kalıp gösteriliyor. Kalan {gorunenKaliplar.length - 60} kalıp
+                    kartlarla çalışmada ve aramada karşına çıkar.
+                  </p>
+                )}
+              </>
+            )}
+          </div>
+        )}
+      </div>
 
       {isListOpen && filteredWords.length > 0 ? (
         <>
