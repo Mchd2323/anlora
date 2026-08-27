@@ -301,7 +301,15 @@ async function speakWeb(text: string, options: SpeechOptions): Promise<SpeechRes
     // başlatmak. Bitişi beklemek uzun cümlelerde arayüzü boş yere bekletir.
     utterance.onstart = () => finish({ ok: true });
     utterance.onend = () => finish({ ok: true });
-    utterance.onerror = () => finish({ ok: false, reason: 'error' });
+    /*
+     * Hatanın SEBEBİ önemli. Motor İngilizce ses verisi olmadığı için
+     * düştüyse kullanıcıya söylenecek şey bellidir: paketi kur. "Bilinmeyen
+     * hata" demek onu çaresiz bırakır. Bu yüzden İngilizce bir ses hiç
+     * bulunamadıysa sebep 'no-voice' olarak bildiriliyor; ancak ses varken
+     * gelen bir hata gerçekten motorun kendi hatasıdır.
+     */
+    utterance.onerror = () =>
+      finish({ ok: false, reason: englishVoice ? 'error' : 'no-voice' });
 
     window.speechSynthesis.speak(utterance);
   });

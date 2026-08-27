@@ -82,7 +82,10 @@ if (fs.existsSync(fontDizini)) {
 const varliklarDizini = path.join(distDir, 'assets');
 if (fs.existsSync(varliklarDizini)) {
   for (const dosya of fs.readdirSync(varliklarDizini)) {
-    if (/^oxford-data-.*\.js$/.test(dosya)) referanslar.add(`/assets/${dosya}`);
+    // Oxford çekirdeği ve genişletilmiş sözlüğün dizini. İkisi de
+    // çevrimdışı çalışmanın ön koşulu: biri kelimelerin kendisi, diğeri
+    // "bu kelime sözlükte var mı" sorusunun yanıtı.
+    if (/^(oxford-data|extended-index)-.*\.js$/.test(dosya)) referanslar.add(`/assets/${dosya}`);
   }
 }
 

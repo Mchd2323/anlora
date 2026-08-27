@@ -149,6 +149,19 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
         });
       } else if (sonuc.reason === 'unsupported') {
         setTestResult({ ok: false, text: 'Bu cihazda konuşma motoru bulunamadı.' });
+      } else if (!report.hasEnglish) {
+        /*
+         * Motor bir hata verdi ama tanı zaten İngilizce ses olmadığını
+         * söylüyor. Bu durumda genel hata metni yerine EYLEME DÖNÜK olanı
+         * gösteriyoruz: aksi hâlde ekranda yan yana iki farklı açıklama
+         * duruyordu — biri "motor yanıt vermedi", diğeri "ses paketi yok".
+         */
+        setTestResult({
+          ok: false,
+          text: report.isNative
+            ? 'Telefonunda İngilizce konuşma paketi bulunamadı. Aşağıdaki kurulum düğmesi seni doğrudan Android ekranına götürür.'
+            : 'Tarayıcında İngilizce ses bulunamadı. Uygulamayı telefonuna kurduğunda sistemin kendi sesi kullanılır.'
+        });
       } else {
         setTestResult({
           ok: false,

@@ -32,6 +32,22 @@ export default defineConfig(() => {
             if (id.includes('src/data/oxford3000') || id.includes('src/data/oxford5000')) {
               return 'oxford-data';
             }
+            /*
+             * Genişletilmiş sözlüğün DİZİNİ (madde başları, ~52 KB). Harf
+             * dosyalarından ayrı tutuluyor çünkü ikisi farklı zamanlarda
+             * gerekiyor: dizin, kelime eklerken "bu kelime bizde var mı"
+             * sorusunu yanıtlar ve çevrimdışı da gerekir; harf dosyaları
+             * yalnızca kullanıcı o kelimeyi seçtiğinde iner.
+             *
+             * Adının ayırt edilebilir olması şart: servis çalışanı
+             * ön-önbellek listesini dosya adına bakarak kuruyor ve bu parça
+             * önceden 'index-<özet>.js' adını alıyordu — uygulamanın kendi
+             * giriş parçasıyla aynı desen. Ayırt edilemediği için önbelleğe
+             * alınamıyor, çevrimdışıyken kelime ekleme sözlüğü boş görüyordu.
+             */
+            if (id.includes('src/data/extended/index.json')) {
+              return 'extended-index';
+            }
             if (id.includes('node_modules')) {
               return 'vendor';
             }
