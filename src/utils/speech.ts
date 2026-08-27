@@ -118,23 +118,28 @@ async function speakNative(text: string, options: SpeechOptions): Promise<Speech
   const tts = await loadNativeTts();
   if (!tts) return { ok: false, reason: 'unsupported' };
 
-  const lang = options.lang || 'en-US';
+  /*
+   * HANGİ İNGİLİZCE ETİKETİ?
+   *
+   * 'en-US' sabit istemek yanlıştı: bazı cihazlarda yalnızca 'en-GB' ya da
+   * düz 'en' kurulu olur ve tam eşleşme aranınca "ses yok" sonucu çıkar,
+   * oysa cihaz İngilizce okuyabilmektedir. Desteklenen etiketler bir kez
+   * sorulur, aralarından en uygunu seçilir.
+   */
+  const istenen = options.lang || 'en-US';
+  const diller = await supportedLanguages(tts);
+  const secilen = bestEnglishTag(diller, istenen);
 
   /*
-   * ÖNCE SOR, SONRA OKU.
-   *
-   * `isLanguageSupported` hemen yanıt veren bir sorgudur; okumanın mümkün
-   * olup olmadığını `speak()` beklemeden öğreniriz. Köprü hiç yanıt vermezse
-   * zaman aşımı `null` döndürür ve tarayıcı motoruna düşeriz.
+   * Yalnızca GÜVENİLİR bir olumsuz cevapta pes edilir: cihaz desteklenen
+   * dilleri saydı ve içlerinde tek bir İngilizce yok. Liste boş dönerse
+   * (köprü susmuş ya da sorgu desteklenmiyor) bu bir bilgi yokluğudur, ses
+   * yokluğu değil — okumayı yine deneriz. Önceki sürüm burada da pes ediyor
+   * ve okuyabilen cihazlarda sesi kendi elimizle kesiyorduk.
    */
-  const supported = await withTimeout<{ supported: boolean } | null>(
-    tts.isLanguageSupported({ lang }),
-    BRIDGE_TIMEOUT_MS,
-    null
-  );
+  if (diller.length > 0 && secilen === null) return { ok: false, reason: 'no-voice' };
 
-  if (supported === null) return { ok: false, reason: 'error' };
-  if (!supported.supported) return { ok: false, reason: 'no-voice' };
+  const lang = secilen || istenen;
 
   /*
    * OKUMANIN BİTMESİ BEKLENMEZ.
@@ -142,9 +147,14 @@ async function speakNative(text: string, options: SpeechOptions): Promise<Speech
    * Eklenti `speak()` sözünü ancak konuşma bittiğinde çözüyor. Düğmenin işi
    * ise okumayı BAŞLATMAK; bitişini beklemek, uzun cümlelerde arayüzü boş
    * yere kilitler, motor sessizce düşerse de sonsuza kadar bekletir.
-   * Çağrı ateşlenir, hatası yutulur, sonuç hemen döner.
+   *
+   * AYRICA BURADA `stop()` ÇAĞRILMAZ. Önceki sürüm önce `stop()` sonra
+   * `speak()` ateşliyor, ikisini de beklemiyordu. Köprüde iki bekletilmemiş
+   * çağrının varış sırası garanti değildir; `stop()` sonra varırsa yeni
+   * başlamış okumayı anında keser — sesin hiç çıkmamasının sebebi buydu.
+   * Gereksizdi de: eklentinin Android tarafı `speak()` içinde QUEUE_FLUSH
+   * ile zaten `stop()` çağırıyor, yani önceki okuma kendiliğinden kesiliyor.
    */
-  void tts.stop().catch(() => undefined);
   void tts
     .speak({
       text,
@@ -156,6 +166,34 @@ async function speakNative(text: string, options: SpeechOptions): Promise<Speech
     .catch(() => undefined);
 
   return { ok: true };
+}
+
+/**
+ * Cihazda kurulu İngilizce dil etiketlerinden en uygununu seçer.
+ *
+ * Sıra: tam eşleşme → aynı dilin başka bölgesi → düz 'en'. Hiç İngilizce
+ * yoksa null döner ve çağıran taraf okumayı yine de dener: sorgu yanlış
+ * cevap verse bile motor okuyabiliyorsa sesi susturmuş olmayalım.
+ */
+let dilOnbellek: Promise<string[]> | null = null;
+
+async function supportedLanguages(tts: NativeTts): Promise<string[]> {
+  if (!dilOnbellek) {
+    dilOnbellek = withTimeout<{ languages: string[] } | null>(
+      tts.getSupportedLanguages(),
+      BRIDGE_TIMEOUT_MS,
+      null
+    ).then(r => r?.languages || []);
+  }
+  return dilOnbellek;
+}
+
+function bestEnglishTag(diller: string[], istenen: string): string | null {
+  if (diller.length === 0) return null;
+  if (diller.includes(istenen)) return istenen;
+  const ingilizce = diller.filter(d => d === 'en' || d.startsWith('en-') || d.startsWith('en_'));
+  if (ingilizce.length === 0) return null;
+  return ingilizce.find(d => d === 'en-GB') || ingilizce.find(d => d === 'en') || ingilizce[0];
 }
 
 // --- Tarayıcı motoru -------------------------------------------------------

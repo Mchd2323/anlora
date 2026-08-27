@@ -10,6 +10,7 @@ import { ProfileView } from './components/ProfileView';
 import { AuthModal } from './components/AuthModal';
 import { AdminShell } from './components/admin/AdminShell';
 import { FeedbackModal, FeedbackKind } from './components/FeedbackModal';
+import { SpeechSetupNotice } from './components/SpeechSetupNotice';
 import { SignInGate } from './components/SignInGate';
 import { hasRemoteApi } from './config/api';
 import { useAppContent } from './hooks/useAppContent';
@@ -537,6 +538,15 @@ export default function App() {
 
       {/* Main Content Workspace */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/*
+          Telaffuz kurulumu uyarısı. Kendi kendini gizler: yalnızca yerel
+          kabukta ve cihazda hiç İngilizce ses paketi yokken çizilir. Buraya
+          konuyor çünkü ses düğmesi her ekranda var; uyarının yalnızca
+          Ayarlar'da durması, sorunu yaşayan kullanıcının onu hiç görmemesi
+          demekti.
+        */}
+        <SpeechSetupNotice className="mb-5" />
+
         {/*
           Sözlük hazırlanırken kabuk zaten görünür durumda. Bu aralıkta boş
           listeler göstermek "kelime yok" gibi okunurdu; ne olduğunu yazmak

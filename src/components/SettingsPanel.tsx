@@ -110,13 +110,50 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
     }
   };
 
+  /**
+   * Telaffuz sınaması.
+   *
+   * HER DURUMDA DENER. Önceki sürüm yalnızca tanı "İngilizce var" derse
+   * okuyordu; yani düğme, tam da sesi çalışmayan kullanıcıda hiçbir şey
+   * yapmıyordu — ne ses, ne mesaj. Oysa düğmenin varlık sebebi o kullanıcı.
+   *
+   * Ayrıca tanı yanılabilir: bazı motorlar sorguda listelemedikleri bir
+   * yerel ayarla yine de okur. Denemenin bedeli birkaç yüz milisaniye,
+   * denememenin bedeli sessizlik.
+   *
+   * Sonuç yazıyla bildirilir. "Bir şey olmadı"nın nedeni kullanıcıya
+   * söylenmezse, sorunu uygulamanın bozukluğu sanır.
+   */
+  const [testResult, setTestResult] = useState<{ ok: boolean; text: string } | null>(null);
+
   const runSpeechTest = async () => {
     setIsTesting(true);
+    setTestResult(null);
     try {
       const report = await describeSpeechSupport();
       setDiagnostics(report);
-      if (report.hasEnglish) {
-        await speakText('This is how Anlora sounds.');
+
+      const sonuc = await speakText('This is how Anlora sounds.');
+
+      if (sonuc.ok) {
+        setTestResult({
+          ok: true,
+          text: 'Ses gönderildi. Duymadıysan telefonun sesi kapalı ya da çok kısık olabilir.'
+        });
+      } else if (sonuc.reason === 'no-voice') {
+        setTestResult({
+          ok: false,
+          text: report.isNative
+            ? 'Telefonunda İngilizce konuşma paketi bulunamadı. Aşağıdaki kurulum düğmesi seni doğrudan Android ekranına götürür.'
+            : 'Tarayıcında İngilizce ses bulunamadı.'
+        });
+      } else if (sonuc.reason === 'unsupported') {
+        setTestResult({ ok: false, text: 'Bu cihazda konuşma motoru bulunamadı.' });
+      } else {
+        setTestResult({
+          ok: false,
+          text: 'Konuşma motoru yanıt vermedi. Telefonu yeniden başlatmak ya da metin okuma motorunu güncellemek işe yarayabilir.'
+        });
       }
     } finally {
       setIsTesting(false);
@@ -462,6 +499,19 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
             </button>
           )}
         </div>
+
+        {testResult && (
+          <div
+            className={`p-3 rounded-xl border text-[11px] leading-relaxed ${
+              testResult.ok
+                ? 'bg-[var(--learned-soft)] border-[var(--learned-border)] text-[var(--learned-text)]'
+                : 'bg-[var(--danger-soft)] border-[var(--danger-border)] text-[var(--danger)]'
+            }`}
+            role="status"
+          >
+            {testResult.text}
+          </div>
+        )}
 
         {diagnostics && (
           <div
