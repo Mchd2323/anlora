@@ -118,6 +118,20 @@ export function DeckIcon({ name, className }: { name?: string; className?: strin
   return <Icon className={className} />;
 }
 
+/**
+ * Girişten tür önerisi.
+ *
+ * Boşluk ya da tire içeren bir giriş büyük olasılıkla bir kalıptır
+ * ('give up', 'side-effect', 'in the long run'). Deyim ile kalıbın sınırı
+ * biçimden anlaşılmaz — anlamla ilgilidir — o yüzden 'idiom' asla
+ * önerilmez, yalnızca kullanıcı seçerse konur.
+ */
+function onerilenTur(giris: string): WordCard['entryType'] {
+  const temiz = giris.trim();
+  if (!temiz) return 'word';
+  return /[\s-]/.test(temiz) ? 'phrase' : 'word';
+}
+
 export const CollectionsView: React.FC<CollectionsViewProps> = ({
   collections,
   memberships,
@@ -181,6 +195,12 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   const [manualTurkishMeaning, setManualTurkishMeaning] = useState('');
   /** Sözcük türü isteğe bağlıdır; boş dize "belirtilmedi" demektir. */
   const [manualPartOfSpeech, setManualPartOfSpeech] = useState('');
+  /**
+   * Kaydın türü. Kullanıcı elle değiştirmediyse girişten çıkarılır:
+   * boşluk ya da tire içeren bir giriş büyük olasılıkla bir kalıptır.
+   * `null` = kullanıcı henüz dokunmadı, öneri geçerli.
+   */
+  const [manualEntryType, setManualEntryType] = useState<WordCard['entryType'] | null>(null);
   const [manualExamples, setManualExamples] = useState<{ en: string; tr: string }[]>([
     { en: '', tr: '' },
     { en: '', tr: '' }
@@ -236,6 +256,8 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
    * kaza olurdu.
    */
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  /** Set içi tür süzgeci: hepsi / yalnızca tek kelimeler / kalıp ve deyimler. */
+  const [turSuzgeci, setTurSuzgeci] = useState<'all' | 'words' | 'phrases'>('all');
   const [bulkTarget, setBulkTarget] = useState<'move' | 'copy' | null>(null);
   const [mergeSource, setMergeSource] = useState<string>('');
   const [showMerge, setShowMerge] = useState(false);
@@ -327,6 +349,15 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   // Filtered words in the active deck
   const filteredWords = useMemo(() => {
     return activeDeckWords.filter((card) => {
+      // Tür süzgeci: 'phrases' hem kalıpları hem deyimleri kapsar, çünkü
+      // ikisinin sınırı kullanıcıya göre değişir ve "çok sözcüklüleri
+      // göster" isteği ikisini de kastediyor.
+      if (turSuzgeci === 'phrases' && card.entryType !== 'phrase' && card.entryType !== 'idiom') {
+        return false;
+      }
+      if (turSuzgeci === 'words' && (card.entryType === 'phrase' || card.entryType === 'idiom')) {
+        return false;
+      }
       if (!searchQuery.trim()) return true;
       const q = searchQuery.toLowerCase().trim();
       return (
@@ -334,7 +365,13 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
         card.turkishMeaning.toLowerCase().includes(q)
       );
     });
-  }, [activeDeckWords, searchQuery]);
+  }, [activeDeckWords, searchQuery, turSuzgeci]);
+
+  /** Sette hiç kalıp/deyim yoksa süzgeci çizmenin anlamı yok. */
+  const setteKalipVar = useMemo(
+    () => activeDeckWords.some(c => c.entryType === 'phrase' || c.entryType === 'idiom'),
+    [activeDeckWords]
+  );
 
   /** Setteki kelime kimlikleri; "zaten var" denetimi için. */
   const activeDeckWordIds = useMemo(
@@ -462,6 +499,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     setWordInput('');
     setManualTurkishMeaning('');
     setManualPartOfSpeech('');
+    setManualEntryType(null);
     setContextInput('');
     setLookup({ kind: 'idle' });
   };
@@ -736,6 +774,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     setGeneratedPreviewCard(null);
     setManualTurkishMeaning('');
     setManualPartOfSpeech('');
+    setManualEntryType(null);
     setManualExamples([{ en: '', tr: '' }]);
     setLookup({ kind: 'idle' });
     setShowAddWordModal(false);
@@ -879,6 +918,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
       id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       word: wordInput.trim(),
       partOfSpeech: manualPartOfSpeech,
+      entryType: manualEntryType || onerilenTur(wordInput),
       turkishMeaning: manualTurkishMeaning.trim(),
       examples: validExamples,
       isCustom: true,
@@ -901,6 +941,13 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     setContextInput('');
     setManualExamples([{ en: '', tr: '' }]);
     setDuplicateResult(null);
+    /*
+     * Tür seçimi de sıfırlanır. Modal kapanmadan arka arkaya kelime
+     * eklenebildiği için, bir kez elle seçilen "Deyim" sonraki bütün
+     * kayıtlara yapışıyordu (ölçüldü: 'thrive' de deyim olarak kaydedildi).
+     * null = öneri yeniden geçerli.
+     */
+    setManualEntryType(null);
   };
 
   const handleSaveManualCard = (e: React.FormEvent) => {
@@ -1273,6 +1320,35 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
+            )}
+
+            {/*
+              TÜR SÜZGECİ. Sette hiç kalıp/deyim yoksa hiç çizilmez: üç
+              seçenekten ikisinin karşılığı olmayan bir süzgeç, yer
+              kaplamaktan başka işe yaramaz.
+            */}
+            {setteKalipVar && (
+              <div className="flex flex-wrap items-center gap-1.5 px-1">
+                  {([
+                    { id: 'all' as const, label: 'Hepsi' },
+                    { id: 'words' as const, label: 'Tek kelimeler' },
+                    { id: 'phrases' as const, label: 'Kalıp ve deyimler' }
+                  ]).map(s2 => (
+                    <button
+                      key={s2.id}
+                      type="button"
+                      onClick={() => setTurSuzgeci(s2.id)}
+                      aria-pressed={turSuzgeci === s2.id}
+                      className={`px-2.5 py-1.5 rounded-lg text-[11px] font-semibold border transition-colors cursor-pointer ${
+                        turSuzgeci === s2.id
+                          ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--surface)]'
+                          : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-soft)]'
+                      }`}
+                    >
+                      {s2.label}
+                    </button>
+                  ))}
+                </div>
             )}
 
             {/*
@@ -1818,6 +1894,58 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     </p>
                   </div>
                 )}
+
+                {/*
+                  KAYIT TÜRÜ.
+                  Girişte boşluk ya da tire varsa 'Kalıp' önerilir ama karar
+                  kullanıcınındır: deyim ile kalıbın sınırı biçimden değil
+                  anlamdan gelir, o yüzden 'Deyim' asla kendiliğinden
+                  seçilmez. Alan Türkçe anlamın ÜSTÜNDE duruyor çünkü
+                  kullanıcı ne eklediğini önce burada söylüyor.
+                */}
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5">
+                    Ne ekliyorsun?
+                  </label>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {([
+                      { id: 'word' as const, label: 'Kelime', ornek: 'reluctant' },
+                      { id: 'phrase' as const, label: 'Kalıp', ornek: 'give up' },
+                      { id: 'idiom' as const, label: 'Deyim', ornek: 'break the ice' }
+                    ]).map(secenek => {
+                      const gecerli = manualEntryType || onerilenTur(wordInput);
+                      const secili = gecerli === secenek.id;
+                      return (
+                        <button
+                          key={secenek.id}
+                          type="button"
+                          onClick={() => setManualEntryType(secenek.id)}
+                          aria-pressed={secili}
+                          className={`px-2 py-2 rounded-xl border text-center transition-all cursor-pointer ${
+                            secili
+                              ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--surface)]'
+                              : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-soft)]'
+                          }`}
+                        >
+                          <span className="block text-[11px] font-bold leading-none">{secenek.label}</span>
+                          <span
+                            className={`block text-[9px] mt-1 leading-none ${
+                              secili ? 'text-[var(--surface)]/75' : 'text-[var(--text-muted)]'
+                            }`}
+                          >
+                            {secenek.ornek}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {manualEntryType === null && /[\s-]/.test(wordInput.trim()) && (
+                    <p className="text-[10px] text-[var(--text-muted)] mt-1">
+                      Birden fazla sözcük yazdın; "Kalıp" seçili sayılıyor. Anlamı sözcüklerinden
+                      çıkmıyorsa "Deyim"i seç.
+                    </p>
+                  )}
+                </div>
 
                 <div>
                   <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">

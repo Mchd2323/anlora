@@ -22,6 +22,9 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
 
   const [word, setWord] = useState(card.word);
   const [partOfSpeech, setPartOfSpeech] = useState(card.partOfSpeech);
+  const [entryType, setEntryType] = useState<NonNullable<WordCard['entryType']>>(
+    card.entryType || 'word'
+  );
   const [turkishMeaning, setTurkishMeaning] = useState(card.turkishMeaning);
   const [phonetic, setPhonetic] = useState(card.phonetic || '');
   /*
@@ -80,6 +83,9 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
       ...card,
       word: word.trim(),
       partOfSpeech: partOfSpeech.trim() || 'n.',
+      /* 'word' varsayılan olduğu için kayda yazılmaz: alanı boş bırakmak
+         ile 'word' yazmak aynı şeydir, kaydı gereksiz büyütmenin anlamı yok. */
+      entryType: entryType === 'word' ? undefined : entryType,
       turkishMeaning: turkishMeaning.trim(),
       phonetic: phonetic.trim() || undefined,
       // Boş seçim seviyeyi HİÇ yazmaz; uydurulmuş bir değer kalmasın.
@@ -162,6 +168,33 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
           </div>
 
           {/* Part of Speech & Phonetic */}
+          <div>
+            <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5">
+              Ne bu?
+            </label>
+            <div className="grid grid-cols-3 gap-1.5">
+              {([
+                { id: 'word' as const, label: 'Kelime' },
+                { id: 'phrase' as const, label: 'Kalıp' },
+                { id: 'idiom' as const, label: 'Deyim' }
+              ]).map(secenek => (
+                <button
+                  key={secenek.id}
+                  type="button"
+                  onClick={() => setEntryType(secenek.id)}
+                  aria-pressed={entryType === secenek.id}
+                  className={`px-2 py-2 rounded-xl border text-[11px] font-bold transition-all cursor-pointer ${
+                    entryType === secenek.id
+                      ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--surface)]'
+                      : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-soft)]'
+                  }`}
+                >
+                  {secenek.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">

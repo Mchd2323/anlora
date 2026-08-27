@@ -118,6 +118,23 @@ export interface WordCard {
    * okunurdur ama resmî bir CEFR listesinden gelmediği için seviye taşımaz.
    */
   sourceType?: 'oxford' | 'custom' | 'extended';
+  /**
+   * Kaydın türü: tek kelime mi, kalıp mı, deyim mi?
+   *
+   * Ayrı bir bölüm açmak yerine kartın üzerinde bir alan tutuluyor. Böylece
+   * arama, sınav, seviye takibi ve çalışma akışı olduğu gibi çalışır; tür
+   * yalnızca bir rozet ve bir filtre olur. Ayrı bir sekme, ayrı bir ilerleme
+   * sayacı ve ayrı bir çalışma akışı demek olurdu.
+   *
+   * 'word'   : tek kelime (varsayılan; alan boşsa böyle sayılır)
+   * 'phrase' : birden çok sözcükten oluşan kalıp — 'give up', 'in the long run'
+   * 'idiom'  : anlamı sözcüklerinin toplamından çıkmayan deyim —
+   *            'break the ice', 'once in a blue moon'
+   *
+   * İkisinin sınırı her zaman keskin değildir; ayrım kullanıcıya bırakılır,
+   * uygulama yalnızca boşluk/tire içeren girişlerde 'phrase' önerir.
+   */
+  entryType?: 'word' | 'phrase' | 'idiom';
   sourceEntryId?: string; // canonical Oxford ID if originated from Oxford 3000
   sourceContext?: string; // e.g. "He was reluctant to tell her the truth."
   sourceName?: string; // e.g. "Breaking Bad S02E05"

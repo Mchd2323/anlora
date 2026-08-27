@@ -125,6 +125,18 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
               {card.partOfSpeech}
             </span>
 
+            {/*
+              Kalıp/deyim rozeti. 'word' için hiçbir şey çizilmez: kartların
+              büyük çoğunluğu tek kelimedir, hepsine "Kelime" yazmak rozetin
+              ayırt ediciliğini yok eder. Rozet yalnızca sıra dışı olanı
+              söyler.
+            */}
+            {(card.entryType === 'phrase' || card.entryType === 'idiom') && (
+              <span className="inline-flex items-center px-2 py-0.5 text-[11px] font-semibold bg-[var(--primary-soft)] text-[var(--primary)] border border-[var(--primary-border)] rounded-md">
+                {card.entryType === 'idiom' ? 'Deyim' : 'Kalıp'}
+              </span>
+            )}
+
             {card.isCustom && (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium bg-[var(--surface-soft)] text-[var(--text-primary)] border border-[var(--border)] rounded-md">
                 <Sparkles className="w-2.5 h-2.5 text-[var(--primary)]" /> Özel
