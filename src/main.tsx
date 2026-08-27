@@ -3,7 +3,23 @@ import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import {ErrorBoundary} from './components/ErrorBoundary';
 import {ToastProvider} from './components/ui/ToastProvider';
+import {warmUpSpeech} from './utils/speech';
 import './index.css';
+
+/*
+ * Ses listesini açılışta ısıt.
+ *
+ * `speechSynthesis.getVoices()` ilk çağrıda çoğu tarayıcıda boş döner ve
+ * liste `voiceschanged` olayıyla sonradan dolar. Telaffuz düğmesine
+ * basıldığında bu beklemeye girmek, tarayıcının KULLANICI DOKUNUŞU
+ * bağlamını kaybettirir; mobilde ses yalnızca dokunuşun doğrudan devamında
+ * başlatılabildiği için `speak()` sessizce hiçbir şey yapar. Yani motor
+ * sağlamken bile ilk basış sessiz kalabilir.
+ *
+ * Burada bir kez çağrılınca liste uygulama açılırken hazırlanır; düğmeye
+ * basıldığında bekleme kalmaz.
+ */
+warmUpSpeech();
 
 const container = document.getElementById('root');
 if (!container) {

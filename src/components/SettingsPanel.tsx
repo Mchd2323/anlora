@@ -5,7 +5,9 @@ import {
   describeSpeechSupport,
   openTtsInstall,
   speakText,
-  SpeechDiagnostics
+  SpeechDiagnostics,
+  probeEngines,
+  type EngineProbe
 } from '../utils/speech';
 import {
   isPushAvailable,
@@ -125,6 +127,15 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
    * söylenmezse, sorunu uygulamanın bozukluğu sanır.
    */
   const [testResult, setTestResult] = useState<{ ok: boolean; text: string } | null>(null);
+  /**
+   * Motor motor deneme sonucu.
+   *
+   * Ses çalışmadığında "olmadı" demek yetmiyor: sorunun tarayıcı motorunda
+   * mı yoksa yerel eklentide mi olduğunu ayırt edebilmek gerek. Bu liste
+   * kullanıcının okuyup aktarabileceği somut satırlar üretiyor.
+   */
+  const [motorSonucu, setMotorSonucu] = useState<EngineProbe[] | null>(null);
+  const [motorDeneniyor, setMotorDeneniyor] = useState(false);
 
   const runSpeechTest = async () => {
     setIsTesting(true);
@@ -501,6 +512,28 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
             <span>Sesi Test Et</span>
           </button>
 
+          <button
+            type="button"
+            disabled={motorDeneniyor}
+            onClick={async () => {
+              setMotorDeneniyor(true);
+              setMotorSonucu(null);
+              try {
+                setMotorSonucu(await probeEngines());
+              } finally {
+                setMotorDeneniyor(false);
+              }
+            }}
+            className="px-3.5 py-2 bg-[var(--surface-soft)] hover:bg-[var(--surface)] text-[var(--text-secondary)] border border-[var(--border)] text-xs font-semibold rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-60 disabled:cursor-wait"
+          >
+            {motorDeneniyor ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Sliders className="w-3.5 h-3.5" />
+            )}
+            <span>{motorDeneniyor ? 'Deneniyor…' : 'Ayrıntılı ses tanısı'}</span>
+          </button>
+
           {diagnostics?.isNative && !diagnostics.hasEnglish && (
             <button
               type="button"
@@ -512,6 +545,36 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
             </button>
           )}
         </div>
+
+        {motorSonucu && (
+          <div className="p-3 rounded-xl border border-[var(--border)] bg-[var(--bg)] text-[11px] leading-relaxed space-y-2">
+            <p className="font-bold text-[var(--text-primary)]">Ses tanısı</p>
+            {motorSonucu.map(m => (
+              <div key={m.engine} className="flex items-start gap-2">
+                <span
+                  className={`mt-0.5 w-2 h-2 rounded-full shrink-0 ${
+                    m.started
+                      ? 'bg-[var(--learned)]'
+                      : m.available
+                      ? 'bg-[var(--learning)]'
+                      : 'bg-[var(--text-muted)]'
+                  }`}
+                  aria-hidden="true"
+                />
+                <span className="text-[var(--text-secondary)]">
+                  <b className="text-[var(--text-primary)]">
+                    {m.engine === 'web' ? 'Tarayıcı motoru' : 'Telefonun motoru'}:
+                  </b>{' '}
+                  {m.detail}
+                </span>
+              </div>
+            ))}
+            <p className="text-[var(--text-muted)] pt-1 border-t border-[var(--border-light)]">
+              Ses hâlâ çıkmıyorsa bu satırları olduğu gibi iletebilirsin; sorunun hangi
+              motorda olduğunu doğrudan gösteriyorlar.
+            </p>
+          </div>
+        )}
 
         {testResult && (
           <div

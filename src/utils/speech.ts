@@ -252,6 +252,15 @@ function pickEnglishVoice(
   );
 }
 
+/**
+ * Tarayıcı motorunun "başladı" demesi için tanınan süre.
+ *
+ * Çalışan bir motorda `onstart` on milisaniyeler içinde gelir; bu süre yavaş
+ * cihaz için pay bırakır. Uzun tutmak, sesin hiç çıkmadığı durumda yerel
+ * eklentiye geçişi geciktirir ve düğme "bozuk" hissettirir.
+ */
+const START_WINDOW_MS = 1200;
+
 async function speakWeb(text: string, options: SpeechOptions): Promise<SpeechResult> {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
     return { ok: false, reason: 'unsupported' };
@@ -273,7 +282,21 @@ async function speakWeb(text: string, options: SpeechOptions): Promise<SpeechRes
     // boş görüp vazgeçmek, çalışan bir seslendirmeyi susturmak olurdu.
     const englishVoice = pickEnglishVoice(voices, lang);
     if (englishVoice) {
-      utterance.voice = englishVoice;
+      /*
+       * Ses ataması KORUMALI.
+       *
+       * `utterance.voice` yalnızca gerçek bir SpeechSynthesisVoice kabul
+       * eder; başka bir şey atanırsa tarayıcı hata fırlatır. Bu satır
+       * `speak()` çağrısından ÖNCE geldiği için fırlatılan hata okumayı
+       * tamamen engeller ve söz hiç çözülmez — kullanıcının gördüğü şey yine
+       * sessizlik olur. Ses seçimi bir iyileştirmedir, ön koşul değil:
+       * seçemezsek `lang` ile varsayılan sesle okunur.
+       */
+      try {
+        utterance.voice = englishVoice;
+      } catch {
+        /* seçilemedi; varsayılan sesle devam */
+      }
     }
 
     let settled = false;
@@ -295,7 +318,7 @@ async function speakWeb(text: string, options: SpeechOptions): Promise<SpeechRes
      */
     const silenceTimer = window.setTimeout(() => {
       finish({ ok: false, reason: 'no-voice' });
-    }, 3000);
+    }, START_WINDOW_MS);
 
     // Başarı ölçütü BAŞLAMAKTIR, bitmek değil: düğmenin işi okumayı
     // başlatmak. Bitişi beklemek uzun cümlelerde arayüzü boş yere bekletir.
@@ -352,33 +375,52 @@ export async function speakText(
 ): Promise<SpeechResult> {
   if (!text.trim()) return { ok: false, reason: 'error' };
 
+  /*
+   * SIRALAMA: ÖNCE TARAYICI MOTORU, SONRA YEREL EKLENTİ.
+   *
+   * Bu sıra bir tercih değil, bir hata düzeltmesi.
+   *
+   * Uygulamanın ilk sürümünde ses YALNIZCA `window.speechSynthesis` ile
+   * çalışıyordu ve gerçek telefonlarda sorunsuzdu. Sonra "Android WebView
+   * sentezi uygulamıyor" varsayımıyla yerel eklenti eklendi ve sıra tersine
+   * çevrildi: önce yerel, olmazsa tarayıcı.
+   *
+   * Kırılma tam buradaydı. Yerel yol, `speak()` çağrısını ateşleyip sonucu
+   * BEKLEMEDEN "başarılı" diyor — çünkü eklentinin sözü ancak konuşma
+   * bittiğinde çözülüyor ve onu beklemek düğmeyi kilitlerdi. Motorun
+   * gerçekten ses çıkarıp çıkarmadığı bilinmiyor. Cihazda İngilizce ses
+   * verisi yoksa motor sessizce düşüyor, biz "başarılı" sayıp duruyoruz ve
+   * ÇALIŞAN tarayıcı motoruna hiç sıra gelmiyor. Kullanıcının gördüğü şey:
+   * daha önce çalışan ses düğmesinin artık hiç ses çıkarmaması.
+   *
+   * Artık önce kanıtlanabilir olan deneniyor: tarayıcı motoru `onstart`
+   * olayıyla okumaya BAŞLADIĞINI bildirir; bu gerçek bir kanıttır. Yalnızca
+   * o başlamazsa yerel eklentiye düşülür — WebView'ın sentezi gerçekten
+   * olmayan eski cihazlar için o yol duruyor.
+   */
+  const web = await speakWeb(text, options);
+  if (web.ok) return web;
+
+  /*
+   * Tarayıcı motoru başlamadı. İki motorun üst üste konuşmaması için
+   * bekleyen okuma iptal ediliyor: sessizlik zamanlayıcısı okumayı
+   * kesmiyor (geç başlayan bir sesi susturmamak için), bu yüzden burada
+   * açıkça temizlemek gerekiyor.
+   */
+  cancelWebSpeech();
+
   if (await isNativePlatform()) {
     const native = await speakNative(text, options);
     if (native.ok) return native;
 
-    /*
-     * Yerel motor başarısız olduğunda WebView'ın kendi sentezi denenir.
-     *
-     * Önceki sürüm burada pes ediyordu; gerekçe "Android WebView sentezi
-     * uygulamıyor" idi. Bu her cihaz için doğru değil: güncel WebView
-     * sürümleri sistemde kurulu bir motor varsa `speechSynthesis` üzerinden
-     * okuyabiliyor. Yedek yolu denemenin maliyeti bir kaç yüz milisaniye;
-     * denememenin maliyeti ise sesin hiç çıkmaması. Bildirim, iki yol da
-     * düşerse gönderilir ve yerel motorun gerekçesi korunur — kullanıcıya
-     * "ses paketi eksik" demek, "bilinmeyen hata" demekten daha işe yarar.
-     */
-    const web = await speakWeb(text, options);
-    if (web.ok) return web;
-
-    notifyFailure(native.reason || web.reason || 'error');
+    // İki yol da düştü. Eyleme dönük gerekçe önce gelir: "ses paketi eksik"
+    // demek, "bilinmeyen hata" demekten daha işe yarar.
+    notifyFailure(native.reason === 'no-voice' ? 'no-voice' : web.reason || native.reason || 'error');
     return native;
   }
 
-  const result = await speakWeb(text, options);
-  if (!result.ok && result.reason) {
-    notifyFailure(result.reason);
-  }
-  return result;
+  if (web.reason) notifyFailure(web.reason);
+  return web;
 }
 
 /**
@@ -401,6 +443,71 @@ export async function openTtsInstall(): Promise<boolean> {
     false
   );
   return ok;
+}
+
+/**
+ * İki motorun AYRI AYRI denenmesi.
+ *
+ * Ses çalışmadığında tek bir "olmadı" mesajı yetmiyor: sorunun tarayıcı
+ * motorunda mı, yerel eklentide mi, yoksa ikisinde birden mi olduğunu
+ * ayırt etmek gerekiyor. Bu işlev her iki yolu sırayla dener ve ne olduğunu
+ * satır satır anlatır; kullanıcı ekrandaki metni okuyup aktarabilir.
+ *
+ * Denemeler arasında tarayıcı motoru susturulur, yoksa iki ses üst üste
+ * biner.
+ */
+export interface EngineProbe {
+  engine: 'web' | 'native';
+  available: boolean;
+  started: boolean;
+  detail: string;
+}
+
+export async function probeEngines(text = 'Anlora'): Promise<EngineProbe[]> {
+  const results: EngineProbe[] = [];
+
+  // --- Tarayıcı motoru ---
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+    results.push({ engine: 'web', available: false, started: false, detail: 'speechSynthesis nesnesi yok' });
+  } else {
+    const voices = await loadVoices();
+    const english = voices.filter(v => v.lang.startsWith('en'));
+    const sonuc = await speakWeb(text, {});
+    cancelWebSpeech();
+    results.push({
+      engine: 'web',
+      available: true,
+      started: sonuc.ok,
+      detail: `${voices.length} ses, ${english.length} İngilizce` +
+        (sonuc.ok ? ' — okumaya başladı' : ` — başlamadı (${sonuc.reason})`)
+    });
+  }
+
+  // --- Yerel eklenti ---
+  if (!(await isNativePlatform())) {
+    results.push({ engine: 'native', available: false, started: false, detail: 'yerel kabukta değil (tarayıcı)' });
+    return results;
+  }
+
+  const tts = await loadNativeTts();
+  if (!tts) {
+    results.push({ engine: 'native', available: false, started: false, detail: 'eklenti yüklenemedi' });
+    return results;
+  }
+
+  const diller = await supportedLanguages(tts);
+  const ing = diller.filter(d => d === 'en' || d.startsWith('en-') || d.startsWith('en_'));
+  const sonuc = await speakNative(text, {});
+  results.push({
+    engine: 'native',
+    available: true,
+    started: sonuc.ok,
+    detail:
+      (diller.length ? `${diller.length} dil, ${ing.length} İngilizce (${ing.slice(0, 3).join(', ') || 'yok'})` : 'dil listesi boş') +
+      (sonuc.ok ? ' — çağrı gönderildi' : ` — gönderilemedi (${sonuc.reason})`)
+  });
+
+  return results;
 }
 
 export interface SpeechDiagnostics {
@@ -449,6 +556,29 @@ export async function describeSpeechSupport(): Promise<SpeechDiagnostics> {
     }
 
     const english = result.languages.filter(lang => lang.toLowerCase().startsWith('en'));
+
+    /*
+     * YEREL MOTORDA İNGİLİZCE YOKSA HEMEN "ses yok" DENMEZ.
+     *
+     * Okuma sırası artık önce tarayıcı motoru; o çalışıyorsa yerel eklentiye
+     * hiç sıra gelmiyor. Dolayısıyla yerel motorda İngilizce bulunmaması tek
+     * başına bir eksiklik değil — tarayıcı tarafı okuyorsa kullanıcı için
+     * her şey yolunda demektir. Buna bakmadan "ses paketini kur" uyarısı
+     * göstermek, sesi çalışan kullanıcıyı gereksiz yere uğraştırırdı.
+     */
+    if (english.length === 0) {
+      const voices = await loadVoices();
+      const webEnglish = voices.filter(voice => voice.lang.startsWith('en'));
+      if (webEnglish.length > 0) {
+        return {
+          engine: 'web',
+          hasEnglish: true,
+          englishVoices: webEnglish.map(voice => `${voice.name} (${voice.lang})`),
+          isNative: true,
+        };
+      }
+    }
+
     return {
       engine: 'native',
       hasEnglish: english.length > 0,
@@ -487,6 +617,36 @@ export async function hasEnglishVoice(): Promise<boolean> {
 
   const voices = await loadVoices();
   return voices.some(v => v.lang.startsWith('en'));
+}
+
+/**
+ * Ses listesini önceden ısıtır.
+ *
+ * NEDEN GEREKLİ. `speakWeb` konuşmadan önce `loadVoices()`'ı bekliyor. İlk
+ * çağrıda bu bekleme 1,5 saniyeye kadar çıkabilir ve tarayıcı o sırada
+ * KULLANICI DOKUNUŞU BAĞLAMINI kaybeder. Mobil tarayıcılar sesi yalnızca
+ * bir dokunuşun doğrudan devamında başlatmaya izin verir; bağlam kaybolunca
+ * `speak()` sessizce hiçbir şey yapmaz. Yani motor sağlamken bile ilk basış
+ * sessiz kalabilir.
+ *
+ * Uygulama açılırken bir kez çağrılınca liste hazır olur ve düğmeye
+ * basıldığında bekleme kalmaz.
+ */
+export function warmUpSpeech(): void {
+  void loadVoices().catch(() => undefined);
+}
+
+/**
+ * Yalnızca TARAYICI motorunu susturur.
+ *
+ * `stopSpeech` yerel kabukta yalnızca eklentiyi durduruyor; oysa iki motorun
+ * üst üste konuşmasını önlemek için tam olarak tarayıcı tarafını kesmek
+ * gerekiyor. Ayrı bir işlev olmasının sebebi bu.
+ */
+function cancelWebSpeech(): void {
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
 }
 
 export async function stopSpeech(): Promise<void> {
