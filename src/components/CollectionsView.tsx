@@ -1721,6 +1721,52 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   </div>
                 )}
 
+                {/*
+                  Yapay zekâ YALNIZCA kelime sözlükte yoksa önerilir.
+                  Sözlükte hazır bir kart varken yapay zekâ çağırmak hem
+                  gereksiz beklemek hem de elde olan doğrulanmış içeriği
+                  bir kenara atmak olurdu.
+
+                  KONUMU: İngilizce kelime alanının hemen altı — sözlükte
+                  BULUNDU kutusunun çıktığı yer. Önceden formun en altında,
+                  Kaydet düğmesinden de sonra duruyordu; kelimenin sözlükte
+                  olmadığını gören kullanıcı, önerilen çıkış yolunu görmek
+                  için bütün formu geçip aşağı inmek zorundaydı. Cevap,
+                  sorunun sorulduğu yerde durmalı.
+                */}
+                {lookup.kind === 'not-found' && (
+                <div className="pt-3 border-t border-[var(--border-light)] space-y-2">
+                  <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                    Bu kelime sözlükte yok
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCheckAndProceedWithAi}
+                    disabled={!wordInput.trim()}
+                    className={`w-full p-4 rounded-xl border text-left transition-all ${
+                      wordInput.trim()
+                        ? 'border-[var(--primary-border)] bg-[var(--primary-soft)]/70 hover:bg-[var(--primary-soft)] cursor-pointer'
+                        : 'border-[var(--border)] bg-[var(--bg)] opacity-60 cursor-not-allowed'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center shrink-0">
+                        <Sparkles className="w-4 h-4" />
+                      </div>
+                      <div className="space-y-0.5">
+                        <h4 className="text-xs font-bold text-[var(--text-primary)]">
+                          ✨ Anlora AI ile hazırla
+                        </h4>
+                        <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                          Türkçe anlamı, kelime türünü ve örnek cümleleri senin
+                          yerine hazırlasın. Sonuç kaydedilmeden önce sana gösterilir.
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+                )}
+
                 {lookup.kind === 'found' && (
                   <div className="p-4 rounded-xl bg-[var(--learned-soft)] border border-[var(--learned-border)] space-y-3">
                     <div className="flex items-center gap-1.5 text-[11px] font-bold text-[var(--learned-text)]">
@@ -1897,44 +1943,6 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   </button>
                 </div>
 
-                {/*
-                  Yapay zekâ YALNIZCA kelime sözlükte yoksa önerilir.
-                  Sözlükte hazır bir kart varken yapay zekâ çağırmak hem
-                  gereksiz beklemek hem de elde olan doğrulanmış içeriği
-                  bir kenara atmak olurdu.
-                */}
-                {lookup.kind === 'not-found' && (
-                <div className="pt-3 border-t border-[var(--border-light)] space-y-2">
-                  <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
-                    Bu kelime sözlükte yok
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleCheckAndProceedWithAi}
-                    disabled={!wordInput.trim()}
-                    className={`w-full p-4 rounded-xl border text-left transition-all ${
-                      wordInput.trim()
-                        ? 'border-[var(--primary-border)] bg-[var(--primary-soft)]/70 hover:bg-[var(--primary-soft)] cursor-pointer'
-                        : 'border-[var(--border)] bg-[var(--bg)] opacity-60 cursor-not-allowed'
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center shrink-0">
-                        <Sparkles className="w-4 h-4" />
-                      </div>
-                      <div className="space-y-0.5">
-                        <h4 className="text-xs font-bold text-[var(--text-primary)]">
-                          ✨ Anlora AI ile hazırla
-                        </h4>
-                        <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                          Türkçe anlamı, kelime türünü ve örnek cümleleri senin
-                          yerine hazırlasın. Sonuç kaydedilmeden önce sana gösterilir.
-                        </p>
-                      </div>
-                    </div>
-                  </button>
-                </div>
-                )}
               </form>
             )}
 
