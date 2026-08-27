@@ -15,7 +15,20 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  * 4. Kapalı yönde direnç: desteninin sonundayken kart tamamen kilitli değil,
  *    lastik gibi az miktarda esner. Sınıra çarpıldığı hissedilir.
  * 5. `prefers-reduced-motion` açıksa çıkış animasyonu atlanır.
+ * 6. Düğme, bağlantı ve form alanları üzerinde başlayan dokunuşlar desteye
+ *    HİÇ girmez. Sebebi ölçülmüş bir hatadır: parmak "Öğrendim" düğmesinin
+ *    üzerinde 20 pikselden fazla kayınca deste yatay kilide geçip
+ *    setPointerCapture çağırıyordu; yakalama etkinken tarayıcı `click`
+ *    olayını düğmeye değil yakalayan öğeye gönderir, dolayısıyla düğmenin
+ *    onClick'i hiç çalışmazdı. Kullanıcının gördüğü şey buydu: ilk basışta
+ *    bir şey olmuyor, ikincide oluyordu. Düğmeye nişan alan bir parmağın
+ *    birkaç piksel kayması kaydırma niyeti değildir; kart yüzeyi zaten
+ *    yeterince büyük.
  */
+
+/** Dokunuşun kaydırma değil, bir denetimin kullanımı sayıldığı öğeler. */
+const INTERACTIVE_SELECTOR =
+  'button, a[href], input, select, textarea, label, [role="button"], [contenteditable="true"]';
 
 export type SwipeDirection = 'left' | 'right';
 
@@ -140,6 +153,14 @@ export function useSwipeDeck({
       // Fare ile yalnızca sol tuş sürükler; sağ tuş menüsü bozulmasın.
       if (event.pointerType === 'mouse' && event.button !== 0) return;
 
+      // Denetim üzerinde başlayan dokunuş desteye ait değildir.
+      const origin = event.target as HTMLElement | null;
+      if (origin && typeof origin.closest === 'function' && origin.closest(INTERACTIVE_SELECTOR)) {
+        activePointerRef.current = null;
+        axisRef.current = 'vertical'; // hareketi tamamen dışarıda bırak
+        return;
+      }
+
       activePointerRef.current = event.pointerId;
       startXRef.current = event.clientX;
       startYRef.current = event.clientY;
@@ -197,6 +218,16 @@ export function useSwipeDeck({
 
   const finish = useCallback(
     (event: React.PointerEvent) => {
+      // Yakalama bırakılmazsa sonraki tıklamalar da yakalayan öğeye gider.
+      const surface = event.currentTarget as HTMLElement;
+      if (surface?.hasPointerCapture?.(event.pointerId)) {
+        try {
+          surface.releasePointerCapture(event.pointerId);
+        } catch {
+          // Bırakma başarısız olsa da akış devam eder.
+        }
+      }
+
       if (activePointerRef.current !== event.pointerId) {
         // Yatay kilide hiç girmemiş bir dokunuş: temizle, geçiş yapma.
         if (axisRef.current !== 'horizontal') reset();
