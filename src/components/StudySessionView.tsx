@@ -379,7 +379,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
                   onClick={() => setStudyMode(m.id as any)}
                   className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
                     studyMode === m.id
-                      ? 'bg-[var(--primary)] border-[var(--primary)] text-white font-bold shadow-xs'
+                      ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--surface)] font-bold shadow-xs'
                       : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-soft)]'
                   }`}
                 >
@@ -395,7 +395,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
           {/* Start Button */}
           <button
             onClick={initializeQueue}
-            className="w-full py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
+            className="w-full py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
           >
             <span>Seansı Başlat</span>
             <ArrowRight className="w-4 h-4" />
@@ -445,7 +445,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
                 setIsSessionStarted(false);
                 setIsCompleted(false);
               }}
-              className="flex-1 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+              className="flex-1 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
             >
               Yeni Seans Başlat
             </button>
@@ -610,7 +610,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
                   <button
                     type="submit"
                     disabled={!typedInput.trim()}
-                    className="w-full py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 text-white text-xs font-semibold rounded-xl transition-all cursor-pointer"
+                    className="w-full py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 text-[var(--surface)] text-xs font-semibold rounded-xl transition-all cursor-pointer"
                   >
                     Cevabı Kontrol Et
                   </button>
@@ -694,7 +694,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
                     setIsFlipped(true);
                     speakText(card.word);
                   }}
-                  className="px-4 py-2 bg-[var(--primary)] text-white text-xs font-semibold rounded-xl hover:bg-[var(--primary-hover)] cursor-pointer"
+                  className="px-4 py-2 bg-[var(--primary)] text-[var(--surface)] text-xs font-semibold rounded-xl hover:bg-[var(--primary-hover)] cursor-pointer"
                 >
                   Cevabı Göster
                 </button>

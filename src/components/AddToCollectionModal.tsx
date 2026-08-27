@@ -158,7 +158,7 @@ export const AddToCollectionModal: React.FC<AddToCollectionModalProps> = ({
                 />
                 <button
                   type="submit"
-                  className="w-full py-2 bg-[var(--primary)] text-white rounded-lg font-bold text-xs hover:bg-[var(--primary-hover)] transition-colors cursor-pointer"
+                  className="w-full py-2 bg-[var(--primary)] text-[var(--surface)] rounded-lg font-bold text-xs hover:bg-[var(--primary-hover)] transition-colors cursor-pointer"
                 >
                   Oluştur ve Ekle
                 </button>
@@ -184,7 +184,7 @@ export const AddToCollectionModal: React.FC<AddToCollectionModalProps> = ({
                         }`}
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
-                          <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isMember ? 'bg-[var(--learned)] text-white' : 'bg-[var(--surface-soft)] text-[var(--text-secondary)]'}`}>
+                          <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isMember ? 'bg-[var(--learned)] text-[var(--surface)]' : 'bg-[var(--surface-soft)] text-[var(--text-secondary)]'}`}>
                             <Layers className="w-3.5 h-3.5" />
                           </div>
                           <div className="truncate">
@@ -195,7 +195,7 @@ export const AddToCollectionModal: React.FC<AddToCollectionModalProps> = ({
                           </div>
                         </div>
 
-                        <div className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${isMember ? 'bg-[var(--learned)] text-white' : 'border border-[var(--border)]'}`}>
+                        <div className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${isMember ? 'bg-[var(--learned)] text-[var(--surface)]' : 'border border-[var(--border)]'}`}>
                           {isMember && <Check className="w-3 h-3" />}
                         </div>
                       </button>

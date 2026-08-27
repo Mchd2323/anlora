@@ -288,7 +288,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           ) : (
             <button
               onClick={onOpenAuthModal}
-              className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-white text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-[var(--surface)] text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <LogIn className="w-3.5 h-3.5" />
               <span>Giriş Yap / Ücretsiz Hesap Aç</span>
@@ -310,7 +310,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <div className="pt-0.5">
             <button
               onClick={onOpenAuthModal}
-              className="px-3.5 py-1.5 bg-[var(--learning)] hover:bg-[var(--learning-hover)] text-white font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+              className="px-3.5 py-1.5 bg-[var(--learning)] hover:bg-[var(--learning-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
             >
               Hesap Oluştur
             </button>
@@ -459,7 +459,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         <button
           type="button"
           onClick={onOpenAdminPanel}
-          className="w-full bg-[var(--text-primary)] hover:bg-[var(--ink-hover)] text-white rounded-2xl p-5 flex items-center justify-between gap-3 transition-colors cursor-pointer text-left"
+          className="w-full bg-[var(--text-primary)] hover:bg-[var(--ink-hover)] text-[var(--bg)] rounded-2xl p-5 flex items-center justify-between gap-3 transition-colors cursor-pointer text-left"
         >
           <div>
             <div className="text-sm font-bold flex items-center gap-2">
@@ -589,7 +589,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     type="button"
                     onClick={handleDeleteAccount}
                     disabled={!deletePassword.trim()}
-                    className="px-3.5 py-2 bg-[var(--danger)] hover:opacity-90 text-white text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-3.5 py-2 bg-[var(--danger)] hover:opacity-90 text-[var(--surface)] text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     Hesabımı kalıcı olarak sil
                   </button>

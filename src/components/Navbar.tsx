@@ -94,7 +94,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setActiveTab('today')}
               className="flex items-center gap-2.5 cursor-pointer group select-none"
             >
-              <div className="w-8 h-8 rounded-xl bg-[var(--primary)] flex items-center justify-center text-white shadow-2xs group-hover:bg-[var(--primary-hover)] transition-colors">
+              <div className="w-8 h-8 rounded-xl bg-[var(--primary)] flex items-center justify-center text-[var(--surface)] shadow-2xs group-hover:bg-[var(--primary-hover)] transition-colors">
                 <BookOpen className="w-4 h-4 stroke-[2.4]" />
               </div>
               <span className="text-xl font-bold tracking-tight text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors">
@@ -127,7 +127,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       <span
                         className={`ml-0.5 px-1.5 py-0.2 text-[10px] font-bold rounded-full ${
                           isActive
-                            ? 'bg-[var(--primary)] text-white'
+                            ? 'bg-[var(--primary)] text-[var(--surface)]'
                             : 'bg-[var(--border)] text-[var(--text-primary)]'
                         }`}
                       >
@@ -146,7 +146,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onClick={() => setActiveTab('profile')}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--surface-soft)] hover:bg-[var(--primary-soft)] text-[var(--text-primary)] hover:text-[var(--primary)] text-xs font-semibold border border-[var(--border)] transition-colors cursor-pointer"
                 >
-                  <div className="w-5 h-5 rounded-lg bg-[var(--primary)] text-white flex items-center justify-center text-[10px] font-bold">
+                  <div className="w-5 h-5 rounded-lg bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center text-[10px] font-bold">
                     {profile.email ? profile.email[0].toUpperCase() : 'U'}
                   </div>
                   <span className="hidden sm:inline max-w-[130px] truncate font-medium">
@@ -187,7 +187,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   }`}
                 />
                 {item.badge !== undefined && (
-                  <span className="absolute -top-1 -right-2.5 min-w-[14px] h-[14px] px-1 bg-[var(--primary)] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-1 -right-2.5 min-w-[14px] h-[14px] px-1 bg-[var(--primary)] text-[var(--surface)] text-[9px] font-bold rounded-full flex items-center justify-center">
                     {item.badge}
                   </span>
                 )}

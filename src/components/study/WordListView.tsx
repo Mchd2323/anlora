@@ -109,7 +109,7 @@ export const WordListView: React.FC<WordListViewProps> = ({
             onClick={() => setStatusFilter('ALL')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               statusFilter === 'ALL'
-                ? 'bg-[var(--text-primary)] text-white shadow-xs'
+                ? 'bg-[var(--text-primary)] text-[var(--bg)] shadow-xs'
                 : 'bg-[var(--bg)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border)]'
             }`}
           >

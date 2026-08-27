@@ -295,7 +295,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
                 onClick={() => setSelectedLevel(key)}
                 className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap border flex items-center gap-2 cursor-pointer ${
                   isSelected
-                    ? 'bg-[var(--primary)] text-white border-[var(--primary)] shadow-xs'
+                    ? 'bg-[var(--primary)] text-[var(--surface)] border-[var(--primary)] shadow-xs'
                     : 'bg-[var(--bg)] text-[var(--text-primary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
                 }`}
               >
@@ -326,7 +326,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
               onClick={() => setStatusFilter(statusFilter === 'LEARNED' ? 'ALL' : 'LEARNED')}
               className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg font-semibold transition-colors cursor-pointer border ${
                 statusFilter === 'LEARNED'
-                  ? 'bg-[var(--learned)] text-white border-[var(--learned)]'
+                  ? 'bg-[var(--learned)] text-[var(--surface)] border-[var(--learned)]'
                   : 'text-[var(--learned)] border-transparent hover:bg-[var(--learned-soft-hover)]'
               }`}
             >
@@ -340,7 +340,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
               onClick={() => setStatusFilter(statusFilter === 'LEARNING' ? 'ALL' : 'LEARNING')}
               className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg font-semibold transition-colors cursor-pointer border ${
                 statusFilter === 'LEARNING'
-                  ? 'bg-[var(--learning)] text-white border-[var(--learning)]'
+                  ? 'bg-[var(--learning)] text-[var(--surface)] border-[var(--learning)]'
                   : 'text-[var(--learning)] border-transparent hover:bg-[var(--learning-soft-hover)]'
               }`}
             >
@@ -353,7 +353,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
               onClick={() => setStatusFilter(statusFilter === 'UNSEEN' ? 'ALL' : 'UNSEEN')}
               className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg font-medium transition-colors cursor-pointer border ${
                 statusFilter === 'UNSEEN'
-                  ? 'bg-[var(--text-secondary)] text-white border-[var(--text-secondary)]'
+                  ? 'bg-[var(--text-secondary)] text-[var(--bg)] border-[var(--text-secondary)]'
                   : 'text-[var(--text-muted)] border-transparent hover:bg-[var(--surface-soft)]'
               }`}
             >
@@ -428,7 +428,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
               Şimdi çalışmaya başla ({filteredWords.length} kelime)
             </p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-[var(--primary)] text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
             <Play className="w-4 h-4 fill-current ml-0.5" />
           </div>
         </button>

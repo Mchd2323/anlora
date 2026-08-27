@@ -100,7 +100,7 @@ export const StudyCard: React.FC<StudyCardProps> = ({
               onClick={handlePlayAudio}
               className={`p-2 rounded-xl border transition-all cursor-pointer ${
                 isPlayingAudio
-                  ? 'bg-[var(--primary)] text-white border-[var(--primary)] scale-105 shadow-xs'
+                  ? 'bg-[var(--primary)] text-[var(--surface)] border-[var(--primary)] scale-105 shadow-xs'
                   : 'bg-[var(--bg)] hover:bg-[var(--primary-soft)] text-[var(--primary)] border-[var(--border)]'
               }`}
               title="Telaffuz Dinle"

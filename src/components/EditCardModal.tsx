@@ -301,7 +301,7 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
 
               <button
                 type="submit"
-                className="px-5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-semibold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+                className="px-5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
               >
                 <Save className="w-3.5 h-3.5" />
                 <span>Kaydet</span>

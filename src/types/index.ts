@@ -246,7 +246,15 @@ export interface UserSettings {
    * cevap budur ve akşam otomatik koyulaşır. Kullanıcı açıkça seçtiğinde
    * sistem ayarı geçersiz kalır.
    */
-  theme?: 'system' | 'light' | 'dark';
+  /**
+   * Renk teması.
+   *
+   * 'system': hiçbir işaret konmaz, ayrımı telefonun ayarı yapar.
+   * Diğerleri kökte `data-theme` olarak durur ve sistemi geçersiz kılar.
+   * 'light'/'dark' ilk sürümden kalan kimliklerdir; kayıtlı ayarları
+   * bozmamak için adları korundu.
+   */
+  theme?: 'system' | 'light' | 'deniz' | 'gul' | 'lavanta' | 'dark' | 'orman' | 'komur';
   /**
    * Yazı büyüklüğü çarpanı (1 = varsayılan).
    *

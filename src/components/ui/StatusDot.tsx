@@ -33,7 +33,7 @@ export const StatusDot: React.FC<{
   const shapes: Record<WordStatus, React.ReactNode> = {
     learned: (
       <span
-        className={`${box} rounded-full bg-[var(--learned)] text-white flex items-center justify-center shrink-0`}
+        className={`${box} rounded-full bg-[var(--learned)] text-[var(--surface)] flex items-center justify-center shrink-0`}
       >
         <Check className={`${icon} stroke-[3]`} />
       </span>

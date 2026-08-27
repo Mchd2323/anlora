@@ -8,8 +8,16 @@
     --surface-subtle: #FAF9F5;
     
     --text-primary: #1E2430;
-    --text-secondary: #687080;
-    --text-muted: #8E95A2;
+    --text-secondary: #5D6472;
+    /* Kontrast: bu dört ton okunabilirlik eşiğinin (4,5:1) altındaydı.
+       Ölçüldü — muted 3,01:1, learning 3,61:1, danger 4,12:1, learned
+       4,54:1 ama küçük puntoda 4,23:1'e düşüyordu. Tonlar korunarak
+       koyulaştırıldı. Eşik yalnızca beyaz zemine göre değil, bu renklerin
+       İÇİNDE yazıldığı tonlu kutulara göre de hesaplandı (kenarlık grisi,
+       mor tint, kırmızı tint): rozetlerdeki sayılar ve uyarı yazıları o
+       kutuların üzerinde duruyor ve beyaza göre yapılan hesap onları
+       kaçırıyordu. */
+    --text-muted: #5F636C;
     
     --border: #E4E1D9;
     --border-light: #EFECE6;
@@ -19,12 +27,12 @@
     --primary-soft: #EEECFA;
     --primary-border: #D7D2F4;
     
-    --learned: #4F806A;
+    --learned: #4C7B66;
     --learned-text: #35654E;
     --learned-soft: #E9F3ED;
     --learned-border: #BFD7C8;
     
-    --learning: #B97922;
+    --learning: #9B661D;
     --learning-text: #8A5A18;
     --learning-soft: #FBF1DE;
     --learning-border: #E7C98F;
@@ -32,7 +40,7 @@
     --favorite: #B75D6A;
     --favorite-soft: #FDF0F2;
     
-    --danger: #C65D55;
+    --danger: #A24C45;
     --danger-soft: #FAECEA;
     --danger-border: #F0CBC7;
 
@@ -144,13 +152,15 @@
      * Hiç seçmediyse ("sistem") hiçbir işaret olmaz; ayrımı yalnızca
        `prefers-color-scheme` yapar.
    Bu yüzden karanlık, hem medya sorgusunda hem de `[data-theme="dark"]`
-   altında tanımlanır; medya sorgusu `[data-theme="light"]` ile geçersiz
-   kılınabilsin diye korumalıdır — kullanıcı sistemi koyu olsa da açık temayı
-   seçebilmeli.
+   altında tanımlanır. Medya sorgusu `:not([data-theme])` ile korunur: kökte
+   HERHANGİ bir tema kimliği varsa kullanıcı açıkça seçim yapmış demektir ve
+   sistem tercihi devreye girmemelidir. (Önceden koruma yalnızca "light"
+   kimliğini dışarıda bırakıyordu; altta eklenen açık renk varyantları
+   seçiliyken sistem koyuysa üzerlerine koyu belirteçler biniyordu.)
 */
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+  :root:not([data-theme]) {
     --bg: #14161B;
     --border: #2E323C;
     --border-light: #262A33;
@@ -165,7 +175,7 @@
     --cefr-b1-soft: #22203A;
     --cefr-b2: #B195BE;
     --cefr-b2-border: #42334A;
-    --cefr-b2-deep: #9A7FA8;
+    --cefr-b2-deep: #9D82AB;
     --cefr-b2-soft: #291F2E;
     --cefr-b2-strong: #BFA6C9;
     --correct: #7FBF9E;
@@ -225,13 +235,15 @@
     --teal-hover: #8AD5CF;
     --teal-soft: #142B2A;
     --teal-text: #93D9D3;
-    --text-muted: #7C7D77;
+    --text-muted: #8F9089;
     --text-primary: #ECE9E1;
     --text-secondary: #A5A69F;
   }
 }
 
-:root[data-theme="dark"] {
+:root[data-theme="dark"],
+:root[data-theme="orman"],
+:root[data-theme="komur"] {
     --bg: #14161B;
     --border: #2E323C;
     --border-light: #262A33;
@@ -246,7 +258,7 @@
     --cefr-b1-soft: #22203A;
     --cefr-b2: #B195BE;
     --cefr-b2-border: #42334A;
-    --cefr-b2-deep: #9A7FA8;
+    --cefr-b2-deep: #9D82AB;
     --cefr-b2-soft: #291F2E;
     --cefr-b2-strong: #BFA6C9;
     --correct: #7FBF9E;
@@ -306,17 +318,19 @@
     --teal-hover: #8AD5CF;
     --teal-soft: #142B2A;
     --teal-text: #93D9D3;
-    --text-muted: #7C7D77;
+    --text-muted: #8F9089;
     --text-primary: #ECE9E1;
     --text-secondary: #A5A69F;
 }
 
 /* Tarayıcının kendi arayüzü (kaydırma çubuğu, form denetimleri) de temayı
    izlesin; aksi hâlde koyu sayfanın kenarında parlak bir çubuk kalır. */
-:root[data-theme="dark"] { color-scheme: dark; }
+:root[data-theme="dark"],
+:root[data-theme="orman"],
+:root[data-theme="komur"] { color-scheme: dark; }
 :root[data-theme="light"] { color-scheme: light; }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) { color-scheme: dark; }
+  :root:not([data-theme]) { color-scheme: dark; }
 }
 
 /* ==========================================================================
@@ -533,3 +547,122 @@ textarea:focus-visible,
  * KALINLIĞINI sıfırlıyordu: ölçümde renk ve çizgi tipi geliyor, genişlik
  * 0px kalıyordu — yani halka görünmüyordu. Seçiciler artık düz yazıldı.
  */
+
+/* ==========================================================================
+   Renk varyantları
+   ==========================================================================
+
+   Her varyant tam bir tema değil, KİMLİK belirteçlerinin üzerine yazılmasıdır:
+   zemin, yüzeyler, marka rengi, kenarlıklar ve yazı. Durum renkleri
+   (öğrendim/tekrar/hata) ve CEFR tonları taban temadan gelir — onları da
+   değiştirmek altı ayrı palet bakmak demek olurdu ve "öğrendim yeşili" her
+   temada aynı şeyi söylemeli.
+
+   Bu yüzden her varyant birkaç yüz bayt tutar; altısı birden derlenmiş CSS'e
+   yaklaşık 2 KB ekler. Uygulamanın boyutuna etkisi ölçülemeyecek kadar
+   küçüktür.
+
+   Açık varyantlar tabanı (`:root`) devralır, koyu varyantlar
+   `[data-theme="dark"]` bloğunu devralamaz — CSS'te kalıtım seçiciden değil
+   ağaçtan gelir — bu yüzden koyu varyantlar aşağıda kendi tam koyu
+   belirteçlerini `dark` ile birlikte tanımlanan seçici listesine katılarak
+   alır.
+   ========================================================================== */
+
+/* --- AÇIK: Deniz — soğuk beyaz, turkuaz marka rengi --------------------- */
+:root[data-theme="deniz"] {
+  color-scheme: light;
+  --bg: #F4F8F9;
+  --surface: #FFFFFF;
+  --surface-soft: #E8F1F3;
+  --surface-subtle: #F8FBFC;
+  --border: #D7E4E7;
+  --border-light: #E7F0F2;
+  --primary: #1F6F6B;
+  --primary-hover: #175653;
+  --primary-soft: #E0F0EE;
+  --primary-soft-hover: #CFE7E4;
+  --primary-border: #B3D8D4;
+  --primary-tint: #EDF7F6;
+  --text-primary: #142428;
+  --text-secondary: #54666A;
+  --text-muted: #57656A;
+}
+
+/* --- YUMUŞAK: Gül — sıcak pembe ---------------------------------------- */
+:root[data-theme="gul"] {
+  color-scheme: light;
+  --bg: #FDF6F6;
+  --surface: #FFFFFF;
+  --surface-soft: #F8EAEC;
+  --surface-subtle: #FEFAFA;
+  --border: #EFDCDE;
+  --border-light: #F7EAEB;
+  --primary: #AB4A63;
+  --primary-hover: #973E56;
+  --primary-soft: #FBEAEE;
+  --primary-soft-hover: #F5D9DF;
+  --primary-border: #EFC6CF;
+  --primary-tint: #FDF3F5;
+  --text-primary: #2A1D22;
+  --text-secondary: #705D64;
+  --text-muted: #6C5E63;
+}
+
+/* --- YUMUŞAK: Lavanta — açık leylak ------------------------------------ */
+:root[data-theme="lavanta"] {
+  color-scheme: light;
+  --bg: #F9F6FD;
+  --surface: #FFFFFF;
+  --surface-soft: #EFE9F8;
+  --surface-subtle: #FCFAFE;
+  --border: #E4DCF2;
+  --border-light: #EFE9F8;
+  --primary: #7657B2;
+  --primary-hover: #66499E;
+  --primary-soft: #F0EAFB;
+  --primary-soft-hover: #E4DAF6;
+  --primary-border: #D6C9EF;
+  --primary-tint: #F7F3FD;
+  --text-primary: #221B31;
+  --text-secondary: #675D7B;
+  --text-muted: #655E72;
+}
+
+/* --- KOYU: Orman — yeşile çalan koyu ----------------------------------- */
+:root[data-theme="orman"] {
+  --bg: #101714;
+  --surface: #18211D;
+  --surface-soft: #1F2A25;
+  --surface-subtle: #141C19;
+  --border: #2A3833;
+  --border-light: #222E29;
+  --primary: #6FB89A;
+  --primary-hover: #86C9AD;
+  --primary-soft: #1A2A24;
+  --primary-soft-hover: #223730;
+  --primary-border: #2F4A40;
+  --primary-tint: #16231E;
+  --text-primary: #E6EFE9;
+  --text-secondary: #A9BAB1;
+  --text-muted: #81948B;
+}
+
+/* --- KOYU: Kömür — sıcak amber marka rengi ----------------------------- */
+:root[data-theme="komur"] {
+  --bg: #16130F;
+  --surface: #1F1B16;
+  --surface-soft: #29231C;
+  --surface-subtle: #1A1712;
+  --border: #383026;
+  --border-light: #2C261E;
+  --primary: #D9A24E;
+  --primary-hover: #E8B565;
+  --primary-soft: #2A2116;
+  --primary-soft-hover: #372B1D;
+  --primary-border: #4C3D26;
+  --primary-tint: #221B12;
+  --text-primary: #F0EAE0;
+  --text-secondary: #ADA292;
+  --text-muted: #918878;
+}

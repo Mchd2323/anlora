@@ -37,6 +37,24 @@ const STUDY_MODES: { value: UserSettings['preferredStudyMode']; label: string; h
  * modu, otomatik telaffuz ve yazım toleransı kullanıcıya kapalıydı. Panel bu
  * boşluğu dolduruyor; alanların hepsi zaten uygulamada okunuyor.
  */
+/**
+ * Tema seçenekleri.
+ *
+ * Renk örnekleri burada sabit yazılır çünkü CSS değişkenleri o an geçerli
+ * temanın değerini taşır; örnekleri onlarla çizmek sekiz kutuyu da aynı
+ * renkte gösterirdi. Değerler `index.css` içindeki karşılıklarıyla aynı.
+ */
+const THEME_OPTIONS = [
+  { id: 'system' as const,  label: 'Sistem',  hint: 'Telefonun ayarını izler',        zemin: 'linear-gradient(135deg,#F8F7F3 50%,#14161B 50%)', kenar: '#C3BEB4', marka: '#4F46A5' },
+  { id: 'light' as const,   label: 'Kağıt',   hint: 'Açık — sıcak kırık beyaz',       zemin: '#F8F7F3', kenar: '#E4E1D9', marka: '#4F46A5' },
+  { id: 'deniz' as const,   label: 'Deniz',   hint: 'Açık — soğuk beyaz, turkuaz',    zemin: '#F4F8F9', kenar: '#D7E4E7', marka: '#1F6F6B' },
+  { id: 'gul' as const,     label: 'Gül',     hint: 'Yumuşak — sıcak pembe',          zemin: '#FDF6F6', kenar: '#EFDCDE', marka: '#B44E68' },
+  { id: 'lavanta' as const, label: 'Lavanta', hint: 'Yumuşak — açık leylak',          zemin: '#F9F6FD', kenar: '#E4DCF2', marka: '#7A5AB8' },
+  { id: 'dark' as const,    label: 'Gece',    hint: 'Koyu — nötr',                    zemin: '#14161B', kenar: '#2E323C', marka: '#9A92D8' },
+  { id: 'orman' as const,   label: 'Orman',   hint: 'Koyu — yeşile çalan',            zemin: '#101714', kenar: '#2A3833', marka: '#6FB89A' },
+  { id: 'komur' as const,   label: 'Kömür',   hint: 'Koyu — sıcak amber',             zemin: '#16130F', kenar: '#383026', marka: '#D9A24E' }
+];
+
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange }) => {
   const update = <K extends keyof UserSettings>(key: K, value: UserSettings[K]) => {
     onChange({ ...settings, [key]: value });
@@ -232,33 +250,57 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
           <span>Görünüm</span>
         </div>
 
+        {/*
+          Tema seçimi.
+          Her seçenek kendi zeminini ve marka rengini küçük bir örnekle
+          gösterir: adı okumak yerine renge bakarak seçilebilsin. Örnekler
+          sabit değerlerle çizilir, çünkü değişkenler o an SEÇİLİ olan
+          temayı taşır — hepsi aynı renkte görünürdü.
+        */}
         <div>
           <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">
             Tema
           </label>
-          <div className="grid grid-cols-3 gap-1.5">
-            {[
-              { id: 'system' as const, label: 'Sistem', hint: 'Telefonun ayarı' },
-              { id: 'light' as const, label: 'Açık', hint: '' },
-              { id: 'dark' as const, label: 'Koyu', hint: '' }
-            ].map(option => (
-              <button
-                key={option.id}
-                type="button"
-                onClick={() => update('theme', option.id)}
-                aria-pressed={(settings.theme || 'system') === option.id}
-                className={`px-2.5 py-2 rounded-xl text-[11px] font-semibold border transition-colors cursor-pointer ${
-                  (settings.theme || 'system') === option.id
-                    ? 'bg-[var(--primary-soft)] border-[var(--primary)] text-[var(--primary)]'
-                    : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-soft)]'
-                }`}
-              >
-                {option.label}
-              </button>
-            ))}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+            {THEME_OPTIONS.map(option => {
+              const secili = (settings.theme || 'system') === option.id;
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => update('theme', option.id)}
+                  aria-pressed={secili}
+                  title={option.hint}
+                  className={`px-2 py-2 rounded-xl border transition-all cursor-pointer flex flex-col items-center gap-1.5 ${
+                    secili
+                      ? 'bg-[var(--primary-soft)] border-[var(--primary)] ring-2 ring-[var(--primary)]/25'
+                      : 'bg-[var(--bg)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
+                  }`}
+                >
+                  <span
+                    className="w-full h-6 rounded-lg border flex items-center justify-end pr-1.5"
+                    style={{ background: option.zemin, borderColor: option.kenar }}
+                    aria-hidden="true"
+                  >
+                    <span
+                      className="w-2.5 h-2.5 rounded-full"
+                      style={{ background: option.marka }}
+                    />
+                  </span>
+                  <span
+                    className={`text-[10px] font-semibold leading-none ${
+                      secili ? 'text-[var(--primary)]' : 'text-[var(--text-primary)]'
+                    }`}
+                  >
+                    {option.label}
+                  </span>
+                </button>
+              );
+            })}
           </div>
-          <p className="text-[11px] text-[var(--text-muted)] mt-1">
+          <p className="text-[11px] text-[var(--text-muted)] mt-1.5">
             "Sistem" seçiliyken telefonun karanlık moda geçmesiyle uygulama da geçer.
+            Diğerleri telefondan bağımsız çalışır.
           </p>
         </div>
 
@@ -413,7 +455,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
             <button
               type="button"
               onClick={() => void openTtsInstall()}
-              className="px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-xs font-semibold rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
               <span>İngilizce Ses Paketini Yükle</span>

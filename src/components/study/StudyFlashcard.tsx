@@ -266,7 +266,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
         <div className="flex justify-center gap-2">
           <button
             onClick={() => setFilterMode('ALL')}
-            className="px-4 py-2 bg-[var(--primary)] text-white text-xs font-semibold rounded-xl cursor-pointer hover:bg-[var(--primary-hover)]"
+            className="px-4 py-2 bg-[var(--primary)] text-[var(--surface)] text-xs font-semibold rounded-xl cursor-pointer hover:bg-[var(--primary-hover)]"
           >
             Tüm Kelimeleri Göster ({words.length})
           </button>
@@ -428,7 +428,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
           {/* Kenar ipuçları — eşiğe yaklaşıldıkça belirir */}
           <div
             aria-hidden="true"
-            className="deck-hint absolute left-3 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5 px-3 py-2 rounded-full bg-[var(--text-primary)] text-white text-[11px] font-bold shadow-[var(--elev-4)]"
+            className="deck-hint absolute left-3 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5 px-3 py-2 rounded-full bg-[var(--text-primary)] text-[var(--bg)] text-[11px] font-bold shadow-[var(--elev-4)]"
             style={{
               opacity: swipe.offsetX > 12 && hasPrev ? swipe.progress : 0,
               transform: `translateY(-50%) scale(${0.85 + swipe.progress * 0.15})`
@@ -439,7 +439,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
           </div>
           <div
             aria-hidden="true"
-            className="deck-hint absolute right-3 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5 px-3 py-2 rounded-full bg-[var(--primary)] text-white text-[11px] font-bold shadow-[var(--elev-4)]"
+            className="deck-hint absolute right-3 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5 px-3 py-2 rounded-full bg-[var(--primary)] text-[var(--surface)] text-[11px] font-bold shadow-[var(--elev-4)]"
             style={{
               opacity: swipe.offsetX < -12 && hasNext ? swipe.progress : 0,
               transform: `translateY(-50%) scale(${0.85 + swipe.progress * 0.15})`
@@ -734,7 +734,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
         <button
           onClick={handleNextCard}
           disabled={!hasNext}
-          className="w-11 h-11 flex items-center justify-center bg-[var(--primary)] text-white rounded-full shadow-[var(--elev-2)] transition-all cursor-pointer hover:bg-[var(--primary-hover)] active:scale-95 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-[var(--primary)]"
+          className="w-11 h-11 flex items-center justify-center bg-[var(--primary)] text-[var(--surface)] rounded-full shadow-[var(--elev-2)] transition-all cursor-pointer hover:bg-[var(--primary-hover)] active:scale-95 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-[var(--primary)]"
           aria-label="Sonraki kelime"
         >
           <ChevronRight className="w-5 h-5" />

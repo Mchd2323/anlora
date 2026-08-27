@@ -100,6 +100,8 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
   const plannedNew = Math.min(todayQueue.newCount, newGoal);
   const plannedTotal = plannedReviews + plannedNew;
   const streakDays = stats?.streakDays ?? 0;
+  /** Oxford 5000'in tamamı: 3000 çekirdek + Ek liste. */
+  const oxfordToplam = oxfordWords.length + extraWords.length;
   /*
    * Oxford seviye sayıları ve ilerlemesi.
    *
@@ -213,7 +215,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
               <button
                 type="button"
                 onClick={onOpenAuthModal}
-                className="px-3 py-1.5 bg-[var(--learning)] hover:opacity-90 text-white text-[11px] font-bold rounded-lg cursor-pointer"
+                className="px-3 py-1.5 bg-[var(--learning)] hover:opacity-90 text-[var(--surface)] text-[11px] font-bold rounded-lg cursor-pointer"
               >
                 Hesap aç
               </button>
@@ -230,21 +232,73 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
       )}
 
       {/*
-        Ana sayfa görseli. Yalnızca geniş ekranda metnin yanında durur;
-        dar ekranda metnin altına iner ve yer kaplamaması için küçülür.
+        UYGULAMA NE İŞE YARAR
+
+        Kullanıcı uygulamayı ilk açtığında bir kart destesi görüyordu ama ne
+        için orada olduğunu anlatan bir şey yoktu. Bu blok iki şeyi söyler ve
+        sırası önemlidir: önce KENDİ kelimelerini toplayabilmesi, sonra
+        Oxford listesinde kendini ölçebilmesi.
+
+        Anlora'yı ayıran şey burada: başka uygulamalar kullanıcıya hazır
+        kelime setleri dayatır. Burada setleri kullanıcı kendi okuduğundan,
+        izlediğinden, çevirdiğinden kurar; hazır liste yalnızca kendini
+        ölçmek isteyene bir ölçek olarak durur.
       */}
-      <div className="rounded-2xl bg-[var(--surface)] border border-[var(--border)] p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-        <div className="flex-1 min-w-0 order-2 sm:order-1">
-          <p className="text-sm font-bold text-[var(--text-primary)]">
-            Kelimeyi yaz, gerisi hazır gelsin
-          </p>
-          <p className="text-xs text-[var(--text-secondary)] mt-1 leading-relaxed">
-            Aradığın kelime {branding.appName || BRAND.name} sözlüğünde varsa Türkçe anlamı,
-            telaffuzu ve <b className="text-[var(--text-primary)]">üç örnek cümlesi</b> anında
-            gelir — internet gerekmeden.
+      <div className="rounded-2xl bg-[var(--surface)] border border-[var(--border)] p-5 sm:p-6 space-y-5">
+        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+          <div className="flex-1 min-w-0 order-2 sm:order-1">
+            <h2 className="text-lg sm:text-xl font-black text-[var(--text-primary)] leading-tight">
+              Kendi kelimelerini biriktir,
+              <br className="hidden sm:block" /> seviyeni kendin gör.
+            </h2>
+            <p className="text-xs text-[var(--text-secondary)] mt-2 leading-relaxed">
+              {branding.homeIntro ||
+                `${branding.appName || BRAND.name} hazır kelime listeleri dayatmaz. Ne okuyorsan, ne izliyorsan
+                 oradan topladığın kelimeleri çalışırsın; Oxford listesi de kendini ölçmek istediğinde
+                 elinin altındadır.`}
+            </p>
+          </div>
+          <HomeHeroArt className="w-full max-w-[220px] sm:max-w-[280px] h-auto order-1 sm:order-2 shrink-0" />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="p-4 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-light)] space-y-1.5">
+            <div className="flex items-center gap-2">
+              <span className="w-5 h-5 rounded-lg bg-[var(--primary)] text-[var(--surface)] text-[11px] font-black flex items-center justify-center shrink-0">
+                1
+              </span>
+              <span className="text-sm font-bold text-[var(--text-primary)]">Kendi setlerin</span>
+            </div>
+            <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
+              Kitap, makale, dizi, film, ders — nerede bilmediğin bir kelimeye takıldıysan onu buraya
+              ekle. Metni yapıştır, bilmediklerini uygulama ayıklasın; ya da tek tek yaz. Anlamı,
+              telaffuzu ve örnek cümleleri sözlükten kendiliğinden gelir.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-light)] space-y-1.5">
+            <div className="flex items-center gap-2">
+              <span className="w-5 h-5 rounded-lg bg-[var(--primary)] text-[var(--surface)] text-[11px] font-black flex items-center justify-center shrink-0">
+                2
+              </span>
+              <span className="text-sm font-bold text-[var(--text-primary)]">Seviyene göre kendini ölç</span>
+            </div>
+            <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
+              Oxford 5000'in her seviyesinde (A1'den C1'e) hangi kelimeyi bildiğini, hangisini
+              bilmediğini işaretlersin. Uygulama bunları <b className="text-[var(--text-primary)]">bildiklerin</b> ve
+              <b className="text-[var(--text-primary)]"> bilmediklerin</b> diye ayrı listelerde tutar; her seviyede yüzde kaçını
+              bitirdiğini görürsün.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[var(--primary-soft)]/70 border border-[var(--primary-border)]">
+          <Sparkles className="w-4 h-4 text-[var(--primary)] shrink-0 mt-0.5" />
+          <p className="text-[11px] text-[var(--text-primary)] leading-relaxed">
+            <b>Kelimeyi yaz, gerisi hazır gelsin.</b> Aradığın kelime {branding.appName || BRAND.name} sözlüğünde
+            varsa Türkçe anlamı, telaffuzu ve üç örnek cümlesi anında gelir — internet gerekmeden.
           </p>
         </div>
-        <HomeHeroArt className="w-full max-w-[260px] sm:max-w-[300px] h-auto order-1 sm:order-2 shrink-0" />
       </div>
 
       {/*
@@ -313,7 +367,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           <div className="shrink-0 flex items-center gap-2">
             <button
               onClick={handleCreateSetClick}
-              className="px-4 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-2 shadow-xs cursor-pointer"
+              className="px-4 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-[var(--surface)] text-xs font-semibold rounded-xl transition-all flex items-center gap-2 shadow-xs cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>+ Kelime Seti Oluştur</span>
@@ -397,7 +451,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
             <div className="pt-1">
               <button
                 onClick={handleCreateSetClick}
-                className="px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-xs font-semibold rounded-xl transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                className="px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl transition-all inline-flex items-center gap-1.5 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>İlk Setimi Oluştur</span>
@@ -515,27 +569,49 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
       </div>
       <AdSlot slot="home-bottom" className="rounded-2xl" />
 
-      {/* 3. BUGÜNÜN PLANI: bekleyen tekrar, yeni kelime ve günlük seri */}
+      {/*
+        3. GÜNLÜK ÇALIŞMA PLANI
+
+        Kutu tek bir yol sunar: "kaldığın yerden devam et". Uygulama neyin
+        çalışılacağını kendisi seçer — önce tekrar zamanı gelmiş kelimeler,
+        sonra hiç bakılmamışlar. Sınav ve setler alt satırda küçük birer
+        seçenek olarak durur.
+
+        Gerekçe: her açılışta "bugün ne çalışsam" diye karar vermek zorunda
+        kalan kullanıcı çoğu gün hiçbir şey çalışmaz. Bu kararı vermek
+        uygulamanın işidir; alternatifler duruyor ama öne çıkmıyor.
+      */}
       <div className="bg-[var(--surface)] rounded-2xl p-5 sm:p-6 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center shrink-0">
               <Target className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-[var(--text-primary)]">Bugünün Planı</h2>
+              <h2 className="text-base font-bold text-[var(--text-primary)]">Günlük Çalışma Planı</h2>
               <p className="text-[11px] text-[var(--text-secondary)]">
-                Günlük hedefin: {reviewGoal} tekrar + {newGoal} yeni kelime
+                Kendi hedefin: günde {reviewGoal} tekrar + {newGoal} yeni kelime
+                <span className="text-[var(--text-muted)]"> · Profilden değiştirilebilir</span>
               </p>
             </div>
           </div>
 
+          {/*
+            Seri kutusu. Önceden yalnızca "1 günlük seri" yazıyordu ve bunun
+            günlük hedefle karıştırılması kolaydı. Artık ne olduğunu kendisi
+            söylüyor: arka arkaya çalışılan gün sayısı.
+          */}
           {streakDays > 0 && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--learning-soft)] border border-[var(--learning-border)] self-start">
-              <Flame className="w-3.5 h-3.5 text-[var(--learning)]" />
-              <span className="text-xs font-bold text-[var(--learning-text)]">
-                {streakDays} günlük seri
-              </span>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--learning-soft)] border border-[var(--learning-border)] self-start">
+              <Flame className="w-4 h-4 text-[var(--learning)] shrink-0" />
+              <div className="leading-tight">
+                <div className="text-xs font-bold text-[var(--learning-text)]">
+                  {streakDays} gündür aralıksız
+                </div>
+                <div className="text-[10px] text-[var(--learning-text)]/75">
+                  Bugün de çalışırsan {streakDays + 1} olur
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -546,16 +622,24 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
               {todayQueue.dueCount}
             </div>
             <div className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wide mt-0.5">
-              Bekleyen tekrar
+              Tekrar zamanı geldi
             </div>
+            <p className="text-[10px] text-[var(--text-muted)] mt-1 leading-snug">
+              Daha önce çalıştığın, unutmaman için tekrar etmen gereken kelimeler.
+            </p>
           </div>
           <div className="p-3.5 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-light)]">
             <div className="text-2xl font-black text-[var(--learned)] tabular-nums">
-              {todayQueue.newCount}
+              {todayQueue.newCount.toLocaleString('tr-TR')}
             </div>
             <div className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wide mt-0.5">
-              Hiç çalışılmamış
+              Seni bekleyen kelime
             </div>
+            <p className="text-[10px] text-[var(--text-muted)] mt-1 leading-snug">
+              Oxford 5000 listesinden {oxfordToplam.toLocaleString('tr-TR')} kelime
+              {customWords.length > 0 && <> ve kendi setlerinden {customWords.length.toLocaleString('tr-TR')} kelime</>}
+              {' '}içinden henüz hiç bakmadıkların.
+            </p>
           </div>
         </div>
 
@@ -563,16 +647,47 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           <button
             onClick={() => onStartStudy()}
             disabled={plannedTotal === 0}
-            className="w-full mt-4 py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full mt-4 py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 text-[var(--surface)] text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <Play className="w-4 h-4" />
             <span>
               {plannedTotal > 0
-                ? `Çalışmaya başla (${plannedTotal} kelime)`
+                ? `Kaldığın yerden devam et (${plannedTotal} kelime)`
                 : 'Bugünlük her şey tamam'}
             </span>
           </button>
         )}
+
+        {plannedTotal > 0 && (
+          <p className="text-[10px] text-[var(--text-muted)] text-center mt-2 leading-snug">
+            Önce tekrar zamanı gelenler, sonra yeni kelimeler gösterilir.
+          </p>
+        )}
+
+        {/* Alternatifler: duruyor ama günlük akışın önüne geçmiyor. */}
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 mt-3 pt-3 border-t border-[var(--border-light)]">
+          <span className="text-[10px] text-[var(--text-muted)]">Onun yerine:</span>
+          <button
+            onClick={() => onNavigateToTab('collections')}
+            className="text-[11px] font-semibold text-[var(--primary)] hover:text-[var(--primary-hover)] cursor-pointer py-1"
+          >
+            kendi setlerim
+          </button>
+          <span className="text-[10px] text-[var(--text-muted)]">·</span>
+          <button
+            onClick={() => onNavigateToTab('oxford')}
+            className="text-[11px] font-semibold text-[var(--primary)] hover:text-[var(--primary-hover)] cursor-pointer py-1"
+          >
+            Oxford seviyeleri
+          </button>
+          <span className="text-[10px] text-[var(--text-muted)]">·</span>
+          <button
+            onClick={() => onNavigateToTab('quiz')}
+            className="text-[11px] font-semibold text-[var(--primary)] hover:text-[var(--primary-hover)] cursor-pointer py-1"
+          >
+            kendimi sına
+          </button>
+        </div>
       </div>
 
     </div>

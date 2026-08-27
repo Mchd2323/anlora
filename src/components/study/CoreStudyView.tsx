@@ -202,7 +202,7 @@ export const CoreStudyView: React.FC<CoreStudyViewProps> = ({
           {onOpenAddWordModal && (
             <button
               onClick={onOpenAddWordModal}
-              className="px-4 py-2 bg-[var(--primary)] text-white text-xs font-semibold rounded-xl cursor-pointer"
+              className="px-4 py-2 bg-[var(--primary)] text-[var(--surface)] text-xs font-semibold rounded-xl cursor-pointer"
             >
               + İlk Kelimeyi Ekle
             </button>
@@ -332,7 +332,7 @@ export const CoreStudyView: React.FC<CoreStudyViewProps> = ({
                 setCurrentIndex(savedIndex);
                 setViewMode('study');
               }}
-              className="flex-1 py-3 px-4 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+              className="flex-1 py-3 px-4 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
             >
               <Play className="w-4 h-4 fill-current" />
               <span>{savedIndex > 0 ? 'Kaldığın Yerden Devam Et' : 'Çalışmaya Başla'}</span>
@@ -449,7 +449,7 @@ export const CoreStudyView: React.FC<CoreStudyViewProps> = ({
         <button
           onClick={handleNextCard}
           disabled={currentIndex === activeWordList.length - 1}
-          className="flex-1 py-3 px-4 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-40 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+          className="flex-1 py-3 px-4 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-40 text-[var(--surface)] font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
         >
           <span>Sonraki Kelime</span>
           <ChevronRight className="w-4 h-4" />

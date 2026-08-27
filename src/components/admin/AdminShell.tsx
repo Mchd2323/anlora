@@ -39,7 +39,7 @@ export const AdminShell: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     <div className="space-y-4 pb-safe-nav max-w-[1080px] mx-auto animate-fadeIn">
       <div className="flex items-center justify-between gap-3 bg-[var(--surface)] p-5 rounded-2xl border border-[var(--border)]">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-[var(--text-primary)] text-white flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-[var(--text-primary)] text-[var(--bg)] flex items-center justify-center shrink-0">
             <Shield className="w-4.5 h-4.5" />
           </div>
           <div>
@@ -70,7 +70,7 @@ export const AdminShell: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap border
                           transition-colors cursor-pointer flex items-center gap-1.5 ${
                             isActive
-                              ? 'bg-[var(--text-primary)] text-white border-[var(--text-primary)]'
+                              ? 'bg-[var(--text-primary)] text-[var(--bg)] border-[var(--text-primary)]'
                               : 'bg-[var(--surface)] text-[var(--text-primary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
                           }`}
             >

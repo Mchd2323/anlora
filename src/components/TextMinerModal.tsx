@@ -150,7 +150,7 @@ export const TextMinerModal: React.FC<TextMinerModalProps> = ({
                   type="button"
                   onClick={handleMine}
                   disabled={!rawText.trim()}
-                  className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+                  className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 text-[var(--surface)] text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Kelimeleri Çıkar ve Analiz Et</span>
@@ -297,7 +297,7 @@ export const TextMinerModal: React.FC<TextMinerModalProps> = ({
                     type="button"
                     onClick={handleSave}
                     disabled={isProcessing || Object.values(selectedWords).filter(Boolean).length === 0}
-                    className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+                    className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 text-[var(--surface)] text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
                   >
                     <BookmarkPlus className="w-3.5 h-3.5" />
                     <span>Seçilen {Object.values(selectedWords).filter(Boolean).length} Kelimeyi Ekle</span>

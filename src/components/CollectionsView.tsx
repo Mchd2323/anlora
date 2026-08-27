@@ -968,7 +968,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
              * eşitlenmek istendiğinde profil ekranından yapılabilir.
              */
             onClick={() => setShowCreateModal(true)}
-            className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-1.5 active:scale-[0.98] cursor-pointer"
+            className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-1.5 active:scale-[0.98] cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Yeni Kelime Seti</span>
@@ -1168,7 +1168,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       resetAddWordModal();
                       setShowAddWordModal(true);
                     }}
-                    className="px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-xs font-semibold rounded-xl shadow-xs transition-colors flex items-center gap-1.5 active:scale-[0.98] cursor-pointer"
+                    className="px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl shadow-xs transition-colors flex items-center gap-1.5 active:scale-[0.98] cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Kelime Ekle</span>
@@ -1255,7 +1255,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     Şimdi çalışmaya başla ({activeDeckWords.length} kelime)
                   </p>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-[var(--primary)] text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
                   <Play className="w-4 h-4 fill-current ml-0.5" />
                 </div>
               </button>
@@ -1410,7 +1410,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       resetAddWordModal();
                       setShowAddWordModal(true);
                     }}
-                    className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-xs font-semibold rounded-xl inline-flex items-center gap-1.5 cursor-pointer"
+                    className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl inline-flex items-center gap-1.5 cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>İlk Kelimemi Ekle</span>
@@ -1488,7 +1488,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[var(--primary)] text-white text-xs font-semibold rounded-xl hover:bg-[var(--primary-hover)] cursor-pointer"
+                  className="px-4 py-2 bg-[var(--primary)] text-[var(--surface)] text-xs font-semibold rounded-xl hover:bg-[var(--primary-hover)] cursor-pointer"
                 >
                   Oluştur
                 </button>
@@ -1580,7 +1580,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       aria-pressed={(editingDeck.iconName || 'Layers') === id}
                       className={`w-8 h-8 rounded-xl border flex items-center justify-center transition-colors cursor-pointer ${
                         (editingDeck.iconName || 'Layers') === id
-                          ? 'bg-[var(--text-primary)] text-white border-[var(--text-primary)]'
+                          ? 'bg-[var(--text-primary)] text-[var(--bg)] border-[var(--text-primary)]'
                           : 'bg-[var(--bg)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
                       }`}
                     >
@@ -1638,7 +1638,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[var(--primary)] text-white text-xs font-semibold rounded-xl hover:bg-[var(--primary-hover)] cursor-pointer"
+                  className="px-4 py-2 bg-[var(--primary)] text-[var(--surface)] text-xs font-semibold rounded-xl hover:bg-[var(--primary-hover)] cursor-pointer"
                 >
                   Kaydet
                 </button>
@@ -1761,7 +1761,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     <button
                       type="button"
                       onClick={() => addLookedUpCard(lookup.card, lookup.source)}
-                      className="w-full py-2.5 bg-[var(--learned)] hover:bg-[var(--learned-hover)] text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                      className="w-full py-2.5 bg-[var(--learned)] hover:bg-[var(--learned-hover)] text-[var(--surface)] text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                     >
                       <Plus className="w-4 h-4" />
                       <span>Bu kelimeyi sete ekle</span>
@@ -1890,7 +1890,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
+                    className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
                   >
                     <Check className="w-4 h-4" />
                     <span>Kartı Kaydet</span>
@@ -1919,7 +1919,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     }`}
                   >
                     <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-[var(--primary)] text-white flex items-center justify-center shrink-0">
+                      <div className="w-9 h-9 rounded-xl bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center shrink-0">
                         <Sparkles className="w-4 h-4" />
                       </div>
                       <div className="space-y-0.5">
@@ -2051,7 +2051,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   <button
                     type="button"
                     onClick={handleSaveAiCard}
-                    className="px-5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-xs font-semibold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
+                    className="px-5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
                   >
                     <Check className="w-4 h-4" />
                     <span>Kaydet</span>
@@ -2216,7 +2216,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     type="button"
                     onClick={() => void shareDeck()}
                     disabled={isSharing || activeDeckWords.length === 0}
-                    className="px-4 py-2 bg-[var(--teal)] hover:bg-[var(--teal-hover)] text-white text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-4 py-2 bg-[var(--teal)] hover:bg-[var(--teal-hover)] text-[var(--surface)] text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {isSharing ? 'Paylaşılıyor…' : 'Bağlantı oluştur'}
                   </button>
@@ -2282,7 +2282,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 type="button"
                 onClick={mergeInto}
                 disabled={!mergeSource}
-                className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Katıp seti sil
               </button>
@@ -2334,7 +2334,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 type="button"
                 onClick={importDeckCsv}
                 disabled={!importText.trim()}
-                className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Ekle
               </button>

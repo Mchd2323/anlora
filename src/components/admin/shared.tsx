@@ -54,8 +54,8 @@ export const Button: React.FC<{
   className?: string;
 }> = ({ children, onClick, type = 'button', tone = 'quiet', disabled, className = '' }) => {
   const tones: Record<string, string> = {
-    primary: 'bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white',
-    teal: 'bg-[var(--teal)] hover:bg-[var(--teal-hover)] text-white',
+    primary: 'bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)]',
+    teal: 'bg-[var(--teal)] hover:bg-[var(--teal-hover)] text-[var(--surface)]',
     quiet: 'bg-[var(--surface-soft)] hover:bg-[var(--border)] text-[var(--text-primary)]',
     danger: 'bg-[var(--danger-soft)] hover:bg-[var(--danger-soft-hover)] text-[var(--danger)]'
   };
@@ -124,7 +124,7 @@ export const BarSeries: React.FC<{
               />
               <span
                 className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap
-                           rounded-lg bg-[var(--text-primary)] px-2 py-1 text-[10px] font-semibold text-white opacity-0
+                           rounded-lg bg-[var(--text-primary)] px-2 py-1 text-[10px] font-semibold text-[var(--bg)] opacity-0
                            group-hover:opacity-100 transition-opacity z-10"
               >
                 {d.day.slice(5)} · {d.count}

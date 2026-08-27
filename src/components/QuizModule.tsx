@@ -438,7 +438,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                   onClick={() => setStatusFilter('ALL')}
                   className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all border cursor-pointer ${
                     statusFilter === 'ALL'
-                      ? 'bg-[var(--text-primary)] text-white border-[var(--text-primary)]'
+                      ? 'bg-[var(--text-primary)] text-[var(--bg)] border-[var(--text-primary)]'
                       : 'bg-[var(--bg)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
                   }`}
                 >
@@ -449,7 +449,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                   onClick={() => setStatusFilter('LEARNING')}
                   className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all border cursor-pointer ${
                     statusFilter === 'LEARNING'
-                      ? 'bg-[var(--learning)] text-white border-[var(--learning)]'
+                      ? 'bg-[var(--learning)] text-[var(--surface)] border-[var(--learning)]'
                       : 'bg-[var(--bg)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
                   }`}
                 >
@@ -460,7 +460,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                   onClick={() => setStatusFilter('LEARNED')}
                   className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all border cursor-pointer ${
                     statusFilter === 'LEARNED'
-                      ? 'bg-[var(--learned)] text-white border-[var(--learned)]'
+                      ? 'bg-[var(--learned)] text-[var(--surface)] border-[var(--learned)]'
                       : 'bg-[var(--bg)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
                   }`}
                 >
@@ -475,14 +475,14 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                 4. Soru Sayısı
               </label>
               <div className="grid grid-cols-4 gap-2">
-                {[5, 10, 20, 30, 50, 75, 100].map((count) => (
+                {[5, 10, 15, 20, 30, 50, 75, 100].map((count) => (
                   <button
                     key={count}
                     type="button"
                     onClick={() => setQuestionCount(count)}
                     className={`p-2.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                       questionCount === count
-                        ? 'bg-[var(--primary)] text-white border-[var(--primary)] shadow-xs'
+                        ? 'bg-[var(--primary)] text-[var(--surface)] border-[var(--primary)] shadow-xs'
                         : 'bg-[var(--bg)] text-[var(--text-primary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
                     }`}
                   >
@@ -526,7 +526,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
           <button
             onClick={startQuiz}
             disabled={currentPool.length < MIN_POOL_SIZE}
-            className="w-full py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 text-[var(--surface)] font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <Sparkles className="w-4 h-4 text-[var(--learning-soft)]" />
             <span>Sınavı Başlat ({Math.min(questionCount, currentPool.length)} Soru)</span>
@@ -604,7 +604,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                 {!isAnswered && (
                   <button
                     type="submit"
-                    className="w-full py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+                    className="w-full py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
                   >
                     Cevabı Kontrol Et
                   </button>
@@ -666,7 +666,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
 
               <button
                 onClick={handleNextQuestion}
-                className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-semibold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
+                className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
               >
                 <span>
                   {currentQuestionIndex < questions.length - 1 ? 'Sonraki Soru' : 'Sınavı Bitir'}
@@ -784,7 +784,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
           <div className="flex flex-wrap items-center justify-center gap-2.5 pt-3 border-t border-[var(--border-light)]">
             <button
               onClick={startQuiz}
-              className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-semibold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+              className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Yeniden Sına</span>

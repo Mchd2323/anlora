@@ -121,7 +121,7 @@ export const AdminUsers: React.FC = () => {
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-sm font-bold text-[var(--text-primary)] break-all">{user.email}</span>
                     {user.isAdmin && (
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[var(--text-primary)] text-white">YÖNETİCİ</span>
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[var(--text-primary)] text-[var(--bg)]">YÖNETİCİ</span>
                     )}
                     {user.banned && (
                       <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[var(--danger-soft)] text-[var(--danger)]">ENGELLİ</span>
