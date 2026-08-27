@@ -46,6 +46,20 @@ for (const yol of ['/manifest.webmanifest', '/icon.svg', '/icon-192.png', '/icon
   if (fs.existsSync(path.join(distDir, yol))) referanslar.add(yol);
 }
 
+/*
+ * Yazı tipleri. fonts.css index.html'den bağlandığı için listeye kendiliğinden
+ * giriyor ama İÇİNDEKİ woff2 dosyaları girmiyor: onlar CSS'in içinden
+ * çağrılıyor ve bu betik yalnızca HTML'e bakıyor. Ön-önbelleğe alınmazlarsa
+ * çevrimdışı açılışta arayüz sistem yazı tipine düşer — tam da gömmekle
+ * çözdüğümüz sorun geri gelir.
+ */
+const fontDizini = path.join(distDir, 'fonts');
+if (fs.existsSync(fontDizini)) {
+  for (const dosya of fs.readdirSync(fontDizini)) {
+    if (dosya.endsWith('.woff2')) referanslar.add(`/fonts/${dosya}`);
+  }
+}
+
 const liste = ['/', '/index.html', ...[...referanslar].sort()];
 
 /*

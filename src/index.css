@@ -1,5 +1,30 @@
 @import "tailwindcss";
 
+/*
+ * YAZI TİPİ YIĞINLARI TAILWIND'İN KENDİ DEĞİŞKENLERİNE BAĞLANIR.
+ *
+ * Aşağıda `body { font-family: 'Plus Jakarta Sans', ... }` yazıyor ama bu
+ * kural gövde metnine HİÇ ULAŞMIYORDU: App'in kök öğesi `font-sans` sınıfı
+ * taşıyor ve o sınıf `font-family: var(--font-sans)` kurar — yani Tailwind'in
+ * varsayılan sistem yığını. Sınıf gövdeden daha içeride olduğu için her
+ * paragraf, düğme ve etiket sistem yazı tipiyle çiziliyordu. Ölçüldü:
+ * `main p` için hesaplanan aile "-apple-system, BlinkMacSystemFont, …".
+ *
+ * Yalnızca başlıklar doğru görünüyordu, çünkü h1–h6 kuralını hiçbir
+ * yardımcı sınıf ezmiyordu. Yani seçilen tipografinin yarısı hiç
+ * kullanılmıyordu — internet varken bile.
+ *
+ * Değişkenleri burada tanımlamak sorunu tek yerden çözer: `font-sans` ve
+ * `font-mono` yardımcı sınıfları artık uygulamanın kendi yazı tiplerini
+ * gösteriyor.
+ */
+@theme {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Manrope', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
 @layer base {
   :root {
     --bg: #F8F7F3;
