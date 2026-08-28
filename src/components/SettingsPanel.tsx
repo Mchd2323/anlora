@@ -138,13 +138,29 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
   const [motorDeneniyor, setMotorDeneniyor] = useState(false);
 
   const runSpeechTest = async () => {
+    /*
+     * OKUMA ÖNCE ATEŞLENİR, TANI SONRA TOPLANIR.
+     *
+     * Sıra bir tercih değil, sesin çıkıp çıkmamasını belirleyen şey.
+     * Mobil tarayıcılar ve Android WebView seslendirmeyi yalnızca kullanıcı
+     * dokunuşunun başlattığı görev içinde kabul eder. Önceki sürüm önce
+     * `await describeSpeechSupport()` yapıyor, okumayı ancak ondan sonra
+     * başlatıyordu; o bekleme dokunuş bağlamını düşürdüğü için `speak()`
+     * sessizce hiçbir şey yapmıyordu. Düğme dönüyor, ses gelmiyordu.
+     *
+     * Artık `speakText` ilk satırda, hiçbir `await`ten önce çağrılıyor;
+     * dönen söz aşağıda bekleniyor. Tanı, ses çoktan yola çıktıktan sonra
+     * toplanıyor — sonucu değil, yalnızca açıklama metnini etkiliyor.
+     */
+    const okuma = speakText('This is how Anlora sounds.');
+
     setIsTesting(true);
     setTestResult(null);
     try {
       const report = await describeSpeechSupport();
       setDiagnostics(report);
 
-      const sonuc = await speakText('This is how Anlora sounds.');
+      const sonuc = await okuma;
 
       if (sonuc.ok) {
         setTestResult({

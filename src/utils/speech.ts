@@ -95,6 +95,49 @@ function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T
 /** Köprü çağrılarının en fazla bekleyeceği süre. */
 const BRIDGE_TIMEOUT_MS = 2500;
 
+/**
+ * Bir adımın SONUCUNU, ne olursa olsun, bir süre içinde döndürür.
+ *
+ * `withTimeout`tan farkı: verilen işlev SENKRON olarak da hata fırlatabilir
+ * (bir köprü çağrısı söz döndürmek yerine anında patlayabilir) ve bu durum
+ * da yakalanır. Yani buradan geçen hiçbir adım ne asılı kalabilir ne de
+ * çağıranı hata ile terk edebilir.
+ *
+ * NEDEN GEREKLİ. Ayarlardaki tanı düğmesi "Deneniyor…" yazısında sonsuza
+ * kadar takılı kalıyordu. Düğmenin `finally` bloğu olduğu için bu bir hata
+ * değil, HİÇ ÇÖZÜLMEYEN bir sözdü; hangi adımda olduğu ise dışarıdan
+ * görülemiyordu. Artık her adım kendi süresine bağlı ve süre dolarsa bunu
+ * sonuç metninde açıkça söylüyor — donmuş bir düğme yerine okunabilir bir
+ * teşhis.
+ */
+async function adim<T>(isim: string, ms: number, calis: () => Promise<T>, varsayilan: T): Promise<{ value: T; timedOut: boolean; error?: string }> {
+  let is: Promise<T>;
+  try {
+    is = calis();
+  } catch (err: any) {
+    return { value: varsayilan, timedOut: false, error: `${isim}: ${err?.message || 'hata'}` };
+  }
+
+  let zamanAsti = false;
+  const value = await new Promise<T>(resolve => {
+    const timer = setTimeout(() => {
+      zamanAsti = true;
+      resolve(varsayilan);
+    }, ms);
+    Promise.resolve(is)
+      .then(v => {
+        clearTimeout(timer);
+        if (!zamanAsti) resolve(v);
+      })
+      .catch(() => {
+        clearTimeout(timer);
+        if (!zamanAsti) resolve(varsayilan);
+      });
+  });
+
+  return { value, timedOut: zamanAsti };
+}
+
 // --- Yerel motor (Android) -------------------------------------------------
 
 type NativeTts = typeof import('@capacitor-community/text-to-speech').TextToSpeech;
@@ -155,7 +198,7 @@ async function speakNative(text: string, options: SpeechOptions): Promise<Speech
    * Gereksizdi de: eklentinin Android tarafı `speak()` içinde QUEUE_FLUSH
    * ile zaten `stop()` çağırıyor, yani önceki okuma kendiliğinden kesiliyor.
    */
-  void tts
+  const cagri = tts
     .speak({
       text,
       lang,
@@ -163,8 +206,31 @@ async function speakNative(text: string, options: SpeechOptions): Promise<Speech
       pitch: options.pitch ?? 1.0,
       category: 'ambient'
     })
-    .catch(() => undefined);
+    .then(() => 'bitti' as const)
+    .catch(() => 'hata' as const);
 
+  /*
+   * KISA BİR KANIT PENCERESİ.
+   *
+   * Eklentinin sözü ancak konuşma BİTTİĞİNDE çözülür; onu beklemek düğmeyi
+   * cümle boyunca kilitler. Ama sözü hiç beklememek de yanlıştı: motor
+   * çağrıyı anında reddettiğinde (dil verisi yok, motor kurulu değil) bunu
+   * görmeden "başarılı" diyor ve kullanıcıya sessiz bir düğme bırakıyorduk.
+   *
+   * Orta yol: kısa bir süre bekleyip yalnızca HIZLI GELEN OLUMSUZ cevabı
+   * yakalıyoruz. Bu sürede hata gelirse okuma başlamamıştır. Cevap gelmezse
+   * okuma sürüyor demektir ve başarı sayılır — uzun cümle bekletmez.
+   */
+  const NATIVE_REJECT_WINDOW_MS = 700;
+  const erken = await new Promise<'bitti' | 'hata' | 'suruyor'>(resolve => {
+    const timer = setTimeout(() => resolve('suruyor'), NATIVE_REJECT_WINDOW_MS);
+    void cagri.then(sonuc => {
+      clearTimeout(timer);
+      resolve(sonuc);
+    });
+  });
+
+  if (erken === 'hata') return { ok: false, reason: 'no-voice' };
   return { ok: true };
 }
 
@@ -208,6 +274,29 @@ function bestEnglishTag(diller: string[], istenen: string): string | null {
  */
 let voicesReady: Promise<SpeechSynthesisVoice[]> | null = null;
 
+/**
+ * Ses listesinin SENKRON kopyası.
+ *
+ * `speakWeb` bu listeyi beklemeden okuyabilmek zorunda; sebebi aşağıda,
+ * o işlevin başında anlatılıyor. Liste hazır değilse boş kalır ve okuma
+ * varsayılan sesle yapılır — ses seçimi bir iyileştirmedir, ön koşul değil.
+ */
+let sesListesi: SpeechSynthesisVoice[] = [];
+
+/** Elde ne varsa onu verir; hiç beklemez. */
+function sesListesiSenkron(): SpeechSynthesisVoice[] {
+  if (sesListesi.length > 0) return sesListesi;
+  try {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      const simdi = window.speechSynthesis.getVoices();
+      if (simdi.length > 0) sesListesi = simdi;
+    }
+  } catch {
+    /* motor sorguya kapalı; boş listeyle devam */
+  }
+  return sesListesi;
+}
+
 function loadVoices(): Promise<SpeechSynthesisVoice[]> {
   if (voicesReady) return voicesReady;
 
@@ -219,6 +308,7 @@ function loadVoices(): Promise<SpeechSynthesisVoice[]> {
 
     const immediate = window.speechSynthesis.getVoices();
     if (immediate.length > 0) {
+      sesListesi = immediate;
       resolve(immediate);
       return;
     }
@@ -228,7 +318,9 @@ function loadVoices(): Promise<SpeechSynthesisVoice[]> {
       if (settled) return;
       settled = true;
       window.speechSynthesis.removeEventListener('voiceschanged', finish);
-      resolve(window.speechSynthesis.getVoices());
+      const bulunan = window.speechSynthesis.getVoices();
+      if (bulunan.length > 0) sesListesi = bulunan;
+      resolve(bulunan);
     };
 
     window.speechSynthesis.addEventListener('voiceschanged', finish);
@@ -261,13 +353,36 @@ function pickEnglishVoice(
  */
 const START_WINDOW_MS = 1200;
 
-async function speakWeb(text: string, options: SpeechOptions): Promise<SpeechResult> {
+/**
+ * Tarayıcı motoruyla okur.
+ *
+ * BU İŞLEV `async` DEĞİL VE OLMAMALI — ses sorununun kök nedeni buydu.
+ *
+ * Mobil tarayıcılar ve Android WebView, seslendirmeyi yalnızca kullanıcı
+ * dokunuşunun BAŞLATTIĞI GÖREV İÇİNDE kabul eder. Araya giren tek bir
+ * `await`, çözülmüş bir söz üzerinde bile olsa, kalan kodu bir mikro göreve
+ * erteler; WebView o noktada dokunuş bağlamını düşürür ve `speak()` hiçbir
+ * şey yapmadan, hata da vermeden döner. Kullanıcının gördüğü şey sessiz bir
+ * düğmedir.
+ *
+ * Önceki sürüm tam olarak bunu yapıyordu: `speak()` çağrısından önce
+ * `await loadVoices()` bekliyordu. Uygulamanın ilk sürümünde bu bekleme yoktu
+ * ve ses gerçek telefonlarda çalışıyordu — aradaki tek fark buydu.
+ *
+ * Bu yüzden burada `speak()` çağrısına kadar HİÇBİR `await` yoktur: ses
+ * listesi elde ne varsa oradan senkron okunur, `speak()` doğrudan ateşlenir,
+ * söz yalnızca SONUCU bildirmek için döndürülür. Ses listesi henüz
+ * gelmemişse okuma varsayılan sesle yapılır; sessizlikten iyidir.
+ *
+ * Bu işleve yeni bir `await` eklemek sesi yeniden kırar.
+ */
+function speakWeb(text: string, options: SpeechOptions): Promise<SpeechResult> {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-    return { ok: false, reason: 'unsupported' };
+    return Promise.resolve<SpeechResult>({ ok: false, reason: 'unsupported' });
   }
 
   const lang = options.lang || 'en-US';
-  const voices = await loadVoices();
+  const voices = sesListesiSenkron();
 
   return new Promise<SpeechResult>(resolve => {
     window.speechSynthesis.cancel();
@@ -466,45 +581,83 @@ export interface EngineProbe {
 export async function probeEngines(text = 'Anlora'): Promise<EngineProbe[]> {
   const results: EngineProbe[] = [];
 
+  /*
+   * HER ADIM KENDİ SÜRESİNE BAĞLI.
+   *
+   * Bu tanı, ses çıkmadığında sorunun hangi motorda olduğunu söylemek için
+   * var; kendisi donarsa hiçbir işe yaramaz — üstelik kullanıcı ekranda
+   * "Deneniyor…" görüp orada kalıyordu. Artık asılı kalan bir adım sonucu
+   * geciktirmiyor, sonuç metninde "yanıt vermedi" diye görünüyor. Teşhis
+   * aracının ilk özelliği, her koşulda cevap vermesidir.
+   */
+
   // --- Tarayıcı motoru ---
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
     results.push({ engine: 'web', available: false, started: false, detail: 'speechSynthesis nesnesi yok' });
   } else {
-    const voices = await loadVoices();
-    const english = voices.filter(v => v.lang.startsWith('en'));
-    const sonuc = await speakWeb(text, {});
+    const sesler = await adim('ses listesi', 3000, () => loadVoices(), []);
+    const english = sesler.value.filter(v => v.lang.startsWith('en'));
+    const okuma = await adim<SpeechResult>('okuma', 4000, () => speakWeb(text, {}), { ok: false, reason: 'error' });
     cancelWebSpeech();
     results.push({
       engine: 'web',
       available: true,
-      started: sonuc.ok,
-      detail: `${voices.length} ses, ${english.length} İngilizce` +
-        (sonuc.ok ? ' — okumaya başladı' : ` — başlamadı (${sonuc.reason})`)
+      started: okuma.value.ok,
+      detail:
+        (sesler.timedOut ? 'ses listesi yanıt vermedi' : `${sesler.value.length} ses, ${english.length} İngilizce`) +
+        (okuma.timedOut
+          ? ' — okuma çağrısı yanıt vermedi'
+          : okuma.value.ok
+            ? ' — okumaya başladı'
+            : ` — başlamadı (${okuma.value.reason})`) +
+        (sesler.error || okuma.error ? ` [${sesler.error || okuma.error}]` : '')
     });
   }
 
   // --- Yerel eklenti ---
-  if (!(await isNativePlatform())) {
-    results.push({ engine: 'native', available: false, started: false, detail: 'yerel kabukta değil (tarayıcı)' });
+  const yerel = await adim('platform', 2000, () => isNativePlatform(), false);
+  if (!yerel.value) {
+    results.push({
+      engine: 'native',
+      available: false,
+      started: false,
+      detail: yerel.timedOut ? 'platform sorgusu yanıt vermedi' : 'yerel kabukta değil (tarayıcı)'
+    });
     return results;
   }
 
-  const tts = await loadNativeTts();
-  if (!tts) {
-    results.push({ engine: 'native', available: false, started: false, detail: 'eklenti yüklenemedi' });
+  const eklenti = await adim<NativeTts | null>('eklenti', 3000, () => loadNativeTts(), null);
+  if (!eklenti.value) {
+    results.push({
+      engine: 'native',
+      available: false,
+      started: false,
+      detail: eklenti.timedOut ? 'eklenti yüklenmesi yanıt vermedi' : 'eklenti yüklenemedi'
+    });
     return results;
   }
 
-  const diller = await supportedLanguages(tts);
-  const ing = diller.filter(d => d === 'en' || d.startsWith('en-') || d.startsWith('en_'));
-  const sonuc = await speakNative(text, {});
+  const tts = eklenti.value;
+  const dil = await adim<string[]>('dil listesi', 3000, () => supportedLanguages(tts), []);
+  const ing = dil.value.filter(d => d === 'en' || d.startsWith('en-') || d.startsWith('en_'));
+  const cagri = await adim<SpeechResult>('yerel okuma', 4000, () => speakNative(text, {}), { ok: false, reason: 'error' });
+
   results.push({
     engine: 'native',
     available: true,
-    started: sonuc.ok,
+    started: cagri.value.ok,
     detail:
-      (diller.length ? `${diller.length} dil, ${ing.length} İngilizce (${ing.slice(0, 3).join(', ') || 'yok'})` : 'dil listesi boş') +
-      (sonuc.ok ? ' — çağrı gönderildi' : ` — gönderilemedi (${sonuc.reason})`)
+      (dil.timedOut
+        ? 'dil listesi yanıt vermedi'
+        : dil.value.length
+          ? `${dil.value.length} dil, ${ing.length} İngilizce (${ing.slice(0, 3).join(', ') || 'yok'})`
+          : 'dil listesi boş') +
+      (cagri.timedOut
+        ? ' — yerel çağrı yanıt vermedi'
+        : cagri.value.ok
+          ? ' — çağrı gönderildi'
+          : ` — gönderilemedi (${cagri.value.reason})`) +
+      (dil.error || cagri.error ? ` [${dil.error || cagri.error}]` : '')
   });
 
   return results;
@@ -527,7 +680,35 @@ export interface SpeechDiagnostics {
  * Kullanıcı "ses çıkmıyor" dediğinde nedenin cihazda mı yoksa uygulamada mı
  * olduğunu ayırt etmenin tek yolu ölçmek. Ayarlar ekranı bu raporu gösterir.
  */
+/**
+ * Tanıyı toplar; ne asılı kalır ne hata fırlatır.
+ *
+ * İç işlev tek tek köprü çağrılarını zaten süreye bağlıyor, ama bir köprü
+ * çağrısının SÖZ DÖNDÜRMEK YERİNE anında patlaması ya da hiç çözülmemesi
+ * hâlâ mümkün. Bunu çağıranların her birinde ayrı ayrı ele almak yerine
+ * tek kapıdan geçiriyoruz: bu işlev her koşulda bir rapor döndürür.
+ *
+ * Ayarlar ekranındaki dönen simgenin ve kart ekranındaki kurulum uyarısının
+ * ikisi de buna bağlı; biri asılı kalırsa kullanıcı donmuş bir düğmeye
+ * bakıyor ve neyin yanlış olduğunu göremiyordu.
+ */
 export async function describeSpeechSupport(): Promise<SpeechDiagnostics> {
+  const guvenli: SpeechDiagnostics = {
+    engine: 'none',
+    hasEnglish: false,
+    englishVoices: [],
+    isNative: false
+  };
+  const sonuc = await adim<SpeechDiagnostics>(
+    'tanı',
+    6000,
+    () => tanıTopla(),
+    guvenli
+  );
+  return sonuc.value;
+}
+
+async function tanıTopla(): Promise<SpeechDiagnostics> {
   if (await isNativePlatform()) {
     const tts = await loadNativeTts();
     if (!tts) {
