@@ -1,3 +1,4 @@
+import { App } from '@capacitor/app';
 import { useEffect } from 'react';
 
 /**
@@ -26,13 +27,18 @@ export function useAndroidBackButton(
     let cancelled = false;
 
     async function attach() {
-      let CapacitorApp: typeof import('@capacitor/app').App;
-      try {
-        ({ App: CapacitorApp } = await import('@capacitor/app'));
-      } catch {
-        // Web derlemesinde eklenti yok; geri tuşu zaten tarayıcının işi.
-        return;
-      }
+      /*
+       * Eklenti STATİK içe aktarılıyor.
+       *
+       * `await import(...)` gerçek cihazda hiç çözülmeyebiliyor: Vite'ın
+       * dinamik import sarmalayıcısı modül zaten pakette olsa bile belgeye
+       * bir `<link rel="modulepreload">` ekleyip yüklenmesini bekliyor ve
+       * Capacitor kabuğunda bu istek yanıtsız kalabiliyor. Ses tarafında bu
+       * tam olarak yaşandı — düğme sonsuza kadar sessiz kaldı. Burada aynı
+       * hatanın karşılığı sessizce çalışmayan bir geri tuşu olurdu.
+       */
+      const CapacitorApp = App;
+      if (!CapacitorApp) return;
 
       const handle = await CapacitorApp.addListener('backButton', () => {
         // 1. Açık modal: Escape'i taklit et. Modallerin kapanma mantığı

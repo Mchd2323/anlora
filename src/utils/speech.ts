@@ -20,6 +20,27 @@
  * ise ayarlar ekranında ne bulunduğunu dürüstçe raporlar.
  */
 
+/*
+ * KÖPRÜ VE EKLENTİ STATİK OLARAK İÇE AKTARILIR.
+ *
+ * Bunlar önceden `await import(...)` ile çağrılıyordu ve gerçek cihazda
+ * SÖZ HİÇ ÇÖZÜLMÜYORDU. Tanı ekranının verdiği satır buydu: "eklenti
+ * yüklenmesi yanıt vermedi".
+ *
+ * Sebebi: Vite'ın dinamik import sarmalayıcısı, modül zaten ana pakette
+ * olsa bile bağımlılığı için belgeye bir `<link rel="modulepreload">`
+ * ekleyip yüklenmesini bekler. Capacitor'ın `https://localhost` kabuğunda
+ * bu isteği service worker karşılıyor; yanıtlamazsa bekleyen söz sonsuza
+ * kadar asılı kalır. Ses düğmesinin hiçbir şey yapmamasının ve test
+ * düğmesindeki simgenin sonsuza kadar dönmesinin sebebi buydu.
+ *
+ * Statik içe aktarmada böyle bir bekleme yoktur: modül uygulama açılırken
+ * çözülür. Paket boyutu da değişmiyor — bu kod zaten ana pakete gömülüydü,
+ * dinamik import yalnızca gereksiz bir bekleme katmanı ekliyordu.
+ */
+import { Capacitor } from '@capacitor/core';
+import { TextToSpeech } from '@capacitor-community/text-to-speech';
+
 export interface SpeechOptions {
   rate?: number;
   pitch?: number;
@@ -43,19 +64,14 @@ export interface SpeechResult {
  * adresinden servis eder, yani şema tarayıcıdakiyle aynıdır. Capacitor'ın
  * kendi bildirimi tek güvenilir kaynaktır.
  */
-let nativeCheck: Promise<boolean> | null = null;
-
 export function isNativePlatform(): Promise<boolean> {
-  if (nativeCheck) return nativeCheck;
-  nativeCheck = (async () => {
-    try {
-      const { Capacitor } = await import('@capacitor/core');
-      return Capacitor.isNativePlatform();
-    } catch {
-      return false;
-    }
-  })();
-  return nativeCheck;
+  let sonuc = false;
+  try {
+    sonuc = Capacitor.isNativePlatform();
+  } catch {
+    sonuc = false;
+  }
+  return Promise.resolve(sonuc);
 }
 
 /**
@@ -140,21 +156,10 @@ async function adim<T>(isim: string, ms: number, calis: () => Promise<T>, varsay
 
 // --- Yerel motor (Android) -------------------------------------------------
 
-type NativeTts = typeof import('@capacitor-community/text-to-speech').TextToSpeech;
-
-let nativeTts: Promise<NativeTts | null> | null = null;
+type NativeTts = typeof TextToSpeech;
 
 function loadNativeTts(): Promise<NativeTts | null> {
-  if (nativeTts) return nativeTts;
-  nativeTts = (async () => {
-    try {
-      const { TextToSpeech } = await import('@capacitor-community/text-to-speech');
-      return TextToSpeech;
-    } catch {
-      return null;
-    }
-  })();
-  return nativeTts;
+  return Promise.resolve(TextToSpeech || null);
 }
 
 async function speakNative(text: string, options: SpeechOptions): Promise<SpeechResult> {
@@ -484,11 +489,39 @@ function notifyFailure(reason: SpeechFailure): void {
 
 // --- Genel arayüz ----------------------------------------------------------
 
+/**
+ * Okur; ne asılı kalır ne hata fırlatır.
+ *
+ * İç akış artık dinamik içe aktarma kullanmıyor, yani bilinen asılma yolu
+ * kapandı. Yine de dış kapı süreye bağlı: `speakText` on ayrı yerden
+ * çağrılıyor ve bazıları sonucu bir dönen simgeye bağlıyor. Buradan
+ * dönmeyen tek bir söz, kullanıcıya sonsuza kadar dönen bir düğme demek —
+ * tam olarak yaşanan şey buydu. Bir daha yaşanmasın diye burası kapalı.
+ *
+ * Süre, okumanın BİTMESİ için değil BAŞLAMASI için: 6 saniye içinde hiçbir
+ * motordan cevap gelmediyse zaten ses yok demektir.
+ */
 export async function speakText(
   text: string,
   options: SpeechOptions = {}
 ): Promise<SpeechResult> {
   if (!text.trim()) return { ok: false, reason: 'error' };
+
+  const sonuc = await adim<SpeechResult>(
+    'okuma',
+    6000,
+    () => okumayiBaslat(text, options),
+    { ok: false, reason: 'error' }
+  );
+
+  if (sonuc.timedOut) notifyFailure('error');
+  return sonuc.value;
+}
+
+async function okumayiBaslat(
+  text: string,
+  options: SpeechOptions
+): Promise<SpeechResult> {
 
   /*
    * SIRALAMA: ÖNCE TARAYICI MOTORU, SONRA YEREL EKLENTİ.

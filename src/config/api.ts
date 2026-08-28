@@ -14,6 +14,8 @@
  * olduğu için uygulamanın ana işlevi bundan etkilenmez.
  */
 
+import { Capacitor } from '@capacitor/core';
+
 const RAW_BASE = (import.meta.env.VITE_API_BASE_URL || '').trim();
 
 /** Sondaki eğik çizgi tekrarlı `//api` üretmesin. */
@@ -78,8 +80,9 @@ export async function hasRemoteApi(): Promise<boolean> {
  * aynıdır. Capacitor'ın kendi bildirimi tek güvenilir kaynaktır.
  */
 export async function isNativeShell(): Promise<boolean> {
+  // Statik içe aktarma: dinamik olanı gerçek cihazda asılı kalabiliyor
+  // (bkz. utils/speech.ts başındaki açıklama).
   try {
-    const { Capacitor } = await import('@capacitor/core');
     return Capacitor.isNativePlatform();
   } catch {
     return false;
