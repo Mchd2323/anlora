@@ -7,6 +7,7 @@ import {
   speakText,
   SpeechDiagnostics,
   probeEngines,
+  buildStamp,
   type EngineProbe
 } from '../utils/speech';
 import {
@@ -565,6 +566,15 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
         {motorSonucu && (
           <div className="p-3 rounded-xl border border-[var(--border)] bg-[var(--bg)] text-[11px] leading-relaxed space-y-2">
             <p className="font-bold text-[var(--text-primary)]">Ses tanısı</p>
+            {/*
+              Derleme damgası. Telefondaki paketin hangi derleme olduğunu
+              gösterir; iki farklı APK'nin aynı tanıyı vermesi yüzünden
+              eklendi — yeni paketin cihaza ulaşıp ulaşmadığı başka türlü
+              anlaşılamıyordu.
+            */}
+            <p className="font-mono text-[10px] text-[var(--text-muted)]">
+              Derleme: {buildStamp()}
+            </p>
             {motorSonucu.map(m => (
               <div key={m.engine} className="flex items-start gap-2">
                 <span

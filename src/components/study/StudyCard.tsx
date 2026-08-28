@@ -97,6 +97,7 @@ export const StudyCard: React.FC<StudyCardProps> = ({
           <div className="flex items-center gap-1">
             {/* Pronunciation Audio Button */}
             <button
+              type="button"
               onClick={handlePlayAudio}
               className={`p-2 rounded-xl border transition-all cursor-pointer ${
                 isPlayingAudio

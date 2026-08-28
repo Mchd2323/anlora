@@ -4,7 +4,23 @@ import path from 'path';
 import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
+  /*
+   * Derleme damgası.
+   *
+   * Telefondaki uygulamanın HANGİ derleme olduğunu ekranda görebilmek için.
+   * Buna ihtiyaç duyulmasının sebebi somut: ses tanısı iki farklı APK'de
+   * birbirinin aynı çıktıyı verdi, oysa aradaki kod değişikliği o çıktıyı
+   * üretemezdi. Yani yeni paket cihaza ulaşmamıştı ve bunu anlamanın hiçbir
+   * yolu yoktu — hata ayıklamanın önündeki asıl engel buydu.
+   *
+   * CI her derlemede ANLORA_VERSION_NAME veriyor; yerelde 'dev' kalır.
+   */
+  const derlemeAdi = (process.env.ANLORA_VERSION_NAME || '').trim() || 'dev';
+
   return {
+    define: {
+      __ANLORA_BUILD__: JSON.stringify(derlemeAdi),
+    },
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {

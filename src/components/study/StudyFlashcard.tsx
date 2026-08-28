@@ -490,7 +490,8 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
 
                 <div className="flex items-center gap-0.5 shrink-0">
                   <button
-                    onClick={handlePlayAudio}
+                    type="button"
+              onClick={handlePlayAudio}
                     className={`p-2 rounded-xl transition-all cursor-pointer ${
                       isPlayingAudio
                         ? 'bg-[var(--primary-soft)] text-[var(--primary)]'

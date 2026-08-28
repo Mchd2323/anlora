@@ -2182,7 +2182,8 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     </div>
 
                     <button
-                      onClick={() => speakText(generatedPreviewCard.word)}
+                      type="button"
+              onClick={() => speakText(generatedPreviewCard.word)}
                       className="p-2 rounded-xl bg-white border border-[var(--border)] text-[var(--primary)] hover:bg-[var(--primary-soft)] cursor-pointer"
                       title="Dinle"
                     >

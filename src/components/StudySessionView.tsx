@@ -531,7 +531,8 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
           </div>
 
           <button
-            onClick={() => speakText(card.word)}
+            type="button"
+              onClick={() => speakText(card.word)}
             className="p-1.5 text-[var(--primary)] hover:bg-[var(--primary-soft)] rounded-lg transition-colors cursor-pointer"
             title="Kelime Telaffuzu"
           >
@@ -640,7 +641,8 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
           {currentMode === 'listening' && (
             <div className="w-full space-y-4">
               <button
-                onClick={() => speakText(card.word)}
+                type="button"
+              onClick={() => speakText(card.word)}
                 className="w-14 h-14 rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center mx-auto hover:bg-[var(--primary-soft-hover)] transition-transform active:scale-95 cursor-pointer"
               >
                 <Volume2 className="w-6 h-6 stroke-[2.2]" />

@@ -266,6 +266,7 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
 
             {/* Audio Button */}
             <button
+              type="button"
               onClick={(e) => handlePlayAudio(e, card.word)}
               className={`p-2.5 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] hover:bg-[var(--primary-soft-hover)] transition-all active:scale-95 shrink-0 cursor-pointer ${
                 isPlayingAudio ? 'opacity-70' : ''
@@ -369,7 +370,8 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
                         <strong className="text-[var(--primary)] mr-1">{idx + 1}.</strong> {ex.en}
                       </p>
                       <button
-                        onClick={(e) => handlePlayAudio(e, ex.en)}
+                        type="button"
+              onClick={(e) => handlePlayAudio(e, ex.en)}
                         className="p-1 text-[var(--text-muted)] hover:text-[var(--primary)] rounded transition-colors shrink-0 cursor-pointer"
                         title="Cümleyi Sesli Dinle"
                       >

@@ -575,7 +575,8 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
             <div className="bg-[var(--bg)] p-6 rounded-xl border border-[var(--border)] text-center space-y-2">
               {(currentQ.type === 'listening' || currentQ.type === 'multiple-choice-tr') && (
                 <button
-                  onClick={() => speakText(currentQ.word.word)}
+                  type="button"
+              onClick={() => speakText(currentQ.word.word)}
                   className="px-3 py-1.5 bg-[var(--surface)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] font-semibold text-xs rounded-xl border border-[var(--border)] transition-transform active:scale-95 inline-flex items-center gap-1.5 cursor-pointer"
                 >
                   <Volume2 className="w-3.5 h-3.5 text-[var(--primary)]" />

@@ -210,7 +210,8 @@ export const WordListView: React.FC<WordListViewProps> = ({
                 {/* Quick Actions (Audio & Favorite) */}
                 <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
                   <button
-                    onClick={() => speakText(word.word)}
+                    type="button"
+              onClick={() => speakText(word.word)}
                     className="p-1.5 text-[var(--text-muted)] hover:text-[var(--primary)] hover:bg-[var(--primary-soft)] rounded-lg transition-colors cursor-pointer"
                     title="Telaffuz"
                   >

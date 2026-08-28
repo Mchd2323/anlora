@@ -55,6 +55,10 @@ jobs:
           # derlenir: Oxford çekirdeği çalışır, sunucuya bağlı özellikler
           # (hesap, bulut yedeği, Anlora AI) kapalı olur.
           VITE_API_BASE_URL: ${{ github.event.inputs.api_base_url || vars.API_BASE_URL }}
+          # Derleme damgası pakete gömülür ve ses tanısı ekranında görünür.
+          # Telefondaki paketin hangi koşudan geldiğini doğrudan gösteriyor;
+          # iki farklı APK'nin aynı tanıyı vermesi bu olmadan anlaşılamıyordu.
+          ANLORA_VERSION_NAME: ${{ github.ref_type == 'tag' && github.ref_name || format('1.0.{0}', github.run_number) }}
         run: npx vite build
 
       - uses: actions/setup-java@v4

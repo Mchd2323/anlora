@@ -203,11 +203,24 @@ async function speakNative(text: string, options: SpeechOptions): Promise<Speech
    * Gereksizdi de: eklentinin Android tarafı `speak()` içinde QUEUE_FLUSH
    * ile zaten `stop()` çağırıyor, yani önceki okuma kendiliğinden kesiliyor.
    */
+  /*
+   * Önceki okuma açıkça durduruluyor.
+   *
+   * Eklentinin Android tarafı `speak()` içinde QUEUE_FLUSH kullanıyor, yani
+   * teoride önceki okuma kendiliğinden kesiliyor. Ama `stop()` çağrısı
+   * BEKLENEREK yapılırsa sıra garanti altına alınır: art arda iki kelimeye
+   * basıldığında ikincisi birincisinin kuyruğuna takılmaz.
+   *
+   * Beklemenin bedeli yok: `stop()` konuşmanın bitmesini beklemez, yalnızca
+   * kesme komutunu iletir. Yine de köprü susarsa diye süreye bağlı.
+   */
+  await withTimeout(tts.stop(), 400, undefined);
+
   const cagri = tts
     .speak({
       text,
       lang,
-      rate: options.rate ?? 0.9,
+      rate: options.rate ?? 0.85,
       pitch: options.pitch ?? 1.0,
       category: 'ambient'
     })
@@ -394,7 +407,7 @@ function speakWeb(text: string, options: SpeechOptions): Promise<SpeechResult> {
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = lang;
-    utterance.rate = options.rate ?? 0.9;
+    utterance.rate = options.rate ?? 0.85;
     utterance.pitch = options.pitch ?? 1.0;
 
     // Ses listesi boş olsa bile deneriz: bazı mobil tarayıcılarda
@@ -611,6 +624,15 @@ export interface EngineProbe {
   detail: string;
 }
 
+/** Çalışan paketin derleme damgası; tanının ilk satırı. */
+export function buildStamp(): string {
+  try {
+    return typeof __ANLORA_BUILD__ === 'string' ? __ANLORA_BUILD__ : 'bilinmiyor';
+  } catch {
+    return 'bilinmiyor';
+  }
+}
+
 export async function probeEngines(text = 'Anlora'): Promise<EngineProbe[]> {
   const results: EngineProbe[] = [];
 
@@ -647,14 +669,59 @@ export async function probeEngines(text = 'Anlora'): Promise<EngineProbe[]> {
     });
   }
 
-  // --- Yerel eklenti ---
+  /*
+   * ORTAM AYRIMI.
+   *
+   * Üç ayrı ortam var ve üçünde de "ses yok" tamamen farklı şeyler demek:
+   *   - Gerçek APK: eklenti çalışmalı; çalışmıyorsa cihazda sorun var.
+   *   - Normal tarayıcı: speechSynthesis olmalı; yoksa tarayıcı desteklemiyor.
+   *   - Gömülü çerçeve (önizleme): ikisi de olmayabilir ve bu bir hata değil,
+   *     önizleme kısıtlamasıdır — kullanıcıyı boşuna uğraştırmamak gerekir.
+   * Rapor artık hangisinde olduğumuzu açıkça yazıyor.
+   */
   const yerel = await adim('platform', 2000, () => isNativePlatform(), false);
   if (!yerel.value) {
+    const cercevede = (() => {
+      try {
+        return typeof window !== 'undefined' && window.self !== window.top;
+      } catch {
+        return true; // kökene erişilemiyorsa zaten gömülüyüz
+      }
+    })();
     results.push({
       engine: 'native',
       available: false,
       started: false,
-      detail: yerel.timedOut ? 'platform sorgusu yanıt vermedi' : 'yerel kabukta değil (tarayıcı)'
+      detail: yerel.timedOut
+        ? 'platform sorgusu yanıt vermedi'
+        : cercevede
+          ? 'gömülü çerçevede (önizleme) — telefon motoru burada yok, bu bir hata değil'
+          : 'yerel kabukta değil (tarayıcı)'
+    });
+    return results;
+  }
+
+  /*
+   * EKLENTİ GERÇEKTEN KAYITLI MI?
+   *
+   * JS tarafının yüklenmiş olması, Android tarafındaki sınıfın köprüye
+   * kayıtlı olduğu anlamına gelmez. İkisi ayrı şeyler ve ayrıldıklarında
+   * belirti aynı: çağrı gidiyor gibi görünür, ses çıkmaz. Bu satır o ikisini
+   * ayırıyor — 'kayıtlı değil' ile 'kayıtlı ama İngilizce verisi yok'
+   * tamamen farklı çözümler gerektiriyor.
+   */
+  let kayitli: boolean | null = null;
+  try {
+    kayitli = Capacitor.isPluginAvailable('TextToSpeech');
+  } catch {
+    kayitli = null;
+  }
+  if (kayitli === false) {
+    results.push({
+      engine: 'native',
+      available: false,
+      started: false,
+      detail: 'TextToSpeech eklentisi köprüye KAYITLI DEĞİL (Android tarafı yüklenmemiş)'
     });
     return results;
   }
