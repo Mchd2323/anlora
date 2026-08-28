@@ -171,24 +171,19 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
       } else if (sonuc.reason === 'no-voice') {
         setTestResult({
           ok: false,
-          text: report.isNative
-            ? 'Telefonunda İngilizce konuşma paketi bulunamadı. Aşağıdaki kurulum düğmesi seni doğrudan Android ekranına götürür.'
-            : 'Tarayıcında İngilizce ses bulunamadı.'
+          text: 'Telefonunda İngilizce konuşma paketi bulunamadı. Aşağıdaki kurulum düğmesi seni doğrudan Android ekranına götürür.'
         });
       } else if (sonuc.reason === 'unsupported') {
-        setTestResult({ ok: false, text: 'Bu cihazda konuşma motoru bulunamadı.' });
-      } else if (!report.hasEnglish) {
         /*
-         * Motor bir hata verdi ama tanı zaten İngilizce ses olmadığını
-         * söylüyor. Bu durumda genel hata metni yerine EYLEME DÖNÜK olanı
-         * gösteriyoruz: aksi hâlde ekranda yan yana iki farklı açıklama
-         * duruyordu — biri "motor yanıt vermedi", diğeri "ses paketi yok".
+         * Anlora yalnızca APK olarak çalışıyor; telaffuz Android'in kendi
+         * metin okuma servisine bağlı. Buraya düşmek ya yerel kabukta
+         * olmadığımız ya da eklentinin köprüye kayıtlı olmadığı anlamına
+         * gelir. İkisi de kullanıcının çözebileceği şeyler değil, o yüzden
+         * tanıyı açmaya yönlendiriyoruz — orada ham değerler var.
          */
         setTestResult({
           ok: false,
-          text: report.isNative
-            ? 'Telefonunda İngilizce konuşma paketi bulunamadı. Aşağıdaki kurulum düğmesi seni doğrudan Android ekranına götürür.'
-            : 'Tarayıcında İngilizce ses bulunamadı. Uygulamayı telefonuna kurduğunda sistemin kendi sesi kullanılır.'
+          text: 'Telaffuz motoruna ulaşılamadı. Aşağıdaki "Ayrıntılı ses tanısı" düğmesi sebebini gösterir.'
         });
       } else {
         setTestResult({
@@ -589,7 +584,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
                 />
                 <span className="text-[var(--text-secondary)]">
                   <b className="text-[var(--text-primary)]">
-                    {m.engine === 'web' ? 'Tarayıcı motoru' : 'Telefonun motoru'}:
+                    {m.engine === 'web' ? 'Ortam' : 'Telefonun motoru'}:
                   </b>{' '}
                   {m.detail}
                 </span>
@@ -643,7 +638,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
                 var ama İngilizce verisi yok.{' '}
                 {diagnostics.isNative
                   ? 'Yukarıdaki düğmeyle sistem kurulum ekranını açabilir ya da Ayarlar → Diller ve giriş → Metin okuma yolundan ekleyebilirsin.'
-                  : 'Tarayıcında İngilizce bir ses yüklü değil; uygulamayı telefonuna kurduğunda sistemin kendi sesi kullanılır.'}
+                  : 'Telefonunda İngilizce ses verisi bulunamadı; yukarıdaki kurulum düğmesi Android ekranına götürür.'}
               </>
             )}
           </div>

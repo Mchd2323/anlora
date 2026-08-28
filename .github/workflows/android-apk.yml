@@ -72,6 +72,14 @@ jobs:
       - name: Web varlıklarını Android projesine kopyala
         run: npx cap sync android
 
+      - name: Android projesini temizle
+        # Artımlı derlemeye güvenilmiyor: eski bir derleme çıktısının APK'ye
+        # sızıp sızmadığı ancak sıfırdan derleyerek kesinleşir. Koşu zaten
+        # temiz bir çalışma alanında başlıyor, bu adım şüpheyi tamamen
+        # ortadan kaldırmak için.
+        run: ./gradlew clean --no-daemon
+        working-directory: android
+
       - name: APK derle
         env:
           # Her çalıştırmada artan benzersiz bir sayı. Play Store aynı
