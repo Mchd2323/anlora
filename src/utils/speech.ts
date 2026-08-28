@@ -158,12 +158,41 @@ async function adim<T>(isim: string, ms: number, calis: () => Promise<T>, varsay
 
 type NativeTts = typeof TextToSpeech;
 
-function loadNativeTts(): Promise<NativeTts | null> {
-  return Promise.resolve(TextToSpeech || null);
+/**
+ * Eklenti nesnesini verir. SÖZ DÖNDÜRMEZ — döndüremez.
+ *
+ * SESİN ÇIKMAMASININ KÖK NEDENİ BURASIYDI.
+ *
+ * Capacitor'ın `registerPlugin` çağrısı bir Proxy döndürür ve bu Proxy,
+ * BİLİNMEYEN HER ÖZELLİK için "yerel köprüde o adda bir metot var"
+ * varsayımıyla bir fonksiyon üretir. Dolayısıyla `TextToSpeech.then` de bir
+ * fonksiyondur ve nesne JavaScript'e "thenable" (söz benzeri) görünür.
+ *
+ * Bir söz böyle bir nesneyle çözülmeye çalışıldığında, dilin söz çözüm
+ * yordamı `nesne.then(resolve, reject)` çağırır. Bu çağrı köprüye `then`
+ * adında OLMAYAN bir metot isteği olarak gider, karşılığında hiçbir zaman
+ * geri dönüş olmaz ve SÖZ SONSUZA KADAR ASILI KALIR.
+ *
+ * Önceki iki sürüm de bu tuzağa düşüyordu: biri `async` bir fonksiyondan
+ * eklentiyi `return` ediyordu, diğeri `Promise.resolve(TextToSpeech)`
+ * diyordu. İkisi de aynı yordamı tetikliyor. Belirtileri de aynıydı:
+ * kart düğmesi sessiz, test düğmesi sonsuza kadar dönüyor, tanı
+ * "eklenti yüklenmesi yanıt vermedi" diyor.
+ *
+ * Bu yüzden burası SENKRONDUR ve öyle kalmalıdır. Eklenti nesnesini bir
+ * sözün içinden geçirmek — döndürmek, `resolve` etmek, `Promise.all`e
+ * koymak — sesi yeniden ve aynı biçimde kırar.
+ */
+function getNativeTts(): NativeTts | null {
+  try {
+    return TextToSpeech || null;
+  } catch {
+    return null;
+  }
 }
 
 async function speakNative(text: string, options: SpeechOptions): Promise<SpeechResult> {
-  const tts = await loadNativeTts();
+  const tts = getNativeTts();
   if (!tts) return { ok: false, reason: 'unsupported' };
 
   /*
@@ -596,7 +625,7 @@ async function okumayiBaslat(
  */
 export async function openTtsInstall(): Promise<boolean> {
   if (!(await isNativePlatform())) return false;
-  const tts = await loadNativeTts();
+  const tts = getNativeTts();
   if (!tts) return false;
   const ok = await withTimeout<boolean>(
     tts.openInstall().then(() => true),
@@ -726,18 +755,21 @@ export async function probeEngines(text = 'Anlora'): Promise<EngineProbe[]> {
     return results;
   }
 
-  const eklenti = await adim<NativeTts | null>('eklenti', 3000, () => loadNativeTts(), null);
-  if (!eklenti.value) {
+  /*
+   * Eklenti SENKRON okunuyor; bir sözün içinden geçirmek onu sonsuza kadar
+   * asardı (bkz. getNativeTts başındaki açıklama). Tanının "eklenti
+   * yüklenmesi yanıt vermedi" demesinin sebebi tam olarak buydu.
+   */
+  const tts = getNativeTts();
+  if (!tts) {
     results.push({
       engine: 'native',
       available: false,
       started: false,
-      detail: eklenti.timedOut ? 'eklenti yüklenmesi yanıt vermedi' : 'eklenti yüklenemedi'
+      detail: 'eklenti nesnesi yok'
     });
     return results;
   }
-
-  const tts = eklenti.value;
   const dil = await adim<string[]>('dil listesi', 3000, () => supportedLanguages(tts), []);
   const ing = dil.value.filter(d => d === 'en' || d.startsWith('en-') || d.startsWith('en_'));
   const cagri = await adim<SpeechResult>('yerel okuma', 4000, () => speakNative(text, {}), { ok: false, reason: 'error' });
@@ -810,7 +842,7 @@ export async function describeSpeechSupport(): Promise<SpeechDiagnostics> {
 
 async function tanıTopla(): Promise<SpeechDiagnostics> {
   if (await isNativePlatform()) {
-    const tts = await loadNativeTts();
+    const tts = getNativeTts();
     if (!tts) {
       return { engine: 'none', hasEnglish: false, englishVoices: [], isNative: true };
     }
@@ -883,7 +915,7 @@ async function tanıTopla(): Promise<SpeechDiagnostics> {
 /** Cihazda İngilizce seslendirme yapılabiliyor mu? */
 export async function hasEnglishVoice(): Promise<boolean> {
   if (await isNativePlatform()) {
-    const tts = await loadNativeTts();
+    const tts = getNativeTts();
     if (!tts) return false;
     const result = await withTimeout<{ languages: string[] } | null>(
       tts.getSupportedLanguages(),
@@ -932,7 +964,7 @@ function cancelWebSpeech(): void {
 
 export async function stopSpeech(): Promise<void> {
   if (await isNativePlatform()) {
-    const tts = await loadNativeTts();
+    const tts = getNativeTts();
     if (tts) await withTimeout(tts.stop(), BRIDGE_TIMEOUT_MS, undefined);
     return;
   }
