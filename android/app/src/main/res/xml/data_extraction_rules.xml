@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Uygulama verisi cihazdan DIŞARI ÇIKMAZ.
+  Kullanıcının verisi Google yedeğine dahildir.
 
-  Android'in otomatik yedeklemesi, uygulama verisini Google Drive'a kopyalar
-  ve `adb backup` ile bilgisayara alınmasına izin verir. Anlora'nın WebView
-  deposunda kullanıcının oturum jetonu ve bütün kelimeleri duruyor; bunların
-  cihaz dışına çıkması, telefona kısa süre erişen birinin hesabı ele
-  geçirmesi anlamına gelir.
+  NEDEN DEĞİŞTİ. Bu dosya önceden her şeyi hariç tutuyordu ve gerekçesi
+  şuydu: WebView deposunda oturum jetonu duruyor, cihaz dışına çıkarsa
+  telefona kısa süre erişen biri hesabı ele geçirebilir.
 
-  Kullanıcının verisi zaten kaybolmuyor: uygulama içinden JSON yedeği
-  alınabiliyor ve hesap açan kullanıcının verisi buluta eşitleniyor. Bu
-  yollar kullanıcının kendi bilgisi ve isteğiyle işliyor.
+  O gerekçe bu dağıtımda geçerli değil. Sunucusuz sürümde hesap yok, oturum
+  jetonu yok; depoda yalnızca kullanıcının kendi kelimeleri, setleri ve
+  ilerlemesi var. Yani korunacak sır kalmadı, kaybedilecek emek kaldı.
+
+  Yedek kapalıyken telefonunu değiştiren ya da kaybeden kullanıcı aylarca
+  biriktirdiği setleri geri getiremiyordu — elle JSON yedeği almayı akıl
+  etmişse başka. Etmeyenler için sessiz bir veri kaybıydı. Açık yedekle
+  aynı Google hesabıyla kurulan yeni telefona veri kendiliğinden geliyor.
+
+  DİKKAT: Sunucu ve hesap sistemi ileride açılırsa bu karar yeniden
+  düşünülmeli. O gün depoda yeniden oturum jetonu olacak; en azından
+  jetonun tutulduğu anahtar yedekten çıkarılmalı.
 -->
 <data-extraction-rules>
-    <cloud-backup>
-        <exclude domain="root" />
-        <exclude domain="database" />
-        <exclude domain="sharedpref" />
-        <exclude domain="external" />
-        <exclude domain="file" />
-    </cloud-backup>
-    <device-transfer>
-        <exclude domain="root" />
-        <exclude domain="database" />
-        <exclude domain="sharedpref" />
-        <exclude domain="external" />
-        <exclude domain="file" />
-    </device-transfer>
+    <!--
+      İçerik belirtilmediğinde Android yedeklenebilir her şeyi dahil eder;
+      uygulamanın `no_backup` dizini ile önbellek zaten kendiliğinden
+      dışarıda kalır.
+    -->
+    <cloud-backup />
+    <device-transfer />
 </data-extraction-rules>

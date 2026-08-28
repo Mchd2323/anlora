@@ -25,6 +25,7 @@ import { CEFRBadge } from './ui/CEFRBadge';
 import { generateFullV2Backup, restoreFullV2Backup } from '../utils/storageV2';
 import { SettingsPanel } from './SettingsPanel';
 import { apiFetch } from '../utils/authClient';
+import { useRemoteApi } from '../hooks/useRemoteApi';
 
 interface ProfileViewProps {
   profile: UserProfile;
@@ -70,6 +71,13 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onOpenAdminPanel,
   onOpenFeedback
 }) => {
+  /*
+   * Hesap açılabiliyor mu? Sunucusuz kurulumda hayır — giriş ve kayıt
+   * arayüzü hiç çizilmez. `null` iken de çizilmez: yoklama biterken düğmenin
+   * belirip kaybolması gözle görülür bir zıplama olurdu.
+   */
+  const hesapAcilabilir = useRemoteApi();
+
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteAccountError, setDeleteAccountError] = useState('');
@@ -285,7 +293,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               <LogOut className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
               <span>Çıkış Yap</span>
             </button>
-          ) : (
+          ) : hesapAcilabilir ? (
             <button
               onClick={onOpenAuthModal}
               className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-[var(--surface)] text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
@@ -293,28 +301,44 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               <LogIn className="w-3.5 h-3.5" />
               <span>Giriş Yap / Ücretsiz Hesap Aç</span>
             </button>
-          )}
+          ) : null}
         </div>
       </div>
 
-      {/* Guest Callout if not logged in */}
-      {!profile.isLoggedIn && (
+      {/*
+        Misafir kutusu.
+
+        Sunucusuz kurulumda "Hesap Oluştur" diye bir şey yok; o düğmeyi
+        göstermek kullanıcıyı olmayan bir kapıya yönlendirmek olurdu. Kutu
+        yine de çizilir, çünkü söylediği şey orada da geçerli ve önemli:
+        verinin nerede durduğu. Sadece sonu değişir — davet yerine yedek
+        alma hatırlatması.
+      */}
+      {!profile.isLoggedIn && hesapAcilabilir !== null && (
         <div className="p-5 rounded-2xl bg-[var(--learning-soft)]/60 border border-[var(--learning-border)] text-[var(--learning-text)] space-y-2">
           <div className="font-bold text-xs flex items-center gap-1.5 text-[var(--learning-text)]">
             <Shield className="w-4 h-4 text-[var(--learning)]" />
-            <span>Anlora'yı misafir olarak kullanıyorsun</span>
+            <span>
+              {hesapAcilabilir
+                ? "Anlora'yı misafir olarak kullanıyorsun"
+                : 'Verilerin bu cihazda saklanıyor'}
+            </span>
           </div>
           <p className="text-xs text-[var(--learning-text)] leading-relaxed">
-            Oxford ilerlemen bu cihazda saklanıyor. Kendi Kelime Setlerini oluşturmak için hesap açabilirsin.
+            {hesapAcilabilir
+              ? 'Oxford ilerlemen bu cihazda saklanıyor. Kendi Kelime Setlerini oluşturmak için hesap açabilirsin.'
+              : 'İlerlemen ve setlerin telefonunda tutuluyor; hiçbir yere gönderilmiyor. Telefonunu değiştirmeden önce aşağıdan yedek almayı unutma.'}
           </p>
-          <div className="pt-0.5">
-            <button
-              onClick={onOpenAuthModal}
-              className="px-3.5 py-1.5 bg-[var(--learning)] hover:bg-[var(--learning-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
-            >
-              Hesap Oluştur
-            </button>
-          </div>
+          {hesapAcilabilir && (
+            <div className="pt-0.5">
+              <button
+                onClick={onOpenAuthModal}
+                className="px-3.5 py-1.5 bg-[var(--learning)] hover:bg-[var(--learning-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+              >
+                Hesap Oluştur
+              </button>
+            </div>
+          )}
         </div>
       )}
 

@@ -7,8 +7,20 @@ android {
         applicationId "com.anlora.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        /*
+         * Sürüm numaraları ortamdan gelir; yerel derlemede varsayılana düşer.
+         *
+         * NEDEN. Play Store her yüklemede bir öncekinden BÜYÜK bir
+         * versionCode ister; aynı sayıyla ikinci kez yükleme reddedilir.
+         * Sabit yazıldığında bu sayıyı elle artırmayı hatırlamak gerekir ve
+         * unutulduğu yükleme günü anlaşılır. CI derleme numarasını verdiği
+         * için sayı kendiliğinden ve her zaman artar.
+         *
+         * versionName kullanıcının gördüğü etikettir ("1.2"); versionCode ise
+         * yalnızca mağazanın kullandığı sıra numarasıdır. İkisi bağımsızdır.
+         */
+        versionCode (System.getenv("ANLORA_VERSION_CODE") ?: "1") as Integer
+        versionName System.getenv("ANLORA_VERSION_NAME") ?: "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

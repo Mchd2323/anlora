@@ -1,4 +1,5 @@
 import React from 'react';
+import { useRemoteApi } from '../hooks/useRemoteApi';
 import {
   BookOpen,
   GraduationCap,
@@ -44,6 +45,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   profile,
   onOpenAuthModal
 }) => {
+  /*
+   * Sunucusuz kurulumda hesap diye bir şey yok; giriş düğmesi hiç çizilmez.
+   * Aynı denetim ProfileView'da da var — ikisi de aynı kancadan okuyor,
+   * yoklama tek sefer yapılıyor.
+   */
+  const hesapAcilabilir = useRemoteApi();
+
   /*
    * `shortLabel`, alt çubuk içindir. Sekme sayısı altıya çıkınca dar
    * telefonlarda uzun etiketler birbirinin üstüne biniyordu; kısaltma yalnızca
@@ -153,7 +161,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     {profile.name || profile.email}
                   </span>
                 </button>
-              ) : (
+              ) : hesapAcilabilir ? (
                 <button
                   onClick={onOpenAuthModal}
                   className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--primary-soft)] hover:bg-[var(--primary-soft-hover)] text-[var(--primary)] border border-[var(--primary-border)] text-xs font-semibold transition-all active:scale-95 cursor-pointer"
@@ -161,7 +169,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <LogIn className="w-3.5 h-3.5" />
                   <span>Giriş Yap</span>
                 </button>
-              )}
+              ) : null}
             </div>
           </div>
         </div>

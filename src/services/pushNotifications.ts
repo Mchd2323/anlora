@@ -16,7 +16,7 @@
  *    sessizce "yapılamaz" döner ve arayüz bunu dürüstçe gösterir.
  */
 
-import { apiUrl } from '../config/api';
+import { apiUrl, hasRemoteApi } from '../config/api';
 import { getSessionToken } from '../utils/authClient';
 import { readJSON, writeJSON } from '../utils/safeStorage';
 
@@ -45,11 +45,27 @@ function savePreferences(prefs: PushPreferences): void {
 }
 
 /** Bu cihazda anlık bildirim mümkün mü? */
+/**
+ * Bildirimler bu kurulumda açılabilir mi?
+ *
+ * İKİ KOŞUL BİRDEN GEREKİR ve ikincisi kolayca gözden kaçar:
+ *
+ *   1. Yerel kabuk ve eklenti — tarayıcıda bu eklenti yok.
+ *   2. ULAŞILABİLİR BİR SUNUCU — cihaz jetonu bir yere kaydedilmeden
+ *      kimse o cihaza bildirim gönderemez. Sunucusuz dağıtımda jetonu
+ *      alacak taraf yoktur.
+ *
+ * Yalnızca birinciye bakmak, sunucusuz pakette çalışan ama hiçbir işe
+ * yaramayan bir anahtar bırakıyordu: kullanıcı açıyor, izin veriyor,
+ * karşılığında hiçbir bildirim gelmiyor. Çalışmayacağı baştan belli olan
+ * bir ayarı hiç göstermemek daha dürüst.
+ */
 export async function isPushAvailable(): Promise<boolean> {
   try {
     const { Capacitor } = await import('@capacitor/core');
     if (!Capacitor.isNativePlatform()) return false;
-    return Capacitor.isPluginAvailable('PushNotifications');
+    if (!Capacitor.isPluginAvailable('PushNotifications')) return false;
+    return await hasRemoteApi();
   } catch {
     return false;
   }

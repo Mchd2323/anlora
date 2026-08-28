@@ -5,6 +5,7 @@ import { normalizeWordString } from '../utils/lemmatizer';
 import { detectWordDuplicate } from '../utils/duplicateDetector';
 import { useModalA11y } from '../hooks/useModalA11y';
 import { apiUrl } from '../config/api';
+import { useRemoteApi } from '../hooks/useRemoteApi';
 
 interface BatchWordModalProps {
   isOpen: boolean;
@@ -41,6 +42,13 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
   onAddCustomWord,
   onLinkWordToCollection
 }) => {
+  /*
+   * Yapay zekâ ulaşılabilir mi? Sunucusuz kurulumda eşleşmeyen her kelime
+   * için boşuna istek çıkarmamak, doğrudan elle doldurulacak karta geçmek
+   * için bakılıyor.
+   */
+  const yapayZekaVar = useRemoteApi() === true;
+
   const modalRef = useModalA11y(isOpen, onClose);
 
   const [rawInput, setRawInput] = useState('');
@@ -130,6 +138,7 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
         linkedCount++;
       } else {
         try {
+          if (!yapayZekaVar) throw new Error('yapay-zeka-yok');
           const res = await fetch(apiUrl('/api/ai/generate-word'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -155,17 +164,33 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
             addedCount++;
           }
         } catch {
-          const fallbackCard: WordCard = {
+          /*
+           * Yapay zekâya ulaşılamadı — sözlükte de bulunmayan bu kelime için
+           * elimizde hiçbir bilgi yok.
+           *
+           * ÖNCEKİ DAVRANIŞ VERİ UYDURUYORDU: Türkçe anlam alanına İngilizce
+           * kelimenin kendisi ("thrive" → "thrive"), seviyeye de sabit 'B1'
+           * yazılıyordu. İkisi de yanlıştı ve yanlış oldukları belli
+           * olmuyordu: kullanıcı setinde B1 rozetli, anlamı kendisi olan
+           * kartlar görüyor ve bunları doğru sanıyordu. Sunucusuz kurulumda
+           * her eşleşmeyen kelime bu yoldan geçtiği için 40 kelimelik bir
+           * yüklemeden 40 uydurma kart çıkabilirdi.
+           *
+           * Artık boş bırakılıyor: seviye verilmez (rozet kendiliğinden
+           * gizlenir), anlam alanı boş kalır ve kullanıcı kartı açtığında
+           * doldurulacak yeri görür. Bilinmeyeni boş bırakmak, yanlış
+           * doldurmaktan iyidir.
+           */
+          const elleDoldurulacak: WordCard = {
             id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
             word: item.raw,
-            partOfSpeech: 'n.',
-            turkishMeaning: item.raw,
+            partOfSpeech: '',
+            turkishMeaning: '',
             examples: [],
-            level: 'B1',
             isCustom: true,
             dateAdded: new Date().toISOString().slice(0, 10)
           };
-          onAddCustomWord(fallbackCard, targetCollection.id);
+          onAddCustomWord(elleDoldurulacak, targetCollection.id);
           addedCount++;
         }
       }

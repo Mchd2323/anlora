@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { MessageSquareWarning, X, Check, Loader2 } from 'lucide-react';
 import { apiUrl } from '../config/api';
+import { useRemoteApi } from '../hooks/useRemoteApi';
+import { BRAND } from '../config/brand';
 import { getSessionToken } from '../utils/authClient';
 import { useModalA11y } from '../hooks/useModalA11y';
 
@@ -50,6 +52,13 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
 
+  /*
+   * Sunucu var mı? Bildirimin nereye gideceğini bu belirliyor: sunucuya mı,
+   * yoksa e-posta taslağına mı. Kanca koşulsuz çağrılmalı, bu yüzden
+   * `isOpen` denetiminden önce duruyor.
+   */
+  const sunucuVar = useRemoteApi();
+
   // Kart değişince alanlar o karta göre yeniden hazırlanır.
   React.useEffect(() => {
     if (!isOpen) return;
@@ -70,6 +79,40 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
 
     setIsSending(true);
     setError('');
+
+    /*
+     * SUNUCU YOKSA E-POSTAYA DÜŞÜLÜR.
+     *
+     * Sunucusuz dağıtımda bildirimi alacak bir uç yok. Kullanıcıya "şu an
+     * gönderilemiyor" demek, yazdığı metni çöpe atmak olurdu — üstelik tam
+     * da bize ulaşmaya çalıştığı anda. Bunun yerine metin hazır bir e-posta
+     * taslağına konur ve cihazın posta uygulaması açılır: kullanıcı tek
+     * dokunuşla gönderir, biz de bildirimi resmî adresten alırız.
+     *
+     * Taslak, sunucuya gidecek olanla aynı bilgileri taşır (tür, kelime,
+     * mesaj, platform) ki iki kanaldan gelen bildirim aynı şekilde okunsun.
+     */
+    if (sunucuVar === false) {
+      const konu = `Anlora bildirimi: ${kind === 'word' ? 'kelime' : 'uygulama'}`;
+      const govde = [
+        word.trim() ? `Kelime: ${word.trim()}` : null,
+        `Bildirim: ${message.trim()}`,
+        replyTo.trim() ? `Bana ulaşın: ${replyTo.trim()}` : null,
+        '',
+        `Cihaz: ${navigator.userAgent.slice(0, 60)}`
+      ]
+        .filter(Boolean)
+        .join('\n');
+
+      window.location.href =
+        `mailto:${BRAND.contactEmail}` +
+        `?subject=${encodeURIComponent(konu)}&body=${encodeURIComponent(govde)}`;
+
+      setSent(true);
+      setIsSending(false);
+      return;
+    }
+
     try {
       const token = getSessionToken();
       const response = await fetch(apiUrl('/api/feedback'), {
@@ -135,10 +178,22 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
             <div className="w-12 h-12 rounded-2xl bg-[var(--learned-soft)] text-[var(--learned)] flex items-center justify-center mx-auto">
               <Check className="w-6 h-6" />
             </div>
+            {/*
+              İki farklı sonuç, iki farklı cümle. E-posta yolunda bildirim
+              HENÜZ bize ulaşmadı; taslak hazırlandı, göndermeyi kullanıcı
+              tamamlayacak. "Ulaştı" demek yanlış olur ve kullanıcı posta
+              uygulamasındaki taslağı göndermeden kapatabilir.
+            */}
             <div>
-              <p className="text-sm font-bold text-[var(--text-primary)]">Bildirimin bize ulaştı.</p>
+              <p className="text-sm font-bold text-[var(--text-primary)]">
+                {sunucuVar === false
+                  ? 'E-posta taslağın hazır.'
+                  : 'Bildirimin bize ulaştı.'}
+              </p>
               <p className="text-xs text-[var(--text-secondary)] mt-1">
-                Teşekkürler — hataları böyle buluyoruz.
+                {sunucuVar === false
+                  ? `Posta uygulamandan göndermen yeterli. Açılmadıysa ${BRAND.contactEmail} adresine yazabilirsin.`
+                  : 'Teşekkürler — hataları böyle buluyoruz.'}
               </p>
             </div>
             <button

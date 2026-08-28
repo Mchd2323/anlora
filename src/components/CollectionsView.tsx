@@ -50,6 +50,7 @@ import { speakText } from '../utils/speech';
 import { getUserWordStatus } from '../utils/storageV2';
 import { UserProfile } from '../types';
 import { apiUrl } from '../config/api';
+import { useRemoteApi } from '../hooks/useRemoteApi';
 import { apiFetch } from '../utils/authClient';
 import { formatPhonetic } from '../utils/phonetic';
 import { reportMissingWord } from '../services/usageReporter';
@@ -157,6 +158,13 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   onOpenAuthModal,
   onSetWordStatus
 }) => {
+  /*
+   * Sunucu ulaşılabilir mi? Bu ekranda iki şey buna bağlı: yapay zekâ ile
+   * kart üretimi ve setin bağlantıyla paylaşılması. Sunucusuz kurulumda
+   * ikisi de hiç çizilmez.
+   */
+  const sunucuVar = useRemoteApi() === true;
+
   const [activeDeckId, setActiveDeckId] = useState<string | null>(collections[0]?.id || null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isStudyingFlashcards, setIsStudyingFlashcards] = useState(false);
@@ -1265,6 +1273,13 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     <Upload className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
                   </button>
 
+                  {/*
+                    Set paylaşımı seti sunucuya yükler; sunucusuz kurulumda
+                    böyle bir yer yok, düğme de çizilmez. Dışa aktarma (CSV)
+                    yanı başında duruyor ve tamamen çevrimdışı çalışıyor —
+                    yani kullanıcının seti başkasına ulaştırma yolu kapanmıyor.
+                  */}
+                  {sunucuVar && (
                   <button
                     onClick={() => setShowShare(true)}
                     title={activeDeck.shareCode ? 'Paylaşım bağlantısı' : 'Bu seti paylaş'}
@@ -1279,6 +1294,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       {activeDeck.shareCode ? 'Paylaşıldı' : 'Paylaş'}
                     </span>
                   </button>
+                  )}
 
                   {collections.length > 1 && (
                     <button
@@ -1829,7 +1845,24 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   için bütün formu geçip aşağı inmek zorundaydı. Cevap,
                   sorunun sorulduğu yerde durmalı.
                 */}
-                {lookup.kind === 'not-found' && (
+                {/*
+                  Yapay zekâ sunucu ister. Sunucusuz dağıtımda düğme hiç
+                  çizilmez; yerine kullanıcıya durumu söyleyen bir satır kalır.
+                  Basıldığında hata veren bir düğme, olmayan düğmeden kötüdür.
+                */}
+                {lookup.kind === 'not-found' && !sunucuVar && (
+                  <div className="pt-3 border-t border-[var(--border-light)] space-y-1">
+                    <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                      Bu kelime sözlükte yok
+                    </div>
+                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                      Anlamını ve örnek cümlelerini aşağıdaki alanlara kendin
+                      yazabilirsin; kart aynı şekilde kaydedilir.
+                    </p>
+                  </div>
+                )}
+
+                {lookup.kind === 'not-found' && sunucuVar && (
                 <div className="pt-3 border-t border-[var(--border-light)] space-y-2">
                   <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
                     Bu kelime sözlükte yok
