@@ -1,14 +1,22 @@
 /**
  * Anlora – TELAFFUZ.
  *
- * TEK MOTOR: ANDROID'İN KENDİ METİN OKUMA SERVİSİ.
+ * İKİ MOTOR, AMA BİRBİRİNİN YEDEĞİ DEĞİL.
  *
- * Bu dosya bir zamanlar iki motorluydu: yerel eklenti ve tarayıcının
- * `window.speechSynthesis`i. Tarayıcı tarafı tamamen kaldırıldı, çünkü
- * Anlora bir APK olarak dağıtılıyor ve cihazdan gelen tanı `speechSynthesis
- * nesnesi yok` dedi — Android WebView konuşma sentezini uygulamıyor. Olmayan
- * bir motoru denemek, her hatayı iki ayrı ihtimale bölüyor ve teşhisi
- * zorlaştırmaktan başka işe yaramıyordu.
+ * Anlora APK olarak yayımlanıyor; telaffuzun gerçek kullanıcıdaki karşılığı
+ * Android'in kendi metin okuma servisidir. Tarayıcı motoru
+ * (`window.speechSynthesis`) yalnızca GELİŞTİRME VE ÖNİZLEME içindir —
+ * kodda bulunması uygulamanın bir web sürümü olduğu anlamına gelmez.
+ *
+ * ORTAM SEÇİMİ KESİNDİR, YEDEKLEME YOKTUR:
+ *   - Yerel kabuk (APK)  → YALNIZCA yerel eklenti. Hata olursa hata olarak
+ *     bildirilir; tarayıcı motoruna düşülmez.
+ *   - Tarayıcı/önizleme  → YALNIZCA `speechSynthesis`.
+ *
+ * Yedeklemenin kaldırılması bilinçli. Önceki sürümlerde biri düşünce
+ * diğerine geçiliyordu ve bu, yerel eklentinin gerçek hatasını gizliyordu:
+ * ekranda "ses yok" görünüyor, ama hangi motorun neden başarısız olduğu
+ * bilinmiyordu. Teşhis edilemeyen hata düzeltilemez.
  *
  * ESNEK OLMAYAN TEK KURAL: EKLENTİ NESNESİ BİR SÖZÜN İÇİNDEN GEÇMEZ.
  *
@@ -56,6 +64,15 @@ function getNativeTts(): typeof TextToSpeech | null {
     return TextToSpeech || null;
   } catch {
     return null;
+  }
+}
+
+/** Yerel kabukta (APK) mıyız? Motor seçiminin tek ölçütü budur. */
+function isNativeShell(): boolean {
+  try {
+    return Capacitor.isNativePlatform() === true;
+  } catch {
+    return false;
   }
 }
 
@@ -127,6 +144,128 @@ async function supportedLanguages(): Promise<string[]> {
   return dilOnbellek;
 }
 
+// --- Tarayıcı motoru (yalnızca geliştirme/önizleme) -------------------------
+
+/**
+ * Ses listesinin senkron kopyası.
+ *
+ * `speakWeb` bunu BEKLEMEDEN okuyabilmek zorunda: mobil tarayıcılar okumayı
+ * yalnızca kullanıcı dokunuşunun başlattığı görev içinde kabul eder ve araya
+ * giren bir `await` o bağlamı düşürebilir. Liste hazır değilse okuma
+ * varsayılan sesle yapılır — ses seçimi bir iyileştirmedir, ön koşul değil.
+ */
+let sesListesi: SpeechSynthesisVoice[] = [];
+
+function webMotoruVar(): boolean {
+  return typeof window !== 'undefined' && 'speechSynthesis' in window;
+}
+
+function sesleriTazele(): SpeechSynthesisVoice[] {
+  if (!webMotoruVar()) return [];
+  try {
+    const simdi = window.speechSynthesis.getVoices();
+    if (simdi.length > 0) sesListesi = simdi;
+  } catch {
+    /* motor sorguya kapalı */
+  }
+  return sesListesi;
+}
+
+/**
+ * Ses listesini hazırlar.
+ *
+ * `getVoices()` ilk çağrıda çoğu tarayıcıda BOŞ döner ve liste
+ * `voiceschanged` olayından sonra dolar. Hemen pes etmek, İngilizce sesi olan
+ * bir tarayıcıda "ses yok" demek olurdu.
+ */
+function sesleriHazirla(): void {
+  if (!webMotoruVar()) return;
+  sesleriTazele();
+  try {
+    window.speechSynthesis.addEventListener('voiceschanged', () => {
+      sesleriTazele();
+    });
+  } catch {
+    /* olay desteklenmiyor; elde ne varsa onunla devam */
+  }
+}
+
+function ingilizceSes(lang: string): SpeechSynthesisVoice | undefined {
+  const sesler = sesleriTazele();
+  const tercih = ['Google', 'Natural', 'Samantha', 'Daniel'];
+  return (
+    sesler.find(v => v.lang === lang && tercih.some(n => v.name.includes(n))) ||
+    sesler.find(v => v.lang === lang) ||
+    sesler.find(v => v.lang.startsWith('en') && tercih.some(n => v.name.includes(n))) ||
+    sesler.find(v => v.lang.startsWith('en'))
+  );
+}
+
+/**
+ * Tarayıcı motoruyla okur. `async` DEĞİLDİR ve olmamalıdır.
+ *
+ * `speak()` çağrısına kadar hiçbir `await` yoktur: araya giren tek bir
+ * bekleme, mobil tarayıcıda dokunuş bağlamını düşürüp okumayı sessizce
+ * engelleyebilir. Söz yalnızca SONUCU bildirmek için döndürülür.
+ */
+function speakWeb(text: string, options: SpeechOptions): Promise<SpeechResult> {
+  if (!webMotoruVar()) {
+    return Promise.resolve<SpeechResult>({ ok: false, reason: 'unsupported' });
+  }
+
+  const lang = options.lang || 'en-US';
+  const ses = ingilizceSes(lang);
+
+  return new Promise<SpeechResult>(resolve => {
+    try {
+      window.speechSynthesis.cancel();
+    } catch {
+      /* iptal edilemedi; okumayı yine deneriz */
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang;
+    utterance.rate = options.rate ?? 0.85;
+    utterance.pitch = options.pitch ?? 1.0;
+    if (ses) {
+      // Atama korumalı: `voice` yalnızca gerçek bir SpeechSynthesisVoice
+      // kabul eder ve fırlatılan hata `speak()`ten önce okumayı tamamen
+      // engellerdi.
+      try {
+        utterance.voice = ses;
+      } catch {
+        /* varsayılan sesle devam */
+      }
+    }
+
+    let yerlesti = false;
+    const bitir = (sonuc: SpeechResult) => {
+      if (yerlesti) return;
+      yerlesti = true;
+      window.clearTimeout(zamanlayici);
+      resolve(sonuc);
+    };
+
+    // Başarı ölçütü BAŞLAMAKTIR, bitmek değil. Motor hiç başlamazsa ne
+    // `onend` ne `onerror` gelir; sessiz başarısızlık böyle yakalanıyor.
+    const zamanlayici = window.setTimeout(
+      () => bitir({ ok: false, reason: ses ? 'error' : 'no-voice' }),
+      1200
+    );
+
+    utterance.onstart = () => bitir({ ok: true });
+    utterance.onend = () => bitir({ ok: true });
+    utterance.onerror = () => bitir({ ok: false, reason: ses ? 'error' : 'no-voice' });
+
+    try {
+      window.speechSynthesis.speak(utterance);
+    } catch (err) {
+      son_hata = hataMetni(err);
+      bitir({ ok: false, reason: 'error' });
+    }
+  });
+}
+
 // --- Hata bildirimi --------------------------------------------------------
 
 type SpeechErrorListener = (reason: SpeechFailure) => void;
@@ -149,12 +288,29 @@ function notifyFailure(reason: SpeechFailure): void {
 
 // --- Genel arayüz ----------------------------------------------------------
 
+/**
+ * Okur. ORTAMA GÖRE TEK MOTOR SEÇİLİR, YEDEKLEME YOKTUR.
+ *
+ * Yerel kabukta yalnızca eklenti denenir. Eklenti başarısız olursa sonuç
+ * başarısızlıktır ve sebebi olduğu gibi bildirilir; tarayıcı motoruna
+ * düşülmez. Düşmek, gerçek kullanıcıda zaten var olmayan bir motorla
+ * yerel eklentinin hatasını gizlerdi — ve teşhis edilemeyen hata
+ * düzeltilemez.
+ */
 export async function speakText(
   text: string,
   options: SpeechOptions = {}
 ): Promise<SpeechResult> {
   if (!text.trim()) return { ok: false, reason: 'error' };
 
+  // Tarayıcı/önizleme: yalnızca web motoru.
+  if (!isNativeShell()) {
+    const sonuc = await speakWeb(text, options);
+    if (!sonuc.ok && sonuc.reason) notifyFailure(sonuc.reason);
+    return sonuc;
+  }
+
+  // APK: yalnızca yerel eklenti.
   const tts = getNativeTts();
   if (!pluginHazir() || !tts) {
     notifyFailure('unsupported');
@@ -257,6 +413,12 @@ export async function stopSpeech(): Promise<void> {
  * kaldırıldı); dil listesini erkenden ısıtmak ilk basışı hızlandırıyor.
  */
 export function warmUpSpeech(): void {
+  if (!isNativeShell()) {
+    // Tarayıcıda ses listesi `voiceschanged` ile gecikmeli gelir; açılışta
+    // dinlemeye başlamak ilk basışın varsayılan sesle okunmasını önler.
+    sesleriHazirla();
+    return;
+  }
   if (!pluginHazir()) return;
   void supportedLanguages().catch(() => undefined);
 }
@@ -272,7 +434,8 @@ export function buildStamp(): string {
 }
 
 export interface EngineProbe {
-  engine: 'web' | 'native';
+  /** 'env' ham ortam bilgisi; diğer ikisi gerçek motorlar. */
+  engine: 'env' | 'web' | 'native';
   available: boolean;
   started: boolean;
   detail: string;
@@ -314,7 +477,7 @@ export async function probeEngines(text = 'Anlora'): Promise<EngineProbe[]> {
   }
 
   results.push({
-    engine: 'web',
+    engine: 'env',
     available: yerel === true,
     started: false,
     detail:
@@ -323,15 +486,60 @@ export async function probeEngines(text = 'Anlora'): Promise<EngineProbe[]> {
       `isPluginAvailable('TextToSpeech')=${kayitli}`
   });
 
-  // --- 2. Eklenti gerçekten çağrılabilir mi? ---
+  /*
+   * --- 2. Tarayıcı motoru: HER ORTAMDA ayrı satır ---
+   *
+   * APK'de de yazılıyor, çünkü "yerel eklenti başarısız" ile "cihazda
+   * konuşma motoru hiç yok" farklı şeyler ve ikisini tek satırda toplamak
+   * teşhisi bulanıklaştırıyordu. Burada yalnızca DURUM bildiriliyor;
+   * APK'de bu motor kullanılmıyor ve satır bunu açıkça söylüyor.
+   */
+  if (!webMotoruVar()) {
+    results.push({
+      engine: 'web',
+      available: false,
+      started: false,
+      detail:
+        'speechSynthesis nesnesi yok' +
+        (yerel === true ? ' — APK\'de zaten kullanılmıyor' : '')
+    });
+  } else {
+    const sesler = sesleriTazele();
+    const ing = sesler.filter(v => v.lang.toLowerCase().startsWith('en'));
+    if (yerel === true) {
+      results.push({
+        engine: 'web',
+        available: true,
+        started: false,
+        detail: `${sesler.length} ses, ${ing.length} İngilizce — APK'de kullanılmıyor`
+      });
+    } else {
+      const okuma = await speakWeb(text, {});
+      try {
+        window.speechSynthesis.cancel();
+      } catch {
+        /* yok sayılır */
+      }
+      results.push({
+        engine: 'web',
+        available: true,
+        started: okuma.ok,
+        detail:
+          `${sesler.length} ses, ${ing.length} İngilizce` +
+          (okuma.ok ? ' — okumaya başladı' : ` — başlamadı (${okuma.reason})`)
+      });
+    }
+  }
+
+  // --- 3. Yerel eklenti ---
   if (yerel !== true) {
     results.push({
       engine: 'native',
       available: false,
       started: false,
       detail:
-        'Yerel kabukta değil. Anlora yalnızca APK olarak çalışır; ' +
-        'tarayıcıda telaffuz yoktur.'
+        'Yerel kabukta değil; bu ortamda telefon motoru yoktur. ' +
+        'Gerçek telaffuz yalnızca APK’de bu motordan gelir.'
     });
     return results;
   }

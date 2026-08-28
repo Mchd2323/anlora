@@ -584,7 +584,12 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
                 />
                 <span className="text-[var(--text-secondary)]">
                   <b className="text-[var(--text-primary)]">
-                    {m.engine === 'web' ? 'Ortam' : 'Telefonun motoru'}:
+                    {m.engine === 'env'
+                      ? 'Ortam'
+                      : m.engine === 'web'
+                      ? 'Tarayıcı motoru (geliştirme)'
+                      : 'Telefonun motoru'}
+                    :
                   </b>{' '}
                   {m.detail}
                 </span>
