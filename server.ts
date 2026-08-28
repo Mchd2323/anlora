@@ -1296,7 +1296,7 @@ function publicUserView(user: CloudUserData) {
  * ANLORA_ADMIN_EMAILS tanımlamak yeterli; o an bu varsayılan devre dışı
  * kalır.
  */
-const DEFAULT_ADMIN_EMAILS = ['tahae2313@gmail.com'];
+const DEFAULT_ADMIN_EMAILS = ['anloramobil@gmail.com'];
 
 const configuredAdmins = (process.env.ANLORA_ADMIN_EMAILS || '')
   .split(',')
