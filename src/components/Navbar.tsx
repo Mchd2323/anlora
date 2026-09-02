@@ -3,7 +3,7 @@ import { useRemoteApi } from '../hooks/useRemoteApi';
 import {
   BookOpen,
   GraduationCap,
-  Layers,
+  NotebookPen,
   Home,
   User,
   LogIn
@@ -33,7 +33,6 @@ export type TabType =
 interface NavbarProps {
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
-  collectionCount?: number;
   profile?: UserProfile;
   onOpenAuthModal?: () => void;
 }
@@ -41,7 +40,6 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   setActiveTab,
-  collectionCount = 0,
   profile,
   onOpenAuthModal
 }) => {
@@ -68,8 +66,19 @@ export const Navbar: React.FC<NavbarProps> = ({
       id: 'collections' as TabType,
       label: 'Kelime Setlerim',
       shortLabel: 'Setlerim',
-      icon: Layers,
-      badge: collectionCount > 0 ? collectionCount : undefined
+      /*
+       * Kalemli defter, üst üste üç karo yerine.
+       * Karo simgesi "katman/koleksiyon" diyor; oysa buradaki şey
+       * kullanıcının okurken kendi elyazısıyla not ettiği kelimeler.
+       * Uygulamayı diğerlerinden ayıran fikir de tam olarak bu.
+       */
+      icon: NotebookPen
+      /*
+       * Set SAYISI rozeti kaldırıldı. Rozet, ilgilenilmesi gereken bir şeyi
+       * (okunmamış bildirim, bekleyen iş) haber vermek içindir. Kullanıcının
+       * kaç set kurduğu böyle bir şey değil; on set kurmuş birine sekmenin
+       * köşesinde sürekli '10' göstermek bilgi değil gürültüdür.
+       */
     },
     {
       id: 'oxford' as TabType,
@@ -142,17 +151,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                       }`}
                     />
                     <span>{item.label}</span>
-                    {item.badge !== undefined && (
-                      <span
-                        className={`ml-0.5 px-1.5 py-0.2 text-[10px] font-bold rounded-full ${
-                          isActive
-                            ? 'bg-[var(--primary)] text-[var(--surface)]'
-                            : 'bg-[var(--border)] text-[var(--text-primary)]'
-                        }`}
-                      >
-                        {item.badge}
-                      </span>
-                    )}
                   </button>
                 );
               })}
@@ -205,11 +203,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                     isActive ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'
                   }`}
                 />
-                {item.badge !== undefined && (
-                  <span className="absolute -top-1 -right-2.5 min-w-[14px] h-[14px] px-1 bg-[var(--primary)] text-[var(--surface)] text-[9px] font-bold rounded-full flex items-center justify-center">
-                    {item.badge}
-                  </span>
-                )}
               </div>
               <span className="mt-0.5 whitespace-nowrap">{item.shortLabel}</span>
             </button>

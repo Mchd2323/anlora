@@ -37,7 +37,9 @@ import {
   Loader2,
   RotateCw,
   AlertCircle,
-  Volume2
+  Volume2,
+  ChevronDown,
+  GitMerge
 } from 'lucide-react';
 import { getPhraseCard } from '../services/phraseRepository';
 import { calculateCollectionProgress } from '../utils/srsEngine';
@@ -165,7 +167,57 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
    */
   const sunucuVar = useRemoteApi() === true;
 
+
   const [activeDeckId, setActiveDeckId] = useState<string | null>(collections[0]?.id || null);
+
+  /*
+   * SET LİSTESİ EN FAZLA ÜÇ SATIR.
+   *
+   * On set kurmuş kullanıcıda hepsi alt alta diziliyordu; sol sütun ekranı
+   * dolduruyor ve aranan seti bulmak gözle tarama gerektiriyordu.
+   *
+   * Görünecek üçün seçimi rastgele değil, kullanıcının o an ne yaptığına
+   * bağlı:
+   *   1. Sabitlenmiş setler — kullanıcı bunları kendi eliyle öne çıkardı.
+   *   2. Üzerinde çalışılan set — seçtiği şeyin gizlenmesi kafa karıştırırdı.
+   *   3. Kalanlar, listedeki sırayla.
+   * Üç ya da daha az set varsa açılır menü hiç çizilmez: iki set için menü
+   * açtırmak, çözdüğünden fazla iş çıkarır.
+   */
+  const GORUNEN_SET_SINIRI = 3;
+  const [setListesiAcik, setSetListesiAcik] = useState(false);
+  const [setAramasi, setSetAramasi] = useState('');
+
+  const { gorunenSetler, gizliSetler } = useMemo(() => {
+    if (collections.length <= GORUNEN_SET_SINIRI) {
+      return { gorunenSetler: collections, gizliSetler: [] as Collection[] };
+    }
+
+    const secilmis = new Set<string>();
+    const gorunen: Collection[] = [];
+
+    const ekle = (deck: Collection) => {
+      if (secilmis.has(deck.id) || gorunen.length >= GORUNEN_SET_SINIRI) return;
+      secilmis.add(deck.id);
+      gorunen.push(deck);
+    };
+
+    collections.filter(d => d.isPinned).forEach(ekle);
+    const aktif = collections.find(d => d.id === activeDeckId);
+    if (aktif) ekle(aktif);
+    collections.forEach(ekle);
+
+    return {
+      gorunenSetler: gorunen,
+      gizliSetler: collections.filter(d => !secilmis.has(d.id))
+    };
+  }, [collections, activeDeckId]);
+
+  const aranmisGizliSetler = useMemo(() => {
+    const q = setAramasi.trim().toLocaleLowerCase('tr');
+    if (!q) return gizliSetler;
+    return gizliSetler.filter(d => d.name.toLocaleLowerCase('tr').includes(q));
+  }, [gizliSetler, setAramasi]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isStudyingFlashcards, setIsStudyingFlashcards] = useState(false);
 
@@ -1160,6 +1212,31 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                         <span>Düzenle</span>
                       </button>
 
+                      {/*
+                        Birleştirme bu menüye de kondu. Özellik zaten vardı ama
+                        yalnızca açık setin araç çubuğunda duruyordu; kullanıcı
+                        "şu iki seti birleştireyim" diye düşündüğünde eli önce
+                        setin kendi menüsüne gidiyor. Seçenek, işin akla geldiği
+                        yerde olmalı.
+
+                        Menüden açıldığında set önce etkinleştiriliyor: birleştirme
+                        penceresi açık set üzerinden çalışıyor, başka bir setin
+                        menüsünden açılıp yanlış seti birleştirmesin.
+                      */}
+                      {collections.length > 1 && (
+                        <button
+                          onClick={() => {
+                            setActiveDeckId(deck.id);
+                            setOpenMenuDeckId(null);
+                            setShowMerge(true);
+                          }}
+                          className="w-full px-3.5 py-2 hover:bg-[var(--surface-soft)] flex items-center gap-2 text-left cursor-pointer"
+                        >
+                          <GitMerge className="w-3.5 h-3.5 text-[var(--primary)]" />
+                          <span>Başka setle birleştir</span>
+                        </button>
+                      )}
+
                       <div className="border-t border-[var(--border-light)] my-1" />
 
                       <button
@@ -1200,6 +1277,83 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               );
             })}
           </div>
+
+          {/*
+            KALAN SETLER AÇILIR MENÜDE.
+
+            On set kurmuş kullanıcıda hepsi alt alta diziliyor ve sol sütunun
+            tamamını kaplıyordu; aradığı seti bulmak uzun bir listeyi gözle
+            taramayı gerektiriyordu. Artık en fazla üç set görünür: sabitlenmiş
+            olanlar, üzerinde çalışılan set ve en yeniler. Gerisi tek dokunuşla
+            açılan, gerektiğinde aranabilen bir listede.
+
+            ÇALIŞILAN SET HER ZAMAN GÖRÜNÜR — kullanıcının seçtiği şeyin
+            listeden kaybolması kafa karıştırırdı.
+          */}
+          {gizliSetler.length > 0 && (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setSetListesiAcik(o => !o)}
+                aria-expanded={setListesiAcik}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-soft)] text-xs font-semibold text-[var(--text-primary)] flex items-center justify-between gap-2 transition-colors cursor-pointer"
+              >
+                <span>Diğer {gizliSetler.length} set</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-[var(--text-secondary)] transition-transform ${
+                    setListesiAcik ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+
+              {setListesiAcik && (
+                <div className="mt-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-lg overflow-hidden">
+                  {gizliSetler.length > 6 && (
+                    <div className="p-2 border-b border-[var(--border-light)]">
+                      <input
+                        type="text"
+                        value={setAramasi}
+                        onChange={e => setSetAramasi(e.target.value)}
+                        placeholder="Set ara..."
+                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-[var(--border)] bg-[var(--bg)] text-[var(--text-primary)] outline-hidden focus:border-[var(--primary)]"
+                      />
+                    </div>
+                  )}
+                  <div className="max-h-64 overflow-y-auto">
+                    {aranmisGizliSetler.length === 0 ? (
+                      <p className="px-3 py-4 text-xs text-[var(--text-muted)] text-center">
+                        Eşleşen set yok.
+                      </p>
+                    ) : (
+                      aranmisGizliSetler.map(deck => {
+                        const sayi = memberships.filter(m => m.collectionId === deck.id).length;
+                        return (
+                          <button
+                            key={deck.id}
+                            type="button"
+                            onClick={() => {
+                              setActiveDeckId(deck.id);
+                              setSetListesiAcik(false);
+                              setSetAramasi('');
+                            }}
+                            className="w-full px-3.5 py-2.5 flex items-center justify-between gap-2 text-left hover:bg-[var(--surface-soft)] border-b border-[var(--border-light)] last:border-b-0 cursor-pointer"
+                          >
+                            <span className="text-xs font-semibold text-[var(--text-primary)] truncate">
+                              {deck.isPinned && '📌 '}
+                              {deck.name}
+                            </span>
+                            <span className="text-[10px] text-[var(--text-muted)] shrink-0">
+                              {sayi} kelime
+                            </span>
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Right Active Set Workspace */}
@@ -1467,21 +1621,15 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                         isSelected ? 'ring-2 ring-[var(--primary)] ring-offset-2' : ''
                       }`}
                     >
-                      <label
-                        className="absolute top-2 left-2 z-10 w-7 h-7 rounded-lg bg-white/90 border border-[var(--border)]
-                                   flex items-center justify-center cursor-pointer shadow-xs"
-                        title="Seç"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => toggleSelected(card.id)}
-                          className="accent-[var(--primary)] cursor-pointer"
-                          aria-label={`${card.word} kelimesini seç`}
-                        />
-                      </label>
-
+                      {/*
+                        Kutucuk artık karta bindirilmiyor; kartın kendi başlık
+                        satırında, seviye rozetinin yanında duruyor. Bindirilen
+                        eski hâli tam da rozetin üstüne geliyor ve A1/B2 gibi
+                        seviyeleri görünmez yapıyordu.
+                      */}
                       <WordCardComponent
+                        isSelected={isSelected}
+                        onToggleSelected={() => toggleSelected(card.id)}
                         card={displayCard}
                         isFavorite={favorites.includes(card.id)}
                         learningState={state}

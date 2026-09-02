@@ -39,6 +39,20 @@ interface WordCardProps {
    * hangi kelime olduğunu ayrıca yazmak ya da hatırlamak zorunda kalmaz.
    */
   onReportWord?: (card: WordCardType) => void;
+  /*
+   * SEÇİM KUTUCUĞU KARTIN KENDİ DÜZENİNDE.
+   *
+   * Önceden liste tarafında `absolute top-2 left-2` ile kartın ÜSTÜNE
+   * bindiriliyordu ve tam olarak seviye rozetinin (A1, B2…) durduğu yere
+   * geliyordu; rozet görünmez oluyordu. Bindirilen bir öğe kartın içinde ne
+   * olduğunu bilmez, bu yüzden çakışma kaçınılmazdı.
+   *
+   * Kutucuk artık başlık satırının ilk öğesi: rozetle yan yana duruyor,
+   * kimseyi örtmüyor ve kart düzeni değişse bile çakışamaz.
+   * `onToggleSelected` verilmezse hiç çizilmez.
+   */
+  isSelected?: boolean;
+  onToggleSelected?: () => void;
 }
 
 const WordCardComponentImpl: React.FC<WordCardProps> = ({
@@ -54,7 +68,9 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
   onDeleteCustom,
   onEditCustom,
   onOpenAddToCollection,
-  onReportWord
+  onReportWord,
+  isSelected,
+  onToggleSelected
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
@@ -104,6 +120,21 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
         {/* Top Header: CEFR & POS info, Collections tag & Actions */}
         <div className="flex items-center justify-between p-4 pb-3 border-b border-[var(--border-light)]">
           <div className="flex flex-wrap items-center gap-2">
+            {onToggleSelected && (
+              <label
+                className="flex items-center justify-center w-6 h-6 rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] cursor-pointer shrink-0 hover:border-[var(--primary)] transition-colors"
+                title="Seç"
+                onClick={e => e.stopPropagation()}
+              >
+                <input
+                  type="checkbox"
+                  checked={!!isSelected}
+                  onChange={onToggleSelected}
+                  className="accent-[var(--primary)] cursor-pointer"
+                  aria-label={`${card.word} kelimesini seç`}
+                />
+              </label>
+            )}
             {!card.isCustom && card.sourceType !== 'custom' && card.level && (
               <CEFRBadge level={card.level} size="sm" />
             )}

@@ -531,7 +531,6 @@ export default function App() {
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        collectionCount={collections.length}
         profile={profile}
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
       />
