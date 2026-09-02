@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   UserProfile,
   UserStats,
@@ -32,9 +32,12 @@ import {
   BarChart3,
   ChevronDown,
   Send
+,
+  MessageSquareQuote
 } from 'lucide-react';
 import { getUserWordStatus } from '../utils/storageV2';
 import { BRAND } from '../config/brand';
+import { loadPhrases, getPhraseCards } from '../services/phraseRepository';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { generateFullV2Backup, restoreFullV2Backup } from '../utils/storageV2';
 import { SettingsPanel } from './SettingsPanel';
@@ -101,6 +104,29 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
   /** Sözlük katkısı notu açık mı? Kapalı başlar; herkesin okuması gerekmiyor. */
   const [katkiAcik, setKatkiAcik] = useState(false);
+
+  /*
+   * KALIP İSTATİSTİKLERİ.
+   *
+   * Kalıplar ayrı bir veri dosyasında ve tembel yükleniyor (~540 KB).
+   * İstatistik ekranı bunları göstermek istiyorsa veriyi kendisi
+   * istemeli — profil açıldığında bir kez indirilir, sonrası bedava.
+   * Ekranın geri kalanı beklemez: veri gelene kadar kalıp satırları
+   * çizilmez, diğer her şey yerindedir.
+   */
+  const [kaliplar, setKaliplar] = useState<WordCard[] | null>(null);
+
+  useEffect(() => {
+    let iptal = false;
+    void loadPhrases()
+      .then(() => {
+        if (!iptal) setKaliplar(getPhraseCards());
+      })
+      .catch(() => undefined);
+    return () => {
+      iptal = true;
+    };
+  }, []);
   /** İndirilen yedeğin dosya adı; kullanıcı telefonda arayabilsin diye. */
   const [exportedName, setExportedName] = useState('');
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
@@ -200,9 +226,25 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       oxfordBreakdown,
       sozlukDisiKelimeler,
       setSayisi: collections.length,
-      setlerdekiKelime: new Set(memberships.map(m => m.wordId)).size
+      setlerdekiKelime: new Set(memberships.map(m => m.wordId)).size,
+      /*
+       * Kalıpların seviye dağılımı. Kelimelerle aynı biçimde hesaplanıyor
+       * ama ayrı tutuluyor: ikisini toplamak, kullanıcının "B2 kelimelerin
+       * kaçını bitirdim" sorusunun cevabını bozardı.
+       */
+      kalipDagilimi: (['A1', 'A2', 'B1', 'B2', 'C1'] as Level[]).map(lvl => {
+        const grup = (kaliplar || []).filter(k => k.level === lvl);
+        let learned = 0;
+        let learning = 0;
+        grup.forEach(k => {
+          const st = getUserWordStatus(k.id, learningStates);
+          if (st === 'learned') learned++;
+          else if (st === 'learning') learning++;
+        });
+        return { lvl, total: grup.length, learned, learning };
+      })
     };
-  }, [customWords, oxfordWords, extraWords, collections, memberships, learningStates]);
+  }, [customWords, oxfordWords, extraWords, collections, memberships, learningStates, kaliplar]);
 
   /**
    * Tam yedek indirir.
@@ -491,37 +533,54 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <span>İstatistikler</span>
         </h3>
 
-        {/* Setler ve kendi kelimelerin */}
-        <div className="grid grid-cols-3 gap-2.5">
-          <div className="p-3 rounded-xl bg-[var(--bg)] border border-[var(--border)] text-center">
-            <Layers className="w-4 h-4 text-[var(--primary)] mx-auto mb-1" />
-            <div className="text-lg font-black text-[var(--text-primary)] tabular-nums">
-              {learningSummary.setSayisi}
+        {/*
+          KUTU DEĞİL, SATIR.
+
+          Üç sayı kutu içinde, seviyeler ise bambaşka bir biçimde duruyordu;
+          aynı ekranda iki ayrı tasarım dili vardı. Hepsi artık tek tip satır:
+          başında ikon, ortada ne olduğu, sonunda sayı. Göz tek bir hizada
+          aşağı iniyor ve satırlar birbiriyle karşılaştırılabiliyor.
+
+          Renkler satırın ne anlattığını ayırıyor — setler, kelimeler,
+          kalıplar — ama biçim aynı kalıyor.
+        */}
+        <div className="divide-y divide-[var(--border-light)] border border-[var(--border)] rounded-xl overflow-hidden">
+          {[
+            {
+              Icon: Layers,
+              renk: 'var(--primary)',
+              etiket: 'Oluşturduğun kelime seti sayısı',
+              deger: learningSummary.setSayisi.toLocaleString('tr-TR')
+            },
+            {
+              Icon: BookOpen,
+              renk: 'var(--learned)',
+              etiket: 'Setlere eklediğin toplam kelime sayısı',
+              deger: learningSummary.setlerdekiKelime.toLocaleString('tr-TR')
+            },
+            {
+              Icon: Sparkles,
+              renk: 'var(--learning)',
+              etiket: 'Eklediğin, uygulamada bulunmayan kelime sayısı',
+              deger: learningSummary.sozlukDisiKelimeler.length.toLocaleString('tr-TR')
+            }
+          ].map(satir => (
+            <div
+              key={satir.etiket}
+              className="px-3.5 py-2.5 flex items-center gap-2.5 bg-[var(--bg)]"
+            >
+              <satir.Icon className="w-4 h-4 shrink-0" style={{ color: satir.renk }} />
+              <span className="text-[11px] text-[var(--text-secondary)] flex-1 min-w-0 leading-snug">
+                {satir.etiket}:
+              </span>
+              <span className="text-sm font-black text-[var(--text-primary)] tabular-nums shrink-0">
+                {satir.deger}
+              </span>
             </div>
-            <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase mt-0.5 leading-tight">
-              Kelime seti
-            </p>
-          </div>
-          <div className="p-3 rounded-xl bg-[var(--bg)] border border-[var(--border)] text-center">
-            <BookOpen className="w-4 h-4 text-[var(--primary)] mx-auto mb-1" />
-            <div className="text-lg font-black text-[var(--text-primary)] tabular-nums">
-              {learningSummary.setlerdekiKelime.toLocaleString('tr-TR')}
-            </div>
-            <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase mt-0.5 leading-tight">
-              Setlerdeki kelime
-            </p>
-          </div>
-          <div className="p-3 rounded-xl bg-[var(--bg)] border border-[var(--border)] text-center">
-            <Sparkles className="w-4 h-4 text-[var(--learning)] mx-auto mb-1" />
-            <div className="text-lg font-black text-[var(--text-primary)] tabular-nums">
-              {learningSummary.sozlukDisiKelimeler.length}
-            </div>
-            <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase mt-0.5 leading-tight">
-              Sözlükte yok
-            </p>
-          </div>
+          ))}
         </div>
 
+        {/* Sözlük katkısı */}
         {/*
           SÖZLÜK KATKISI.
 
@@ -582,63 +641,94 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           </div>
         )}
 
-        {/* Seviyelere göre ilerleme */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <h4 className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
-              Oxford seviyelerine göre
+        {/*
+          SEVİYELER DE AYNI SATIR BİÇİMİNDE.
+
+          Her satır bir seviyeyi anlatıyor ve üç sayıyı birlikte veriyor:
+          öğrendim, tekrar, kalan. Kelimeler ve kalıplar ayrı gruplarda
+          duruyor — ikisini toplamak "B2'nin kaçını bitirdim" sorusunun
+          cevabını bozardı.
+        */}
+        <div className="space-y-3">
+          <div className="space-y-1">
+            <h4 className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider px-0.5">
+              Oxford Kelimeleri
             </h4>
-            {onNavigateToTab && (
-              <button
-                onClick={() => onNavigateToTab('oxford')}
-                className="text-[11px] font-bold text-[var(--primary)] hover:text-[var(--primary-hover)] cursor-pointer"
-              >
-                Listeye git →
-              </button>
-            )}
+            <div className="divide-y divide-[var(--border-light)] border border-[var(--border)] rounded-xl overflow-hidden">
+              {(['A1', 'A2', 'B1', 'B2', 'C1'] as Level[]).map(lvl => {
+                const d = learningSummary.oxfordBreakdown[lvl];
+                return (
+                  <button
+                    key={lvl}
+                    type="button"
+                    onClick={() => {
+                      if (onSelectLevel) onSelectLevel(lvl);
+                      if (onNavigateToTab) onNavigateToTab('oxford');
+                    }}
+                    className="w-full px-3.5 py-2.5 flex items-center gap-2.5 bg-[var(--bg)] hover:bg-[var(--surface-soft)] transition-colors cursor-pointer text-left"
+                  >
+                    <BookOpen className="w-4 h-4 shrink-0 text-[var(--primary)]" />
+                    <span className="text-[11px] text-[var(--text-secondary)] shrink-0">
+                      {lvl} Seviyesi:
+                    </span>
+                    <span className="text-[11px] flex-1 min-w-0 text-right tabular-nums">
+                      <span className="text-[var(--learned)] font-semibold">{d.learned} öğrendim</span>
+                      <span className="text-[var(--text-muted)]"> · </span>
+                      <span className="text-[var(--learning)] font-semibold">{d.learning} tekrar</span>
+                      <span className="text-[var(--text-muted)]"> · </span>
+                      <span className="text-[var(--text-muted)] font-semibold">
+                        {d.total - d.learned - d.learning} kalan
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {(['A1', 'A2', 'B1', 'B2', 'C1'] as Level[]).map(lvl => {
-            const data = learningSummary.oxfordBreakdown[lvl];
-            const ogrenildi = data.total > 0 ? Math.round((data.learned / data.total) * 100) : 0;
-            const ogreniliyor = data.total > 0 ? Math.round((data.learning / data.total) * 100) : 0;
-            const kalan = data.total - data.learned - data.learning;
-
-            return (
-              <button
-                key={lvl}
-                type="button"
-                onClick={() => {
-                  if (onSelectLevel) onSelectLevel(lvl);
-                  if (onNavigateToTab) onNavigateToTab('oxford');
-                }}
-                className="w-full p-3 rounded-xl bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition-colors cursor-pointer text-left space-y-1.5"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    <CEFRBadge level={lvl} size="sm" />
-                    <span className="text-[11px] font-semibold text-[var(--text-secondary)] tabular-nums">
-                      {data.total.toLocaleString('tr-TR')} kelime
+          {/*
+            Kalıp satırları yalnızca veri geldiğinde çizilir. Yüklenmeden
+            sıfır göstermek, kullanıcının hiç kalıp çalışmadığı izlenimini
+            verirdi — oysa henüz bilmiyoruz.
+          */}
+          {kaliplar && (
+            <div className="space-y-1">
+              <h4 className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider px-0.5">
+                Oxford Kalıplar ve Deyimler
+              </h4>
+              <div className="divide-y divide-[var(--border-light)] border border-[var(--border)] rounded-xl overflow-hidden">
+                {learningSummary.kalipDagilimi.map(d => (
+                  <div
+                    key={d.lvl}
+                    className="px-3.5 py-2.5 flex items-center gap-2.5 bg-[var(--bg)]"
+                  >
+                    <MessageSquareQuote className="w-4 h-4 shrink-0 text-[var(--learning)]" />
+                    <span className="text-[11px] text-[var(--text-secondary)] shrink-0">
+                      {d.lvl} Seviyesi:
+                    </span>
+                    <span className="text-[11px] flex-1 min-w-0 text-right tabular-nums">
+                      <span className="text-[var(--learned)] font-semibold">{d.learned} öğrendim</span>
+                      <span className="text-[var(--text-muted)]"> · </span>
+                      <span className="text-[var(--learning)] font-semibold">{d.learning} tekrar</span>
+                      <span className="text-[var(--text-muted)]"> · </span>
+                      <span className="text-[var(--text-muted)] font-semibold">
+                        {d.total - d.learned - d.learning} kalan
+                      </span>
                     </span>
                   </div>
-                  <span className="text-xs font-bold text-[var(--learned)] shrink-0">
-                    %{ogrenildi}
-                  </span>
-                </div>
+                ))}
+              </div>
+            </div>
+          )}
 
-                <div className="h-1.5 w-full bg-[var(--border)] rounded-full overflow-hidden flex">
-                  <div className="h-full bg-[var(--learned)]" style={{ width: `${ogrenildi}%` }} />
-                  <div className="h-full bg-[var(--learning)]" style={{ width: `${ogreniliyor}%` }} />
-                </div>
-
-                <div className="flex justify-between text-[10px] font-semibold tabular-nums">
-                  <span className="text-[var(--learned)]">{data.learned} öğrendim</span>
-                  <span className="text-[var(--learning)]">{data.learning} tekrar</span>
-                  <span className="text-[var(--text-muted)]">{kalan} kalan</span>
-                </div>
-              </button>
-            );
-          })}
+          {onNavigateToTab && (
+            <button
+              onClick={() => onNavigateToTab('oxford')}
+              className="text-[11px] font-bold text-[var(--primary)] hover:text-[var(--primary-hover)] cursor-pointer"
+            >
+              Listeye git →
+            </button>
+          )}
         </div>
       </div>
 
