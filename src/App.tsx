@@ -34,6 +34,7 @@ import {
 import {
   runV1toV2MigrationIfNeeded,
   getCollectionsV2,
+  saveCollectionsV2,
   createCollectionV2,
   updateCollectionV2,
   deleteCollectionV2,
@@ -307,6 +308,28 @@ export default function App() {
 
   const handleUpdateCollection = (deck: Collection) => {
     updateCollectionV2(deck);
+    setCollections(getCollectionsV2());
+  };
+
+  /**
+   * Bir seti listede bir sıra yukarı ya da aşağı taşır.
+   *
+   * NEDEN SÜRÜKLE-BIRAK DEĞİL. Telefonda sürükleyerek sıralama, listenin
+   * kendisi de kaydırılabilir olduğunda güvenilir çalışmıyor: kullanıcı
+   * sıralamak isterken sayfayı kaydırıyor ya da tersi. İki düğme daha yavaş
+   * ama her seferinde çalışır ve ne yaptığı bellidir.
+   *
+   * Sıra `collections` dizisinin kendi sırasıdır; taşıma iki komşuyu takas
+   * edip listeyi olduğu gibi kaydeder.
+   */
+  const handleMoveCollection = (id: string, yon: 'yukari' | 'asagi') => {
+    const liste = getCollectionsV2();
+    const i = liste.findIndex(d => d.id === id);
+    if (i < 0) return;
+    const j = yon === 'yukari' ? i - 1 : i + 1;
+    if (j < 0 || j >= liste.length) return;
+    [liste[i], liste[j]] = [liste[j], liste[i]];
+    saveCollectionsV2(liste);
     setCollections(getCollectionsV2());
   };
 
@@ -624,6 +647,7 @@ export default function App() {
             onToggleFavorite={handleToggleFavorite}
             onCreateCollection={handleCreateCollection}
             onUpdateCollection={handleUpdateCollection}
+            onMoveCollection={handleMoveCollection}
             onDeleteCollection={handleDeleteCollection}
             onAddCustomWord={handleAddCustomWord}
             onUpdateCustomWord={handleUpdateCustomWord}

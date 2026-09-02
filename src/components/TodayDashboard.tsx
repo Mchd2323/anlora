@@ -369,7 +369,15 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
         {hasSets ? (
           <div className="space-y-3 pt-2 border-t border-[var(--border-light)]">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-              {collections.slice(0, 3).map((deck) => {
+              {/*
+                ANA SAYFADA EN FAZLA İKİ SET.
+
+                Burası bir özet; kullanıcının bütün setlerini yönettiği yer
+                değil. Üç set kutunun yüksekliğini gereksiz büyütüyor ve
+                altındaki bölümleri aşağı itiyordu. Tamamı için hemen altta
+                'Tüm Setlerimi Gör' düğmesi duruyor.
+              */}
+              {collections.slice(0, 2).map((deck) => {
                 const count = memberships.filter((m) => m.collectionId === deck.id).length;
                 let learned = 0;
                 let learning = 0;

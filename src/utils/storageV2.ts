@@ -830,6 +830,8 @@ export const recordStudyResultV2 = recordStudyResult;
 export const getFavoritesV2 = getFavorites;
 export const toggleFavoriteV2 = toggleFavorite;
 export const getUserStatsV2 = getUserStats;
+/** Sıralama değişikliği için: listeyi olduğu gibi kaydeder. */
+export const saveCollectionsV2 = saveCollections;
 export const recordActivityForStreakV2 = recordActivityForStreak;
 export const getUnlockedBadgesV2 = getUnlockedBadges;
 export const getUserSettingsV2 = getUserSettings;

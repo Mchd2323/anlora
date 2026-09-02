@@ -39,9 +39,12 @@ import {
   AlertCircle,
   Volume2,
   ChevronDown,
-  GitMerge
+  GitMerge,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 import { getPhraseCard } from '../services/phraseRepository';
+import { DeckOptionFields, DeckOptionValues } from './collections/DeckOptionFields';
 import { calculateCollectionProgress } from '../utils/srsEngine';
 import { BatchWordModal } from './BatchWordModal';
 import { TextMinerModal } from './TextMinerModal';
@@ -73,6 +76,8 @@ interface CollectionsViewProps {
   onToggleFavorite: (id: string) => void;
   onCreateCollection: (name: string, description?: string, color?: string, iconName?: string) => Collection;
   onUpdateCollection: (deck: Collection) => void;
+  /** Seti listede bir sıra yukarı/aşağı taşır. */
+  onMoveCollection?: (id: string, yon: 'yukari' | 'asagi') => void;
   onDeleteCollection: (id: string) => void;
   onAddCustomWord: (card: WordCard, collectionId?: string, sourceContext?: string, sourceName?: string) => void;
   onUpdateCustomWord: (card: WordCard) => void;
@@ -147,6 +152,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   onToggleFavorite,
   onCreateCollection,
   onUpdateCollection,
+  onMoveCollection,
   onDeleteCollection,
   onAddCustomWord,
   onUpdateCustomWord,
@@ -213,11 +219,18 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     };
   }, [collections, activeDeckId]);
 
-  const aranmisGizliSetler = useMemo(() => {
+  /*
+   * Açılır liste GİZLİ setleri değil, TÜM setleri gösterir.
+   *
+   * 'Diğer N set' derken yalnızca görünmeyenleri listelemek mantıklıydı ama
+   * düğme 'Tüm setleri gör' olunca kullanıcı hepsini bekliyor; üçünü dışarıda
+   * bırakmak sözünü tutmamak olurdu.
+   */
+  const aranmisTumSetler = useMemo(() => {
     const q = setAramasi.trim().toLocaleLowerCase('tr');
-    if (!q) return gizliSetler;
-    return gizliSetler.filter(d => d.name.toLocaleLowerCase('tr').includes(q));
-  }, [gizliSetler, setAramasi]);
+    if (!q) return collections;
+    return collections.filter(d => d.name.toLocaleLowerCase('tr').includes(q));
+  }, [collections, setAramasi]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isStudyingFlashcards, setIsStudyingFlashcards] = useState(false);
 
@@ -306,6 +319,15 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
   // Deck Form State
   const [newDeckName, setNewDeckName] = useState('');
+  /*
+   * Yeni setin görünüm seçenekleri.
+   *
+   * Oluşturma penceresi yalnızca ad ve açıklama istiyordu; rengi, simgeyi ya
+   * da sıralamayı seçmek için kullanıcının seti önce kurup sonra düzenlemesi
+   * gerekiyordu. Aynı işi iki adıma bölmek, seçeneği hiç sunmamaktan da kötü:
+   * kullanıcı özelliğin var olduğunu ancak tesadüfen öğreniyordu.
+   */
+  const [newDeckOptions, setNewDeckOptions] = useState<DeckOptionValues>({});
   const [newDeckDesc, setNewDeckDesc] = useState('');
   const [editingDeck, setEditingDeck] = useState<Collection | null>(null);
 
@@ -1213,6 +1235,48 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       </button>
 
                       {/*
+                        SIRALAMA KULLANICININ ELİNDE.
+
+                        Setler eklenme sırasına göre diziliydi; en çok
+                        çalıştığı seti en üste almak isteyen kullanıcının
+                        elinde sabitlemekten başka bir yol yoktu ve sabitleme
+                        yalnızca ikili bir işaret — üç seti kendi arasında
+                        sıralamaya yetmiyor.
+
+                        Sürükle-bırak yerine iki düğme: telefonda sürükleyerek
+                        sıralama, listenin kendisi de kaydırılabilir olduğunda
+                        güvenilir çalışmıyor. Düğmeler daha yavaş ama her
+                        seferinde çalışır.
+                      */}
+                      {onMoveCollection && collections.length > 1 && (
+                        <>
+                          <button
+                            onClick={() => {
+                              onMoveCollection(deck.id, 'yukari');
+                              setOpenMenuDeckId(null);
+                            }}
+                            disabled={collections[0]?.id === deck.id}
+                            className="w-full px-3.5 py-2 hover:bg-[var(--surface-soft)] flex items-center gap-2 text-left cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5 text-[var(--primary)]" />
+                            <span>Yukarı taşı</span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              onMoveCollection(deck.id, 'asagi');
+                              setOpenMenuDeckId(null);
+                            }}
+                            disabled={collections[collections.length - 1]?.id === deck.id}
+                            className="w-full px-3.5 py-2 hover:bg-[var(--surface-soft)] flex items-center gap-2 text-left cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5 text-[var(--primary)]" />
+                            <span>Aşağı taşı</span>
+                          </button>
+                          <div className="border-t border-[var(--border-light)] my-1" />
+                        </>
+                      )}
+
+                      {/*
                         Birleştirme bu menüye de kondu. Özellik zaten vardı ama
                         yalnızca açık setin araç çubuğunda duruyordu; kullanıcı
                         "şu iki seti birleştireyim" diye düşündüğünde eli önce
@@ -1292,15 +1356,27 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
           */}
           {gizliSetler.length > 0 && (
             <div className="relative">
+              {/*
+                BELİRGİN BİR DÜĞME, SOLUK BİR AÇILIR MENÜ DEĞİL.
+
+                'Diğer N set' satırı listenin devamı gibi görünüyordu ve
+                gözden kaçıyordu. Kullanıcının bütün setlerine ulaşması
+                ikincil bir işlem değil; düğme de öyle görünmeli.
+              */}
               <button
                 type="button"
                 onClick={() => setSetListesiAcik(o => !o)}
                 aria-expanded={setListesiAcik}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-soft)] text-xs font-semibold text-[var(--text-primary)] flex items-center justify-between gap-2 transition-colors cursor-pointer"
+                className="w-full px-4 py-3 rounded-xl border-2 border-[var(--primary-border)] bg-[var(--primary-soft)] hover:bg-[var(--primary-soft-hover)] text-xs font-bold text-[var(--primary)] flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
-                <span>Diğer {gizliSetler.length} set</span>
+                <Layers className="w-4 h-4" />
+                <span>
+                  {setListesiAcik
+                    ? 'Listeyi kapat'
+                    : `Tüm setleri gör (${collections.length})`}
+                </span>
                 <ChevronDown
-                  className={`w-3.5 h-3.5 text-[var(--text-secondary)] transition-transform ${
+                  className={`w-3.5 h-3.5 transition-transform ${
                     setListesiAcik ? 'rotate-180' : ''
                   }`}
                 />
@@ -1308,7 +1384,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
               {setListesiAcik && (
                 <div className="mt-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-lg overflow-hidden">
-                  {gizliSetler.length > 6 && (
+                  {collections.length > 6 && (
                     <div className="p-2 border-b border-[var(--border-light)]">
                       <input
                         type="text"
@@ -1320,12 +1396,12 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     </div>
                   )}
                   <div className="max-h-64 overflow-y-auto">
-                    {aranmisGizliSetler.length === 0 ? (
+                    {aranmisTumSetler.length === 0 ? (
                       <p className="px-3 py-4 text-xs text-[var(--text-muted)] text-center">
                         Eşleşen set yok.
                       </p>
                     ) : (
-                      aranmisGizliSetler.map(deck => {
+                      aranmisTumSetler.map(deck => {
                         const sayi = memberships.filter(m => m.collectionId === deck.id).length;
                         return (
                           <button
@@ -1700,11 +1776,27 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 if (!newDeckName.trim()) return;
                 const created = onCreateCollection(
                   newDeckName.trim(),
-                  newDeckDesc.trim() || undefined
+                  newDeckDesc.trim() || undefined,
+                  newDeckOptions.color,
+                  newDeckOptions.iconName
                 );
+                /*
+                 * Sıralama ve sabitleme oluşturma çağrısında yok; set
+                 * kurulduktan hemen sonra tek güncellemeyle yazılıyor.
+                 * Kullanıcı açısından fark yok — pencereyi kapattığında
+                 * seçtiği her şey yerinde.
+                 */
+                if (newDeckOptions.sortMode || newDeckOptions.isPinned) {
+                  onUpdateCollection({
+                    ...created,
+                    sortMode: newDeckOptions.sortMode,
+                    isPinned: newDeckOptions.isPinned
+                  });
+                }
                 setActiveDeckId(created.id);
                 setNewDeckName('');
                 setNewDeckDesc('');
+                setNewDeckOptions({});
                 setShowCreateModal(false);
               }}
               className="space-y-3.5"
@@ -1736,6 +1828,13 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   className="w-full px-3.5 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none text-[var(--text-primary)]"
                 />
               </div>
+
+              <DeckOptionFields
+                deger={newDeckOptions}
+                degistir={setNewDeckOptions}
+                renkler={DECK_COLORS}
+                simgeler={DECK_ICONS}
+              />
 
               <div className="flex justify-end gap-2 pt-2">
                 <button
@@ -1800,92 +1899,17 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5">
-                  Renk
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {DECK_COLORS.map((color) => (
-                    <button
-                      key={color.id}
-                      type="button"
-                      onClick={() => setEditingDeck({ ...editingDeck, color: color.id })}
-                      title={color.label}
-                      aria-label={color.label}
-                      aria-pressed={(editingDeck.color || 'indigo') === color.id}
-                      className={`w-8 h-8 rounded-xl transition-transform cursor-pointer ${
-                        (editingDeck.color || 'indigo') === color.id
-                          ? 'ring-2 ring-offset-2 ring-[var(--text-primary)] scale-105'
-                          : 'hover:scale-105'
-                      }`}
-                      style={{ background: color.hex }}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5">
-                  Simge
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {DECK_ICONS.map(({ id, label, Icon }) => (
-                    <button
-                      key={id}
-                      type="button"
-                      onClick={() => setEditingDeck({ ...editingDeck, iconName: id })}
-                      title={label}
-                      aria-label={label}
-                      aria-pressed={(editingDeck.iconName || 'Layers') === id}
-                      className={`w-8 h-8 rounded-xl border flex items-center justify-center transition-colors cursor-pointer ${
-                        (editingDeck.iconName || 'Layers') === id
-                          ? 'bg-[var(--text-primary)] text-[var(--bg)] border-[var(--text-primary)]'
-                          : 'bg-[var(--bg)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
-                      }`}
-                    >
-                      <Icon className="w-4 h-4" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
-                  Kelime Sırası
-                </label>
-                <select
-                  value={editingDeck.sortMode || 'added'}
-                  onChange={(e) =>
-                    setEditingDeck({
-                      ...editingDeck,
-                      sortMode: e.target.value as Collection['sortMode']
-                    })
-                  }
-                  className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl font-semibold text-[var(--text-primary)]"
-                >
-                  <option value="added">Eklediğim sıraya göre</option>
-                  <option value="alphabetical">Alfabetik (A–Z)</option>
-                  <option value="level">Seviyeye göre (kolaydan zora)</option>
-                  <option value="date">Tarihe göre (en yeni üstte)</option>
-                  <option value="status">Öğrenme durumuna göre</option>
-                </select>
-                <p className="text-[11px] text-[var(--text-muted)] mt-1">
-                  Sıra yalnızca görünümü değiştirir; kelimeler silinmez.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  type="checkbox"
-                  id="pinCheck"
-                  checked={!!editingDeck.isPinned}
-                  onChange={(e) => setEditingDeck({ ...editingDeck, isPinned: e.target.checked })}
-                  className="w-4 h-4 rounded text-[var(--primary)]"
-                />
-                <label htmlFor="pinCheck" className="text-xs font-semibold text-[var(--text-primary)]">
-                  Bu seti listenin başına sabitle
-                </label>
-              </div>
+              {/*
+                Dört seçenek ortak bileşende: aynı alanlar yeni set
+                oluştururken de gösteriliyor. İkisine ayrı ayrı yazılsalardı
+                biri değiştiğinde diğeri sessizce geride kalırdı.
+              */}
+              <DeckOptionFields
+                deger={editingDeck}
+                degistir={yeniDeger => setEditingDeck({ ...editingDeck, ...yeniDeger })}
+                renkler={DECK_COLORS}
+                simgeler={DECK_ICONS}
+              />
 
               <div className="flex justify-end gap-2 pt-3">
                 <button
