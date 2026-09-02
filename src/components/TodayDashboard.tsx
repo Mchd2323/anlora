@@ -24,7 +24,7 @@ import {
   RotateCw,
   CloudUpload
 } from 'lucide-react';
-import { getUserWordStatus } from '../utils/storageV2';
+import { getUserWordStatus, getCurrentStreak, streakCountedToday } from '../utils/storageV2';
 import { readJSON, writeJSON } from '../utils/safeStorage';
 import { summarizeQueue } from '../utils/srsEngine';
 import { CEFRBadge } from './ui/CEFRBadge';
@@ -90,16 +90,29 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
   // sayılır. Tek bir "vadesi gelen" sayısı vermek, dokunulmamış tüm Oxford
   // sözlüğünü (~3.900 madde) günlük göreve dönüştürüyordu.
   const todayQueue = useMemo(() => {
-    const ids = [...oxfordWords, ...customWords].map(w => w.id);
+    /*
+     * Ek liste de sayılmalı. Önceki hâli yalnızca `oxfordWords`ü (Oxford
+     * 3000, 3.308 madde) sayıyordu ama hemen altındaki açıklama "5.323
+     * kelime içinden" diyordu; ekranda birbiriyle çelişen iki sayı duruyordu.
+     */
+    const ids = [...oxfordWords, ...extraWords, ...customWords].map(w => w.id);
     return summarizeQueue(ids, learningStates);
-  }, [oxfordWords, customWords, learningStates]);
+  }, [oxfordWords, extraWords, customWords, learningStates]);
 
   const reviewGoal = settings?.dailyReviewGoal ?? 15;
   const newGoal = settings?.dailyNewWordsGoal ?? 5;
   const plannedReviews = Math.min(todayQueue.dueCount, reviewGoal);
   const plannedNew = Math.min(todayQueue.newCount, newGoal);
   const plannedTotal = plannedReviews + plannedNew;
-  const streakDays = stats?.streakDays ?? 0;
+  /*
+   * Seri: SAKLANAN değil, O AN GEÇERLİ olan.
+   *
+   * `stats.streakDays` yalnızca çalışıldığında güncelleniyor; kullanıcı
+   * birkaç gün uğramazsa o alan son çalıştığı günkü değerde kalıyor ve
+   * ekran kopmuş bir seriyi yaşıyormuş gibi gösteriyordu.
+   */
+  const streakDays = getCurrentStreak();
+  const bugunSayildi = streakCountedToday();
   /** Oxford 5000'in tamamı: 3000 çekirdek + Ek liste. */
   const oxfordToplam = oxfordWords.length + extraWords.length;
   /*
@@ -601,7 +614,9 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
                   {streakDays} gündür aralıksız
                 </div>
                 <div className="text-[10px] text-[var(--learning-text)]/75">
-                  Bugün de çalışırsan {streakDays + 1} olur
+                  {bugunSayildi
+                    ? 'Bugünü tamamladın, yarın da gel'
+                    : `Bugün de çalışırsan ${streakDays + 1} olur`}
                 </div>
               </div>
             </div>

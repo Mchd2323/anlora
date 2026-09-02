@@ -196,12 +196,24 @@ export function runV1toV2MigrationIfNeeded(oxfordWordsList: WordCard[] = []): vo
     writeJSON(V2_KEYS.SETTINGS, DEFAULT_SETTINGS);
     writeJSON(V2_KEYS.FAVORITES, v1Favorites);
 
+    /*
+     * YENİ KURULUMDA SERİ SIFIRDIR.
+     *
+     * Burada `streakDays: 1` ve `lastActiveDate: şimdi` yazılıyordu; yani
+     * uygulamayı ilk açan, tek bir kart bile çalışmamış kullanıcıya ekranda
+     * "1 gündür aralıksız" deniyordu. Seri bir ÖDÜLDÜR, çalışılarak kazanılır;
+     * kurulum anında hediye edilmesi hem yanlış hem de sayacın geri kalanını
+     * güvenilmez kılıyordu.
+     *
+     * `lastActiveDate` de boş bırakılıyor: "son çalışma" diye bir şey henüz
+     * yok. İlk kart çalışıldığında `recordActivityForStreak` seriyi 1 yapar.
+     */
     const finalStats: UserStats = v1Stats || {
       totalQuizzesTaken: 0,
       totalCorrect: 0,
       totalWrong: 0,
-      streakDays: 1,
-      lastActiveDate: nowIso,
+      streakDays: 0,
+      lastActiveDate: '',
       mistakesMap: {},
       learnedCount: v1Learned.length,
       favoriteCount: v1Favorites.length,
@@ -603,7 +615,8 @@ export function createDefaultUserStats(): UserStats {
     totalCorrect: 0,
     totalWrong: 0,
     streakDays: 0,
-    lastActiveDate: new Date().toISOString(),
+    // Henüz çalışılmadı; "son çalışma" boştur (bkz. yukarıdaki açıklama).
+    lastActiveDate: '',
     mistakesMap: {},
     learnedCount: 0,
     favoriteCount: 0,
@@ -631,6 +644,35 @@ export function getUserStats(): UserStats {
  *   - bir gün atlanmışsa seri 1'e döner,
  *   - ileri tarihli bozuk kayıt varsa seri sıfırlanmadan korunur.
  */
+/**
+ * O ANDA GEÇERLİ seriyi verir; saklanan değeri olduğu gibi değil.
+ *
+ * NEDEN AYRI BİR HESAP. `stats.streakDays` yalnızca kullanıcı çalıştığında
+ * güncelleniyor. Kullanıcı üç gün uğramazsa o alan son çalıştığı günkü
+ * değerde kalır ve ekran "1 gündür aralıksız" demeye devam eder — oysa seri
+ * çoktan kopmuştur. Saklanan değer bir GEÇMİŞ kaydıdır, bugünün durumu
+ * değildir; ikisini karıştırmak kullanıcıya yanlış bilgi vermekti.
+ *
+ * Kural: seri ancak bugün ya da dün çalışılmışsa yaşıyordur. Dün çalışılmışsa
+ * seri hâlâ ayakta sayılır, çünkü kullanıcının bugünü henüz bitmedi.
+ */
+export function getCurrentStreak(now: Date = new Date()): number {
+  const stats = getUserStats();
+  if (!isValidDate(stats.lastActiveDate)) return 0;
+
+  const gecenGun = differenceInCalendarDays(now, stats.lastActiveDate);
+  if (gecenGun < 0) return stats.streakDays || 0; // cihaz saati ileri: bozma
+  if (gecenGun <= 1) return stats.streakDays || 0;
+  return 0;
+}
+
+/** Seri bugün çalışılarak zaten ilerletildi mi? */
+export function streakCountedToday(now: Date = new Date()): boolean {
+  const stats = getUserStats();
+  if (!isValidDate(stats.lastActiveDate)) return false;
+  return differenceInCalendarDays(now, stats.lastActiveDate) === 0;
+}
+
 export function recordActivityForStreak(now: Date = new Date()): UserStats {
   const stats = getUserStats();
   const previous = stats.lastActiveDate;

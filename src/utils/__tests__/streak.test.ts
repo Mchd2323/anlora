@@ -28,8 +28,14 @@ class MemoryStorage {
 const storage = new MemoryStorage();
 vi.stubGlobal('localStorage', storage);
 
-const { recordActivityForStreak, getUserStats, saveUserStats, createDefaultUserStats } =
-  await import('../storageV2');
+const {
+  recordActivityForStreak,
+  getUserStats,
+  saveUserStats,
+  createDefaultUserStats,
+  getCurrentStreak,
+  streakCountedToday
+} = await import('../storageV2');
 
 function daysAgo(n: number): string {
   const d = new Date();
@@ -98,5 +104,87 @@ describe('getUserStats', () => {
   it("bozuk JSON verisinde varsayılana döner", () => {
     storage.setItem('lexiflow_v2_stats', '{bozuk');
     expect(getUserStats().totalCorrect).toBe(0);
+  });
+});
+
+/**
+ * Saklanan seri ile O AN GEÇERLİ seri farklı şeylerdir.
+ *
+ * `streakDays` yalnızca çalışıldığında güncelleniyor; kullanıcı birkaç gün
+ * uğramazsa alan son çalıştığı günkü değerde kalıyor. Ekran o değeri olduğu
+ * gibi gösterince kopmuş bir seri yaşıyormuş gibi görünüyordu — kullanıcının
+ * bildirdiği hata buydu: üç gün girmediği hâlde "1 gündür aralıksız".
+ */
+describe('getCurrentStreak', () => {
+  beforeEach(() => {
+    storage.clear();
+  });
+
+  it('hiç çalışılmamışsa 0 döner', () => {
+    expect(getCurrentStreak()).toBe(0);
+  });
+
+  it('bugün çalışılmışsa saklanan seriyi döner', () => {
+    saveUserStats({ ...createDefaultUserStats(), streakDays: 5, lastActiveDate: daysAgo(0) });
+    expect(getCurrentStreak()).toBe(5);
+  });
+
+  it('dün çalışılmışsa seri hâlâ ayaktadır', () => {
+    // Kullanıcının bugünü henüz bitmedi; bugün çalışırsa seri devam eder.
+    saveUserStats({ ...createDefaultUserStats(), streakDays: 5, lastActiveDate: daysAgo(1) });
+    expect(getCurrentStreak()).toBe(5);
+  });
+
+  it('iki gün önce çalışılmışsa seri KOPMUŞTUR', () => {
+    saveUserStats({ ...createDefaultUserStats(), streakDays: 5, lastActiveDate: daysAgo(2) });
+    expect(getCurrentStreak()).toBe(0);
+  });
+
+  it('kullanıcının bildirdiği durum: üç gün uğramamış, seri 1 görünüyordu', () => {
+    saveUserStats({ ...createDefaultUserStats(), streakDays: 1, lastActiveDate: daysAgo(3) });
+    expect(getCurrentStreak()).toBe(0);
+  });
+});
+
+describe('streakCountedToday', () => {
+  beforeEach(() => {
+    storage.clear();
+  });
+
+  it('bugün çalışılmışsa true', () => {
+    saveUserStats({ ...createDefaultUserStats(), streakDays: 2, lastActiveDate: daysAgo(0) });
+    expect(streakCountedToday()).toBe(true);
+  });
+
+  it('dün çalışılmışsa false — bugün hâlâ çalışılabilir', () => {
+    saveUserStats({ ...createDefaultUserStats(), streakDays: 2, lastActiveDate: daysAgo(1) });
+    expect(streakCountedToday()).toBe(false);
+  });
+});
+
+/**
+ * Seri kazanılır, hediye edilmez.
+ *
+ * Kurulumda `streakDays: 1` ve `lastActiveDate: şimdi` yazılıyordu; uygulamayı
+ * ilk açan, tek kart bile çalışmamış kullanıcı "1 gündür aralıksız" görüyordu.
+ */
+describe('yeni kurulum', () => {
+  beforeEach(() => {
+    storage.clear();
+  });
+
+  it('hiç çalışmamış kullanıcının serisi 0’dır', () => {
+    const stats = createDefaultUserStats();
+    expect(stats.streakDays).toBe(0);
+    expect(stats.lastActiveDate).toBe('');
+    saveUserStats(stats);
+    expect(getCurrentStreak()).toBe(0);
+  });
+
+  it('ilk kart çalışıldığında seri 1 olur', () => {
+    saveUserStats(createDefaultUserStats());
+    expect(getCurrentStreak()).toBe(0);
+    recordActivityForStreak();
+    expect(getCurrentStreak()).toBe(1);
   });
 });
