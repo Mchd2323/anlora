@@ -41,14 +41,18 @@ import { BRAND } from '../config/brand';
 import { OxfordGroupKey } from '../types/oxford';
 
 /** Sınav kaynağı olarak seçilebilen Oxford grupları. */
-const OXFORD_GROUP_KEYS: OxfordGroupKey[] = ['A1', 'A2', 'B1', 'B2', 'B2_EK', 'C1'];
+/*
+ * 'B2_EK' listeden çıkarıldı: ek listenin B2'si de B2'dir, ayrı bir seviye
+ * değil. Sınav kaynağı olarak iki ayrı satır göstermek kullanıcıya olmayan
+ * bir ayrım öğretiyordu.
+ */
+const OXFORD_GROUP_KEYS: OxfordGroupKey[] = ['A1', 'A2', 'B1', 'B2', 'C1'];
 
-const OXFORD_GROUP_LABELS: Record<OxfordGroupKey, string> = {
+const OXFORD_GROUP_LABELS: Partial<Record<OxfordGroupKey, string>> = {
   A1: 'Oxford A1',
   A2: 'Oxford A2',
   B1: 'Oxford B1',
   B2: 'Oxford B2',
-  B2_EK: 'Oxford B2 Ek',
   C1: 'Oxford C1'
 };
 
@@ -61,7 +65,7 @@ const OXFORD_GROUP_LABELS: Record<OxfordGroupKey, string> = {
 function oxfordGroupOf(card: WordCard): OxfordGroupKey | null {
   const id = card.sourceEntryId || card.id;
   if (typeof id !== 'string') return null;
-  if (id.startsWith('ox5k-')) return card.level === 'C1' ? 'C1' : 'B2_EK';
+  if (id.startsWith('ox5k-')) return card.level === 'C1' ? 'C1' : 'B2';
   if (id.startsWith('ox3k-')) return (card.level as OxfordGroupKey) || null;
   return null;
 }
@@ -146,7 +150,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
   };
 
   const handleSelectAllOxford = () => {
-    setSelectedSources(['A1', 'A2', 'B1', 'B2', 'B2_EK', 'C1']);
+    setSelectedSources(['A1', 'A2', 'B1', 'B2', 'C1']);
   };
 
   // Oxford grup sayıları; arayüzde sabit sayı yazmak yerine veriden okunur.

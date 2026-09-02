@@ -678,9 +678,6 @@ export default function App() {
             onStartStudy={() => {
               setActiveTab('study');
             }}
-            onStartQuiz={() => {
-              setActiveTab('quiz');
-            }}
           />
         )}
 

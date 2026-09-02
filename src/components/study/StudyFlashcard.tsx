@@ -243,7 +243,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
           onClick={onBack}
           className="px-4 py-2 bg-[var(--bg)] text-[var(--text-primary)] border border-[var(--border)] text-xs font-semibold rounded-xl cursor-pointer hover:bg-[var(--surface-soft)]"
         >
-          {sourceContextName ? `← ${sourceContextName}` : 'Geri Dön'}
+          ← Geri
         </button>
       </div>
     );
@@ -330,12 +330,18 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
         <button
           onClick={isFullscreen ? () => setIsFullscreen(false) : onBack}
           className="flex items-center gap-1.5 -ml-1 px-2.5 py-1.5 text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--surface-soft)] transition-colors cursor-pointer shrink-0"
-          title={sourceContextName || 'Geri'}
+          /*
+            SADECE 'GERİ'.
+
+            Burada geldiği yerin tam adı yazıyordu: '← Oxford 5000 (A2)'.
+            Uzun, satıra sığmıyor ve kırpılıyordu; üstelik kullanıcı zaten
+            nereden geldiğini biliyor — ok işaretinin söylediği tek şey
+            'çık' olmalı. Tam ad, dokununca çıkan ipucunda duruyor.
+          */
+          title={sourceContextName ? `${sourceContextName} ekranına dön` : 'Geri'}
         >
           <ArrowLeft className="w-4 h-4" />
-          <span className="max-w-[120px] sm:max-w-[220px] truncate">
-            {isFullscreen ? 'Tam ekrandan çık' : sourceContextName || 'Geri'}
-          </span>
+          <span>{isFullscreen ? 'Tam ekrandan çık' : 'Geri'}</span>
         </button>
 
         <div className="min-w-0 text-center">

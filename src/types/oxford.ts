@@ -119,3 +119,19 @@ export function shouldShowCefr(card: { sourceType?: string; isCustom?: boolean; 
   if (card.isCustom || card.sourceType === 'custom') return false;
   return card.sourceType === 'oxford' && !!card.level;
 }
+
+/**
+ * Bir grup anahtarını ARAYÜZDE GÖSTERİLECEK seviyeye çevirir.
+ *
+ * NEDEN GEREKLİ. Veride 'B2' ve 'B2_EK' diye iki ayrı grup var ama ikisi de
+ * CEFR bakımından B2'dir; aralarındaki tek fark hangi Oxford listesinden
+ * geldikleridir (Oxford 3000'in içi mi, 5000'i tamamlayan ek liste mi).
+ * Kullanıcı için bu ayrımın bir karşılığı yok: 'B2 Ek' etiketi, sanki B2'den
+ * başka bir seviyeymiş gibi okunuyordu.
+ *
+ * Kaynak ayrımı veri katmanında KORUNUYOR — hangi kaydın nereden geldiği
+ * bilinmeye devam ediyor — yalnızca gösterim birleşiyor: B2 = 727 + 700.
+ */
+export function toDisplayLevel(group: OxfordGroupKey | string): string {
+  return group === 'B2_EK' ? 'B2' : group;
+}

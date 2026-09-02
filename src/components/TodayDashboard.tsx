@@ -62,7 +62,7 @@ interface TodayDashboardProps {
   };
   announcements?: { id: string; title: string; body: string; createdAt: string }[];
   onNavigateToTab: (tab: string) => void;
-  onSelectLevel?: (level: Level | 'B2_EK') => void;
+  onSelectLevel?: (level: Level) => void;
   onOpenCreateSet?: () => void;
   onOpenAuthModal?: () => void;
   onStartStudy?: (collectionId?: string) => void;
@@ -130,7 +130,6 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
       A2: { total: 0, learned: 0, learning: 0 },
       B1: { total: 0, learned: 0, learning: 0 },
       B2: { total: 0, learned: 0, learning: 0 },
-      B2_EK: { total: 0, learned: 0, learning: 0 },
       C1: { total: 0, learned: 0, learning: 0 }
     };
 
@@ -143,7 +142,8 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
     };
 
     oxfordWords.forEach(w => tally(w, w.level || ''));
-    extraWords.forEach(w => tally(w, w.level === 'C1' ? 'C1' : 'B2_EK'));
+    // Ek listenin B2'si de B2'dir; ayrı bir seviye değil (bkz. toDisplayLevel).
+    extraWords.forEach(w => tally(w, w.level === 'C1' ? 'C1' : 'B2'));
 
     return counts;
   }, [oxfordWords, extraWords, learningStates]);
@@ -503,12 +503,6 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
               topBorder: 'border-t-2 border-t-[var(--cefr-b2)]'
             },
             {
-              level: 'B2_EK' as const,
-              title: 'B2 Ek',
-              stats: oxfordLevelStats.B2_EK,
-              topBorder: 'border-t-2 border-t-[var(--cefr-b2-strong)]'
-            },
-            {
               level: 'C1' as const,
               title: 'C1 İleri',
               stats: oxfordLevelStats.C1,
@@ -528,7 +522,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
                 className={`p-4 rounded-xl bg-[var(--bg)] hover:bg-[var(--surface-soft)] border border-[var(--border)] hover:border-[var(--neutral-300)] text-left transition-all group relative cursor-pointer ${lvl.topBorder}`}
               >
                 <div className="flex items-center justify-between">
-                  <CEFRBadge level={lvl.level === 'B2_EK' ? 'B2 EK' : lvl.level} size="sm" />
+                  <CEFRBadge level={lvl.level} size="sm" />
                   <ChevronRight className="w-4 h-4 text-[var(--text-muted)] group-hover:text-[var(--primary)] group-hover:translate-x-0.5 transition-transform" />
                 </div>
 

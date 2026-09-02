@@ -82,7 +82,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     },
     {
       id: 'oxford' as TabType,
-      label: 'Oxford 5000',
+      label: 'Oxford Kelime Listesi',
       shortLabel: 'Oxford',
       icon: BookOpen
     },
