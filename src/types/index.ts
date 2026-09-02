@@ -271,7 +271,13 @@ export interface UserSettings {
    * 'light'/'dark' ilk sürümden kalan kimliklerdir; kayıtlı ayarları
    * bozmamak için adları korundu.
    */
-  theme?: 'system' | 'light' | 'deniz' | 'gul' | 'lavanta' | 'dark' | 'orman' | 'komur';
+  /*
+   * 'light' ve 'lavanta' kaldırıldı: 'light' temel temanın birebir aynısıydı
+   * (listede iki ayrı seçenek gibi görünüp aynı ekranı veriyordu), 'lavanta'
+   * ise yerini daha ayırt edici 'sis'e bıraktı. Eski değeri kayıtlı olan
+   * kullanıcılar için geçiş aşağıda ele alınıyor.
+   */
+  theme?: 'system' | 'deniz' | 'kum' | 'gul' | 'sis' | 'dark' | 'orman' | 'komur';
   /**
    * Yazı büyüklüğü çarpanı (1 = varsayılan).
    *

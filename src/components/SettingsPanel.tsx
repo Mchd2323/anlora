@@ -40,17 +40,27 @@ const STUDY_MODES: { value: UserSettings['preferredStudyMode']; label: string; h
  * renkte gösterirdi. Değerler `index.css` içindeki karşılıklarıyla aynı.
  */
 const THEME_OPTIONS = [
-  { id: 'system' as const,  label: 'Sistem',  hint: 'Telefonun ayarını izler',        zemin: 'linear-gradient(135deg,#F8F7F3 50%,#14161B 50%)', kenar: '#C3BEB4', marka: '#4F46A5' },
-  { id: 'light' as const,   label: 'Kağıt',   hint: 'Açık — sıcak kırık beyaz',       zemin: '#F8F7F3', kenar: '#E4E1D9', marka: '#4F46A5' },
-  { id: 'deniz' as const,   label: 'Deniz',   hint: 'Açık — soğuk beyaz, turkuaz',    zemin: '#F4F8F9', kenar: '#D7E4E7', marka: '#1F6F6B' },
-  { id: 'gul' as const,     label: 'Gül',     hint: 'Yumuşak — sıcak pembe',          zemin: '#FDF6F6', kenar: '#EFDCDE', marka: '#B44E68' },
-  { id: 'lavanta' as const, label: 'Lavanta', hint: 'Yumuşak — açık leylak',          zemin: '#F9F6FD', kenar: '#E4DCF2', marka: '#7A5AB8' },
-  { id: 'dark' as const,    label: 'Gece',    hint: 'Koyu — nötr',                    zemin: '#14161B', kenar: '#2E323C', marka: '#9A92D8' },
-  { id: 'orman' as const,   label: 'Orman',   hint: 'Koyu — yeşile çalan',            zemin: '#101714', kenar: '#2A3833', marka: '#6FB89A' },
-  { id: 'komur' as const,   label: 'Kömür',   hint: 'Koyu — sıcak amber',             zemin: '#16130F', kenar: '#383026', marka: '#D9A24E' }
+  { id: 'system' as const, label: 'Sistem', hint: 'Telefonun ayarını izler',     zemin: 'linear-gradient(135deg,#F8F7F3 50%,#0F1320 50%)', kenar: '#C3BEB4', marka: '#4F46A5' },
+  { id: 'deniz' as const,  label: 'Deniz',  hint: 'Açık — soğuk beyaz, turkuaz', zemin: '#F4F8F9', kenar: '#D7E4E7', marka: '#1F6F6B' },
+  { id: 'kum' as const,    label: 'Kum',    hint: 'Açık — sıcak bej, kiremit',   zemin: '#FAF6F0', kenar: '#E6D9C9', marka: '#A8542F' },
+  { id: 'gul' as const,    label: 'Gül',    hint: 'Yumuşak — sıcak pembe',       zemin: '#FDF6F6', kenar: '#EFDCDE', marka: '#B44E68' },
+  { id: 'sis' as const,    label: 'Sis',    hint: 'Yumuşak — sakin gri-mavi',    zemin: '#F5F7F9', kenar: '#DCE2E9', marka: '#3F5A78' },
+  { id: 'dark' as const,   label: 'Gece',   hint: 'Koyu — lacivert',             zemin: '#0F1320', kenar: '#2A3247', marka: '#8C9EF0' },
+  { id: 'orman' as const,  label: 'Orman',  hint: 'Koyu — yeşile çalan',         zemin: '#101714', kenar: '#2A3833', marka: '#6FB89A' },
+  { id: 'komur' as const,  label: 'Kömür',  hint: 'Koyu — sıcak amber',          zemin: '#16130F', kenar: '#383026', marka: '#D9A24E' }
 ];
 
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange }) => {
+  /*
+   * Yazı büyüklüğünün SÜRÜKLEME SIRASINDAKİ değeri. Ayara ancak parmak
+   * kalkınca yazılır; sebebi aşağıdaki çubuğun başındaki açıklamada.
+   */
+  const [yaziOlcegi, setYaziOlcegi] = useState(settings.fontScale || 1);
+
+  useEffect(() => {
+    setYaziOlcegi(settings.fontScale || 1);
+  }, [settings.fontScale]);
+
   const update = <K extends keyof UserSettings>(key: K, value: UserSettings[K]) => {
     onChange({ ...settings, [key]: value });
   };
@@ -312,17 +322,37 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
           >
             Yazı büyüklüğü ·{' '}
             <span className="normal-case tracking-normal">
-              %{Math.round((settings.fontScale || 1) * 100)}
+              %{Math.round(yaziOlcegi * 100)}
             </span>
           </label>
+          {/*
+            DEĞER PARMAK KALKINCA UYGULANIR.
+
+            Çubuk takılıyordu ve sebebi ince: `fontScale` değişince kök
+            `font-size` anında değişiyor, yani BÜTÜN arayüz — çubuğun kendisi
+            dahil — yeniden boyutlanıyordu. Kullanıcı sürüklerken tutamak
+            parmağının altından kayıyor, hareket kopuk kopuk hissettiriyordu.
+
+            Artık sürükleme boyunca yalnızca yerel değer ve yüzde etiketi
+            değişiyor; ayar parmak kalkınca uygulanıyor. Sürükleme akıcı,
+            sonuç yine anında görünüyor.
+
+            Adım 0,125'ten 0,0625'e indi: altı kademe zıplama hissi
+            veriyordu, on bir kademe sürekli bir hareket veriyor. 0,0625
+            seçildi çünkü 0,875–1,5 aralığına TAM bölünüyor; 0,05'te en
+            büyük değer olan 1,5'e hiç ulaşılamıyordu.
+          */}
           <input
             id="fontScale"
             type="range"
             min={0.875}
             max={1.5}
-            step={0.125}
-            value={settings.fontScale || 1}
-            onChange={e => update('fontScale', Number(e.target.value))}
+            step={0.0625}
+            value={yaziOlcegi}
+            onChange={e => setYaziOlcegi(Number(e.target.value))}
+            onPointerUp={() => update('fontScale', yaziOlcegi)}
+            onKeyUp={() => update('fontScale', yaziOlcegi)}
+            onBlur={() => update('fontScale', yaziOlcegi)}
             className="w-full accent-[var(--primary)] cursor-pointer"
           />
           <div className="flex justify-between text-[10px] text-[var(--text-muted)] mt-0.5">

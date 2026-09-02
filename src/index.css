@@ -634,24 +634,53 @@ textarea:focus-visible,
   --text-muted: #6C5E63;
 }
 
-/* --- YUMUŞAK: Lavanta — açık leylak ------------------------------------ */
-:root[data-theme="lavanta"] {
+/* --- AÇIK: Kum — sıcak kum beji, kiremit vurgu -------------------------
+   'Kağıt' temasının yerine geldi. Kağıt, temel temanın (`:root`) birebir
+   aynısıydı; yani listede iki ayrı seçenek gibi görünüp aynı ekranı veriyordu.
+   Kum gerçekten farklı bir his veriyor: daha sıcak bir zemin, kiremit
+   tonunda bir marka rengi.
+   ---------------------------------------------------------------------- */
+:root[data-theme="kum"] {
   color-scheme: light;
-  --bg: #F9F6FD;
+  --bg: #FAF6F0;
   --surface: #FFFFFF;
-  --surface-soft: #EFE9F8;
-  --surface-subtle: #FCFAFE;
-  --border: #E4DCF2;
-  --border-light: #EFE9F8;
-  --primary: #7657B2;
-  --primary-hover: #66499E;
-  --primary-soft: #F0EAFB;
-  --primary-soft-hover: #E4DAF6;
-  --primary-border: #D6C9EF;
-  --primary-tint: #F7F3FD;
-  --text-primary: #221B31;
-  --text-secondary: #675D7B;
-  --text-muted: #655E72;
+  --surface-soft: #F3EADF;
+  --surface-subtle: #FCF9F5;
+  --border: #E6D9C9;
+  --border-light: #F1E8DC;
+  --primary: #A8542F;
+  --primary-hover: #8E4526;
+  --primary-soft: #F8E9E0;
+  --primary-soft-hover: #F1DACB;
+  --primary-border: #E5C7B4;
+  --primary-tint: #FBF2EC;
+  --text-primary: #2B2019;
+  --text-secondary: #6B5B4C;
+  --text-muted: #6A5A4B;
+}
+
+/* --- AÇIK: Sis — soğuk gri-mavi, sakin ---------------------------------
+   'Lavanta' temasının yerine geldi. Sis, ekranda hiçbir rengin öne
+   çıkmadığı, uzun çalışmada yormayan bir zemin sunuyor; leylak tonu
+   yerine nötr bir sakinlik.
+   ---------------------------------------------------------------------- */
+:root[data-theme="sis"] {
+  color-scheme: light;
+  --bg: #F5F7F9;
+  --surface: #FFFFFF;
+  --surface-soft: #E9EDF2;
+  --surface-subtle: #FAFBFC;
+  --border: #DCE2E9;
+  --border-light: #EBEFF3;
+  --primary: #3F5A78;
+  --primary-hover: #334A63;
+  --primary-soft: #E6ECF3;
+  --primary-soft-hover: #D6DFEA;
+  --primary-border: #BFCCDC;
+  --primary-tint: #F0F4F8;
+  --text-primary: #1B2430;
+  --text-secondary: #5A6875;
+  --text-muted: #5C6874;
 }
 
 /* --- KOYU: Orman — yeşile çalan koyu ----------------------------------- */
@@ -690,4 +719,28 @@ textarea:focus-visible,
   --text-primary: #F0EAE0;
   --text-secondary: #ADA292;
   --text-muted: #918878;
+}
+
+/* --- KOYU: Gece — lacivert-indigo -------------------------------------
+   Gece, Orman (yeşil) ve Kömür (amber) ile aynı nötr koyu zemini
+   paylaşıyordu; üç koyu tema ekranda birbirinden zor ayırt ediliyordu.
+   Artık kendi karakteri var: soğuk lacivert bir zemin ve indigo vurgu.
+   Bu blok ortak koyu tanımlardan SONRA geldiği için onların üstüne yazar.
+   ---------------------------------------------------------------------- */
+:root[data-theme="dark"] {
+  --bg: #0F1320;
+  --surface: #171C2C;
+  --surface-soft: #1F2637;
+  --surface-subtle: #141828;
+  --border: #2A3247;
+  --border-light: #222839;
+  --primary: #8C9EF0;
+  --primary-hover: #A3B2F5;
+  --primary-soft: #1B2138;
+  --primary-soft-hover: #232B45;
+  --primary-border: #333D5C;
+  --primary-tint: #171D30;
+  --text-primary: #E6E9F5;
+  --text-secondary: #A8AFC6;
+  --text-muted: #838BA4;
 }

@@ -14,8 +14,23 @@ import { UserSettings } from '../types';
  * olduğu için tek değer her yeri birlikte büyütür; tek tek bileşenlerle
  * oynamak düzeni yerinden oynatırdı.
  */
+/**
+ * Kaldırılan temaların karşılığı.
+ *
+ * 'light' temel temanın birebir aynısıydı, 'lavanta' ise yerini 'sis'e
+ * bıraktı. Bu değerler bazı kullanıcıların ayarlarında KAYITLI: eşleme
+ * olmadan kökte tanımsız bir `data-theme` kalır ve hiçbir tema değişkeni
+ * uygulanmaz — ekran bozuk görünür. Kullanıcının kaydı silinmiyor, yalnızca
+ * en yakın karşılığa yönlendiriliyor.
+ */
+const ESKI_TEMA_KARSILIGI: Record<string, string> = {
+  light: 'system',
+  lavanta: 'sis'
+};
+
 export function useTheme(settings: UserSettings): void {
-  const theme = settings.theme || 'system';
+  const kayitli = settings.theme || 'system';
+  const theme = ESKI_TEMA_KARSILIGI[kayitli] || kayitli;
   const scale = settings.fontScale || 1;
 
   useEffect(() => {
