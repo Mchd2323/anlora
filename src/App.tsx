@@ -859,9 +859,11 @@ export default function App() {
       {/* Clean Minimal Footer */}
       <footer className="bg-[var(--surface)] border-t border-[var(--border)] py-6 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[var(--text-secondary)]">
-          <div className="flex items-center gap-2 font-medium">
-            <span>Anlora — Heh, şimdi anlorum!</span>
-          </div>
+          {/*
+            Slogan buradan kaldırıldı: artık üst çubukta, ad ile birlikte
+            duruyor. Alt bilgide tekrar etmek yer kaplamaktan başka bir şey
+            yapmıyordu ve telif satırı zaten aşağıda vardı.
+          */}
 
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5 text-[var(--learned)] font-semibold">

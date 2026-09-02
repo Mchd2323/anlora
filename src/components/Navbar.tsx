@@ -105,8 +105,19 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div className="w-8 h-8 rounded-xl bg-[var(--primary)] flex items-center justify-center text-[var(--surface)] shadow-2xs group-hover:bg-[var(--primary-hover)] transition-colors">
                 <BookOpen className="w-4 h-4 stroke-[2.4]" />
               </div>
-              <span className="text-xl font-bold tracking-tight text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors">
-                {BRAND.name}
+              {/*
+                Ad ve slogan üst üste. Slogan ana sayfada ayrı bir satır
+                kaplıyordu; oradan alınıp buraya konuldu, çünkü marka sesi
+                her ekranda görünsün diye tekrar edilmesi gereken bir şey
+                değil — bir kez, üst çubukta durması yeterli.
+              */}
+              <span className="flex flex-col leading-none">
+                <span className="text-xl font-bold tracking-tight text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors">
+                  {BRAND.name}
+                </span>
+                <span className="text-[10px] font-medium text-[var(--primary)] tracking-tight mt-0.5">
+                  {BRAND.slogan}
+                </span>
               </span>
             </div>
 

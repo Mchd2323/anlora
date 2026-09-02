@@ -29,6 +29,7 @@ import { readJSON, writeJSON } from '../utils/safeStorage';
 import { summarizeQueue } from '../utils/srsEngine';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { BRAND } from '../config/brand';
+import { IntroCarousel } from './home/IntroCarousel';
 import { AdSlot } from './AdSlot';
 import { HomeHeroArt } from './HomeHeroArt';
 
@@ -176,35 +177,6 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
 
   return (
     <div className="space-y-6 pb-safe-nav max-w-[1080px] mx-auto animate-fadeIn">
-      {/* 1. ÜST BÖLÜM: Anlora Marka Karşılama ve Slogan */}
-      <div className="text-left space-y-2 pt-2">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-3">
-            {branding.logoDataUri && (
-              <img
-                src={branding.logoDataUri}
-                alt=""
-                className="w-11 h-11 rounded-2xl object-contain bg-white border border-[var(--border)] p-1"
-              />
-            )}
-            <h1 className="text-3xl sm:text-4xl font-black text-[var(--text-primary)] tracking-tight">
-              {branding.appName || BRAND.name}
-            </h1>
-          </div>
-          <p className="text-lg sm:text-xl font-semibold text-[var(--primary)] tracking-tight">
-            {branding.slogan || BRAND.slogan}
-          </p>
-        </div>
-        <p className="text-xs text-[var(--text-secondary)] max-w-2xl leading-relaxed">
-          {branding.homeIntro || (
-            <>
-              Kendi kelime setlerini oluştur ya da Oxford 5000'i seviyene göre çalış.
-              Bildiklerini işaretle, aralıklı tekrarla aklında tut.
-            </>
-          )}
-        </p>
-      </div>
-
       {/*
         ÜYELİK TEŞVİKİ — zorlamadan.
 
@@ -257,8 +229,15 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
         ana mesaj değil.
       */}
       <div className="rounded-2xl bg-[var(--surface)] border border-[var(--border)] p-5 sm:p-6 space-y-5">
-        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-          <div className="flex-1 min-w-0 order-2 sm:order-1">
+        {/*
+          Başlık ve görsel TELEFONDA DA YAN YANA.
+          Alt alta dizildiklerinde tanıtım kutusu ekranın neredeyse yarısını
+          kaplıyor ve kullanıcı her açılışta kendi setlerine ulaşmak için
+          okumadığı bir bloğu kaydırıyordu. Yan yana geçince görsel küçülüyor
+          ama anlamı değişmiyor — zaten dekoratif.
+        */}
+        <div className="flex flex-row items-center gap-3 sm:gap-6">
+          <div className="flex-1 min-w-0 order-1">
             <h2 className="text-lg sm:text-xl font-black text-[var(--text-primary)] leading-tight">
               Kendi kelimelerini biriktir,
               <br className="hidden sm:block" /> seviyeni kendin gör.
@@ -269,41 +248,47 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
               </p>
             )}
           </div>
-          <HomeHeroArt className="w-full max-w-[220px] sm:max-w-[280px] h-auto order-1 sm:order-2 shrink-0" />
+          <HomeHeroArt className="w-[38%] max-w-[150px] sm:max-w-[260px] h-auto order-2 shrink-0" />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="p-4 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-light)] space-y-1.5">
-            <div className="flex items-center gap-2">
-              <span className="w-5 h-5 rounded-lg bg-[var(--primary)] text-[var(--surface)] text-[11px] font-black flex items-center justify-center shrink-0">
-                1
-              </span>
-              <span className="text-sm font-bold text-[var(--text-primary)]">Kendi setlerin</span>
-            </div>
-            <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
-              Okurken, izlerken not ettiğin kelimeleri yükle; kendi setini kur ve her birini
-              Türkçe anlamı ile <b className="text-[var(--text-primary)]">üç örnek cümle</b> eşliğinde çalış.
-            </p>
-          </div>
-
-          <div className="p-4 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-light)] space-y-1.5">
-            <div className="flex items-center gap-2">
-              <span className="w-5 h-5 rounded-lg bg-[var(--primary)] text-[var(--surface)] text-[11px] font-black flex items-center justify-center shrink-0">
-                2
-              </span>
-              <span className="text-sm font-bold text-[var(--text-primary)]">Oxford listesi</span>
-            </div>
-            <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
-              Oxford Üniversitesi'nin <b className="text-[var(--text-primary)]">seviyelere göre</b> hazırladığı kelime ve
-              kalıpları, Türkçe anlamı ile <b className="text-[var(--text-primary)]">üç örnek cümle</b> eşliğinde çalışarak
-              kendi dağarcığını tanı ve geliştir.
-            </p>
-          </div>
-        </div>
-
-        <p className="text-[11px] text-[var(--text-muted)] text-center">
-          Ayrıca farklı türlerde sınavlarla kendini deneyebilirsin.
-        </p>
+        <IntroCarousel
+          slides={[
+            {
+              index: 1,
+              title: 'Kendi setlerin',
+              body: (
+                <>
+                  Okurken, izlerken not ettiğin kelimeleri yükle; kendi setini kur ve her
+                  birini Türkçe anlamı ile{' '}
+                  <b className="text-[var(--text-primary)]">üç örnek cümle</b> eşliğinde çalış.
+                </>
+              )
+            },
+            {
+              index: 2,
+              title: 'Oxford kelime listesi',
+              body: (
+                <>
+                  Oxford Üniversitesi'nin{' '}
+                  <b className="text-[var(--text-primary)]">seviyelere göre</b> hazırladığı kelime
+                  ve kalıpları, Türkçe anlamı ile{' '}
+                  <b className="text-[var(--text-primary)]">üç örnek cümle</b> eşliğinde çalışarak
+                  kendi dağarcığını tanı ve geliştir.
+                </>
+              )
+            },
+            {
+              index: 3,
+              title: 'Kendini sına',
+              body: (
+                <>
+                  İstediğin kaynaktan, istediğin sınav türünde ve soru sayısında kendini test et;
+                  yanlışların tekrar listene düşsün.
+                </>
+              )
+            }
+          ]}
+        />
       </div>
 
       {/*
@@ -692,7 +677,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
             onClick={() => onNavigateToTab('quiz')}
             className="text-[11px] font-semibold text-[var(--primary)] hover:text-[var(--primary-hover)] cursor-pointer py-1"
           >
-            kendimi sına
+            kendini sına
           </button>
         </div>
       </div>
