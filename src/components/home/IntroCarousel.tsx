@@ -67,6 +67,17 @@ export const IntroCarousel: React.FC<{ slides: IntroSlide[] }> = ({ slides }) =>
       ref={kapsayici}
       className="relative"
       /*
+       * KARUSELE DOKUNMAK OTOMATİK GEÇİŞİ DURDURUR.
+       *
+       * Yalnızca noktalara basmak durduruyordu; oysa okumak için manşetin
+       * kendisine bakan biri de "burada kalmak istiyorum" diyordur. Cümlenin
+       * ortasında slaytın kayması can sıkıcı.
+       *
+       * Durdurma yalnızca BU alana dokunulunca olur; ekranın başka yerine
+       * dokunmak karuseli etkilemez.
+       */
+      onPointerDown={() => setOtomatik(false)}
+      /*
        * Parmakla kaydırma. Noktalara basmak zorunda kalmadan geçebilmek,
        * telefonda beklenen davranış.
        */

@@ -41,6 +41,16 @@ const PAGE_SIZE = 60;
  */
 const LEVEL_KEYS: (Level | 'ALL')[] = ['ALL', 'A1', 'A2', 'B1', 'B2', 'C1'];
 
+/** Kalıp seviye menüsünün etiketleri. */
+const KALIP_ETIKET: Record<string, string> = {
+  ALL: 'Tüm seviyeler',
+  A1: 'A1',
+  A2: 'A2',
+  B1: 'B1',
+  B2: 'B2',
+  C1: 'C1'
+};
+
 const LEVEL_LABEL: Record<string, string> = {
   ALL: 'Tüm seviyeler',
   A1: 'A1',
@@ -114,7 +124,6 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
    * olurdu. Yalnızca destenin kimliği ayrı, böylece kelimelerde kalınan yer
    * kalıplara geçince kaybolmaz.
    */
-  const [kalipCalismasi, setKalipCalismasi] = useState<WordCard[] | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [partOfSpeechFilter, setPartOfSpeechFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>(initialStatusFilter);
@@ -129,29 +138,41 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
   const [isListOpen, setIsListOpen] = useState(false);
 
   /*
-   * Kalıplar ve deyimler. Bölüm açılana kadar veri hiç indirilmez; 750
-   * kalıp ~540 KB tutuyor ve kullanıcıların çoğu doğrudan kelimelere
-   * bakıyor. Açıldıktan sonra bellekte kalır, ikinci açılış bedava.
+   * Kalıplar ve deyimler. Veri, kalıp menüsüne dokunulana ya da arama
+   * yapılana kadar hiç indirilmez; 750 kalıp ~540 KB tutuyor ve
+   * kullanıcıların çoğu doğrudan kelimelere bakıyor. İndikten sonra
+   * bellekte kalır, ikinci açılış bedava.
    */
-  const [kaliplarAcik, setKaliplarAcik] = useState(false);
-  const [seviyeMenusuAcik, setSeviyeMenusuAcik] = useState(false);
   const [kaliplar, setKaliplar] = useState<WordCard[] | null>(null);
   const [kaliplarYukleniyor, setKaliplarYukleniyor] = useState(false);
   const [kalipSeviyesi, setKalipSeviyesi] = useState<Level | 'ALL'>('ALL');
 
-  useEffect(() => {
-    if (!kaliplarAcik || kaliplar) return;
+  /*
+   * HANGİ LİSTE ÇALIŞILIYOR?
+   *
+   * Ekranda iki ayrı kaynak var: Oxford kelimeleri ve Oxford kalıpları.
+   * Önceki düzende kalıplar kendi bölümünde, kendi küçük listesiyle
+   * duruyordu; kullanıcı aynı ekranda iki farklı mantıkla karşılaşıyordu —
+   * kelimelerde arama, süzgeç ve kart çalışması vardı, kalıplarda yoktu.
+   *
+   * Artık tek bir 'aktif kaynak' var. Kullanıcı hangi listeden seviye
+   * seçerse alttaki her şey — bilgilendirme kutusu, arama, kartlarla çalış
+   * ve liste — o kaynağa göre çalışır. İki liste, tek davranış.
+   */
+  const [aktifKaynak, setAktifKaynak] = useState<'kelime' | 'kalip'>('kelime');
+
+  /** Açılır menülerin durumu; ikisi aynı anda açık kalmaz. */
+  const [seviyeMenusuAcik, setSeviyeMenusuAcik] = useState(false);
+  const [kalipMenusuAcik, setKalipMenusuAcik] = useState(false);
+
+  /** Kalıp verisi ihtiyaç duyulduğunda indirilir. */
+  const kaliplariGetir = () => {
+    if (kaliplar || kaliplarYukleniyor) return;
     setKaliplarYukleniyor(true);
-    void loadPhrases()
+    loadPhrases()
       .then(() => setKaliplar(getPhraseCards()))
       .finally(() => setKaliplarYukleniyor(false));
-  }, [kaliplarAcik, kaliplar]);
-
-  const gorunenKaliplar = useMemo(() => {
-    if (!kaliplar) return [];
-    if (kalipSeviyesi === 'ALL') return kaliplar;
-    return kaliplar.filter(k => k.level === kalipSeviyesi);
-  }, [kaliplar, kalipSeviyesi]);
+  };
 
   // Dışarıdan gelen istek (profilden "öğrendiklerim") filtreyi günceller.
   useEffect(() => {
@@ -183,21 +204,65 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
     return pool.filter(item => item.group === selectedLevel);
   }, [pool, selectedLevel]);
 
+  /**
+   * Bilgilendirme kutusunun sayıları.
+   *
+   * AKTİF KAYNAĞA GÖRE hesaplanır: kullanıcı kalıplardan bir seviye seçtiyse
+   * kutu kalıpları sayar, kelimelerden seçtiyse kelimeleri. İki listeyi aynı
+   * kutuda toplamak, "500 kelime içinde 3 öğrendim" gibi hangi listeye ait
+   * olduğu belirsiz bir sayı üretirdi.
+   */
   const levelStats = useMemo(() => {
+    const kartlar =
+      aktifKaynak === 'kalip'
+        ? (kaliplar || []).filter(k =>
+            kalipSeviyesi === 'ALL' ? true : k.level === kalipSeviyesi
+          )
+        : levelPool.map(item => item.card);
+
     let learnedCount = 0;
     let learningCount = 0;
     let unseenCount = 0;
-    levelPool.forEach(({ card }) => {
+    kartlar.forEach(card => {
       const status = getUserWordStatus(card.id, learningStates);
       if (status === 'learned') learnedCount++;
       else if (status === 'learning') learningCount++;
       else unseenCount++;
     });
-    return { total: levelPool.length, learnedCount, learningCount, unseenCount };
-  }, [levelPool, learningStates]);
+    return { total: kartlar.length, learnedCount, learningCount, unseenCount };
+  }, [levelPool, learningStates, aktifKaynak, kaliplar, kalipSeviyesi]);
 
+  /**
+   * Ekranda gösterilecek kartlar.
+   *
+   * Aktif kaynak 'kalip' ise Oxford kelimeleri hiç işlenmez; kullanıcı
+   * kalıpları çalışmayı seçmiştir. Arama ve durum süzgeci her iki kaynakta
+   * da aynı şekilde işler — kullanıcı için tek bir davranış var.
+   */
   const filteredWords = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
+
+    if (aktifKaynak === 'kalip') {
+      return (kaliplar || [])
+        .filter(k => (kalipSeviyesi === 'ALL' ? true : k.level === kalipSeviyesi))
+        .filter(k => {
+          if (statusFilter !== 'ALL') {
+            if (statusFilter === 'FAVORITES') {
+              if (!favorites.includes(k.id)) return false;
+            } else {
+              const st = getUserWordStatus(k.id, learningStates);
+              if (statusFilter === 'LEARNED' && st !== 'learned') return false;
+              if (statusFilter === 'LEARNING' && st !== 'learning') return false;
+              if (statusFilter === 'UNSEEN' && st !== 'unseen') return false;
+            }
+          }
+          if (!query) return true;
+          return (
+            k.word.toLowerCase().includes(query) ||
+            k.turkishMeaning.toLowerCase().includes(query)
+          );
+        });
+    }
 
     const kelimeler = levelPool
       .filter(({ card }) => {
@@ -254,7 +319,9 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
     favorites,
     learningStates,
     kaliplar,
-    selectedLevel
+    selectedLevel,
+    aktifKaynak,
+    kalipSeviyesi
   ]);
 
   // Filtre değişince sayfalama başa döner.
@@ -304,23 +371,6 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
 
   const levelSuffix = selectedLevel === 'ALL' ? '' : ` (${LEVEL_LABEL[selectedLevel]})`;
 
-  if (kalipCalismasi) {
-    return (
-      <StudyFlashcard
-        title="Kalıplar ve deyimler"
-        sourceContextName="Oxford Phrase List"
-        deckKey={`phrases:${kalipSeviyesi}`}
-        words={kalipCalismasi}
-        favorites={favorites}
-        learningStates={learningStates}
-        onToggleFavorite={onToggleFavorite}
-        onSetStatus={onSetStatus || (() => {})}
-        onBack={() => setKalipCalismasi(null)}
-        onOpenAddToCollection={onOpenAddToCollection}
-        isCustomDeck={false}
-      />
-    );
-  }
 
   if (isStudyingFlashcards) {
     return (
@@ -372,172 +422,134 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
       {/* Filtreler */}
       <div className="bg-[var(--surface)] p-5 rounded-2xl border border-[var(--border)] space-y-4 shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
         {/*
-          SEVİYE VE KALIPLAR: İKİ AÇILIR MENÜ, YAN YANA.
+          İKİ LİSTE, İKİ SATIR, AYNI BİÇİM.
 
-          Seviyeler yatay kaydırmalı bir düğme şeridiydi; telefonda son
-          seviyeler ekran dışında kalıyor ve kaydırılmadıkça görünmüyordu.
-          Kalıplar bölümü de sayfanın çok aşağısında, ilgisiz bir yerde
-          duruyordu — oysa o da bir çalışma kaynağı, tıpkı seviyeler gibi.
-          İkisi artık aynı satırda, aynı biçimde: kullanıcı neyi çalışacağını
-          tek bakışta seçiyor.
+          Ekranda iki ayrı çalışma kaynağı var: Oxford kelimeleri ve Oxford
+          kalıpları. Önceki düzende kalıplar kendi bölümünde, kendi küçük
+          listesiyle duruyordu — kelimelerde arama, süzgeç ve kart çalışması
+          vardı, kalıplarda yoktu. Aynı ekranda iki farklı mantık.
+
+          Artık ikisi de aynı görünüyor ve aynı davranıyor: hangisinden
+          seviye seçilirse alttaki her şey — bilgilendirme kutusu, arama,
+          kartlarla çalış ve liste — o kaynağa göre çalışıyor.
         */}
-        <div className="grid grid-cols-2 gap-2">
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => {
-                setSeviyeMenusuAcik(a => !a);
-                setKaliplarAcik(false);
-              }}
-              aria-expanded={seviyeMenusuAcik}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-xs font-semibold text-[var(--text-primary)] flex items-center justify-between gap-2 transition-colors cursor-pointer"
-            >
-              <span className="truncate">{LEVEL_LABEL[selectedLevel] || 'Seviye seç'}</span>
-              <span className="flex items-center gap-1.5 shrink-0">
-                <span className="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-[var(--border)] text-[var(--text-secondary)]">
-                  {(levelCounts[selectedLevel] || 0).toLocaleString('tr-TR')}
-                </span>
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs font-bold text-[var(--text-primary)] shrink-0">
+              Oxford Kelime Listesi:
+            </span>
+            <div className="relative min-w-[150px]">
+              <button
+                type="button"
+                onClick={() => {
+                  setSeviyeMenusuAcik(a => !a);
+                  setKalipMenusuAcik(false);
+                }}
+                aria-expanded={seviyeMenusuAcik}
+                className={`w-full px-3 py-2 rounded-xl border text-xs font-semibold flex items-center justify-between gap-2 transition-colors cursor-pointer ${
+                  aktifKaynak === 'kelime'
+                    ? 'bg-[var(--primary-soft)] text-[var(--primary)] border-[var(--primary-border)]'
+                    : 'bg-[var(--bg)] text-[var(--text-primary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
+                }`}
+              >
+                <span className="truncate">{LEVEL_LABEL[selectedLevel]}</span>
                 <ChevronDown
-                  className={`w-3.5 h-3.5 text-[var(--text-secondary)] transition-transform ${
+                  className={`w-3.5 h-3.5 shrink-0 transition-transform ${
                     seviyeMenusuAcik ? 'rotate-180' : ''
                   }`}
                 />
-              </span>
-            </button>
+              </button>
 
-            {seviyeMenusuAcik && (
-              <div className="absolute left-0 right-0 mt-1.5 z-30 rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-lg overflow-hidden">
-                {LEVEL_KEYS.map(key => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => {
-                      setSelectedLevel(key);
-                      setSeviyeMenusuAcik(false);
-                    }}
-                    className={`w-full px-3.5 py-2.5 flex items-center justify-between gap-2 text-left border-b border-[var(--border-light)] last:border-b-0 cursor-pointer ${
-                      selectedLevel === key
-                        ? 'bg-[var(--primary-soft)] text-[var(--primary)] font-bold'
-                        : 'hover:bg-[var(--surface-soft)] text-[var(--text-primary)] font-semibold'
-                    }`}
-                  >
-                    <span className="text-xs">{LEVEL_LABEL[key]}</span>
-                    <span className="text-[10px] text-[var(--text-muted)]">
-                      {(levelCounts[key] || 0).toLocaleString('tr-TR')}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
+              {seviyeMenusuAcik && (
+                <div className="absolute left-0 right-0 mt-1.5 z-30 rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-lg overflow-hidden">
+                  {LEVEL_KEYS.map(key => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => {
+                        setSelectedLevel(key);
+                        setAktifKaynak('kelime');
+                        setSeviyeMenusuAcik(false);
+                      }}
+                      className={`w-full px-3 py-2.5 flex items-center justify-between gap-2 text-left border-b border-[var(--border-light)] last:border-b-0 cursor-pointer ${
+                        aktifKaynak === 'kelime' && selectedLevel === key
+                          ? 'bg-[var(--primary-soft)] text-[var(--primary)] font-bold'
+                          : 'hover:bg-[var(--surface-soft)] text-[var(--text-primary)] font-semibold'
+                      }`}
+                    >
+                      <span className="text-xs">{LEVEL_LABEL[key]}</span>
+                      <span className="text-[10px] text-[var(--text-muted)]">
+                        {(levelCounts[key] || 0).toLocaleString('tr-TR')}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => {
-              setKaliplarAcik(a => !a);
-              setSeviyeMenusuAcik(false);
-            }}
-            aria-expanded={kaliplarAcik}
-            className={`w-full px-3.5 py-2.5 rounded-xl border text-xs font-semibold flex items-center justify-between gap-2 transition-colors cursor-pointer ${
-              kaliplarAcik
-                ? 'bg-[var(--primary-soft)] text-[var(--primary)] border-[var(--primary-border)]'
-                : 'bg-[var(--bg)] text-[var(--text-primary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
-            }`}
-          >
-            <span className="truncate">Kalıplar ve deyimler</span>
-            <ChevronDown
-              className={`w-3.5 h-3.5 shrink-0 transition-transform ${
-                kaliplarAcik ? 'rotate-180' : ''
-              }`}
-            />
-          </button>
-        </div>
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs font-bold text-[var(--text-primary)] shrink-0">
+              Kalıplar ve Deyimler:
+            </span>
+            <div className="relative min-w-[150px]">
+              <button
+                type="button"
+                onClick={() => {
+                  kaliplariGetir();
+                  setKalipMenusuAcik(a => !a);
+                  setSeviyeMenusuAcik(false);
+                }}
+                aria-expanded={kalipMenusuAcik}
+                className={`w-full px-3 py-2 rounded-xl border text-xs font-semibold flex items-center justify-between gap-2 transition-colors cursor-pointer ${
+                  aktifKaynak === 'kalip'
+                    ? 'bg-[var(--primary-soft)] text-[var(--primary)] border-[var(--primary-border)]'
+                    : 'bg-[var(--bg)] text-[var(--text-primary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
+                }`}
+              >
+                <span className="truncate">
+                  {kaliplarYukleniyor ? 'Yükleniyor…' : KALIP_ETIKET[kalipSeviyesi]}
+                </span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 shrink-0 transition-transform ${
+                    kalipMenusuAcik ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
 
-      {/*
-        KALIPLAR VE DEYİMLER
-
-        Kelimelerin yanında, kendi havuzunda. Oxford 5000'in seviye
-        sayaçlarına karışmaz: o sayaçlar kelime sayar ve 750 kalıbı A1–C1
-        gruplarına katmak, kullanıcının bitirdiği yüzdeyi geriye götürürdü.
-
-        Veri yalnızca bölüm açıldığında iniyor (~540 KB). Kapalıyken tek bayt
-        indirilmez; kullanıcıların çoğu doğrudan kelimelere bakıyor.
-      */}
-        <div className="rounded-xl border border-[var(--border)] overflow-hidden">
-
-        {kaliplarAcik && (
-          <div className="px-4 pb-4 space-y-3 border-t border-[var(--border-light)] pt-3">
-            {kaliplarYukleniyor && (
-              <p className="text-xs text-[var(--text-secondary)]">Kalıplar yükleniyor…</p>
-            )}
-
-            {kaliplar && (
-              <>
-                <div className="flex flex-wrap gap-1.5">
+              {kalipMenusuAcik && (
+                <div className="absolute left-0 right-0 mt-1.5 z-30 rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-lg overflow-hidden">
                   {(['ALL', 'A1', 'A2', 'B1', 'B2', 'C1'] as const).map(seviye => {
                     const sayi =
                       seviye === 'ALL'
-                        ? kaliplar.length
-                        : kaliplar.filter(k => k.level === seviye).length;
-                    const secili = kalipSeviyesi === seviye;
+                        ? (kaliplar || []).length
+                        : (kaliplar || []).filter(k => k.level === seviye).length;
                     return (
                       <button
                         key={seviye}
                         type="button"
-                        onClick={() => setKalipSeviyesi(seviye)}
-                        aria-pressed={secili}
-                        className={`px-2.5 py-1.5 rounded-lg text-[11px] font-semibold border transition-colors cursor-pointer ${
-                          secili
-                            ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--surface)]'
-                            : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-soft)]'
+                        onClick={() => {
+                          setKalipSeviyesi(seviye);
+                          setAktifKaynak('kalip');
+                          setKalipMenusuAcik(false);
+                        }}
+                        className={`w-full px-3 py-2.5 flex items-center justify-between gap-2 text-left border-b border-[var(--border-light)] last:border-b-0 cursor-pointer ${
+                          aktifKaynak === 'kalip' && kalipSeviyesi === seviye
+                            ? 'bg-[var(--primary-soft)] text-[var(--primary)] font-bold'
+                            : 'hover:bg-[var(--surface-soft)] text-[var(--text-primary)] font-semibold'
                         }`}
                       >
-                        {seviye === 'ALL' ? 'Tümü' : seviye} {sayi}
+                        <span className="text-xs">{KALIP_ETIKET[seviye]}</span>
+                        <span className="text-[10px] text-[var(--text-muted)]">
+                          {sayi.toLocaleString('tr-TR')}
+                        </span>
                       </button>
                     );
                   })}
                 </div>
-
-                {gorunenKaliplar.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setKalipCalismasi(gorunenKaliplar)}
-                    className="w-full py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-bold rounded-xl cursor-pointer"
-                  >
-                    Bu {gorunenKaliplar.length} kalıbı kartlarla çalış
-                  </button>
-                )}
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                  {gorunenKaliplar.slice(0, 60).map(kalip => (
-                    <WordCardComponent
-                      key={kalip.id}
-                      card={kalip}
-                      isFavorite={favorites.includes(kalip.id)}
-                      learningState={learningStates[kalip.id]}
-                      onToggleFavorite={onToggleFavorite}
-                      onToggleLearned={onToggleLearned}
-                      onSetStatus={onSetStatus}
-                      onOpenAddToCollection={onOpenAddToCollection}
-                      onReportWord={onReportWord}
-                    />
-                  ))}
-                </div>
-
-                {/*
-                  Liste 60'ta kesiliyor ve bu SÖYLENİYOR. Sessizce kesmek,
-                  kullanıcıya "hepsi bu kadar" dedirtir; oysa çoğu hâlâ orada.
-                */}
-                {gorunenKaliplar.length > 60 && (
-                  <p className="text-[11px] text-[var(--text-muted)] text-center">
-                    İlk 60 kalıp gösteriliyor. Kalan {gorunenKaliplar.length - 60} kalıp
-                    kartlarla çalışmada ve aramada karşına çıkar.
-                  </p>
-                )}
-              </>
-            )}
+              )}
+            </div>
           </div>
-        )}
         </div>
 
         {/*
