@@ -723,6 +723,9 @@ export default function App() {
             learningStates={learningStates}
             customWords={customWords}
             oxfordWords={oxfordWords}
+            extraWords={oxfordExtraWords}
+            collections={collections}
+            memberships={memberships}
             favorites={favorites}
             onOpenAuthModal={() => setIsAuthModalOpen(true)}
             onLogout={handleLogout}

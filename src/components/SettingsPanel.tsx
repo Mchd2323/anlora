@@ -10,14 +10,6 @@ import {
   buildStamp,
   type EngineProbe
 } from '../utils/speech';
-import {
-  isPushAvailable,
-  getPushPreferences,
-  enablePush,
-  disablePush,
-  updatePushTopics,
-  PushPreferences
-} from '../services/pushNotifications';
 
 interface SettingsPanelProps {
   settings: UserSettings;
@@ -74,44 +66,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
    */
   const [diagnostics, setDiagnostics] = useState<SpeechDiagnostics | null>(null);
   const [isTesting, setIsTesting] = useState(false);
-
-  /*
-   * Bildirim tercihleri.
-   *
-   * İzin, uygulama açılırken DEĞİL kullanıcı bildirimleri açtığında isteniyor.
-   * Android'de bir kez reddedilen izin bir daha sorulamıyor; sebebi
-   * anlatmadan sormak, kullanıcının çoğu zaman düşünmeden reddetmesi demek.
-   */
-  const [pushAvailable, setPushAvailable] = useState<boolean | null>(null);
-  const [push, setPush] = useState<PushPreferences>(getPushPreferences);
-  const [pushBusy, setPushBusy] = useState(false);
-  const [pushNote, setPushNote] = useState('');
-
-  useEffect(() => {
-    let cancelled = false;
-    void isPushAvailable().then(ok => {
-      if (!cancelled) setPushAvailable(ok);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const togglePush = async (next: boolean) => {
-    setPushBusy(true);
-    setPushNote('');
-    try {
-      if (next) {
-        const result = await enablePush();
-        if (!result.ok) setPushNote(result.reason || 'Bildirimler açılamadı.');
-      } else {
-        await disablePush();
-      }
-      setPush(getPushPreferences());
-    } finally {
-      setPushBusy(false);
-    }
-  };
 
   /**
    * Telaffuz sınaması.
@@ -243,40 +197,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
         </div>
       </div>
 
-      {/* Çalışma modu */}
-      <div className="space-y-2.5">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)]">
-          <Layers className="w-3.5 h-3.5 text-[var(--primary)]" />
-          <span>Tercih edilen çalışma modu</span>
-        </div>
+      {/*
+        'Tercih edilen çalışma modu' ayarı KALDIRILDI.
 
-        <div className="space-y-1.5">
-          {STUDY_MODES.map(mode => (
-            <label
-              key={mode.value}
-              className={`flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-colors ${
-                settings.preferredStudyMode === mode.value
-                  ? 'bg-[var(--primary-soft)] border-[var(--primary-border)]'
-                  : 'bg-[var(--surface-subtle)] border-[var(--border-light)] hover:bg-[var(--surface-soft)]'
-              }`}
-            >
-              <input
-                type="radio"
-                name="preferredStudyMode"
-                value={mode.value}
-                checked={settings.preferredStudyMode === mode.value}
-                onChange={() => update('preferredStudyMode', mode.value)}
-                className="mt-0.5 accent-[var(--primary)] cursor-pointer"
-              />
-              <span>
-                <span className="text-xs font-bold text-[var(--text-primary)] block">{mode.label}</span>
-                <span className="text-[11px] text-[var(--text-secondary)]">{mode.hint}</span>
-              </span>
-            </label>
-          ))}
-        </div>
-      </div>
-
+        Çalışma ekranında zaten mod sekmeleri var; bu ayar yalnızca bir
+        dokunuş kazandırıyor ama karşılığında açıklanması gereken bir bölüm
+        ekliyordu. Oturum artık son kullanılan modu kendiliğinden hatırlıyor:
+        aynı fayda, ayar yok.
+      */}
       {/* Anahtarlar */}
       <div className="space-y-2.5">
         <label className="flex items-start gap-2.5 p-3 rounded-xl border border-[var(--border-light)] bg-[var(--surface-subtle)] cursor-pointer hover:bg-[var(--surface-soft)] transition-colors">
@@ -425,79 +353,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
         </p>
       </div>
 
-      {/* Bildirimler */}
-      <div className="space-y-2 pt-2 border-t border-[var(--border-light)]">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)]">
-          <Bell className="w-3.5 h-3.5" />
-          <span>Bildirimler</span>
-        </div>
+      {/*
+        BİLDİRİMLER BÖLÜMÜ KALDIRILDI.
 
-        {pushAvailable === false ? (
-          <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">
-            Anlık bildirim yalnızca telefona kurulu uygulamada çalışıyor. Tarayıcıda
-            uygulama içi duyuruları yine görürsün.
-          </p>
-        ) : (
-          <>
-            <label className="flex items-start gap-2.5 p-3 rounded-xl border border-[var(--border-light)] bg-[var(--surface-subtle)] cursor-pointer hover:bg-[var(--surface-soft)] transition-colors">
-              <input
-                type="checkbox"
-                checked={push.enabled}
-                disabled={pushBusy}
-                onChange={e => void togglePush(e.target.checked)}
-                className="mt-0.5 accent-[var(--primary)] cursor-pointer"
-              />
-              <span>
-                <span className="text-xs font-bold text-[var(--text-primary)]">
-                  Bildirimleri aç
-                </span>
-                <span className="block text-[11px] text-[var(--text-secondary)]">
-                  Yeni özellikler ve tekrar hatırlatmaları telefonuna gelsin.
-                </span>
-              </span>
-            </label>
-
-            {push.enabled && (
-              <div className="pl-3 space-y-1.5">
-                <label className="flex items-center gap-2 text-[11px] text-[var(--text-primary)] cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={push.announcements}
-                    onChange={e => {
-                      void updatePushTopics({ announcements: e.target.checked });
-                      setPush(getPushPreferences());
-                    }}
-                    className="accent-[var(--primary)] cursor-pointer"
-                  />
-                  Duyurular ve yeni özellikler
-                </label>
-                <label className="flex items-center gap-2 text-[11px] text-[var(--text-primary)] cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={push.reminders}
-                    onChange={e => {
-                      void updatePushTopics({ reminders: e.target.checked });
-                      setPush(getPushPreferences());
-                    }}
-                    className="accent-[var(--primary)] cursor-pointer"
-                  />
-                  Çalışma hatırlatmaları
-                </label>
-                <p className="text-[10px] text-[var(--text-muted)] leading-relaxed">
-                  Kapattığın tür sana gönderilmez — "herkese" gönderilen bir duyuruda bile.
-                </p>
-              </div>
-            )}
-
-            {pushNote && (
-              <div className="p-3 rounded-xl bg-[var(--learning-soft)] border border-[var(--learning-border)] text-[11px] text-[var(--learning-text)] leading-relaxed">
-                {pushNote}
-              </div>
-            )}
-          </>
-        )}
-      </div>
-
+        Anlık bildirim sunucu ister; bu dağıtımda sunucu yok. Ekranda duran
+        şey yalnızca 'bu çalışmıyor' diyen bir açıklamaydı — kullanıcıya
+        hiçbir faydası olmayan, sadece kafa karıştıran bir bölüm. Sunucu
+        açılırsa geri gelir; kod tarafı (pushNotifications) duruyor.
+      */}
       {/* Telaffuz sesi */}
       <div className="space-y-2 pt-2 border-t border-[var(--border-light)]">
         <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)]">
@@ -524,6 +387,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
             <span>Sesi Test Et</span>
           </button>
 
+          {/*
+            AYRINTILI TANI KÜÇÜK BİR BAĞLANTININ ARKASINDA.
+
+            Ses artık çalışıyor; kullanıcıların çoğu buraya hiç bakmayacak.
+            Ama bir sorun çıktığında bu ekran tek teşhis yolu — kaldırılamaz,
+            sadece öne çıkmaması gerekiyor. Herkese gösterilen teknik bir
+            düğme, gerçekten ihtiyaç duyulduğunda güven vermez.
+          */}
           <button
             type="button"
             disabled={motorDeneniyor}
@@ -536,14 +407,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
                 setMotorDeneniyor(false);
               }
             }}
-            className="px-3.5 py-2 bg-[var(--surface-soft)] hover:bg-[var(--surface)] text-[var(--text-secondary)] border border-[var(--border)] text-xs font-semibold rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-60 disabled:cursor-wait"
+            className="px-2 py-2 text-[11px] font-semibold text-[var(--text-muted)] hover:text-[var(--text-primary)] underline underline-offset-2 cursor-pointer inline-flex items-center gap-1.5 disabled:opacity-60 disabled:cursor-wait"
           >
-            {motorDeneniyor ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            ) : (
-              <Sliders className="w-3.5 h-3.5" />
-            )}
-            <span>{motorDeneniyor ? 'Deneniyor…' : 'Ayrıntılı ses tanısı'}</span>
+            {motorDeneniyor && <Loader2 className="w-3 h-3 animate-spin" />}
+            <span>{motorDeneniyor ? 'Deneniyor…' : 'Sorun mu var?'}</span>
           </button>
 
           {diagnostics?.isNative && !diagnostics.hasEnglish && (

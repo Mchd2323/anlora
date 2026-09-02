@@ -185,15 +185,20 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
               uygulamasındaki taslağı göndermeden kapatabilir.
             */}
             <div>
+              {/*
+                'E-posta taslağın hazır' açıklaması kaldırıldı: kullanıcı
+                zaten posta uygulamasının açıldığını görüyor, ona ne
+                yapacağını anlatmaya gerek yok. Geriye anlamlı olan tek şey
+                kalıyor — teşekkür. Adres, taslak hiç açılmadıysa işe
+                yarasın diye küçük bir satır olarak duruyor.
+              */}
               <p className="text-sm font-bold text-[var(--text-primary)]">
-                {sunucuVar === false
-                  ? 'E-posta taslağın hazır.'
-                  : 'Bildirimin bize ulaştı.'}
+                İletişime geçtiğin için teşekkürler!
               </p>
               <p className="text-xs text-[var(--text-secondary)] mt-1">
                 {sunucuVar === false
-                  ? `Posta uygulamandan göndermen yeterli. Açılmadıysa ${BRAND.contactEmail} adresine yazabilirsin.`
-                  : 'Teşekkürler — hataları böyle buluyoruz.'}
+                  ? `Posta uygulaman açılmadıysa ${BRAND.contactEmail} adresine yazabilirsin.`
+                  : 'Hataları böyle buluyoruz.'}
               </p>
             </div>
             <button

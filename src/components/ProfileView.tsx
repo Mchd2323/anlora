@@ -1,5 +1,14 @@
 import React, { useState, useMemo } from 'react';
-import { UserProfile, UserStats, WordCard, LearningState, Level, UserSettings } from '../types';
+import {
+  UserProfile,
+  UserStats,
+  WordCard,
+  LearningState,
+  Level,
+  UserSettings,
+  Collection,
+  CollectionMembership
+} from '../types';
 import {
   User,
   LogOut,
@@ -19,8 +28,13 @@ import {
   Heart,
   BrainCircuit,
   Volume2
+,
+  BarChart3,
+  ChevronDown,
+  Send
 } from 'lucide-react';
 import { getUserWordStatus } from '../utils/storageV2';
+import { BRAND } from '../config/brand';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { generateFullV2Backup, restoreFullV2Backup } from '../utils/storageV2';
 import { SettingsPanel } from './SettingsPanel';
@@ -35,6 +49,10 @@ interface ProfileViewProps {
   learningStates: Record<string, LearningState>;
   customWords: WordCard[];
   oxfordWords: WordCard[];
+  /** Oxford 5000'i tamamlayan ek liste; seviye sayıları eksik kalmasın. */
+  extraWords?: WordCard[];
+  collections?: Collection[];
+  memberships?: CollectionMembership[];
   favorites: string[];
   onOpenAuthModal: () => void;
   onLogout: () => void;
@@ -62,6 +80,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   learningStates,
   customWords,
   oxfordWords,
+  extraWords = [],
+  collections = [],
+  memberships = [],
   favorites,
   onOpenAuthModal,
   onLogout,
@@ -78,6 +99,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
    */
   const hesapAcilabilir = useRemoteApi();
 
+  /** Sözlük katkısı notu açık mı? Kapalı başlar; herkesin okuması gerekmiyor. */
+  const [katkiAcik, setKatkiAcik] = useState(false);
+  /** İndirilen yedeğin dosya adı; kullanıcı telefonda arayabilsin diye. */
+  const [exportedName, setExportedName] = useState('');
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteAccountError, setDeleteAccountError] = useState('');
@@ -136,7 +161,13 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       C2: { total: 0, learned: 0, learning: 0 }
     };
 
-    oxfordWords.forEach((w) => {
+    /*
+     * EK LİSTE DE SAYILIYOR.
+     * Burada yalnızca `oxfordWords` (Oxford 3000, 3.308 kayıt) sayılıyordu;
+     * ek listenin 2.015 kelimesi hiç görünmüyordu, yani B2 ve C1 sayıları
+     * olduğundan küçük çıkıyordu.
+     */
+    [...oxfordWords, ...extraWords].forEach((w) => {
       if (w.level && oxfordBreakdown[w.level]) {
         oxfordBreakdown[w.level].total++;
         const st = getUserWordStatus(w.id, learningStates);
@@ -145,14 +176,33 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       }
     });
 
+    /*
+     * SÖZLÜĞÜMÜZDE OLMAYAN KENDİ KELİMELERİ.
+     *
+     * Kullanıcının elle yazdığı, ne Oxford listesinde ne de Anlora
+     * dağarcığında bulunan kelimeler. Bu sayı iki işe yarıyor: kullanıcı
+     * kendi katkısını görüyor, biz de sözlüğün nerede yetersiz kaldığını
+     * öğrenebiliyoruz.
+     *
+     * Ölçüt `sourceType`: sözlükten gelen kartlar 'oxford' ya da 'extended'
+     * işaretli olur; elle yazılanlarda böyle bir kaynak yoktur.
+     */
+    const sozlukDisiKelimeler = customWords
+      .filter(w => w.isCustom && !w.sourceEntryId && w.sourceType !== 'oxford')
+      .map(w => w.word.trim())
+      .filter(Boolean);
+
     return {
       totalWords: allWordIds.size,
       learnedCount,
       learningCount,
       unseenCount,
-      oxfordBreakdown
+      oxfordBreakdown,
+      sozlukDisiKelimeler,
+      setSayisi: collections.length,
+      setlerdekiKelime: new Set(memberships.map(m => m.wordId)).size
     };
-  }, [customWords, oxfordWords, learningStates]);
+  }, [customWords, oxfordWords, extraWords, collections, memberships, learningStates]);
 
   /**
    * Tam yedek indirir.
@@ -172,13 +222,28 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `anlora_yedek_${new Date().toISOString().slice(0, 10)}.json`;
+      const dosyaAdi = `anlora_yedek_${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = dosyaAdi;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      /*
+       * DOSYANIN ADI VE YERİ SÖYLENİYOR.
+       *
+       * Önceki mesaj yalnızca 'başarıyla indirildi' diyordu ve kullanıcıyı
+       * dosyayı telefonda aramaya bırakıyordu. Dosyanın adını bilmeden
+       * aramak, yedeği olmadığını sanmakla aynı kapıya çıkar.
+       *
+       * Dosyaya doğrudan GİDİLEMİYOR: APK içindeki WebView'dan indirme
+       * klasörünü açmak ayrı bir yerel eklenti gerektiriyor ve bunun için
+       * uygulamaya dosya sistemi izni eklemek gerekirdi — bir yedek mesajı
+       * için ödenecek bedel değil. Onun yerine kullanıcının kendi
+       * bulabileceği kadar bilgi veriliyor.
+       */
+      setExportedName(dosyaAdi);
       setShowExportSuccess(true);
-      setTimeout(() => setShowExportSuccess(false), 4000);
+      setTimeout(() => setShowExportSuccess(false), 12000);
     } catch (e) {
       console.error(e);
       setImportError('Yedek dosyası oluşturulurken hata oluştu.');
@@ -407,72 +472,171 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         </div>
       </div>
 
-      {/* 3. Oxford 5000 Seviye İlerlemesi */}
-      <div className="bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-1.5">
-            <BookOpen className="w-4 h-4 text-[var(--primary)]" />
-            <span>Oxford 5000 Seviye Dağılımı</span>
-          </h3>
+      {/*
+        İSTATİSTİKLER
 
-          {onNavigateToTab && (
-            <button
-              onClick={() => onNavigateToTab('oxford')}
-              className="text-xs font-bold text-[var(--primary)] hover:text-[var(--primary-hover)] cursor-pointer"
-            >
-              Oxford 5000'e Git →
-            </button>
-          )}
+        Önceki bölüm yalnızca 'Oxford 5000 Seviye Dağılımı' idi ve uygulamanın
+        eski hâline göre yapılmıştı: seviyeler B2'de bitiyor, C1 ve kalıplar
+        hiç görünmüyordu. Üstelik yalnızca Oxford'u sayıyordu — kullanıcının
+        kendi setleri, kendi kelimeleri bu tabloda yoktu.
+
+        Artık başlık 'İstatistikler' ve kullanıcının uygulamadaki BÜTÜN
+        çalışması burada: durum özeti, seviye ilerlemesi, setler ve sözlükte
+        bulunmayan kendi kelimeleri. Hepsi tek kutuda, öncekinin kapladığı
+        yerden fazlasını almadan.
+      */}
+      <div className="bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-5">
+        <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+          <BarChart3 className="w-4 h-4 text-[var(--primary)]" />
+          <span>İstatistikler</span>
+        </h3>
+
+        {/* Setler ve kendi kelimelerin */}
+        <div className="grid grid-cols-3 gap-2.5">
+          <div className="p-3 rounded-xl bg-[var(--bg)] border border-[var(--border)] text-center">
+            <Layers className="w-4 h-4 text-[var(--primary)] mx-auto mb-1" />
+            <div className="text-lg font-black text-[var(--text-primary)] tabular-nums">
+              {learningSummary.setSayisi}
+            </div>
+            <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase mt-0.5 leading-tight">
+              Kelime seti
+            </p>
+          </div>
+          <div className="p-3 rounded-xl bg-[var(--bg)] border border-[var(--border)] text-center">
+            <BookOpen className="w-4 h-4 text-[var(--primary)] mx-auto mb-1" />
+            <div className="text-lg font-black text-[var(--text-primary)] tabular-nums">
+              {learningSummary.setlerdekiKelime.toLocaleString('tr-TR')}
+            </div>
+            <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase mt-0.5 leading-tight">
+              Setlerdeki kelime
+            </p>
+          </div>
+          <div className="p-3 rounded-xl bg-[var(--bg)] border border-[var(--border)] text-center">
+            <Sparkles className="w-4 h-4 text-[var(--learning)] mx-auto mb-1" />
+            <div className="text-lg font-black text-[var(--text-primary)] tabular-nums">
+              {learningSummary.sozlukDisiKelimeler.length}
+            </div>
+            <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase mt-0.5 leading-tight">
+              Sözlükte yok
+            </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {(['A1', 'A2', 'B1', 'B2'] as Level[]).map((lvl) => {
+        {/*
+          SÖZLÜK KATKISI.
+
+          Kullanıcının eklediği ve bizde bulunmayan kelimeler, sözlüğün nerede
+          yetersiz kaldığını gösteren en doğrudan bilgi. Ama bunu istemek
+          zahmetli olmamalı: kimse on dört kelimeyi elle yazıp e-posta
+          göndermez. Düğme yalnızca İngilizce yazımları hazır bir taslağa
+          koyuyor — Türkçe anlamlar, setler, hiçbir kişisel veri gitmiyor.
+        */}
+        {learningSummary.sozlukDisiKelimeler.length > 0 && (
+          <div className="rounded-xl border border-[var(--learning-border)] bg-[var(--learning-soft)] overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setKatkiAcik(a => !a)}
+              aria-expanded={katkiAcik}
+              className="w-full px-4 py-3 flex items-center justify-between gap-2 text-left cursor-pointer hover:bg-[var(--learning-soft-hover)] transition-colors"
+            >
+              <span className="text-xs font-bold text-[var(--learning-text)]">
+                Sözlüğü birlikte büyütelim
+              </span>
+              <ChevronDown
+                className={`w-4 h-4 text-[var(--learning-text)] shrink-0 transition-transform ${
+                  katkiAcik ? 'rotate-180' : ''
+                }`}
+              />
+            </button>
+
+            {katkiAcik && (
+              <div className="px-4 pb-4 space-y-3 border-t border-[var(--learning-border)] pt-3">
+                <p className="text-[11px] text-[var(--learning-text)] leading-relaxed">
+                  Eklediğin{' '}
+                  <b>{learningSummary.sozlukDisiKelimeler.length} kelime</b> ne Oxford
+                  listesinde ne de Anlora sözlüğünde var. Bize gönderirsen sözlüğe ekleyip
+                  herkesin çalışmasını sağlayabiliriz.
+                </p>
+                <p className="text-[11px] text-[var(--learning-text)] leading-relaxed opacity-90">
+                  <b>Tek tek yazmana gerek yok</b> — düğmeye bastığında bu kelimelerin yalnızca
+                  İngilizceleri e-postaya kendiliğinden eklenir. Türkçe anlamların, setlerin ve
+                  başka hiçbir bilgin gönderilmez.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const kelimeler = learningSummary.sozlukDisiKelimeler;
+                    const konu = `Anlora sözlük önerisi (${kelimeler.length} kelime)`;
+                    window.location.href =
+                      `mailto:${BRAND.contactEmail}` +
+                      `?subject=${encodeURIComponent(konu)}` +
+                      `&body=${encodeURIComponent(kelimeler.join('\n'))}`;
+                  }}
+                  className="px-3.5 py-2 bg-[var(--learning)] hover:opacity-90 text-[var(--surface)] text-[11px] font-bold rounded-lg cursor-pointer inline-flex items-center gap-1.5"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  Kelimeleri gönder
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Seviyelere göre ilerleme */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h4 className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+              Oxford seviyelerine göre
+            </h4>
+            {onNavigateToTab && (
+              <button
+                onClick={() => onNavigateToTab('oxford')}
+                className="text-[11px] font-bold text-[var(--primary)] hover:text-[var(--primary-hover)] cursor-pointer"
+              >
+                Listeye git →
+              </button>
+            )}
+          </div>
+
+          {(['A1', 'A2', 'B1', 'B2', 'C1'] as Level[]).map(lvl => {
             const data = learningSummary.oxfordBreakdown[lvl];
-            const learnedPercent =
-              data.total > 0 ? Math.round((data.learned / data.total) * 100) : 0;
-            const learningPercent =
-              data.total > 0 ? Math.round((data.learning / data.total) * 100) : 0;
+            const ogrenildi = data.total > 0 ? Math.round((data.learned / data.total) * 100) : 0;
+            const ogreniliyor = data.total > 0 ? Math.round((data.learning / data.total) * 100) : 0;
+            const kalan = data.total - data.learned - data.learning;
 
             return (
-              <div
+              <button
                 key={lvl}
+                type="button"
                 onClick={() => {
                   if (onSelectLevel) onSelectLevel(lvl);
                   if (onNavigateToTab) onNavigateToTab('oxford');
                 }}
-                className="p-4 rounded-xl bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition-all cursor-pointer group space-y-2"
+                className="w-full p-3 rounded-xl bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition-colors cursor-pointer text-left space-y-1.5"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 min-w-0">
                     <CEFRBadge level={lvl} size="sm" />
-                    <span className="font-bold text-xs text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors">
-                      {lvl} ({data.total} Kelime)
+                    <span className="text-[11px] font-semibold text-[var(--text-secondary)] tabular-nums">
+                      {data.total.toLocaleString('tr-TR')} kelime
                     </span>
                   </div>
-                  <span className="text-xs font-bold text-[var(--learned)]">
-                    %{learnedPercent} Öğrenildi
+                  <span className="text-xs font-bold text-[var(--learned)] shrink-0">
+                    %{ogrenildi}
                   </span>
                 </div>
 
                 <div className="h-1.5 w-full bg-[var(--border)] rounded-full overflow-hidden flex">
-                  <div
-                    className="h-full bg-[var(--learned)]"
-                    style={{ width: `${learnedPercent}%` }}
-                    title={`Öğrenildi: ${data.learned}`}
-                  />
-                  <div
-                    className="h-full bg-[var(--learning)]"
-                    style={{ width: `${learningPercent}%` }}
-                    title={`Öğreniliyor: ${data.learning}`}
-                  />
+                  <div className="h-full bg-[var(--learned)]" style={{ width: `${ogrenildi}%` }} />
+                  <div className="h-full bg-[var(--learning)]" style={{ width: `${ogreniliyor}%` }} />
                 </div>
 
-                <div className="flex justify-between text-[11px] font-semibold text-[var(--text-secondary)] pt-0.5">
-                  <span className="text-[var(--learned)]">{data.learned} Öğrendim</span>
-                  <span className="text-[var(--learning)]">{data.learning} Öğreniyorum</span>
-                  <span className="text-[var(--text-muted)]">{data.total - data.learned - data.learning} Kalan</span>
+                <div className="flex justify-between text-[10px] font-semibold tabular-nums">
+                  <span className="text-[var(--learned)]">{data.learned} öğrendim</span>
+                  <span className="text-[var(--learning)]">{data.learning} tekrar</span>
+                  <span className="text-[var(--text-muted)]">{kalan} kalan</span>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
@@ -527,9 +691,17 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         </h3>
 
         {showExportSuccess && (
-          <div className="p-3 bg-[var(--learned-soft)] text-[var(--learned-text)] text-xs font-semibold rounded-xl border border-[var(--learned-border)] flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[var(--learned)]" />
-            <span>Yedek dosyan başarıyla indirildi.</span>
+          <div className="p-3 bg-[var(--learned-soft)] text-[var(--learned-text)] text-xs rounded-xl border border-[var(--learned-border)] flex items-start gap-2">
+            <CheckCircle2 className="w-4 h-4 text-[var(--learned)] shrink-0 mt-0.5" />
+            <span className="min-w-0">
+              <span className="font-semibold block">Yedeğin indirildi.</span>
+              <span className="block mt-0.5 opacity-90 leading-relaxed">
+                Telefonundaki <b>İndirilenler</b> klasöründe:
+              </span>
+              <code className="block mt-1 px-2 py-1 rounded-md bg-[var(--surface)] border border-[var(--learned-border)] font-mono text-[10px] break-all">
+                {exportedName}
+              </code>
+            </span>
           </div>
         )}
 

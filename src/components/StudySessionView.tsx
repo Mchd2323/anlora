@@ -34,6 +34,10 @@ import { blankOutWord } from '../utils/quizGenerator';
 import { oxfordCoreRepository } from '../services/oxfordCoreRepository';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { shouldShowCefr } from '../types/oxford';
+import { readJSON, writeJSON } from '../utils/safeStorage';
+
+/** Son seçilen çalışma modu; oturum bunu hatırlar. */
+const SON_MOD_ANAHTARI = 'anlora.sonCalismaModu.v1';
 
 interface StudySessionViewProps {
   initialCollectionId?: string;
@@ -76,11 +80,24 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
 }) => {
   // Session Configuration State
   const [selectedSource, setSelectedSource] = useState<string>(initialCollectionId || 'DUE_TODAY');
-  // Oturum modu kullanıcının kayıtlı tercihinden başlar; oturum ekranından
-  // yine değiştirilebilir. Bu ayar saklanıyordu ama hiçbir yerde okunmuyordu.
+  /*
+   * OTURUM SON KULLANILAN MODU HATIRLAR.
+   *
+   * Ayarlarda 'tercih edilen çalışma modu' diye bir bölüm vardı; kullanıcıya
+   * açıklanması gereken, ama yalnızca bir dokunuş kazandıran bir ayardı.
+   * Kaldırıldı — yerine oturum, kullanıcının en son hangi modu seçtiğini
+   * hatırlıyor. Aynı fayda, sorulacak soru yok.
+   */
   const [studyMode, setStudyMode] = useState<'mixed' | 'flashcard' | 'typed' | 'listening' | 'cloze'>(
-    settings?.preferredStudyMode || 'mixed'
+    () => readJSON<'mixed' | 'flashcard' | 'typed' | 'listening' | 'cloze'>(
+      SON_MOD_ANAHTARI,
+      settings?.preferredStudyMode || 'mixed'
+    )
   );
+
+  useEffect(() => {
+    writeJSON(SON_MOD_ANAHTARI, studyMode);
+  }, [studyMode]);
   const [isSessionStarted, setIsSessionStarted] = useState(false);
 
   // Active Session Queue
