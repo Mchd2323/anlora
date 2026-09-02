@@ -24,8 +24,7 @@ import {
   PenTool,
   CheckSquare,
   Square,
-  ArrowLeft
-} from 'lucide-react';
+  ArrowLeft, RotateCw } from 'lucide-react';
 import { speakText } from '../utils/speech';
 import {
   QuizQuestion,
@@ -113,6 +112,8 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
   onSetWordStatus
 }) => {
   const [quizState, setQuizState] = useState<'IDLE' | 'ACTIVE' | 'FINISHED'>('IDLE');
+  /** Toplu işaretlemenin sonucu; sessizce yapılan bir işlem yapılmamış gibidir. */
+  const [topluSonuc, setTopluSonuc] = useState('');
 
   // Configuration State
   const [quizMode, setQuizMode] = useState<QuizMode>('MIXED');
@@ -138,15 +139,24 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
   >([]);
 
   // Toggle a single source (Oxford level or Collection ID)
+  /*
+   * KAYNAK SEÇİMİ ZORUNLU DEĞİL.
+   *
+   * Son kaynağın kaldırılması engelleniyordu: kullanıcı hepsini kapatmak
+   * isteyince düğme tıklanıyor ama hiçbir şey olmuyordu. Sessizce yok
+   * sayılan bir dokunuş, uygulamanın bozuk olduğunu düşündürür.
+   *
+   * Artık hepsi kapatılabiliyor; sınavı başlatmak isteyen kullanıcıya
+   * "en az bir kaynak seç" deniyor. Kural aynı kalıyor ama kullanıcı onu
+   * ihlal ettiği anda ve sebebiyle birlikte öğreniyor.
+   */
   const handleToggleSource = (sourceKey: string) => {
-    setSelectedSources((prev) => {
-      if (prev.includes(sourceKey)) {
-        if (prev.length === 1) return prev; // keep at least 1
-        return prev.filter((s) => s !== sourceKey);
-      } else {
-        return [...prev, sourceKey];
-      }
-    });
+    setSetupError('');
+    setSelectedSources((prev) =>
+      prev.includes(sourceKey)
+        ? prev.filter((s) => s !== sourceKey)
+        : [...prev, sourceKey]
+    );
   };
 
   const handleSelectAllOxford = () => {
@@ -226,6 +236,8 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
     setSelectedAnswer(null);
     setTypedAnswer('');
     setIsAnswered(false);
+    // Yeni sınav: önceki turun toplu işaretleme bildirimi kalmasın.
+    setTopluSonuc('');
     setQuizState('ACTIVE');
   };
 
@@ -313,7 +325,8 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
               Sınav Modu
             </h2>
             <p className="text-xs sm:text-sm text-[var(--text-secondary)] max-w-md mx-auto">
-              Kelimeleri çoktan seçmeli veya yazarak test et.
+              İstediğin kaynaktan, istediğin sınav türünde ve soru sayısında kendini
+              dene; yanlış bildiklerin tekrar listene düşer.
             </p>
           </div>
 
@@ -527,9 +540,20 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
             </div>
           )}
 
+          {/*
+            Düğme boş seçimde KİLİTLENMİYOR, uyarı veriyor. Kilitli bir düğme
+            neden kilitli olduğunu söylemez; kullanıcı dokunup sebebi
+            öğrenebilmeli.
+          */}
           <button
-            onClick={startQuiz}
-            disabled={currentPool.length < MIN_POOL_SIZE}
+            onClick={() => {
+              if (selectedSources.length === 0) {
+                setSetupError('Sınava başlamak için en az bir kelime kaynağı seç.');
+                return;
+              }
+              startQuiz();
+            }}
+            disabled={selectedSources.length > 0 && currentPool.length < MIN_POOL_SIZE}
             className="w-full py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 text-[var(--surface)] font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <Sparkles className="w-4 h-4 text-[var(--learning-soft)]" />
@@ -728,6 +752,64 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
               <p className="text-[10px] text-[var(--primary)] font-bold uppercase mt-0.5">Başarı</p>
             </div>
           </div>
+
+          {/*
+            TOPLU İŞARETLEME.
+
+            Durum yalnızca kelime kelime değiştirilebiliyordu; yüz soruluk bir
+            sınavın sonunda doğru bildiklerini tek tek işaretlemek zahmetten
+            başka bir şey değil ve kullanıcı bunu yapmıyor — yani ilerleme
+            kaydı olduğundan geride kalıyor.
+
+            İki düğme sınavın zaten bildiği şeyi kullanıyor: hangi soruya
+            doğru, hangisine yanlış cevap verildiği. Bir kez dokunmak yeterli.
+          */}
+          {onSetWordStatus && userAnswers.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-3 border-t border-[var(--border-light)]">
+              {score > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    userAnswers
+                      .filter(a => a.isCorrect)
+                      .forEach(a => onSetWordStatus(a.question.word.id, 'learned'));
+                    setTopluSonuc(`${score} kelime "öğrendim" olarak işaretlendi.`);
+                  }}
+                  className="flex-1 min-w-[150px] px-3.5 py-2.5 rounded-xl bg-[var(--learned-soft)] hover:bg-[var(--learned-soft-strong)] text-[var(--learned-text)] border border-[var(--learned-border)] text-xs font-bold inline-flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                >
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  Doğruları öğrendim ({score})
+                </button>
+              )}
+
+              {questions.length - score > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    userAnswers
+                      .filter(a => !a.isCorrect)
+                      .forEach(a => onSetWordStatus(a.question.word.id, 'learning'));
+                    setTopluSonuc(
+                      `${questions.length - score} kelime tekrar listene eklendi.`
+                    );
+                  }}
+                  className="flex-1 min-w-[150px] px-3.5 py-2.5 rounded-xl bg-[var(--learning-soft)] hover:bg-[var(--learning-soft-hover)] text-[var(--learning-text)] border border-[var(--learning-border)] text-xs font-bold inline-flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                >
+                  <RotateCw className="w-3.5 h-3.5 stroke-[3]" />
+                  Yanlışları tekrar et ({questions.length - score})
+                </button>
+              )}
+            </div>
+          )}
+
+          {topluSonuc && (
+            <p
+              role="status"
+              className="text-xs font-semibold text-[var(--learned-text)] text-center"
+            >
+              {topluSonuc}
+            </p>
+          )}
 
           {/* Sınavda Çıkan Kelimeler ve Hızlı Durum Güncelleme */}
           <div className="space-y-2.5 pt-3 border-t border-[var(--border-light)]">
