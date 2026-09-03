@@ -450,11 +450,19 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
           kartlarla çalış ve liste — o kaynağa göre çalışıyor.
         */}
         <div className="space-y-2.5">
-          <div className="flex items-center justify-between gap-3">
+          {/*
+            ETİKET VE MENÜ YAN YANA.
+
+            `justify-between` ikisini iki uca itiyordu: etiket solda, menü
+            sağ kenarda, arada boşluk. Aynı satırdaki iki parça birbirine ait
+            olduğunda araya boşluk koymak, hangi menünün hangi etikete ait
+            olduğunu okumayı zorlaştırıyor.
+          */}
+          <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-[var(--text-primary)] shrink-0">
               Oxford Kelime Listesi:
             </span>
-            <div className="relative min-w-[150px]">
+            <div className="relative flex-1 min-w-0 max-w-[190px]">
               <button
                 type="button"
                 onClick={() => {
@@ -504,11 +512,11 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-[var(--text-primary)] shrink-0">
               Kalıplar ve Deyimler:
             </span>
-            <div className="relative min-w-[150px]">
+            <div className="relative flex-1 min-w-0 max-w-[190px]">
               <button
                 type="button"
                 onClick={() => {
@@ -573,8 +581,31 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
          * dokununca liste o otuz kelimeye iner.
          */}
         <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-[var(--bg)] rounded-xl border border-[var(--border)] text-xs">
+          {/*
+            KUTU NEYE BAKTIĞINI SÖYLÜYOR.
+
+            Eskiden yalnızca "Toplam 125 kelime içinde" yazıyordu. İki listede
+            de A1–C1 seviyeleri olduğu için bu sayının hangi listeye ve hangi
+            seviyeye ait olduğu belirsizdi; kalıplar seçiliyken bile "kelime"
+            deniyordu. Üstteki seçim ne ise burada aynen tekrarlanıyor.
+          */}
           <div className="text-[var(--text-secondary)] font-medium">
-            Toplam <strong className="text-[var(--text-primary)]">{levelStats.total}</strong> kelime içinde:
+            <span className="font-bold text-[var(--text-primary)]">
+              {kalipMi ? 'Kalıplar ve Deyimler' : 'Oxford Kelime Listesi'}
+            </span>{' '}
+            · {kalipMi
+              ? kalipSeviyesi === 'ALL'
+                ? 'tüm seviyeler'
+                : `${KALIP_ETIKET[kalipSeviyesi]} seviyesi`
+              : selectedLevel === 'ALL'
+                ? 'tüm seviyeler'
+                : `${LEVEL_LABEL[selectedLevel]} seviyesi`}
+            <br />
+            Toplam{' '}
+            <strong className="text-[var(--text-primary)]">
+              {levelStats.total.toLocaleString('tr-TR')}
+            </strong>{' '}
+            {kalipMi ? 'kalıp' : 'kelime'} içinde:
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
             <button
@@ -588,7 +619,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
             >
               {/* Renk tek başına ayırt etmiyor; biçim de taşınıyor. */}
               <Check className="w-3.5 h-3.5 stroke-[3]" aria-hidden="true" />
-              {levelStats.learnedCount} Öğrendim
+              {levelStats.learnedCount.toLocaleString('tr-TR')} Öğrendim
             </button>
 
             <button
@@ -601,7 +632,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
               }`}
             >
               <RotateCw className="w-3.5 h-3.5 stroke-[3]" aria-hidden="true" />
-              {levelStats.learningCount} Tekrar Et
+              {levelStats.learningCount.toLocaleString('tr-TR')} Tekrar Et
             </button>
 
             <button
@@ -613,7 +644,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
                   : 'text-[var(--text-muted)] border-transparent hover:bg-[var(--surface-soft)]'
               }`}
             >
-              {levelStats.unseenCount} İncelenmedi
+              {levelStats.unseenCount.toLocaleString('tr-TR')} İncelenmedi
             </button>
           </div>
         </div>

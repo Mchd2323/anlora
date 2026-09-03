@@ -27,6 +27,7 @@ import {
   Award
 } from 'lucide-react';
 import { sample } from '../utils/random';
+import { PronounceButtons } from './ui/PronounceButtons';
 import { speakText } from '../utils/speech';
 import { checkTypedAnswerCorrectness, normalizeWordString } from '../utils/lemmatizer';
 import { isReviewDue, isNewWord } from '../utils/srsEngine';
@@ -599,14 +600,8 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
             )}
           </div>
 
-          <button
-            type="button"
-              onClick={() => speakText(card.word)}
-            className="p-1.5 text-[var(--primary)] hover:bg-[var(--primary-soft)] rounded-lg transition-colors cursor-pointer"
-            title="Kelime Telaffuzu"
-          >
-            <Volume2 className="w-4 h-4" />
-          </button>
+          {/* Telaffuz: normal hız + yavaş hız */}
+          <PronounceButtons text={card.word} compact />
         </div>
 
         {/* Card Body by Mode */}

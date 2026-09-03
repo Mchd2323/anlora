@@ -105,6 +105,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
    */
   const hesapAcilabilir = useRemoteApi();
 
+  /*
+   * Seviye dökümü açık mı? KAPALI başlar.
+   *
+   * Bölüm on satır seviye taşıyor; profil sayfası bu yüzden gereğinden uzun
+   * oluyordu. Herkesin her açılışta seviye seviye ilerlemesine bakması
+   * gerekmiyor — özet üstte kalıyor, ayrıntı isteyen tek dokunuşla açıyor.
+   */
+  const [seviyelerAcik, setSeviyelerAcik] = useState(false);
+
   /** Sözlük katkısı notu açık mı? Kapalı başlar; herkesin okuması gerekmiyor. */
   const [katkiAcik, setKatkiAcik] = useState(false);
 
@@ -708,6 +717,23 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           duruyor — ikisini toplamak "B2'nin kaçını bitirdim" sorusunun
           cevabını bozardı.
         */}
+        <button
+          type="button"
+          onClick={() => setSeviyelerAcik(a => !a)}
+          aria-expanded={seviyelerAcik}
+          className="w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--bg)] hover:bg-[var(--surface-soft)] transition-colors cursor-pointer"
+        >
+          <span className="text-xs font-bold text-[var(--text-primary)]">
+            {seviyelerAcik ? 'Seviye ayrıntısını gizle' : 'Daha fazla istatistik'}
+          </span>
+          <ChevronDown
+            className={`w-4 h-4 text-[var(--text-secondary)] shrink-0 transition-transform ${
+              seviyelerAcik ? 'rotate-180' : ''
+            }`}
+          />
+        </button>
+
+        {seviyelerAcik && (
         <div className="space-y-3">
           <div className="space-y-1">
             <h4 className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider px-0.5">
@@ -789,6 +815,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             </button>
           )}
         </div>
+        )}
       </div>
 
       {/* 4. Çalışma Ayarları */}

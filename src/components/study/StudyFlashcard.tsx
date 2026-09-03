@@ -17,6 +17,7 @@ import {
   Trash2,
   MoreVertical
 } from 'lucide-react';
+import { PronounceButtons } from '../ui/PronounceButtons';
 import { speakText } from '../../utils/speech';
 import { CEFRBadge } from '../ui/CEFRBadge';
 import { shouldShowCefr } from '../../types/oxford';
@@ -495,19 +496,8 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                 </div>
 
                 <div className="flex items-center gap-0.5 shrink-0">
-                  <button
-                    type="button"
-              onClick={handlePlayAudio}
-                    className={`p-2 rounded-xl transition-all cursor-pointer ${
-                      isPlayingAudio
-                        ? 'bg-[var(--primary-soft)] text-[var(--primary)]'
-                        : 'text-[var(--text-muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--primary)]'
-                    }`}
-                    title="Telaffuzu dinle"
-                    aria-label="Telaffuzu dinle"
-                  >
-                    <Volume2 className={`w-[18px] h-[18px] ${isPlayingAudio ? 'animate-pulse' : ''}`} />
-                  </button>
+                  {/* Telaffuz: normal hız + yavaş hız (yeni başlayan için) */}
+                  <PronounceButtons text={currentCard.word} compact />
 
                   <button
                     onClick={(e) => {

@@ -15,6 +15,7 @@ import {
   MessageSquareWarning
 } from 'lucide-react';
 import { speakText } from '../utils/speech';
+import { PronounceButtons } from './ui/PronounceButtons';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { BRAND } from '../config/brand';
 import { LearningStatusControl } from './ui/LearningStatusControl';
@@ -295,17 +296,8 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
               )}
             </div>
 
-            {/* Audio Button */}
-            <button
-              type="button"
-              onClick={(e) => handlePlayAudio(e, card.word)}
-              className={`p-2.5 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] hover:bg-[var(--primary-soft-hover)] transition-all active:scale-95 shrink-0 cursor-pointer ${
-                isPlayingAudio ? 'opacity-70' : ''
-              }`}
-              title="Kelime Telaffuzu Dinle"
-            >
-              <Volume2 className="w-4 h-4 stroke-[2.2]" />
-            </button>
+            {/* Telaffuz: normal hız + yavaş hız */}
+            <PronounceButtons text={card.word} />
           </div>
 
           {/* Turkish Meaning Area */}
