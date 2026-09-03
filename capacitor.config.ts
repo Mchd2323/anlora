@@ -18,13 +18,23 @@ const config: CapacitorConfig = {
     /*
      * HTTPS sayfasında HTTP kaynak yüklenmez.
      *
-     * (Eski açıklama bu bayrağı yedeklemeyle ilişkilendiriyordu; ilgisi yok.
-     * Yedekleme AndroidManifest'te `allowBackup="false"` ile kapatıldı:
-     * WebView deposunda kullanıcının oturum jetonu ve bütün kelimeleri
-     * duruyor, bunların Google Drive'a ya da `adb backup` ile bilgisayara
-     * çıkması hesabın ele geçirilmesi demek olurdu.)
+     * Yedekleme kararı burada değil: bkz.
+     * android/app/src/main/res/xml/data_extraction_rules.xml.
      */
-    allowMixedContent: false
+    allowMixedContent: false,
+
+    /*
+     * Android 15 (targetSdk 35) kenardan kenara yerleşimi zorunlu kılıyor:
+     * sistem çubukları artık pencerenin üstüne biniyor ve StatusBar
+     * eklentisinin `overlaysWebView: false` ayarı orada etkisiz kalıyor.
+     * Bu ayar olmadan başlık şeridi saatin/pil simgesinin, alt sekme çubuğu
+     * da gezinme çubuğunun altında kalıyordu.
+     *
+     * 'auto': API 35 ve üstünde sistem çubuğu boşluklarını WebView'a kenar
+     * boşluğu olarak uygular, eski sürümlerde hiçbir şey değiştirmez —
+     * yani Android 14 ve altındaki bugünkü davranış aynen korunuyor.
+     */
+    adjustMarginsForEdgeToEdge: 'auto'
   },
   plugins: {
     SplashScreen: {
@@ -45,6 +55,10 @@ const config: CapacitorConfig = {
        * Kapalıyken sistem çubuğu kendi zeminini çizer, sayfa da altından
        * başlar. `.safe-top` sınıfı bu durumda sıfır boşluk döndürür, yani
        * iki çözüm birbirini katlamaz.
+       *
+       * SINIRI: bu ayar Android 14 ve altında iş görür. Android 15'te
+       * kenardan kenara yerleşim zorunlu olduğu için etkisizdir; oradaki
+       * boşluğu yukarıdaki `adjustMarginsForEdgeToEdge` sağlıyor.
        */
       overlaysWebView: false
     }

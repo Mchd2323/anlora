@@ -50,8 +50,12 @@ let indexPromise: Promise<void> | null = null;
 const shardCache = new Map<string, Map<string, ExtendedEntry>>();
 const shardPromises = new Map<string, Promise<Map<string, ExtendedEntry>>>();
 
+import { aramaAnahtari } from '../utils/aramaAnahtari';
+
 function normalize(word: string): string {
-  return (word || '').trim().toLowerCase();
+  // Dizinin kurulduğu anahtar ile aramanın ürettiği anahtar aynı olmalı;
+  // aksi hâlde Türkçe klavyeyle yazılan sorgu dizini ıskalar.
+  return aramaAnahtari(word);
 }
 
 function shardKeyOf(word: string): string {

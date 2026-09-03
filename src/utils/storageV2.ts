@@ -59,6 +59,13 @@ const DEFAULT_SETTINGS: UserSettings = {
 
 const MAX_REVIEW_LOGS_RETENTION = 500;
 
+/*
+ * Yanlış listesi de sınırlı. Sınırsız bir kayıt, uzun süre kullanan birinin
+ * deposunu sessizce dolduruyordu; dolduğu gün kaybedilen şey yalnızca eski
+ * hatalar değil, o anda yazılamayan yeni ilerleme oluyor.
+ */
+const MAX_MISTAKES_RETENTION = 300;
+
 /**
  * Migration Runner: Runs once if V2 data is not initialized
  */
@@ -238,8 +245,8 @@ export function getCollections(): Collection[] {
   return Array.isArray(value) ? value : [];
 }
 
-export function saveCollections(collections: Collection[]): void {
-  writeJSON(V2_KEYS.COLLECTIONS, collections);
+export function saveCollections(collections: Collection[]): boolean {
+  return writeJSON(V2_KEYS.COLLECTIONS, collections);
 }
 
 export function addCollection(deck: Omit<Collection, 'id' | 'createdAt' | 'updatedAt'>): Collection {
@@ -302,8 +309,8 @@ export function getMemberships(): CollectionMembership[] {
   return Array.isArray(value) ? value : [];
 }
 
-export function saveMemberships(memberships: CollectionMembership[]): void {
-  writeJSON(V2_KEYS.MEMBERSHIPS, memberships);
+export function saveMemberships(memberships: CollectionMembership[]): boolean {
+  return writeJSON(V2_KEYS.MEMBERSHIPS, memberships);
 }
 
 export function addWordToCollection(
@@ -356,8 +363,8 @@ export function getCustomWords(): WordCard[] {
   return readJSON(V2_KEYS.CUSTOM_WORDS, []);
 }
 
-export function saveCustomWords(words: WordCard[]): void {
-  writeJSON(V2_KEYS.CUSTOM_WORDS, words);
+export function saveCustomWords(words: WordCard[]): boolean {
+  return writeJSON(V2_KEYS.CUSTOM_WORDS, words);
 }
 
 export function addCustomWord(
@@ -422,8 +429,8 @@ export function getLearningStates(): Record<string, LearningState> {
   return readJSON(V2_KEYS.LEARNING_STATES, {});
 }
 
-export function saveLearningStates(states: Record<string, LearningState>): void {
-  writeJSON(V2_KEYS.LEARNING_STATES, states);
+export function saveLearningStates(states: Record<string, LearningState>): boolean {
+  return writeJSON(V2_KEYS.LEARNING_STATES, states);
 }
 
 export function getUserWordStatus(
@@ -587,8 +594,8 @@ export function getFavorites(): string[] {
   return readJSON(V2_KEYS.FAVORITES, []);
 }
 
-export function saveFavorites(favorites: string[]): void {
-  writeJSON(V2_KEYS.FAVORITES, favorites);
+export function saveFavorites(favorites: string[]): boolean {
+  return writeJSON(V2_KEYS.FAVORITES, favorites);
 }
 
 export function toggleFavorite(wordId: string): string[] {
@@ -605,8 +612,8 @@ export function getUserSettings(): UserSettings {
   return stored ? { ...DEFAULT_SETTINGS, ...stored } : DEFAULT_SETTINGS;
 }
 
-export function saveUserSettings(settings: UserSettings): void {
-  writeJSON(V2_KEYS.SETTINGS, settings);
+export function saveUserSettings(settings: UserSettings): boolean {
+  return writeJSON(V2_KEYS.SETTINGS, settings);
 }
 
 export function createDefaultUserStats(): UserStats {
@@ -630,7 +637,27 @@ export function getUserStats(): UserStats {
   if (!stored) return createDefaultUserStats();
   // Merge over defaults so fields added in later versions are never undefined
   // for someone upgrading from an older build.
-  return { ...createDefaultUserStats(), ...stored };
+  const stats = { ...createDefaultUserStats(), ...stored };
+
+  /*
+   * Eski biçimi okurken sadeleştir.
+   *
+   * Önceki sürümler yanlış listesine kartın TAMAMINI yazıyordu. O veri hâlâ
+   * cihazlarda duruyor ve okunmadan da yeniden yazılıyor. Burada kimliğe
+   * indiriliyor: ilk kaydetmede diskteki şişkin kopya kendiliğinden eriyor,
+   * bir daha da geri gelmiyor. Yazma yapılmıyor — dönüşüm okuma anında.
+   */
+  const eskiKayitlar = stats.mistakesMap as Record<string, { wordId?: string; wrongCount?: number; lastWrongAt?: string; word?: unknown }>;
+  if (eskiKayitlar && Object.values(eskiKayitlar).some(k => k && k.word !== undefined)) {
+    stats.mistakesMap = Object.fromEntries(
+      Object.entries(eskiKayitlar).map(([id, k]) => [
+        id,
+        { wordId: k?.wordId || id, wrongCount: k?.wrongCount || 1, lastWrongAt: k?.lastWrongAt }
+      ])
+    );
+  }
+
+  return stats;
 }
 
 /**
@@ -699,14 +726,15 @@ export function recordActivityForStreak(now: Date = new Date()): UserStats {
   return stats;
 }
 
-export function saveUserStats(stats: UserStats): void {
-  writeJSON(V2_KEYS.STATS, stats);
+export function saveUserStats(stats: UserStats): boolean {
+  return writeJSON(V2_KEYS.STATS, stats);
 }
 
 export function recordQuizResultV2(
   correctCount: number,
   wrongCount: number,
-  mistakenWords: WordCard[] = []
+  /** Yanlış bilinen kelimelerin KİMLİKLERİ; kartın kendisi saklanmıyor. */
+  mistakenWords: string[] = []
 ): UserStats {
   // Sınav da bir çalışma etkinliğidir: önce günlük seriyi güncelle.
   const stats = recordActivityForStreak();
@@ -725,13 +753,22 @@ export function recordQuizResultV2(
     stats.mistakesMap = {};
   }
 
-  mistakenWords.forEach(w => {
-    if (stats.mistakesMap[w.id]) {
-      stats.mistakesMap[w.id].wrongCount = (stats.mistakesMap[w.id].wrongCount || 1) + 1;
-    } else {
-      stats.mistakesMap[w.id] = { word: w, wrongCount: 1 };
-    }
+  const simdi = new Date().toISOString();
+  mistakenWords.forEach(id => {
+    const onceki = stats.mistakesMap[id];
+    stats.mistakesMap[id] = {
+      wordId: id,
+      wrongCount: (onceki?.wrongCount || 0) + 1,
+      lastWrongAt: simdi
+    };
   });
+
+  // En eskiler düşer; en son yanlış bilinenler kalır.
+  const kayitlar = Object.entries(stats.mistakesMap);
+  if (kayitlar.length > MAX_MISTAKES_RETENTION) {
+    kayitlar.sort((a, b) => (b[1].lastWrongAt || '').localeCompare(a[1].lastWrongAt || ''));
+    stats.mistakesMap = Object.fromEntries(kayitlar.slice(0, MAX_MISTAKES_RETENTION));
+  }
 
   saveUserStats(stats);
   return stats;
@@ -751,8 +788,8 @@ export function getUnlockedBadges(): string[] {
   return Array.isArray(value) ? value : [];
 }
 
-export function saveUnlockedBadges(badgeIds: string[]): void {
-  writeJSON(V2_KEYS.BADGES, badgeIds);
+export function saveUnlockedBadges(badgeIds: string[]): boolean {
+  return writeJSON(V2_KEYS.BADGES, badgeIds);
 }
 
 export function buildBadgeProgressSnapshot(): BadgeProgressSnapshot {
@@ -867,18 +904,32 @@ export function restoreFullV2Backup(payload: V2BackupPayload): boolean {
       throw new Error('Geçersiz yedekleme formatı veya uyumsuz sürüm.');
     }
 
-    if (Array.isArray(payload.collections)) saveCollections(payload.collections);
-    if (Array.isArray(payload.memberships)) saveMemberships(payload.memberships);
-    if (Array.isArray(payload.customWords)) saveCustomWords(payload.customWords);
-    if (payload.learningStates && typeof payload.learningStates === 'object') saveLearningStates(payload.learningStates);
-    if (Array.isArray(payload.reviewHistory)) writeJSON(V2_KEYS.REVIEW_HISTORY, payload.reviewHistory);
-    if (Array.isArray(payload.confusionPairs)) writeJSON(V2_KEYS.CONFUSION_PAIRS, payload.confusionPairs);
-    if (Array.isArray(payload.favorites)) saveFavorites(payload.favorites);
-    if (payload.userSettings) saveUserSettings(payload.userSettings);
-    if (payload.stats) saveUserStats(payload.stats);
-    if (Array.isArray(payload.unlockedBadges)) saveUnlockedBadges(payload.unlockedBadges);
+    /*
+     * HER YAZMANIN SONUCU SAYILIYOR.
+     *
+     * Bu fonksiyon eskiden koşulsuz `true` dönüyordu: depolama dolu ya da
+     * kapalıysa yazmaların hiçbiri tutmuyor, ama arayüz "geri yüklendi" deyip
+     * sayfayı yeniliyordu. Yenileme belleği de sildiği için kullanıcı elindeki
+     * tek yedeği yükledim sanırken hiçbir şeyi olmayan bir uygulamaya
+     * dönüyordu. Bir yedekleme yolunda söylenebilecek en pahalı yalan bu.
+     *
+     * Kısa devre YOK: `saveX(...) && hepsiYazildi` sırası kasıtlı — çağrı
+     * solda durduğu için bir yazma başarısız olsa da kalanlar denenir.
+     */
+    let hepsiYazildi = true;
 
-    return true;
+    if (Array.isArray(payload.collections)) hepsiYazildi = saveCollections(payload.collections) && hepsiYazildi;
+    if (Array.isArray(payload.memberships)) hepsiYazildi = saveMemberships(payload.memberships) && hepsiYazildi;
+    if (Array.isArray(payload.customWords)) hepsiYazildi = saveCustomWords(payload.customWords) && hepsiYazildi;
+    if (payload.learningStates && typeof payload.learningStates === 'object') hepsiYazildi = saveLearningStates(payload.learningStates) && hepsiYazildi;
+    if (Array.isArray(payload.reviewHistory)) hepsiYazildi = writeJSON(V2_KEYS.REVIEW_HISTORY, payload.reviewHistory) && hepsiYazildi;
+    if (Array.isArray(payload.confusionPairs)) hepsiYazildi = writeJSON(V2_KEYS.CONFUSION_PAIRS, payload.confusionPairs) && hepsiYazildi;
+    if (Array.isArray(payload.favorites)) hepsiYazildi = saveFavorites(payload.favorites) && hepsiYazildi;
+    if (payload.userSettings) hepsiYazildi = saveUserSettings(payload.userSettings) && hepsiYazildi;
+    if (payload.stats) hepsiYazildi = saveUserStats(payload.stats) && hepsiYazildi;
+    if (Array.isArray(payload.unlockedBadges)) hepsiYazildi = saveUnlockedBadges(payload.unlockedBadges) && hepsiYazildi;
+
+    return hepsiYazildi;
   } catch (err) {
     console.error('Backup restore failed:', err);
     return false;

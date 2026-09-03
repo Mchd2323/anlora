@@ -24,6 +24,39 @@ android {
     def anloraSurumKodu = (System.getenv("ANLORA_VERSION_CODE") ?: "1").toInteger()
     def anloraSurumAdi = System.getenv("ANLORA_VERSION_NAME") ?: "1.0"
 
+    /*
+     * YAYIN İMZASI.
+     *
+     * NEDEN GEREKLİ. Önceki durumda yayın paketi `assembleDebug` ile
+     * üretiliyordu ve hiç signingConfig yoktu; Gradle o zaman kendi ürettiği
+     * hata ayıklama anahtarına düşer. O anahtar makineye özeldir: CI her
+     * koşuda temiz bir makinede başladığı için HER APK FARKLI BİR KİMLİKLE
+     * imzalanıyordu. Android, imzası tutmayan bir paketi güncelleme olarak
+     * kabul etmez — kullanıcının uygulamayı kaldırıp yeniden kurması gerekir,
+     * bu da bütün ilerlemesinin silinmesi demektir. Veriler yalnızca cihazda
+     * durduğu için geri dönüşü yok.
+     *
+     * Anahtar depoya KONULAMAZ: depo herkese açık, anahtarı gören herkes
+     * "Anlora güncellemesi" diye imzalanmış bir paket üretebilirdi. Bu yüzden
+     * ortamdan okunuyor; CI'da GitHub Secrets'tan gelir.
+     *
+     * Anahtar verilmediğinde imzasız kalır ve derleme yine çalışır: yerel
+     * geliştirme ve deneme paketleri anahtar gerektirmesin diye.
+     */
+    def anloraAnahtarDosyasi = System.getenv("ANLORA_KEYSTORE_FILE")
+    def anloraAnahtarVar = anloraAnahtarDosyasi != null && !anloraAnahtarDosyasi.isEmpty()
+
+    signingConfigs {
+        release {
+            if (anloraAnahtarVar) {
+                storeFile file(anloraAnahtarDosyasi)
+                storePassword System.getenv("ANLORA_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("ANLORA_KEY_ALIAS")
+                keyPassword System.getenv("ANLORA_KEY_PASSWORD")
+            }
+        }
+    }
+
     defaultConfig {
         applicationId "com.anlora.app"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -41,6 +74,9 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (anloraAnahtarVar) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }

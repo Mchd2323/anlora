@@ -89,6 +89,46 @@ if (fs.existsSync(varliklarDizini)) {
   }
 }
 
+/*
+ * ÜRETİLEN LİSTE DENETLENİYOR.
+ *
+ * Bu betik şimdiye kadar ne bulursa onu yazıyor, hiçbir şey bulamasa da 0
+ * ile çıkıyordu. Oysa iki durumda ürettiği liste işe yaramaz ve bunu sessizce
+ * yapması, hatanın ancak kullanıcının telefonunda anlaşılması demek:
+ *
+ *   - HTML taraması giriş paketini ya da stili yakalayamamışsa (vite çıktı
+ *     biçimi değişirse) liste yalnızca kabuktan ibaret kalır.
+ *   - Sözlük parçaları isimlendirme değiştiği için eşleşmezse (bu bir kez
+ *     oldu: 3 MB'lık veri ana pakete düşmüştü) çevrimdışı açılış sonsuza
+ *     kadar "Sözlük hazırlanıyor…" ekranında kalır.
+ *
+ * İkisi de derlemeyi kırmalı; çünkü ikisi de yeşil bir derlemeden çıkan
+ * bozuk bir pakettir.
+ */
+const varlikVar = uzanti =>
+  [...referanslar].some(yol => yol.startsWith('/assets/') && yol.endsWith(uzanti));
+
+if (!varlikVar('.js') || !varlikVar('.css')) {
+  console.error(
+    'build-sw: index.html içinde /assets altında JS ya da CSS bağlantısı bulunamadı. ' +
+      'Vite çıktısı beklenen biçimde değil; bu listeyle çevrimdışı açılış boş ekran verir.'
+  );
+  process.exit(1);
+}
+
+const zorunluParcalar = ['oxford-data', 'extended-index'];
+const eksikParcalar = zorunluParcalar.filter(
+  ad => ![...referanslar].some(yol => yol.startsWith(`/assets/${ad}-`) && yol.endsWith('.js'))
+);
+if (eksikParcalar.length > 0) {
+  console.error(
+    `build-sw: dist/assets içinde zorunlu sözlük parçası yok: ${eksikParcalar.join(', ')}. ` +
+      "vite.config.ts'teki manualChunks kalıbı veri dosyası adıyla eşleşmiyor olabilir. " +
+      'Sözlüksüz bir ön-önbellek listesi yayımlanamaz.'
+  );
+  process.exit(1);
+}
+
 const liste = ['/', '/index.html', ...[...referanslar].sort()];
 
 /*

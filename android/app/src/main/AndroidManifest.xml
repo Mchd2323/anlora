@@ -37,6 +37,20 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
+
+        <!--
+          Anlık bildirim yalnızca sunuculu kurulumda açılabiliyor; sunucusuz
+          APK'nın arayüzünde böyle bir ayar hiç görünmüyor. Bu bayrak olmadan
+          Firebase Messaging uygulamanın ilk açılışında kendiliğinden bir
+          jeton üretip Google'a kaydediyordu — kullanıcının açmadığı bir
+          özellik için, çevrimdışı çalıştığı söylenen bir uygulamada.
+
+          Kullanıcı bildirimleri gerçekten açtığında eklentinin register()
+          çağrısı auto-init'i kendisi açar, yani özellik kaybolmuyor.
+        -->
+        <meta-data
+            android:name="firebase_messaging_auto_init_enabled"
+            android:value="false" />
     </application>
 
     <!-- Permissions -->

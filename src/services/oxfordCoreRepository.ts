@@ -88,7 +88,19 @@ export function loadOxfordCore(): Promise<void> {
       ...((extra.default || extra) as unknown as OxfordEntry[]),
     ]);
     loaded = true;
-  })();
+  })().catch(error => {
+    /*
+     * BAŞARISIZ YÜKLEME ÖNBELLEĞE YAZILMASIN.
+     *
+     * Reddedilmiş söz `loadPromise`de kalırsa yukarıdaki erken dönüş her
+     * çağrıda aynı reddi geri verir: yeniden deneme imkânsız hâle gelir ve
+     * uygulama sonsuza kadar "Sözlük hazırlanıyor…" ekranında kilitlenir.
+     * Kardeş servis (extendedRepository) bunu baştan doğru yapıyordu;
+     * burada eksikti.
+     */
+    loadPromise = null;
+    throw error;
+  });
 
   return loadPromise;
 }

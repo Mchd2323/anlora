@@ -6,6 +6,7 @@ import { loadPhrases, getPhraseCards } from '../services/phraseRepository';
 import { StudyFlashcard } from './study/StudyFlashcard';
 import { Search, BookOpen, Play, X, Check, RotateCw, ChevronDown } from 'lucide-react';
 import { getUserWordStatus } from '../utils/storageV2';
+import { aramaAnahtari } from '../utils/aramaAnahtari';
 import { CEFRBadge } from './ui/CEFRBadge';
 
 /**
@@ -240,7 +241,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
    * da aynı şekilde işler — kullanıcı için tek bir davranış var.
    */
   const filteredWords = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
+    const query = aramaAnahtari(searchQuery);
 
     if (aktifKaynak === 'kalip') {
       return (kaliplar || [])
@@ -258,8 +259,8 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
           }
           if (!query) return true;
           return (
-            k.word.toLowerCase().includes(query) ||
-            k.turkishMeaning.toLowerCase().includes(query)
+            aramaAnahtari(k.word).includes(query) ||
+            aramaAnahtari(k.turkishMeaning).includes(query)
           );
         });
     }
@@ -286,8 +287,8 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
 
         if (query) {
           return (
-            card.word.toLowerCase().includes(query) ||
-            card.turkishMeaning.toLowerCase().includes(query)
+            aramaAnahtari(card.word).includes(query) ||
+            aramaAnahtari(card.turkishMeaning).includes(query)
           );
         }
 
@@ -305,8 +306,8 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
     const eslesenKaliplar = (kaliplar || []).filter(k => {
       if (selectedLevel !== 'ALL' && k.level !== selectedLevel) return false;
       return (
-        k.word.toLowerCase().includes(query) ||
-        k.turkishMeaning.toLowerCase().includes(query)
+        aramaAnahtari(k.word).includes(query) ||
+        aramaAnahtari(k.turkishMeaning).includes(query)
       );
     });
 

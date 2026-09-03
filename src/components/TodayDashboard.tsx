@@ -29,8 +29,8 @@ import { readJSON, writeJSON } from '../utils/safeStorage';
 import { summarizeQueue } from '../utils/srsEngine';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { BRAND } from '../config/brand';
+import { useRemoteApi } from '../hooks/useRemoteApi';
 import { IntroCarousel } from './home/IntroCarousel';
-import { AdSlot } from './AdSlot';
 import { HomeHeroArt } from './HomeHeroArt';
 
 interface TodayDashboardProps {
@@ -157,6 +157,9 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
    * Teşvik kapatıldı mı? Karar oturum boyunca değil KALICI saklanır:
    * her açılışta yeniden çıkan bir uyarı okunmaz hâle gelir.
    */
+  /** Hesap/bulut özellikleri bu kurulumda var mı? (null = yoklama sürüyor) */
+  const remoteReady = useRemoteApi();
+
   const [isNudgeDismissed, setIsNudgeDismissed] = useState(
     () => readJSON<boolean>('anlora.signupNudgeDismissed.v1', false)
   );
@@ -185,7 +188,19 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
         uygulamayı ilk açan kişiyi hesap açmaya iter. Kapatılabilir; her
         açılışta aynı şeyi söylemek uyarıyı görünmez kılar.
       */}
-      {!profile?.isLoggedIn && customWordCount > 0 && !isNudgeDismissed && (
+      {/*
+        HESAP TEŞVİKİ YALNIZCA HESAP VARSA ÇIKAR.
+
+        Bu kutu "hesap açmak ücretsiz; kelimelerin buluta yedeklenir" diyor
+        ve sunucusuz kurulumda da çiziliyordu. Orada ne hesap var ne bulut:
+        "Hesap aç" düğmesi kullanıcıyı özelliğin kapalı olduğunu söyleyen bir
+        pencereye götürüyordu. Var olmayan bir güvenceyi vaat etmek, hiç
+        uyarmamaktan kötü — kullanıcı verisinin yedeklendiğini sanır.
+
+        `useRemoteApi()` üç değer döner; `true` gelene kadar kutu çizilmez,
+        yani yoklama sürerken de bir şey vaat edilmez.
+      */}
+      {remoteReady === true && !profile?.isLoggedIn && customWordCount > 0 && !isNudgeDismissed && (
         <div className="bg-[var(--learning-soft)] border border-[var(--learning-border)] rounded-2xl p-4 flex items-start gap-3">
           <CloudUpload className="w-4 h-4 text-[var(--learning-text)] shrink-0 mt-0.5" />
           <div className="min-w-0 flex-1">
@@ -312,7 +327,6 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
         </div>
       )}
 
-      <AdSlot slot="home-top" className="rounded-2xl" />
 
       {/*
         SIRALAMA
@@ -559,7 +573,6 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           })}
         </div>
       </div>
-      <AdSlot slot="home-bottom" className="rounded-2xl" />
 
       {/*
         3. GÜNLÜK ÇALIŞMA PLANI

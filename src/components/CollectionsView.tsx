@@ -51,6 +51,7 @@ import { TextMinerModal } from './TextMinerModal';
 import { useModalA11y } from '../hooks/useModalA11y';
 import { DuplicateWarningModal } from './DuplicateWarningModal';
 import { detectWordDuplicate } from '../utils/duplicateDetector';
+import { aramaAnahtari } from '../utils/aramaAnahtari';
 import { speakText } from '../utils/speech';
 import { getUserWordStatus } from '../utils/storageV2';
 import { UserProfile } from '../types';
@@ -471,7 +472,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   const oxfordByWord = useMemo(() => {
     const map = new Map<string, WordCard>();
     oxfordWords.forEach(card => {
-      const key = card.word.trim().toLowerCase();
+      const key = aramaAnahtari(card.word);
       // Aynı yüzey kelimesinin birden çok kaydı olabilir (can1/can2). İlki
       // korunur: kaynak sırası en yaygın anlamı öne koyuyor.
       if (!map.has(key)) map.set(key, card);
@@ -499,7 +500,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     setLookup({ kind: 'searching' });
 
     const timer = window.setTimeout(async () => {
-      const key = raw.toLowerCase();
+      const key = aramaAnahtari(raw);
 
       const decide = (card: WordCard, source: 'oxford' | 'extended') => {
         if (cancelled) return;
@@ -517,7 +518,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
       }
 
       // Kullanıcının kendi kartlarında da olabilir.
-      const own = customWords.find(c => c.word.trim().toLowerCase() === key);
+      const own = customWords.find(c => aramaAnahtari(c.word) === key);
       if (own) {
         decide(own, 'oxford');
         return;

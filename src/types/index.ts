@@ -430,7 +430,16 @@ export interface UserStats {
   totalWrong: number;
   streakDays: number;
   lastActiveDate: string;
-  mistakesMap: Record<string, { word: WordCard; wrongCount: number }>;
+  /*
+   * Yanlış bilinen kelimeler. Kartın KİMLİĞİ saklanır, kartın kendisi değil.
+   *
+   * Önceki biçim tam `WordCard` nesnesini gömüyordu: anlamlar, örnek
+   * cümleler, fonetik, hepsi. Her yanlış cevapta bu yığın yeniden
+   * serileştirilip diske yazılıyor ve hiç kırpılmadığı için sınırsız
+   * büyüyordu — sözlükte zaten var olan verinin ikinci bir kopyası.
+   * Kimlik yeter; kart, sözlükten çözülür.
+   */
+  mistakesMap: Record<string, { wordId: string; wrongCount: number; lastWrongAt?: string }>;
   learnedCount: number;
   favoriteCount: number;
   customCardsCount: number;

@@ -142,6 +142,13 @@ export default function App() {
   const [oxfordWords, setOxfordWords] = useState<WordCard[]>([]);
   const [oxfordExtraWords, setOxfordExtraWords] = useState<WordCard[]>([]);
   const [isDictionaryReady, setIsDictionaryReady] = useState(false);
+  /*
+   * Sözlük yüklenemedi mi? Bu iki durum, açılış ekranındaki "dönen çark"ın
+   * bir çıkışı olmasını sağlıyor: hata görünür oluyor ve kullanıcı yeniden
+   * deneyebiliyor. Sayaç artınca açılış etkisi baştan çalışır.
+   */
+  const [dictionaryError, setDictionaryError] = useState(false);
+  const [dictionaryRetry, setDictionaryRetry] = useState(0);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [stats, setStats] = useState<UserStats>(getUserStatsV2());
   const [unlockedBadges, setUnlockedBadges] = useState<string[]>([]);
@@ -219,6 +226,7 @@ export default function App() {
   // Initialize and Migrate V1 data on startup
   useEffect(() => {
     let cancelled = false;
+    setDictionaryError(false);
 
     /*
      * Göç adımları sözlüğe muhtaçtır (eski kayıtlar Oxford kimlikleriyle
@@ -268,12 +276,21 @@ export default function App() {
        * sayacı bunu kullanıyor; kim olduğu gönderilmiyor.
        */
       reportAppOpened();
+    }).catch(() => {
+      /*
+       * Sözlük yüklenemedi. Eskiden bu red hiç yakalanmıyordu: kullanıcı
+       * dönen çarkı ve "bu yalnızca birkaç saniye sürer" yazısını sonsuza
+       * kadar görüyordu — hata da yoktu, çıkış da. Artık durum açıkça
+       * söyleniyor ve yeniden deneme yolu var.
+       */
+      if (!cancelled) setDictionaryError(true);
     });
 
     return () => {
       cancelled = true;
     };
-  }, []);
+    // `dictionaryRetry` artınca açılış baştan denenir.
+  }, [dictionaryRetry]);
 
   // Combined list of Oxford 3000 words + User Custom Cards
   // Oxford 3000 + Oxford 5000 Ek (B2 Ek, C1) + kullanıcının kendi kartları.
@@ -440,17 +457,11 @@ export default function App() {
 
   // Quiz Completion
   const handleFinishQuiz = (summary: QuizSessionSummary) => {
-    // Yanlış bilinen kelimelerin kart nesnelerini id'lerinden çöz; hata
-    // listesi kartın kendisini sakladığı için tam nesne gerekiyor.
-    const wordById = new Map(allWordsCombined.map(w => [w.id, w]));
-    const mistakenWords = summary.mistakeWords
-      .map(id => wordById.get(id))
-      .filter((w): w is WordCard => !!w);
-
+    // Hata listesi artık yalnızca kimlik saklıyor; kartı çözmeye gerek yok.
     const updatedStats = recordQuizResultV2(
       summary.correctCount,
       summary.wrongCount,
-      mistakenWords
+      summary.mistakeWords
     );
     setStats(updatedStats);
     setUnlockedBadges(checkAndUnlockBadgesV2());
@@ -575,15 +586,39 @@ export default function App() {
           hem dürüst hem de bekleyişi anlaşılır kılıyor.
         */}
         {!isDictionaryReady ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-3 text-center animate-fadeIn">
-            <div className="w-10 h-10 border-3 border-[var(--primary-border)] border-t-[var(--primary)] rounded-full animate-spin" />
-            <div className="space-y-1">
-              <p className="text-sm font-bold text-[var(--text-primary)]">Sözlük hazırlanıyor…</p>
-              <p className="text-xs text-[var(--text-secondary)]">
-                Kelimeler cihazında saklanıyor; bu yalnızca birkaç saniye sürer.
-              </p>
+          dictionaryError ? (
+            /*
+             * Yükleme başarısız. Burada dönen çarkı göstermeye devam etmek
+             * yalan olurdu: bekleyen bir şey yok, hiç gelmeyecek. Sebep
+             * söyleniyor ve tek bir çıkış sunuluyor.
+             */
+            <div className="flex flex-col items-center justify-center py-24 gap-4 text-center animate-fadeIn">
+              <div className="space-y-1.5 max-w-xs">
+                <p className="text-sm font-bold text-[var(--text-primary)]">Sözlük yüklenemedi</p>
+                <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                  Kelime verisi açılamadı. Uygulamayı tamamen kapatıp yeniden
+                  açmak çoğu durumda yeterli oluyor.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDictionaryRetry(n => n + 1)}
+                className="px-4 py-2 bg-[var(--primary)] text-[var(--surface)] text-xs font-bold rounded-xl cursor-pointer hover:opacity-90"
+              >
+                Yeniden dene
+              </button>
             </div>
-          </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-24 gap-3 text-center animate-fadeIn">
+              <div className="w-10 h-10 border-3 border-[var(--primary-border)] border-t-[var(--primary)] rounded-full animate-spin" />
+              <div className="space-y-1">
+                <p className="text-sm font-bold text-[var(--text-primary)]">Sözlük hazırlanıyor…</p>
+                <p className="text-xs text-[var(--text-secondary)]">
+                  Kelimeler cihazında saklanıyor; bu yalnızca birkaç saniye sürer.
+                </p>
+              </div>
+            </div>
+          )
         ) : (
         <>
         {activeTab === 'today' && (

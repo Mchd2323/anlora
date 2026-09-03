@@ -43,6 +43,9 @@ import { generateFullV2Backup, restoreFullV2Backup } from '../utils/storageV2';
 import { SettingsPanel } from './SettingsPanel';
 import { apiFetch } from '../utils/authClient';
 import { useRemoteApi } from '../hooks/useRemoteApi';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 
 interface ProfileViewProps {
   profile: UserProfile;
@@ -129,6 +132,12 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   }, []);
   /** İndirilen yedeğin dosya adı; kullanıcı telefonda arayabilsin diye. */
   const [exportedName, setExportedName] = useState('');
+  /*
+   * Yerel kabukta dosyanın GERÇEK yolu. Boşsa tarayıcı indirmesi yapılmıştır.
+   * Sabit bir "İndirilenler klasöründe" cümlesi yerine gerçek yeri söylemek,
+   * kullanıcının dosyayı bulabilmesinin tek güvenilir yolu.
+   */
+  const [exportedPath, setExportedPath] = useState('');
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteAccountError, setDeleteAccountError] = useState('');
@@ -163,9 +172,18 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     let learningCount = 0;
     let unseenCount = 0;
 
+    /*
+     * EK LİSTE BURADA DA SAYILIYOR.
+     *
+     * Üstteki "Öğrendim / Öğreniyorum" sayaçları yalnızca Oxford 3000'i
+     * tarıyordu; hemen altındaki seviye satırları ise ek listeyi de sayıyor.
+     * Aynı ekranda iki farklı toplam, kullanıcıya hangisinin doğru olduğunu
+     * sorduruyordu. İkisi de aynı havuza bakıyor artık.
+     */
     const allWordIds = new Set<string>();
     customWords.forEach((w) => allWordIds.add(w.id));
     oxfordWords.forEach((w) => allWordIds.add(w.id));
+    extraWords.forEach((w) => allWordIds.add(w.id));
 
     allWordIds.forEach((id) => {
       const st = getUserWordStatus(id, learningStates);
@@ -255,40 +273,71 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
    * `schemaVersion: 2` biçiminde olmadığı için geri de yüklenemiyordu; yedek
    * alma özelliği çıkışı olmayan bir yoldu.
    */
-  const handleExportData = () => {
+  const handleExportData = async () => {
     try {
       const payload = generateFullV2Backup();
-      const blob = new Blob([JSON.stringify(payload, null, 2)], {
-        type: 'application/json'
-      });
+      const icerik = JSON.stringify(payload, null, 2);
+      const dosyaAdi = `anlora_yedek_${new Date().toISOString().slice(0, 10)}.json`;
+
+      /*
+       * APK'DA `<a download>` HİÇBİR ŞEY YAPMAZ.
+       *
+       * Android WebView, `download` özniteliğini kendiliğinden işlemez:
+       * bağlantıya tıklanır, hiçbir dosya oluşmaz, hata da fırlamaz. Buna
+       * rağmen ekranda "Yedeğin indirildi — İndirilenler klasöründe" yazıyordu.
+       * Verinin tamamı yalnızca bu cihazda durduğu için bu, kullanıcının
+       * olmayan bir yedeğe güvenip telefon değiştirmesi demekti: geri dönüşü
+       * olmayan bir kayıp, üstelik uygulamanın kendi güvencesiyle.
+       *
+       * Yerel kabukta dosya gerçekten diske yazılıyor ve paylaşım penceresi
+       * açılıyor: kullanıcı yedeği Drive'a, e-postaya ya da dosya yöneticisine
+       * çıkarabiliyor. Tarayıcıda eski yol doğru çalıştığı için korunuyor.
+       */
+      if (Capacitor.isNativePlatform()) {
+        const { uri } = await Filesystem.writeFile({
+          path: dosyaAdi,
+          data: icerik,
+          directory: Directory.Documents,
+          encoding: Encoding.UTF8
+        });
+
+        setExportedName(dosyaAdi);
+        setExportedPath(uri);
+        setShowExportSuccess(true);
+        setTimeout(() => setShowExportSuccess(false), 12000);
+
+        /*
+         * Paylaşma başarısızlığı yedeği geçersiz kılmaz: dosya zaten yazıldı.
+         * Kullanıcı paylaşım penceresini kapatırsa da buraya düşülür.
+         */
+        try {
+          await Share.share({ title: 'Anlora yedeği', url: uri });
+        } catch {
+          /* paylaşım iptal edildi ya da desteklenmiyor; dosya yerinde duruyor */
+        }
+        return;
+      }
+
+      const blob = new Blob([icerik], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      const dosyaAdi = `anlora_yedek_${new Date().toISOString().slice(0, 10)}.json`;
       a.download = dosyaAdi;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      /*
-       * DOSYANIN ADI VE YERİ SÖYLENİYOR.
-       *
-       * Önceki mesaj yalnızca 'başarıyla indirildi' diyordu ve kullanıcıyı
-       * dosyayı telefonda aramaya bırakıyordu. Dosyanın adını bilmeden
-       * aramak, yedeği olmadığını sanmakla aynı kapıya çıkar.
-       *
-       * Dosyaya doğrudan GİDİLEMİYOR: APK içindeki WebView'dan indirme
-       * klasörünü açmak ayrı bir yerel eklenti gerektiriyor ve bunun için
-       * uygulamaya dosya sistemi izni eklemek gerekirdi — bir yedek mesajı
-       * için ödenecek bedel değil. Onun yerine kullanıcının kendi
-       * bulabileceği kadar bilgi veriliyor.
-       */
+      setExportedPath('');
       setExportedName(dosyaAdi);
       setShowExportSuccess(true);
       setTimeout(() => setShowExportSuccess(false), 12000);
     } catch (e) {
       console.error(e);
-      setImportError('Yedek dosyası oluşturulurken hata oluştu.');
+      setImportError(
+        'Yedek dosyası cihaza yazılamadı: ' +
+          ((e as Error)?.message || 'bilinmeyen hata') +
+          '. Depolama alanın dolu olabilir.'
+      );
     }
   };
 
@@ -329,7 +378,17 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           // temiz yol sayfayı yeniden yüklemek; kısmi durum kalmaz.
           window.location.reload();
         } else {
-          setImportError('Yedek geri yüklenemedi. Dosya bozuk olabilir.');
+          /*
+           * Buraya düşmek "dosya bozuk" demek DEĞİL: biçim ve sürüm denetimi
+           * yukarıda yapıldı, JSON da ayrıştırıldı. Kalan tek sebep yazmanın
+           * tutmaması. Sayfa bilerek yenilenmiyor — yenilemek bellekteki
+           * geçici veriyi de silerdi; böyle kullanıcı en azından verisini
+           * görüyor ve yer açıp yeniden deneyebiliyor.
+           */
+          setImportError(
+            'Yedek cihaza tam olarak kaydedilemedi. Depolama alanın dolu olabilir. ' +
+              'Veriler şu an ekranda görünüyor ama kalıcı değil; yer açıp yeniden dene.'
+          );
         }
       } catch {
         setImportError('Dosya geçerli bir JSON değil.');
@@ -784,12 +843,23 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <div className="p-3 bg-[var(--learned-soft)] text-[var(--learned-text)] text-xs rounded-xl border border-[var(--learned-border)] flex items-start gap-2">
             <CheckCircle2 className="w-4 h-4 text-[var(--learned)] shrink-0 mt-0.5" />
             <span className="min-w-0">
-              <span className="font-semibold block">Yedeğin indirildi.</span>
+              <span className="font-semibold block">
+                {exportedPath ? 'Yedeğin cihaza kaydedildi.' : 'Yedeğin indirildi.'}
+              </span>
               <span className="block mt-0.5 opacity-90 leading-relaxed">
-                Telefonundaki <b>İndirilenler</b> klasöründe:
+                {exportedPath ? (
+                  <>
+                    Dosya şuraya yazıldı. Açılan paylaşım penceresinden bir
+                    kopyasını buluta ya da e-postana gönderebilirsin:
+                  </>
+                ) : (
+                  <>
+                    Telefonundaki <b>İndirilenler</b> klasöründe:
+                  </>
+                )}
               </span>
               <code className="block mt-1 px-2 py-1 rounded-md bg-[var(--surface)] border border-[var(--learned-border)] font-mono text-[10px] break-all">
-                {exportedName}
+                {exportedPath ? decodeURIComponent(exportedPath.replace('file://', '')) : exportedName}
               </code>
             </span>
           </div>

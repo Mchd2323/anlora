@@ -96,6 +96,21 @@ const STATIC_CONTENT_URL = (import.meta.env.VITE_CONTENT_URL || '').trim();
  */
 function normalizeContent(data: any): AppContent {
   return {
+    /*
+     * `ads` ARTIK ÇİZİLMİYOR — ve bu bilinçli.
+     *
+     * Bu alanı gösteren bileşen, gelen HTML'in içindeki <script> düğümlerini
+     * yeniden kurup ÇALIŞTIRIYORDU. Gerekçesi "içerik yalnızca doğrulanmış
+     * yönetici panelinden gelir" idi; oysa `VITE_CONTENT_URL` ile ikinci bir
+     * kaynak eklendi: kimlik doğrulaması olmayan, üçüncü taraf bir barındırmada
+     * duran düz bir JSON dosyası. O dosyaya yazabilen herkes uygulamanın
+     * kökeninde kod çalıştırabilirdi — üstelik içerik yerel olarak
+     * saklandığı için çevrimdışı her açılışta yeniden.
+     *
+     * Uygulamada reklam gösterilmiyor; bileşen silindi. Alan burada
+     * duruyor çünkü sunucu sözleşmesinin parçası, ama okunan değer
+     * hiçbir yere çizilmiyor.
+     */
     ads: data?.ads && typeof data.ads === 'object' ? data.ads : {},
     announcements: Array.isArray(data?.announcements) ? data.announcements : [],
     branding: data?.branding && typeof data.branding === 'object' ? data.branding : {}
