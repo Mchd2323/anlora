@@ -184,3 +184,50 @@ describe('normalizeTypedAnswer', () => {
     expect(normalizeTypedAnswer('  Take   Off ')).toBe('take off');
   });
 });
+
+describe('çeldirici doğru cevabın anlamını taşıyamaz', () => {
+  const kart = (id: string, tr: string): WordCard => ({
+    id,
+    word: id,
+    turkishMeaning: tr,
+    level: 'B1',
+    partOfSpeech: 'v.',
+    examples: [],
+    phonetic: null
+  } as unknown as WordCard);
+
+  it('anlam kümesi kesişen aday şık olarak eklenmez', () => {
+    const hedef = kart('nab', 'yakalamak, enselemek');
+    const havuz = [
+      hedef,
+      kart('catch', 'kapmak, yakalamak'), // 'yakalamak' ortak → elenmeli
+      kart('walk', 'yürümek'),
+      kart('sleep', 'uyumak'),
+      kart('read', 'okumak')
+    ];
+    const siklar = buildOptions(hedef.turkishMeaning, hedef, havuz, w => w.turkishMeaning);
+    expect(siklar).toContain('yakalamak, enselemek');
+    expect(siklar).not.toContain('kapmak, yakalamak');
+  });
+
+  it('birbiriyle çakışan iki çeldiriciden yalnızca biri girer', () => {
+    const hedef = kart('run', 'koşmak');
+    const havuz = [
+      hedef,
+      kart('walk', 'yürümek, gezinmek'),
+      kart('stroll', 'gezinmek, dolaşmak'), // 'gezinmek' ortak
+      kart('sleep', 'uyumak'),
+      kart('read', 'okumak')
+    ];
+    const siklar = buildOptions(hedef.turkishMeaning, hedef, havuz, w => w.turkishMeaning);
+    const cakisan = siklar.filter(s => s.includes('gezinmek'));
+    expect(cakisan.length).toBe(1);
+  });
+});
+
+describe('normalizeTypedAnswer Türkçe klavyeyi kaldırır', () => {
+  it('İ ile başlayan cevap doğru sayılır', () => {
+    expect(normalizeTypedAnswer('İt')).toBe('it');
+    expect(normalizeTypedAnswer('İsland')).toBe('island');
+  });
+});

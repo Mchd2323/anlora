@@ -711,6 +711,7 @@ export default function App() {
             memberships={memberships}
             customWords={customWords}
             oxfordWords={oxfordWords}
+            extraWords={oxfordExtraWords}
             learningStates={learningStates}
             settings={settings}
             onRecordStudyResult={handleRecordStudyResult}

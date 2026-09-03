@@ -178,7 +178,15 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
 
   // Calculate available pool size based on chosen sources and filter
   const currentPool = useMemo(() => {
-    const combinedAll = [...allWords, ...customCards];
+    /*
+     * EK LİSTE HAVUZA GİRİYOR.
+     *
+     * Burada yalnızca Oxford 3000 ve kullanıcının kartları birleşiyordu; ek
+     * listenin 2.015 kelimesi (B2 Ek ve C1) sınava hiç girmiyordu. Kullanıcı
+     * bir setine C1 kelime eklemiş olsa bile o kelime sorulmuyor, üstelik
+     * "yeterli kelime yok" uyarısı da eksik sayı üzerinden veriliyordu.
+     */
+    const combinedAll = [...allWords, ...extraWords, ...customCards];
     const wordSet = new Set<WordCard>();
 
     selectedSources.forEach((src) => {
@@ -212,7 +220,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
     }
 
     return list;
-  }, [selectedSources, statusFilter, allWords, customCards, memberships, learningStates]);
+  }, [selectedSources, statusFilter, allWords, extraWords, customCards, memberships, learningStates]);
 
   const startQuiz = () => {
     if (currentPool.length < MIN_POOL_SIZE) {
@@ -226,7 +234,9 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
 
     // Çeldiriciler tüm kelime evreninden seçilir; soru üreticisi önce aynı
     // seviye ve sözcük türündekileri tercih eder.
-    const distractorPool = [...allWords, ...customCards];
+    // Çeldiriciler de aynı havuzdan; aksi hâlde C1 sorusunun şıkları
+    // yalnızca A1–B2'den gelir ve doğru cevap tek başına sırıtır.
+    const distractorPool = [...allWords, ...extraWords, ...customCards];
     const generatedQuestions = generateQuiz(currentPool, distractorPool, quizMode, questionCount);
 
     setQuestions(generatedQuestions);

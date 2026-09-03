@@ -130,6 +130,28 @@ function buildInflectionPatterns(word: string): RegExp[] {
  * gelmezse tüm havuzdan tamamlanır. Yeterli benzersiz çeldirici bulunamazsa
  * soru daha az şıkla döner (uydurma şık üretmek öğrenciyi yanıltır).
  */
+/**
+ * Bir şıkkın taşıdığı anlam belirteçleri.
+ *
+ * NEDEN GEREKLİ. Türkçe anlamlar virgülle birleşik tek bir metin olarak
+ * geliyor: "yakalamak, enselemek, kapmak". Şıklar tam dize karşılaştırmasıyla
+ * elendiğinde "kapmak, almak" gibi bir çeldirici doğru cevaptan FARKLI bir
+ * dize olduğu için listeye giriyordu — oysa içinde doğru cevabın anlamı vardı.
+ * Öğrenci onu seçtiğinde bildiği hâlde yanlış sayılıyor, üstelik bu sonuç
+ * tekrar aralığına yazıldığı için çalışma planı da bozuluyordu.
+ *
+ * Belirteç düzeyinde elemek bunu kapatıyor: bir aday, doğru cevabın ya da
+ * daha önce eklenmiş bir çeldiricinin herhangi bir anlamını taşıyorsa atlanır.
+ * İngilizce yönündeki sorularda (madde başı yansıtılırken) tek belirteç
+ * döndüğü için davranış değişmez.
+ */
+function anlamBelirtecleri(value: string): string[] {
+  return value
+    .split(/[,;]/)
+    .map(t => t.trim().toLowerCase())
+    .filter(Boolean);
+}
+
 export function buildOptions(
   correctAnswer: string,
   target: WordCard,
@@ -137,8 +159,9 @@ export function buildOptions(
   project: (word: WordCard) => string,
   optionCount: number = OPTIONS_PER_QUESTION
 ): string[] {
-  const normalizedCorrect = correctAnswer.trim().toLowerCase();
-  const used = new Set<string>([normalizedCorrect]);
+  const used = new Set<string>(anlamBelirtecleri(correctAnswer));
+  // Belirteci olmayan (yalnız noktalama) bir doğru cevapta da eleme çalışsın.
+  if (used.size === 0) used.add(correctAnswer.trim().toLowerCase());
   const distractors: string[] = [];
 
   const collectFrom = (candidates: readonly WordCard[]) => {
@@ -147,9 +170,10 @@ export function buildOptions(
       if (candidate.id === target.id) continue;
       const value = (project(candidate) || '').trim();
       if (!value) continue;
-      const normalized = value.toLowerCase();
-      if (used.has(normalized)) continue;
-      used.add(normalized);
+      const belirtecler = anlamBelirtecleri(value);
+      if (belirtecler.length === 0) continue;
+      if (belirtecler.some(t => used.has(t))) continue;
+      belirtecler.forEach(t => used.add(t));
       distractors.push(value);
     }
   };
@@ -300,5 +324,14 @@ export function generateQuiz(
  * boşluk ve çoklu boşluk farkları göz ardı edilir.
  */
 export function normalizeTypedAnswer(value: string): string {
-  return value.trim().toLowerCase().replace(/\s+/g, ' ');
+  /*
+   * Birleşen üstteki nokta (U+0307) atılıyor.
+   *
+   * Türkçe klavyede yazılan 'İt' küçültüldüğünde 'i' + U+0307 + 't' oluyor;
+   * bu dizi 'it' ile eşit değil, yani doğru cevap yanlış sayılıyordu. Android
+   * klavyesi cümle başındaki harfi kendiliğinden büyüttüğü için i ile başlayan
+   * her kelimede oluyordu. Sonuç yalnızca puanı değil, tekrar aralığını da
+   * bozuyordu: bilinen kelime "bilinmiyor" diye yeniden planlanıyordu.
+   */
+  return value.trim().toLowerCase().replace(/\u0307/g, '').replace(/\s+/g, ' ');
 }

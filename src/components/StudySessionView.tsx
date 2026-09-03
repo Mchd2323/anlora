@@ -29,7 +29,7 @@ import {
 import { sample } from '../utils/random';
 import { speakText } from '../utils/speech';
 import { checkTypedAnswerCorrectness, normalizeWordString } from '../utils/lemmatizer';
-import { isWordDueForReview } from '../utils/srsEngine';
+import { isReviewDue, isNewWord } from '../utils/srsEngine';
 import { blankOutWord } from '../utils/quizGenerator';
 import { oxfordCoreRepository } from '../services/oxfordCoreRepository';
 import { CEFRBadge } from './ui/CEFRBadge';
@@ -45,6 +45,14 @@ interface StudySessionViewProps {
   memberships: CollectionMembership[];
   customWords: WordCard[];
   oxfordWords: WordCard[];
+  /**
+   * Oxford 5000'i tamamlayan ek liste (B2 Ek + C1, 2.015 kelime).
+   *
+   * Bu liste seansa hiç girmiyordu: ana sayfa onları "tekrar bekliyor" diye
+   * sayarken çalışma ekranı hiçbirini gösteremiyordu — sayaçla ekran
+   * birbirini tutmuyordu.
+   */
+  extraWords?: WordCard[];
   learningStates: Record<string, LearningState>;
   /** Kullanıcı ayarları: yazım toleransı, tercih edilen mod, otomatik ses. */
   settings?: UserSettings;
@@ -72,6 +80,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
   memberships,
   customWords,
   oxfordWords,
+  extraWords = [],
   learningStates,
   settings,
   onRecordStudyResult,
@@ -119,23 +128,51 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
     const map = new Map<string, WordCard>();
     customWords.forEach(w => map.set(w.id, w));
     oxfordWords.forEach(w => map.set(w.id, w));
+    extraWords.forEach(w => map.set(w.id, w));
     return map;
-  }, [customWords, oxfordWords]);
+  }, [customWords, oxfordWords, extraWords]);
 
   // Build queue based on chosen source
   const initializeQueue = () => {
     let candidateWordIds: string[] = [];
+    /*
+     * Aday listesi zaten hedeflere göre kırpıldıysa aşağıdaki 25'lik örnek
+     * onu ikinci kez seyreltmemeli; sıra da anlamlıdır (önce tekrarlar).
+     */
+    let siraKorunsun = false;
 
     if (selectedSource === 'DUE_TODAY') {
+      /*
+       * VADESİ GELENLER ÖNCE, YENİLER KALAN BOŞLUĞA.
+       *
+       * Burada `isWordDueForReview` kullanılıyordu; o işlev hiç çalışılmamış
+       * kelimeyi de "hazır" sayar. Aday listesi böylece neredeyse tüm sözlük
+       * oluyor, ardından 25 kelimelik rastgele bir örnek alınıyordu: 3.300
+       * dokunulmamış kelimenin arasından 30 gerçek tekrarın seçilme olasılığı
+       * sıfıra yakındı. Yani "Bugünkü Tekrarlar" adı altında çoğunlukla yeni
+       * kelime geliyor, vadesi gelen kelime hiç gelmiyordu — tekrar aralığı
+       * hesabının tamamı boşa çıkıyordu.
+       *
+       * Ayrıca kullanıcının ayarladığı günlük hedefler ilk kez burada
+       * karşılık buluyor: profilde girilen sayılar seansın büyüklüğünü
+       * gerçekten belirliyor.
+       */
+      const vadesiGelenler: string[] = [];
+      const yeniler: string[] = [];
       allWordsMap.forEach((_, id) => {
-        const s = learningStates[id];
-        if (isWordDueForReview(s)) {
-          candidateWordIds.push(id);
-        }
+        const durum = learningStates[id];
+        if (isReviewDue(durum)) vadesiGelenler.push(id);
+        else if (isNewWord(durum)) yeniler.push(id);
       });
-      if (candidateWordIds.length === 0) {
-        candidateWordIds = Array.from(allWordsMap.keys() as Iterable<string>).slice(0, 20);
-      }
+
+      const tekrarHedefi = settings?.dailyReviewGoal ?? 15;
+      const yeniHedefi = settings?.dailyNewWordsGoal ?? 5;
+
+      candidateWordIds = [
+        ...sample(vadesiGelenler, tekrarHedefi),
+        ...sample(yeniler, yeniHedefi)
+      ];
+      siraKorunsun = true;
     } else if (selectedSource === 'WEAK_WORDS') {
       allWordsMap.forEach((_, id) => {
         const s = learningStates[id];
@@ -144,7 +181,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
         }
       });
     } else if (selectedSource === 'ALL_OXFORD') {
-      candidateWordIds = oxfordWords.map(w => w.id);
+      candidateWordIds = [...oxfordWords, ...extraWords].map(w => w.id);
     } else {
       // Specific Collection
       candidateWordIds = memberships
@@ -157,7 +194,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
       return;
     }
 
-    const shuffled = sample(candidateWordIds, 25);
+    const shuffled = siraKorunsun ? candidateWordIds : sample(candidateWordIds, 25);
 
     const items: SessionQueueItem[] = (shuffled
       .map(id => {
@@ -271,16 +308,29 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
     onRecordStudyResult(wordId, quality, currentMode, selectedSource);
     setReviewedCount(prev => prev + 1);
 
+    /*
+     * KUYRUĞA EKLEME KARARI ÖNCE VERİLİYOR.
+     *
+     * `setQueue` sırayı hemen değiştirmez; aşağıdaki `queue.length` bu render'ın
+     * BAYAT değerini okur. Son kartta "Tekrar Et" denildiğinde kelime kuyruğa
+     * ekleniyor ama uzunluk hâlâ eski olduğu için seans o anda bitiyordu:
+     * kullanıcı "bunu tekrar göster" diyor, kart bir daha hiç gösterilmiyordu —
+     * yani düğme tam da yapması gereken şeyi yapmıyordu.
+     */
+    const tekrarKuyrugaEklenecek = quality === 'again' && currentItem.attemptCount === 0;
+
     if (quality === 'again') {
       setMistakeWordIds(prev => new Set(prev).add(wordId));
-      if (currentItem.attemptCount === 0) {
+      if (tekrarKuyrugaEklenecek) {
         setQueue(prev => [...prev, { ...currentItem, attemptCount: 1 }]);
       }
     } else {
       setUpgradedCount(prev => prev + 1);
     }
 
-    if (currentIndex + 1 < queue.length) {
+    const yeniUzunluk = queue.length + (tekrarKuyrugaEklenecek ? 1 : 0);
+
+    if (currentIndex + 1 < yeniUzunluk) {
       setCurrentIndex(prev => prev + 1);
       setIsFlipped(false);
       setTypedInput('');
@@ -294,7 +344,9 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
         totalCardsReviewed: reviewedCount + 1,
         newCardsLearned: 0,
         reviewsCompleted: reviewedCount + 1,
-        mistakeWordIds: Array.from(mistakeWordIds),
+        mistakeWordIds: Array.from(
+          quality === 'again' ? new Set(mistakeWordIds).add(wordId) : mistakeWordIds
+        ),
         upgradedWordIds: []
       });
     }
