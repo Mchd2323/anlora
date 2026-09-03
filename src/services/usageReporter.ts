@@ -14,7 +14,7 @@
  * gönderilir.
  */
 
-import { apiUrl } from '../config/api';
+import { apiUrl, hasRemoteApi } from '../config/api';
 
 interface WordTally {
   correct: number;
@@ -69,6 +69,21 @@ export function reportMissingWord(word: string): void {
 /** Biriken her şeyi tek istekte gönderir. Başarısızlık sessizce yutulur. */
 export async function flushUsage(): Promise<void> {
   if (!openPending && wordBuffer.size === 0 && missBuffer.size === 0) return;
+
+  /*
+   * SUNUCU YOKSA HİÇBİR ŞEY GÖNDERİLMEZ VE TUTULMAZ.
+   *
+   * Bu tampon kullanıcının aradığı terimleri ve kelime başına doğru/yanlış
+   * sayılarını taşıyor. Sunucusuz kurulumda istek zaten başarısız oluyordu
+   * ama tamponlar sınırsız büyümeye devam ediyordu. Yoklama sonucu
+   * `hasRemoteApi` içinde önbelleklendiği için ek ağ maliyeti yok.
+   */
+  if (!(await hasRemoteApi())) {
+    openPending = false;
+    wordBuffer.clear();
+    missBuffer.clear();
+    return;
+  }
 
   const payload = {
     opened: openPending,

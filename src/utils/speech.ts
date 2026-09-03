@@ -130,18 +130,37 @@ function bestEnglishTag(diller: string[], istenen: string): string | null {
 /** Desteklenen diller; bir kez sorulup saklanır. */
 let dilOnbellek: string[] | null = null;
 
+/**
+ * Dil listesi önbelleğini boşaltır.
+ *
+ * Kullanıcı sistem ayarlarından İngilizce ses paketini kurup uygulamaya
+ * döndüğünde eski cevap geçersizdir; yeniden sorulmalı.
+ */
+export function resetLanguageCache(): void {
+  dilOnbellek = null;
+}
+
 async function supportedLanguages(): Promise<string[]> {
   if (dilOnbellek) return dilOnbellek;
   const tts = getNativeTts();
   if (!tts) return [];
   try {
     const sonuc = await tts.getSupportedLanguages();
-    dilOnbellek = sonuc?.languages || [];
+    const liste = sonuc?.languages || [];
+    /*
+     * BOŞ SONUÇ ÖNBELLEĞE YAZILMAZ.
+     *
+     * Açılışta motor henüz hazır değilken sorgu boş dönebiliyor. Bu cevap
+     * saklandığında bir daha hiç sorulmuyor: kullanıcı İngilizce ses paketini
+     * kursa bile uygulama oturum boyunca "ses yok" diyordu. Boş liste bir
+     * BİLGİ yokluğudur, kalıcı bir cevap değil.
+     */
+    if (liste.length > 0) dilOnbellek = liste;
+    return liste;
   } catch {
-    // Sorgu başarısız oldu; bu bir BİLGİ yokluğudur, ses yokluğu değil.
-    dilOnbellek = [];
+    // Sorgu başarısız oldu; bu da bilgi yokluğudur, önbelleğe yazılmaz.
+    return [];
   }
-  return dilOnbellek;
 }
 
 // --- Tarayıcı motoru (yalnızca geliştirme/önizleme) -------------------------
@@ -392,6 +411,12 @@ export async function openTtsInstall(): Promise<boolean> {
   if (!tts) return false;
   try {
     await tts.openInstall();
+    /*
+     * Kullanıcı ses paketi kurmaya gidiyor; dönüşte eski "hangi diller var"
+     * cevabı geçersiz olacak. Önbellek şimdi boşaltılıyor ki kurulum
+     * başarılıysa telaffuz kendiliğinden çalışsın.
+     */
+    resetLanguageCache();
     return true;
   } catch {
     return false;

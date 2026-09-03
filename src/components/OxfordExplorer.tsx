@@ -372,13 +372,28 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
 
   const levelSuffix = selectedLevel === 'ALL' ? '' : ` (${LEVEL_LABEL[selectedLevel]})`;
 
+  /*
+   * KALIP DESTESİ KENDİ KİMLİĞİNİ TAŞIR.
+   *
+   * Kart çalışması "kaldığın yer"i `deckKey` altında saklıyor. Kalıp destesi
+   * kelime destesinin kimliğini kullandığı için kalıp çalışmak, Oxford
+   * kelimelerinde kalınan yeri siliyordu; üstelik başlıkta kalıp seviyesi
+   * yerine kelime seviyesi yazıyordu. İki liste iki ayrı deste.
+   */
+  const kalipMi = aktifKaynak === 'kalip';
+  const kalipSuffix = kalipSeviyesi === 'ALL' ? '' : ` (${KALIP_ETIKET[kalipSeviyesi]})`;
+  const desteBasligi = kalipMi
+    ? `Kalıplar ve Deyimler${kalipSuffix}`
+    : `Oxford 5000${levelSuffix}`;
+  const desteKimligi = kalipMi ? `phrases:${kalipSeviyesi}` : `oxford:${selectedLevel}`;
+
 
   if (isStudyingFlashcards) {
     return (
       <StudyFlashcard
-        title={`Oxford 5000${levelSuffix}`}
-        sourceContextName={`Oxford 5000${levelSuffix}`}
-        deckKey={`oxford:${selectedLevel}`}
+        title={desteBasligi}
+        sourceContextName={desteBasligi}
+        deckKey={desteKimligi}
         words={filteredWords.length > 0 ? filteredWords : levelPool.map(item => item.card)}
         favorites={favorites}
         learningStates={learningStates}

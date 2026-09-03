@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Collection, WordCard, LearningState, MinedWordItem } from '../types';
 import { FileText, Sparkles, Filter, CheckCircle2, BookmarkPlus, X, Loader2, ArrowRight } from 'lucide-react';
 import { mineVocabularyFromText } from '../utils/textMiner';
@@ -35,6 +35,20 @@ export const TextMinerModal: React.FC<TextMinerModalProps> = ({
   const [selectedWords, setSelectedWords] = useState<Record<string, boolean>>({});
   const [filterStatus, setFilterStatus] = useState<'ALL' | 'NEW' | 'OXFORD_AVAILABLE'>('ALL');
   const [isProcessing, setIsProcessing] = useState(false);
+
+  /*
+   * HEDEF SET LİSTEYLE BİRLİKTE GÜNCELLENİYOR.
+   *
+   * Seçili set kimliği yalnızca ilk kurulumda belirleniyordu. Kullanıcı
+   * uygulamayı hiç seti yokken açıp sonra set oluşturduysa kimlik boş
+   * kalıyor, "Ekle" düğmesi hiçbir şey yapmadan kapanıyordu — hata da yoktu.
+   * Aynı koşul silinen setin kimliğini de temizler.
+   */
+  useEffect(() => {
+    if (!collections.some(c => c.id === selectedCollectionId)) {
+      setSelectedCollectionId(collections[0]?.id || '');
+    }
+  }, [collections, selectedCollectionId]);
 
   /*
    * Erken çıkış, TÜM hook çağrılarından SONRA gelmelidir.

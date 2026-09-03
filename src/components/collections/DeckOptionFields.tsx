@@ -108,8 +108,21 @@ export const DeckOptionFields: React.FC<Props> = ({ deger, degistir, renkler, si
         className="accent-[var(--primary)] cursor-pointer"
       />
       <span className="text-xs font-semibold text-[var(--text-primary)]">
-        Listenin başına sabitle
+        Öne çıkar
       </span>
     </label>
+
+    {/*
+      METİN GERÇEĞE UYGUN OLMALI.
+
+      Kutucuk eskiden "Listenin başına sabitle" diyordu ama sıralamayı hiç
+      değiştirmiyordu: sıra artık bilinçli olarak elle veriliyor (setin ⋮
+      menüsündeki yukarı/aşağı taşı). Yapmadığı şeyi vaat eden bir ayar,
+      kullanıcıyı ayarın bozuk olduğuna inandırır.
+    */}
+    <p className="text-[11px] text-[var(--text-muted)] -mt-1">
+      Sete 📌 işareti koyar. Sırayı değiştirmez; sıra için setin ⋮ menüsündeki
+      “Yukarı taşı / Aşağı taşı”.
+    </p>
   </>
 );

@@ -45,7 +45,6 @@ import {
 } from 'lucide-react';
 import { getPhraseCard } from '../services/phraseRepository';
 import { DeckOptionFields, DeckOptionValues } from './collections/DeckOptionFields';
-import { calculateCollectionProgress } from '../utils/srsEngine';
 import { BatchWordModal } from './BatchWordModal';
 import { TextMinerModal } from './TextMinerModal';
 import { useModalA11y } from '../hooks/useModalA11y';
@@ -429,6 +428,24 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
         return cards;
     }
   }, [activeDeck, memberships, customWords, oxfordWords, learningStates]);
+
+  /*
+   * AKTİF SET GERÇEKTEN VAR MI?
+   *
+   * `activeDeckId` silinen bir setin kimliğini tutmaya devam edebiliyordu:
+   * ekran listedeki başka bir seti gösterirken seçim, "bu sette zaten var"
+   * denetimi ve ekleme hedefi hâlâ silinmiş kimlikle çalışıyordu. Kimlik tek
+   * doğru kaynak olmalı; listede karşılığı yoksa ilk sete düşülür.
+   */
+  useEffect(() => {
+    if (collections.length === 0) {
+      if (activeDeckId !== null) setActiveDeckId(null);
+      return;
+    }
+    if (!collections.some(c => c.id === activeDeckId)) {
+      setActiveDeckId(collections[0].id);
+    }
+  }, [collections, activeDeckId]);
 
   // Filtered words in the active deck
   const filteredWords = useMemo(() => {
@@ -1139,7 +1156,15 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
           </div>
 
           <div className="space-y-2.5">
-            {collections.map((deck) => {
+            {/*
+              KIRPILMIŞ LİSTE ÇİZİLİYOR.
+
+              `gorunenSetler` hesaplanıyor ama liste `collections`ı çiziyordu:
+              on set eklendiğinde hepsi alt alta sıralanıyor, altına da aynı
+              listeyi ikinci kez açan "Tüm setleri gör" düğmesi konuyordu.
+              Yani sınır vardı, uygulanmıyordu.
+            */}
+            {gorunenSetler.map((deck) => {
               const isActive = deck.id === activeDeck?.id;
               const deckWordCount = memberships.filter((m) => m.collectionId === deck.id).length;
               let learned = 0;
@@ -2746,6 +2771,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
         onClose={() => setShowBatchModal(false)}
         targetCollection={activeDeck}
         collections={collections}
+        memberships={memberships}
         customWords={customWords}
         oxfordWords={oxfordWords}
         onAddCustomWord={(card, cId) => onAddCustomWord(card, cId)}

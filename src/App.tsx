@@ -8,7 +8,6 @@ import { QuizModule } from './components/QuizModule';
 import { FavoritesView } from './components/FavoritesView';
 import { ProfileView } from './components/ProfileView';
 import { AuthModal } from './components/AuthModal';
-import { AdminShell } from './components/admin/AdminShell';
 import { FeedbackModal, FeedbackKind } from './components/FeedbackModal';
 import { SpeechSetupNotice } from './components/SpeechSetupNotice';
 import { SignInGate } from './components/SignInGate';
@@ -72,6 +71,18 @@ import { releaseStuckScrollLocks, useModalA11y } from './hooks/useModalA11y';
 import { reportAppOpened, reportWordResult } from './services/usageReporter';
 import { getPushPreferences, disablePush } from './services/pushNotifications';
 
+/*
+ * Yönetim paneli tembel yükleniyor.
+ *
+ * 2.700 satırlık panel ana pakete statik olarak giriyordu; sunucusuz APK'da
+ * hiçbir zaman çizilemediği hâlde her kullanıcının indirdiği paketin içinde
+ * duruyordu. Adlandırılmış dışa aktarma olduğu için `default` sarmalayıcısı
+ * şart.
+ */
+const AdminShell = React.lazy(() =>
+  import('./components/admin/AdminShell').then(m => ({ default: m.AdminShell }))
+);
+
 export default function App() {
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<TabType>('today');
@@ -127,6 +138,21 @@ export default function App() {
   const [studySessionInitialDeckId, setStudySessionInitialDeckId] = useState<string | undefined>(undefined);
   const [quizInitialDeckId, setQuizInitialDeckId] = useState<string | undefined>(undefined);
 
+  /*
+   * TEK SEFERLİK NİYETLER SEKMEDEN ÇIKARKEN TEMİZLENİR.
+   *
+   * "Bu geçişte şu setle başla" bilgisi tüketildikten sonra hiç
+   * sıfırlanmıyordu: kullanıcı bir setten sınava girdikten sonra alt
+   * çubuktaki "Sınav" sekmesi kalıcı olarak o sete kilitleniyor, bir daha
+   * bütün havuzla sınav yapamıyordu. Girerken değil ÇIKARKEN temizleniyor;
+   * böylece alıcı bileşenin montajı etkilenmiyor.
+   */
+  useEffect(() => {
+    if (activeTab !== 'study') setStudySessionInitialDeckId(undefined);
+    if (activeTab !== 'quiz') setQuizInitialDeckId(undefined);
+    if (activeTab !== 'oxford') setOxfordStatusFilter('ALL');
+  }, [activeTab]);
+
   // V2 Core Domain State
   const [collections, setCollections] = useState<Collection[]>([]);
   const [memberships, setMemberships] = useState<CollectionMembership[]>([]);
@@ -150,10 +176,10 @@ export default function App() {
   const [dictionaryError, setDictionaryError] = useState(false);
   const [dictionaryRetry, setDictionaryRetry] = useState(0);
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [stats, setStats] = useState<UserStats>(getUserStatsV2());
+  const [stats, setStats] = useState<UserStats>(getUserStatsV2);
   const [unlockedBadges, setUnlockedBadges] = useState<string[]>([]);
-  const [settings, setSettings] = useState<UserSettings>(getUserSettingsV2());
-  const [profile, setProfile] = useState<UserProfile>(getUserProfileV2());
+  const [settings, setSettings] = useState<UserSettings>(getUserSettingsV2);
+  const [profile, setProfile] = useState<UserProfile>(getUserProfileV2);
 
   // Tema ve yazı büyüklüğü tercihini belgeye uygular.
   useTheme(settings);
@@ -771,7 +797,15 @@ export default function App() {
         )}
 
         {activeTab === 'profile' && isAdminPanelOpen && profile.isAdmin && (
-          <AdminShell onClose={() => setIsAdminPanelOpen(false)} />
+          <React.Suspense
+            fallback={
+              <div className="py-24 text-center text-xs text-[var(--text-secondary)]">
+                Yönetim paneli açılıyor…
+              </div>
+            }
+          >
+            <AdminShell onClose={() => setIsAdminPanelOpen(false)} />
+          </React.Suspense>
         )}
 
         {activeTab === 'profile' && !isFavoritesOpen && !(isAdminPanelOpen && profile.isAdmin) && (

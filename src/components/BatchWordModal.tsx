@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Collection, WordCard } from '../types';
+import { Collection, WordCard, CollectionMembership } from '../types';
 import { Layers, Sparkles, ArrowRight, X, Loader2 } from 'lucide-react';
 import { normalizeWordString } from '../utils/lemmatizer';
 import { detectWordDuplicate } from '../utils/duplicateDetector';
@@ -12,6 +12,14 @@ interface BatchWordModalProps {
   onClose: () => void;
   targetCollection: Collection | null;
   collections: Collection[];
+  /*
+   * Tekrar denetimi için gerçek üyelik listesi.
+   *
+   * Buraya boş dizi geçiliyordu: "zaten bu sette var" ölçütü hiçbir zaman
+   * doğru çıkmıyor, aynı kelime için ikinci bir kart yaratılıyordu. Sayaç da
+   * hep 0 gösterdiği için kullanıcı ne olduğunu göremiyordu.
+   */
+  memberships: CollectionMembership[];
   customWords: WordCard[];
   oxfordWords: WordCard[];
   onBatchProcessComplete: (results: {
@@ -36,6 +44,7 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
   onClose,
   targetCollection,
   collections,
+  memberships,
   customWords,
   oxfordWords,
   onBatchProcessComplete,
@@ -91,7 +100,7 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
         rawWord: raw,
         targetCollectionId: targetCollection?.id,
         collections,
-        memberships: [],
+        memberships,
         customWords,
         oxfordWords
       });
@@ -144,13 +153,28 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ word: item.raw })
           });
-          if (res.ok) {
+          /*
+           * Hata kodu sessizce yutulmasın. Önceki hâlde `res.ok` false ise
+           * hiçbir dal çalışmıyordu: kelime ne ekleniyor ne de kullanıcıya
+           * söyleniyordu, listeden düşüp gidiyordu. Şimdi aşağıdaki catch'e
+           * düşüyor ve "elle doldurulacak boş kart" olarak ekleniyor.
+           */
+          if (!res.ok) throw new Error('yapay-zeka-basarisiz');
+
+          {
             const cardData = await res.json();
             const newCard: WordCard = {
               id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
               word: cardData.word || item.raw,
-              partOfSpeech: cardData.partOfSpeech || 'n.',
-              turkishMeaning: cardData.turkishMeaning || item.raw,
+              // Sözcük türü de uydurulmaz; verilmediyse boş kalır.
+              partOfSpeech: cardData.partOfSpeech || '',
+              /*
+               * ANLAM UYDURULMAZ. Burada `|| item.raw` vardı: yapay zekâ
+               * Türkçe anlam vermediğinde İngilizce kelimenin kendisi Türkçe
+               * anlamı olarak yazılıyordu ("apple → apple"). Yanlış veri,
+               * eksik veriden kötüdür; alan boş kalır, kullanıcı doldurur.
+               */
+              turkishMeaning: cardData.turkishMeaning || '',
               phonetic: cardData.phonetic || '',
               examples: cardData.examples || [],
               // Yapay zekâ seviye vermediyse UYDURULMAZ; alan boş kalır ve
@@ -340,11 +364,20 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
                     </div>
 
                     <div>
-                      {item.status === 'NEW' && (
-                        <span className="text-[10px] font-bold bg-[var(--learned-soft)] text-[var(--learned-text)] px-2 py-0.5 rounded-md border border-[var(--learned-border)]">
-                          Yeni AI Kartı
-                        </span>
-                      )}
+                      {/*
+                        Rozet gerçeği söylüyor: yapay zekâ bu kurulumda kapalıysa
+                        kart boş eklenir, "AI kartı" demek yanlış olur.
+                      */}
+                      {item.status === 'NEW' &&
+                        (yapayZekaVar ? (
+                          <span className="text-[10px] font-bold bg-[var(--learned-soft)] text-[var(--learned-text)] px-2 py-0.5 rounded-md border border-[var(--learned-border)]">
+                            Yeni AI Kartı
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold bg-[var(--bg)] text-[var(--text-secondary)] px-2 py-0.5 rounded-md border border-[var(--border)]">
+                            Boş kart · anlamı sen yazacaksın
+                          </span>
+                        ))}
                       {item.status === 'EXACT_IN_OXFORD' && (
                         <span className="text-[10px] font-bold bg-[var(--primary-soft)] text-[var(--primary)] px-2 py-0.5 rounded-md border border-[var(--primary-border)]">
                           Oxford ({item.matchedCard?.level}) Bağlanacak

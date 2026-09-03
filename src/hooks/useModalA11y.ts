@@ -31,6 +31,21 @@ let scrollLockCount = 0;
 /** Kilit ilk kez alındığında gövdenin gerçek `overflow` değeri. */
 let overflowBeforeLock = '';
 
+/*
+ * AÇIK MODALLERİN YIĞINI.
+ *
+ * Escape ve Tab yalnızca EN ÜSTTEKİ modal tarafından işlenmeli. Her modal
+ * kendi yakalama dinleyicisini belgeye kurduğu için, üst üste iki modal
+ * açıkken tek bir Escape ikisini birden kapatıyordu: üstteki "silmek
+ * istediğine emin misin?" penceresi kapanırken altındaki, kullanıcının
+ * doldurduğu form da kapanıyor ve girilen veri siliniyordu.
+ *
+ * `stopImmediatePropagation` bunu ÇÖZMEZ: aynı düğümdeki dinleyiciler kayıt
+ * sırasıyla çalışır, yani önce ALTTAKİ modal işler — sonuç tersine döner.
+ * Doğru ölçüt "yığının en üstünde miyim" sorusudur.
+ */
+const modalStack: symbol[] = [];
+
 function lockBodyScroll(): void {
   if (scrollLockCount === 0) {
     overflowBeforeLock = document.body.style.overflow;
@@ -82,6 +97,9 @@ export function useModalA11y(isOpen: boolean, onClose: () => void) {
   useEffect(() => {
     if (!isOpen) return;
 
+    const token = Symbol('anlora-modal');
+    modalStack.push(token);
+
     previouslyFocused.current = document.activeElement as HTMLElement | null;
 
     const container = containerRef.current;
@@ -104,6 +122,9 @@ export function useModalA11y(isOpen: boolean, onClose: () => void) {
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Yalnızca en üstteki modal klavyeyi işler.
+      if (modalStack[modalStack.length - 1] !== token) return;
+
       if (event.key === 'Escape') {
         event.stopPropagation();
         onCloseRef.current();
@@ -137,6 +158,9 @@ export function useModalA11y(isOpen: boolean, onClose: () => void) {
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown, true);
+      // Yığından kendi damgasını çıkar; kapanma sırası her zaman LIFO olmayabilir.
+      const sira = modalStack.lastIndexOf(token);
+      if (sira !== -1) modalStack.splice(sira, 1);
       unlockBodyScroll();
       // Odağı modali açan öğeye geri ver.
       previouslyFocused.current?.focus?.();
