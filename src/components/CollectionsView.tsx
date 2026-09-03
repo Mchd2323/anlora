@@ -51,6 +51,10 @@ import { useModalA11y } from '../hooks/useModalA11y';
 import { DuplicateWarningModal } from './DuplicateWarningModal';
 import { detectWordDuplicate } from '../utils/duplicateDetector';
 import { aramaAnahtari } from '../utils/aramaAnahtari';
+import { useToast } from './ui/ToastProvider';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 import { speakText } from '../utils/speech';
 import { getUserWordStatus } from '../utils/storageV2';
 import { UserProfile } from '../types';
@@ -345,6 +349,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   const [mergeSource, setMergeSource] = useState<string>('');
   const [showMerge, setShowMerge] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const { showToast } = useToast();
   const [importText, setImportText] = useState('');
   const [showImport, setShowImport] = useState(false);
   const [setNotice, setSetNotice] = useState('');
@@ -447,26 +452,39 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     }
   }, [collections, activeDeckId]);
 
+  /*
+   * Sette hiç kalıp yoksa tür süzgeci düğmeleri çizilmiyor. Süzgeç o anda
+   * 'phrases' üzerinde kalırsa kullanıcı geri alamadığı boş bir listeye
+   * kilitleniyor: kelime dolu bir set bomboş görünüyor. Denetim yoksa etki de
+   * olmamalı.
+   */
+  const setteKalipVarMi = useMemo(
+    () => activeDeckWords.some(c => c.entryType === 'phrase' || c.partOfSpeech === 'phrase'),
+    [activeDeckWords]
+  );
+
   // Filtered words in the active deck
   const filteredWords = useMemo(() => {
+    // Düğmeler çizilmiyorsa süzgeç de etkisiz (bkz. yukarıdaki açıklama).
+    const aktifTur = setteKalipVarMi ? turSuzgeci : 'all';
+    const q = aramaAnahtari(searchQuery);
     return activeDeckWords.filter((card) => {
       // Tür süzgeci: 'phrases' hem kalıpları hem deyimleri kapsar, çünkü
       // ikisinin sınırı kullanıcıya göre değişir ve "çok sözcüklüleri
       // göster" isteği ikisini de kastediyor.
-      if (turSuzgeci === 'phrases' && card.entryType !== 'phrase' && card.entryType !== 'idiom') {
+      if (aktifTur === 'phrases' && card.entryType !== 'phrase' && card.entryType !== 'idiom') {
         return false;
       }
-      if (turSuzgeci === 'words' && (card.entryType === 'phrase' || card.entryType === 'idiom')) {
+      if (aktifTur === 'words' && (card.entryType === 'phrase' || card.entryType === 'idiom')) {
         return false;
       }
-      if (!searchQuery.trim()) return true;
-      const q = searchQuery.toLowerCase().trim();
+      if (!q) return true;
       return (
-        card.word.toLowerCase().includes(q) ||
-        card.turkishMeaning.toLowerCase().includes(q)
+        aramaAnahtari(card.word).includes(q) ||
+        aramaAnahtari(card.turkishMeaning).includes(q)
       );
     });
-  }, [activeDeckWords, searchQuery, turSuzgeci]);
+  }, [activeDeckWords, searchQuery, turSuzgeci, setteKalipVarMi]);
 
   /** Sette hiç kalıp/deyim yoksa süzgeci çizmenin anlamı yok. */
   const setteKalipVar = useMemo(
@@ -484,6 +502,16 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
       ),
     [memberships, activeDeckId]
   );
+
+  /*
+   * Oxford havuzundaki kimlikler.
+   *
+   * Sözlükten eklenen kalıplar `sourceType: 'oxford'` taşıyor ama Oxford
+   * dizisinde DEĞİLLER: ayrı bir dosyadan tembel yükleniyorlar. Yalnızca
+   * `sourceType`e bakıp "bu Oxford kartı, kimliğini yaz yeter" demek, sette
+   * hiçbir yerde çözülemeyen görünmez bir üyelik bırakıyordu.
+   */
+  const oxfordIds = useMemo(() => new Set(oxfordWords.map(w => w.id)), [oxfordWords]);
 
   /** Oxford havuzunda madde başına göre hızlı arama. */
   const oxfordByWord = useMemo(() => {
@@ -595,7 +623,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     if (!activeDeck) return;
     const context = contextInput.trim() || undefined;
 
-    if (source === 'oxford' && card.sourceType === 'oxford') {
+    if (source === 'oxford' && card.sourceType === 'oxford' && oxfordIds.has(card.id)) {
       onAddWordToCollection(card.id, activeDeck.id, context);
     } else if (customWords.some(c => c.id === card.id)) {
       onAddWordToCollection(card.id, activeDeck.id, context);
@@ -770,7 +798,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
    * setini dışa aktarıp başka bir sete ya da başka bir cihaza aynı dosyayla
    * taşıyabilir.
    */
-  const exportDeckCsv = () => {
+  const exportDeckCsv = async () => {
     if (!activeDeck) return;
 
     const cell = (value: string) =>
@@ -797,12 +825,45 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     });
 
     // Excel'in Türkçe karakterleri doğru açması için BOM.
-    const blob = new Blob(['\uFEFF' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const icerik = '\uFEFF' + rows.join('\n');
+    const dosyaAdi = `${activeDeck.name.replace(/[^\p{L}\p{N}]+/gu, '-')}.csv`;
+
+    /*
+     * APK'DA `<a download>` SESSİZCE HİÇBİR ŞEY YAPMAZ.
+     *
+     * Android WebView bu özniteliği işlemez: düğmeye basılır, dosya oluşmaz,
+     * hata da çıkmaz. Kullanıcı setini dışa aktardığını sanır. Yedekleme
+     * düğmesindeki hatanın aynısı; çözümü de aynı: yerel kabukta dosya
+     * gerçekten diske yazılıyor ve paylaşım penceresi açılıyor.
+     */
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const { uri } = await Filesystem.writeFile({
+          path: dosyaAdi,
+          data: icerik,
+          directory: Directory.Documents,
+          encoding: Encoding.UTF8
+        });
+        showToast(`Dosya kaydedildi: ${dosyaAdi}`, 'info');
+        try {
+          await Share.share({ title: `${activeDeck.name} — CSV`, url: uri });
+        } catch {
+          /* paylaşım iptal edildi; dosya yerinde duruyor */
+        }
+      } catch (e) {
+        showToast('Dosya cihaza yazılamadı: ' + ((e as Error)?.message || 'bilinmeyen hata'), 'error');
+      }
+      return;
+    }
+
+    const blob = new Blob([icerik], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${activeDeck.name.replace(/[^\p{L}\p{N}]+/gu, '-')}.csv`;
+    link.download = dosyaAdi;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
 
@@ -811,6 +872,47 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
    *
    * Sette zaten olan kelime atlanır. Hatalı satır tüm yüklemeyi düşürmez.
    */
+  /**
+   * Tırnak duyarlı CSV satır ayrıştırıcı.
+   *
+   * NEDEN GEREKLİ. Dışa aktarma, içinde virgül/noktalı virgül geçen alanları
+   * kurallara uygun biçimde tırnağa alıyor ("kapmak, yakalamak"). İçe aktarma
+   * ise düz `split(delimiter)` yapıyordu: tırnağın içindeki ayraç da bölme
+   * sayılıyor, anlam ortadan kırpılıyor ve sonraki sütunlar bir kayıyordu —
+   * yani örnek cümleler yanlış alanlara düşüyordu. Uygulamanın kendi dışa
+   * aktardığı dosya, kendi içe aktarmasında bozuluyordu.
+   */
+  const csvSatiriniBol = (line: string, delimiter: string): string[] => {
+    const out: string[] = [];
+    let cur = '';
+    let tirnakIcinde = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (tirnakIcinde) {
+        if (ch === '"') {
+          // İkilenmiş tırnak, alanın içindeki gerçek tırnaktır.
+          if (line[i + 1] === '"') {
+            cur += '"';
+            i++;
+          } else {
+            tirnakIcinde = false;
+          }
+        } else {
+          cur += ch;
+        }
+      } else if (ch === '"') {
+        tirnakIcinde = true;
+      } else if (ch === delimiter) {
+        out.push(cur);
+        cur = '';
+      } else {
+        cur += ch;
+      }
+    }
+    out.push(cur);
+    return out.map(c => c.trim());
+  };
+
   const importDeckCsv = () => {
     if (!activeDeck || !importText.trim()) return;
 
@@ -822,7 +924,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
     const delimiter =
       (lines[0].match(/;/g) || []).length >= (lines[0].match(/,/g) || []).length ? ';' : ',';
-    const header = lines[0].split(delimiter).map(h => h.trim().toLowerCase());
+    const header = csvSatiriniBol(lines[0], delimiter).map(h => h.toLowerCase());
     const columnOf = (name: string) => header.indexOf(name);
 
     const wordCol = columnOf('kelime');
@@ -832,19 +934,19 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
       return;
     }
 
-    const existing = new Set(activeDeckWords.map(c => c.word.trim().toLowerCase()));
+    const existing = new Set(activeDeckWords.map(c => aramaAnahtari(c.word)));
     let added = 0;
     let skipped = 0;
 
     for (let i = 1; i < lines.length; i++) {
-      const cells = lines[i].split(delimiter).map(c => c.trim().replace(/^"|"$/g, ''));
+      const cells = csvSatiriniBol(lines[i], delimiter);
       const word = cells[wordCol];
       const meaning = cells[meaningCol];
       if (!word || !meaning) {
         skipped++;
         continue;
       }
-      if (existing.has(word.toLowerCase())) {
+      if (existing.has(aramaAnahtari(word))) {
         skipped++;
         continue;
       }
