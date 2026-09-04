@@ -38,7 +38,6 @@ import { CEFRBadge } from './ui/CEFRBadge';
 import { LearningStatusControl } from './ui/LearningStatusControl';
 import { BRAND } from '../config/brand';
 import { OxfordGroupKey } from '../types/oxford';
-import sahneEjderha from '../assets/themes/realms/realms-dragon.webp';
 
 /** Sınav kaynağı olarak seçilebilen Oxford grupları. */
 /*
@@ -384,24 +383,15 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
 
   return (
     <div className="max-w-[760px] mx-auto space-y-6 pb-safe-nav animate-fadeIn">
-      {/* 1. Sınav Kurulum Ekranı */}
+      {/*
+        1. Sınav Kurulum Ekranı.
+
+        SAHNE ŞERİDİ KALDIRILDI. Buradaki ejderha şeridi ana sayfanın üçüncü
+        tanıtım kartındakiyle aynı sahneydi; Ana Sayfa'dan Sınav'a geçen
+        kullanıcı aynı görseli arka arkaya iki kez görüyordu.
+      */}
       {quizState === 'IDLE' && (
-        <div className="bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] overflow-hidden">
-        {/*
-          Uçan ejderha: "kendini sına" bu ekranın karşılığı.
-          Kutunun İÇERİĞİ hiç değişmedi — başlık, açıklama ve düğmeler aynı
-          sırada duruyor; sahne yalnızca üstte, metnin arkasına girmeyen ayrı
-          bir katman.
-        */}
-        <img
-          src={sahneEjderha}
-          alt="Gökyüzünde uçan ejderha"
-          loading="lazy"
-          decoding="async"
-          className="w-full h-[92px] object-cover"
-          style={{ objectPosition: '70% center' }}
-        />
-        <div className="p-6 sm:p-8 space-y-6">
+        <div className="parsomen-panel bg-[var(--surface)] p-6 sm:p-8 rounded-2xl border border-[var(--border)] space-y-6">
           <div className="text-center space-y-1.5">
             <div className="w-10 h-10 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center mx-auto">
               <GraduationCap className="w-5 h-5" />
@@ -582,7 +572,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                     key={count}
                     type="button"
                     onClick={() => setQuestionCount(count)}
-                    className={`p-2.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                    className={`dugme-birincil p-2.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                       questionCount === count
                         ? 'bg-[var(--primary)] text-[var(--surface)] border-[var(--primary)] shadow-xs'
                         : 'bg-[var(--bg)] text-[var(--text-primary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
@@ -646,7 +636,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
               }
               startQuiz();
             }}
-            className="w-full py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-[var(--surface)] font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="dugme-birincil w-full py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-[var(--surface)] font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <Sparkles className="w-4 h-4 text-[var(--learning-soft)]" />
             {/* Havuz yetersizken soru sayısı yazmak olmayan bir sınavı vaat eder. */}
@@ -657,12 +647,11 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
             </span>
           </button>
         </div>
-        </div>
       )}
 
       {/* 2. Aktif Soru Ekranı */}
       {quizState === 'ACTIVE' && currentQ && (
-        <div className="bg-[var(--surface)] p-6 sm:p-8 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
+        <div className="parsomen-panel bg-[var(--surface)] p-6 sm:p-8 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
           {/* Progress Header */}
           <div className="flex items-center justify-between border-b border-[var(--border-light)] pb-3.5">
             <div className="flex items-center gap-2">
@@ -752,7 +741,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                 {!isAnswered && (
                   <button
                     type="submit"
-                    className="w-full py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+                    className="dugme-birincil w-full py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
                   >
                     Cevabı Kontrol Et
                   </button>
@@ -843,7 +832,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
               <button
                 ref={sonrakiSoruRef}
                 onClick={handleNextQuestion}
-                className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
+                className="dugme-birincil px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
               >
                 <span>
                   {currentQuestionIndex < questions.length - 1 ? 'Sonraki Soru' : 'Sınavı Bitir'}
@@ -857,7 +846,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
 
       {/* 3. Sınav Sonuç ve Durum Güncelleme Ekranı */}
       {quizState === 'FINISHED' && (
-        <div className="bg-[var(--surface)] p-6 sm:p-8 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
+        <div className="parsomen-panel bg-[var(--surface)] p-6 sm:p-8 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
           <div className="text-center space-y-1.5">
             <div className="w-12 h-12 rounded-xl bg-[var(--learned-soft)] text-[var(--learned)] flex items-center justify-center mx-auto">
               <Award className="w-6 h-6" />
@@ -1028,7 +1017,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
           <div className="flex flex-wrap items-center justify-center gap-2.5 pt-3 border-t border-[var(--border-light)]">
             <button
               onClick={startQuiz}
-              className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+              className="dugme-birincil px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Yeniden Sına</span>

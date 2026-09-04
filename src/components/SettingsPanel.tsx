@@ -174,7 +174,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
   };
 
   return (
-    <div className="bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
+    <div className="parsomen-panel bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
       <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-1.5">
         <Sliders className="w-4 h-4 text-[var(--text-secondary)]" />
         <span>Çalışma Ayarları</span>
@@ -498,7 +498,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
             <button
               type="button"
               onClick={() => void openTtsInstall()}
-              className="px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="dugme-birincil px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
               <span>İngilizce Ses Paketini Yükle</span>

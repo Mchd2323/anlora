@@ -170,7 +170,7 @@ export const DuplicateWarningModal: React.FC<DuplicateWarningModalProps> = ({
             {duplicateInfo.type === 'INFLECTED_FORM' && duplicateInfo.lemmaSuggestion && onUseBaseForm && (
               <button
                 onClick={() => onUseBaseForm(duplicateInfo.lemmaSuggestion!.baseForm)}
-                className="w-full py-2 px-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                className="dugme-birincil w-full py-2 px-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <BookOpen className="w-3.5 h-3.5" />
                 <span>Kök Biçimini ("{duplicateInfo.lemmaSuggestion.baseForm}") Ekle</span>
@@ -180,7 +180,7 @@ export const DuplicateWarningModal: React.FC<DuplicateWarningModalProps> = ({
             {(duplicateInfo.type === 'EXACT_IN_OTHER_COLLECTION' || duplicateInfo.type === 'EXACT_IN_OXFORD') && onAddExistingToCollection && (
               <button
                 onClick={onAddExistingToCollection}
-                className="w-full py-2 px-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                className="dugme-birincil w-full py-2 px-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Link className="w-3.5 h-3.5" />
                 <span>Mevcut Kartı Bu Sete Bağla</span>

@@ -285,7 +285,7 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
                   type="button"
                   onClick={handleAnalyze}
                   disabled={!rawInput.trim() || isAnalyzing}
-                  className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 text-[var(--surface)] text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+                  className="dugme-birincil px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 text-[var(--surface)] text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
                 >
                   {isAnalyzing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
                   <span>Kelimeleri İncele ve Denetle</span>
@@ -418,7 +418,7 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
                   type="button"
                   onClick={handleExecuteBatch}
                   disabled={isProcessing || analyzedList.filter(i => i.selected).length === 0}
-                  className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 text-[var(--surface)] text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+                  className="dugme-birincil px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 text-[var(--surface)] text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
                 >
                   <span>{analyzedList.filter(i => i.selected).length} Kelimeyi Sete Aktar</span>
                   <ArrowRight className="w-3.5 h-3.5" />

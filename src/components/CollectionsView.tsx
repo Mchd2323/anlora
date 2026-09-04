@@ -1332,7 +1332,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   return (
     <div className="space-y-6 pb-safe-nav max-w-[1180px] mx-auto animate-fadeIn">
       {/* Top Banner: Kelime Setlerim */}
-      <div className="bg-[var(--surface)] p-6 sm:p-7 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+      <div className="parsomen-panel bg-[var(--surface)] p-6 sm:p-7 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <h2 className="baslik-yazit text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
@@ -1368,7 +1368,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
              * eşitlenmek istendiğinde profil ekranından yapılabilir.
              */
             onClick={() => setShowCreateModal(true)}
-            className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-1.5 active:scale-[0.98] cursor-pointer"
+            className="dugme-birincil px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-1.5 active:scale-[0.98] cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Yeni Kelime Seti</span>
@@ -1697,7 +1697,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
         {activeDeck ? (
           <div className="lg:col-span-8 space-y-5">
             {/* Active Set Header */}
-            <div className="bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-4">
+            <div className="parsomen-panel bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
@@ -1733,7 +1733,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       resetAddWordModal();
                       setShowAddWordModal(true);
                     }}
-                    className="px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl shadow-xs transition-colors flex items-center gap-1.5 active:scale-[0.98] cursor-pointer"
+                    className="dugme-birincil px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl shadow-xs transition-colors flex items-center gap-1.5 active:scale-[0.98] cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Kelime Ekle</span>
@@ -1829,7 +1829,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     Şimdi çalışmaya başla ({activeDeckWords.length} kelime)
                   </p>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
+                <div className="dugme-birincil w-10 h-10 rounded-xl bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
                   <Play className="w-4 h-4 fill-current ml-0.5" />
                 </div>
               </button>
@@ -1866,7 +1866,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       type="button"
                       onClick={() => setTurSuzgeci(s2.id)}
                       aria-pressed={turSuzgeci === s2.id}
-                      className={`px-2.5 py-1.5 rounded-lg text-[11px] font-semibold border transition-colors cursor-pointer ${
+                      className={`dugme-birincil px-2.5 py-1.5 rounded-lg text-[11px] font-semibold border transition-colors cursor-pointer ${
                         turSuzgeci === s2.id
                           ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--surface)]'
                           : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-soft)]'
@@ -1986,7 +1986,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               </div>
             ) : (
               /* Empty Set View */
-              <div className="bg-[var(--surface)] p-10 rounded-2xl border border-[var(--border)] text-center space-y-3 shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
+              <div className="parsomen-panel bg-[var(--surface)] p-10 rounded-2xl border border-[var(--border)] text-center space-y-3 shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
                 <BookOpen className="w-8 h-8 text-[var(--text-muted)] mx-auto" />
                 <div className="space-y-1">
                   <h4 className="text-base font-bold text-[var(--text-primary)]">Henüz kelime yok</h4>
@@ -2000,7 +2000,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       resetAddWordModal();
                       setShowAddWordModal(true);
                     }}
-                    className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl inline-flex items-center gap-1.5 cursor-pointer"
+                    className="dugme-birincil px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl inline-flex items-center gap-1.5 cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>İlk Kelimemi Ekle</span>
@@ -2020,7 +2020,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
           aria-labelledby="anlora-create-set-title"
           ref={createModalRef}
           className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
-          <div className="bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
+          <div className="parsomen-panel bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
             <h3 id="anlora-create-set-title" className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
               <Layers className="w-4 h-4 text-[var(--primary)]" />
               Yeni Kelime Seti Oluştur
@@ -2103,7 +2103,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[var(--primary)] text-[var(--surface)] text-xs font-semibold rounded-xl hover:bg-[var(--primary-hover)] cursor-pointer"
+                  className="dugme-birincil px-4 py-2 bg-[var(--primary)] text-[var(--surface)] text-xs font-semibold rounded-xl hover:bg-[var(--primary-hover)] cursor-pointer"
                 >
                   Oluştur
                 </button>
@@ -2121,7 +2121,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
           aria-labelledby="anlora-edit-set-title"
           ref={editDeckRef}
           className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
-          <div className="bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
+          <div className="parsomen-panel bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
             <h3 id="anlora-edit-set-title" className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
               <Edit2 className="w-4 h-4 text-[var(--primary)]" />
               Seti Düzenle
@@ -2185,7 +2185,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[var(--primary)] text-[var(--surface)] text-xs font-semibold rounded-xl hover:bg-[var(--primary-hover)] cursor-pointer"
+                  className="dugme-birincil px-4 py-2 bg-[var(--primary)] text-[var(--surface)] text-xs font-semibold rounded-xl hover:bg-[var(--primary-hover)] cursor-pointer"
                 >
                   Kaydet
                 </button>
@@ -2203,7 +2203,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
           aria-labelledby="anlora-add-word-title"
           ref={addWordModalRef}
           className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
-          <div className="bg-[var(--surface)] rounded-2xl max-w-lg w-full border border-[var(--border)] shadow-xl p-6 sm:p-7 space-y-5 my-8">
+          <div className="parsomen-panel bg-[var(--surface)] rounded-2xl max-w-lg w-full border border-[var(--border)] shadow-xl p-6 sm:p-7 space-y-5 my-8">
             <div className="flex items-center justify-between">
               <h3 id="anlora-add-word-title" className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
                 <Plus className="w-4 h-4 text-[var(--primary)]" />
@@ -2315,7 +2315,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     }`}
                   >
                     <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center shrink-0">
+                      <div className="dugme-birincil w-9 h-9 rounded-xl bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center shrink-0">
                         <Sparkles className="w-4 h-4" />
                       </div>
                       <div className="space-y-0.5">
@@ -2423,7 +2423,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                           type="button"
                           onClick={() => setManualEntryType(secenek.id)}
                           aria-pressed={secili}
-                          className={`px-2 py-2 rounded-xl border text-center transition-all cursor-pointer ${
+                          className={`dugme-birincil px-2 py-2 rounded-xl border text-center transition-all cursor-pointer ${
                             secili
                               ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--surface)]'
                               : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-soft)]'
@@ -2584,7 +2584,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
+                    className="dugme-birincil px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
                   >
                     <Check className="w-4 h-4" />
                     <span>Kartı Kaydet</span>
@@ -2708,7 +2708,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   <button
                     type="button"
                     onClick={handleSaveAiCard}
-                    className="px-5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
+                    className="dugme-birincil px-5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
                   >
                     <Check className="w-4 h-4" />
                     <span>Kaydet</span>
@@ -2729,7 +2729,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
           aria-labelledby="anlora-bulk-move-title"
           ref={bulkModalRef}
           className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
-          <div className="bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
+          <div className="parsomen-panel bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 id="anlora-bulk-move-title" className="text-base font-bold text-[var(--text-primary)]">
                 {selectedIds.size} kelimeyi {bulkTarget === 'move' ? 'taşı' : 'kopyala'}
@@ -2789,7 +2789,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
           aria-labelledby="anlora-share-title"
           ref={shareModalRef}
           className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
-          <div className="bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
+          <div className="parsomen-panel bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 id="anlora-share-title" className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
                 <Share2 className="w-4 h-4 text-[var(--teal)]" />
@@ -2912,7 +2912,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
           aria-labelledby="anlora-merge-title"
           ref={mergeModalRef}
           className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
-          <div className="bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
+          <div className="parsomen-panel bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 id="anlora-merge-title" className="text-base font-bold text-[var(--text-primary)]">Seti bu sete kat</h3>
               <button
@@ -2959,7 +2959,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 type="button"
                 onClick={mergeInto}
                 disabled={!mergeSource}
-                className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                className="dugme-birincil px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Katıp seti sil
               </button>
@@ -2976,7 +2976,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
           aria-labelledby="anlora-import-title"
           ref={importModalRef}
           className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
-          <div className="bg-[var(--surface)] rounded-2xl max-w-lg w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
+          <div className="parsomen-panel bg-[var(--surface)] rounded-2xl max-w-lg w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 id="anlora-import-title" className="text-base font-bold text-[var(--text-primary)]">CSV'den kelime ekle</h3>
               <button
@@ -3017,7 +3017,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 type="button"
                 onClick={importDeckCsv}
                 disabled={!importText.trim()}
-                className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                className="dugme-birincil px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Ekle
               </button>

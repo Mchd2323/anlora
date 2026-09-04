@@ -400,7 +400,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
         ise en altta — plan bir özet, bir başlangıç noktası değil.
       */}
       {/* 1. KELİME SETLERİM */}
-      <div className="bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
+      <div className="parsomen-panel bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="space-y-2 max-w-xl">
             <div className="flex items-center gap-2">
@@ -436,7 +436,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           <div className="shrink-0 flex items-center gap-2">
             <button
               onClick={handleCreateSetClick}
-              className="px-4 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-[var(--surface)] text-xs font-semibold rounded-xl transition-all flex items-center gap-2 shadow-xs cursor-pointer"
+              className="dugme-birincil px-4 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-[var(--surface)] text-xs font-semibold rounded-xl transition-all flex items-center gap-2 shadow-xs cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>+ Kelime Seti Oluştur</span>
@@ -528,7 +528,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
             <div className="pt-1">
               <button
                 onClick={handleCreateSetClick}
-                className="px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                className="dugme-birincil px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl transition-all inline-flex items-center gap-1.5 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>İlk Setimi Oluştur</span>
@@ -539,6 +539,12 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
       </div>
 
       {/* 2. OXFORD 5000 */}
+      {/*
+        Bu panelde KÖŞE SÜSÜ YOK (parsomen-panel sınıfı kasten verilmedi).
+        Kutu tepeden tam genişlikte buz kalesi görseliyle başlıyor; altın
+        kıvrımlar orada parşömenin üstünde değil, fotoğrafın üstünde kalıyor ve
+        süs gibi değil, karışmış bir çizgi gibi okunuyordu (ekranda görüldü).
+      */}
       <div className="bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow-[var(--elev-1)] overflow-hidden">
         {/*
           Buz kalesi şeridi. Kutunun İÇERİĞİ hiç değişmedi — başlık, açıklama,
@@ -666,7 +672,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
         kalan kullanıcı çoğu gün hiçbir şey çalışmaz. Bu kararı vermek
         uygulamanın işidir; alternatifler duruyor ama öne çıkmıyor.
       */}
-      <div className="bg-[var(--surface)] rounded-2xl p-5 sm:p-6 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
+      <div className="parsomen-panel bg-[var(--surface)] rounded-2xl p-5 sm:p-6 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center shrink-0">
@@ -734,7 +740,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           <button
             onClick={() => onStartStudy()}
             disabled={plannedTotal === 0}
-            className="w-full mt-4 py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 text-[var(--surface)] text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="dugme-birincil w-full mt-4 py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 text-[var(--surface)] text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <Play className="w-4 h-4" />
             <span>

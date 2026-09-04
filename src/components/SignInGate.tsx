@@ -64,7 +64,7 @@ export const SignInGate: React.FC<{
       <button
         type="button"
         onClick={onOpenAuth}
-        className="w-full py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-sm font-bold rounded-xl transition-colors cursor-pointer inline-flex items-center justify-center gap-2"
+        className="dugme-birincil w-full py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-sm font-bold rounded-xl transition-colors cursor-pointer inline-flex items-center justify-center gap-2"
       >
         <CloudUpload className="w-4 h-4" />
         Giriş yap ya da hesap aç

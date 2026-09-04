@@ -8,7 +8,6 @@ import { Search, BookOpen, Play, X, Check, RotateCw, ChevronDown } from 'lucide-
 import { getUserWordStatus } from '../utils/storageV2';
 import { aramaAnahtari } from '../utils/aramaAnahtari';
 import { CEFRBadge } from './ui/CEFRBadge';
-import sahneKuzgun from '../assets/themes/realms/realms-raven-map.webp';
 
 /**
  * Oxford 5000 gezgini.
@@ -464,27 +463,12 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
         hem anlaşılır hem kapsayıcı. Açıklama ise asıl soruyu cevaplıyor:
         bunlar kim tarafından, neye göre seçilmiş kelimeler.
 
-        BAŞLIKTAKİ İKİ DÜĞME KALDIRILDI. 'Sesli Dinle' listedeki ilk on
-        kelimeyi peş peşe okuyordu; bu bir çalışma yöntemi değil, kartların
-        her birinde zaten kendi ses düğmesi var. 'Sınav Başlat' da alt
-        menüdeki Sınav sekmesiyle aynı işi yapıyordu.
+        SAHNE ŞERİDİ KALDIRILDI. Buradaki kuzgun-harita şeridi ana sayfanın
+        ikinci tanıtım kartındakiyle aynı sahneydi; kullanıcı Ana Sayfa'dan
+        Oxford'a geçtiğinde aynı görseli arka arkaya iki kez görüyordu.
+        Referanstaki sayfa başlangıcı da doğrudan başlıkla açılıyor.
       */}
-      <div className="bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] overflow-hidden">
-        {/*
-          Kuzgun ve eski harita: Oxford listesi bu ekranın konusu.
-          Kutunun İÇERİĞİ hiç değişmedi — başlık, açıklama ve düğmeler aynı
-          sırada duruyor; sahne yalnızca üstte, metnin arkasına girmeyen ayrı
-          bir katman.
-        */}
-        <img
-          src={sahneKuzgun}
-          alt="Eski bir haritanın üzerinde uçan kuzgun"
-          loading="lazy"
-          decoding="async"
-          className="w-full h-[92px] object-cover"
-          style={{ objectPosition: '70% center' }}
-        />
-        <div className="p-6">
+      <div className="parsomen-panel bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)]">
         <div className="flex items-center gap-2">
           <h2 className="baslik-yazit text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
             Oxford Kelime Listesi
@@ -496,11 +480,10 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
           belirlediği kelime ve kalıplar. Kendi seviyeni seçip kelime dağarcığını oradan
           geliştirebilirsin — toplam {levelCounts.ALL.toLocaleString('tr-TR')} kayıt.
         </p>
-        </div>
       </div>
 
       {/* Filtreler */}
-      <div className="bg-[var(--surface)] p-5 rounded-2xl border border-[var(--border)] space-y-4 shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
+      <div className="parsomen-panel bg-[var(--surface)] p-5 rounded-2xl border border-[var(--border)] space-y-4 shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
         {/*
           İKİ LİSTE, İKİ SATIR, AYNI BİÇİM.
 
@@ -779,7 +762,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
               Şimdi çalışmaya başla ({filteredWords.length} kelime)
             </p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
+          <div className="dugme-birincil w-10 h-10 rounded-xl bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
             <Play className="w-4 h-4 fill-current ml-0.5" />
           </div>
         </button>
@@ -851,7 +834,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
          * Üç durum artık ayrı konuşuyor: yükleniyor, yüklenemedi, sonuç yok.
          */
         kalipMi && kaliplarYukleniyor ? (
-          <div className="text-center py-16 bg-[var(--surface)] rounded-2xl border border-[var(--border)] space-y-3">
+          <div className="parsomen-panel text-center py-16 bg-[var(--surface)] rounded-2xl border border-[var(--border)] space-y-3">
             <div className="w-8 h-8 border-3 border-[var(--primary-border)] border-t-[var(--primary)] rounded-full animate-spin mx-auto" />
             <h3 className="text-base font-bold text-[var(--text-primary)]">Kalıplar yükleniyor…</h3>
             <p className="text-xs text-[var(--text-secondary)] max-w-sm mx-auto">
@@ -866,7 +849,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
            * ikinci deneme yapılamıyor; kullanıcıya işe yarayan tek çıkış
            * söyleniyor (App.tsx'teki "Sözlük yüklenemedi" ekranının eşi).
            */
-          <div className="text-center py-16 bg-[var(--surface)] rounded-2xl border border-[var(--border)] space-y-3">
+          <div className="parsomen-panel text-center py-16 bg-[var(--surface)] rounded-2xl border border-[var(--border)] space-y-3">
             <BookOpen className="w-8 h-8 text-[var(--text-muted)] mx-auto" />
             <h3 className="text-base font-bold text-[var(--text-primary)]">Kalıplar yüklenemedi</h3>
             <p className="text-xs text-[var(--text-secondary)] max-w-sm mx-auto">
@@ -875,7 +858,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
             </p>
           </div>
         ) : (
-          <div className="text-center py-16 bg-[var(--surface)] rounded-2xl border border-[var(--border)] space-y-3">
+          <div className="parsomen-panel text-center py-16 bg-[var(--surface)] rounded-2xl border border-[var(--border)] space-y-3">
             <BookOpen className="w-8 h-8 text-[var(--text-muted)] mx-auto" />
             <h3 className="text-base font-bold text-[var(--text-primary)]">Eşleşen kelime bulunamadı</h3>
             <p className="text-xs text-[var(--text-secondary)] max-w-sm mx-auto">

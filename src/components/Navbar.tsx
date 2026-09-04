@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { BRAND } from '../config/brand';
-import logo from '../assets/brand/anlora-realms-logo.png';
+import { ArmaPlaka } from './ui/ArmaPlaka';
 
 /**
  * Uygulamadaki tüm görünümler.
@@ -113,22 +113,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="flex items-center gap-2.5 cursor-pointer group select-none"
             >
               {/*
-                Anlora Realms logosu.
-
-                Kutu içine alınmıyor: logonun kendi zemini şeffaf ve kendi
-                altın çerçevesi zaten var; arkasına renkli bir kare koymak
-                çerçeve üstüne çerçeve olurdu. `object-contain` oranı korur —
-                logo hiçbir ekranda kırpılmaz, gerilmez.
+                Logo çıplak durmuyor: referanstaki gibi küçük bir lacivert-altın
+                hanedan plakasının içinde. Sıradan renkli kare ya da yuvarlak
+                kare kullanılmadı — plaka kalkan biçiminde.
               */}
-              <img
-                src={logo}
-                alt=""
-                aria-hidden="true"
-                width={38}
-                height={38}
-                decoding="async"
-                className="w-[38px] h-[38px] object-contain shrink-0"
-              />
+              <ArmaPlaka boyut={38} />
               {/*
                 Ad ve slogan üst üste. Slogan ana sayfada ayrı bir satır
                 kaplıyordu; oradan alınıp buraya konuldu, çünkü marka sesi
@@ -178,7 +167,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onClick={() => setActiveTab('profile')}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--surface-soft)] hover:bg-[var(--primary-soft)] text-[var(--text-primary)] hover:text-[var(--primary)] text-xs font-semibold border border-[var(--border)] transition-colors cursor-pointer"
                 >
-                  <div className="w-5 h-5 rounded-lg bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center text-[10px] font-bold">
+                  <div className="dugme-birincil w-5 h-5 rounded-lg bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center text-[10px] font-bold">
                     {profile.email ? profile.email[0].toUpperCase() : 'U'}
                   </div>
                   <span className="hidden sm:inline max-w-[130px] truncate font-medium">
@@ -212,9 +201,20 @@ export const Navbar: React.FC<NavbarProps> = ({
                 isActive ? 'text-[var(--primary)] font-bold' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
+              {/*
+                Aktif sekme lacivert YAZIYLA ve üstündeki ince ALTIN çizgiyle
+                belirginleşiyor; referansta olduğu gibi büyük renkli bir dolgu
+                yok. Çizgi düğmenin en üstünde, ikonun üzerinde durmuyor.
+              */}
+              <span
+                aria-hidden="true"
+                className={`h-[2px] w-6 rounded-full mb-1 transition-colors ${
+                  isActive ? 'bg-[var(--gold-ornament)]' : 'bg-transparent'
+                }`}
+              />
               <div className="relative">
                 <Icon
-                  className={`w-5 h-5 stroke-[2] ${
+                  className={`w-[18px] h-[18px] stroke-[1.9] ${
                     isActive ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'
                   }`}
                 />

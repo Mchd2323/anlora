@@ -8,12 +8,23 @@
   Bitmap'in en-boy oranı telefonunkiyle tutmadığında logo yatay ya da dikey
   olarak geriliyordu — üstelik her cihazda başka türlü.
 
-  Katmanlı çizimde zemin düz bir renk, logo ise `gravity="center"` ile KENDİ
-  boyutunda çiziliyor: hiç ölçeklenmiyor, dolayısıyla hiç bozulmuyor ve her
-  ekranda tam 112 dp duruyor.
+  ÜÇ KATMAN:
+    1. parşömen zemini (düz renk, her ekran oranında doğru),
+    2. kâğıt greni — döşenerek (`tileMode="repeat"`) yayılıyor, yani
+       ESNEMİYOR; ekran ne kadar uzun olursa o kadar çok kopya çiziliyor,
+    3. ortadaki blok: arma, "Anlora", ince altın ayraç ve "Words are power."
+       `gravity="center"` ile KENDİ boyutunda çiziliyor, hiç ölçeklenmiyor.
+
+  Böylece açılış ekranı hem dolu görünüyor hem de hiçbir cihazda bozulmuyor.
 -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:drawable="@color/splash_background"/>
+    <item>
+        <bitmap
+            android:src="@drawable/splash_grain"
+            android:tileMode="repeat"
+            android:gravity="fill"/>
+    </item>
     <item>
         <bitmap
             android:src="@drawable/splash_logo"

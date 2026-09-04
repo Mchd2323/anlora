@@ -94,7 +94,7 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({
         </button>
       )}
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[var(--surface)] p-6 sm:p-7 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
+      <div className="parsomen-panel flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[var(--surface)] p-6 sm:p-7 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-[var(--danger-soft)] text-[var(--favorite)] flex items-center justify-center font-bold border border-[var(--danger-border)]">
             <Heart className="w-5 h-5 fill-current" />
@@ -165,7 +165,7 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({
           ))}
         </div>
       ) : (
-        <div className="bg-[var(--surface)] p-10 rounded-2xl border border-[var(--border)] text-center space-y-2 shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
+        <div className="parsomen-panel bg-[var(--surface)] p-10 rounded-2xl border border-[var(--border)] text-center space-y-2 shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
           <Heart className="w-8 h-8 text-[var(--text-muted)] mx-auto opacity-50" />
           <h3 className="text-sm font-bold text-[var(--text-primary)]">Favori Kelime Bulunamadı</h3>
           <p className="text-xs text-[var(--text-secondary)] max-w-sm mx-auto">

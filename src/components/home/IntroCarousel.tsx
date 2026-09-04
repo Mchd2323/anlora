@@ -176,7 +176,7 @@ export const IntroCarousel: React.FC<{ slides: IntroSlide[] }> = ({ slides }) =>
                 >
                 <div className="flex items-center gap-2">
                   <span
-                    className={`w-5 h-5 rounded-lg text-[11px] font-black flex items-center justify-center shrink-0 ${
+                    className={`dugme-birincil w-5 h-5 rounded-lg text-[11px] font-black flex items-center justify-center shrink-0 ${
                       s.gorsel
                         ? 'bg-[#E9D7A8] text-[#15283D]'
                         : 'bg-[var(--primary)] text-[var(--surface)]'

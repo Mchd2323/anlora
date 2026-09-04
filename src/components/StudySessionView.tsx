@@ -383,7 +383,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
   if (!isSessionStarted) {
     return (
       <div className="max-w-[760px] mx-auto space-y-6 pb-safe-nav animate-fadeIn">
-        <div className="bg-[var(--surface)] rounded-2xl p-6 sm:p-8 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
+        <div className="parsomen-panel bg-[var(--surface)] rounded-2xl p-6 sm:p-8 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
           <div className="text-center space-y-1.5">
             <div className="w-10 h-10 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center mx-auto">
               <Brain className="w-5 h-5" />
@@ -471,7 +471,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
                   key={m.id}
                   type="button"
                   onClick={() => setStudyMode(m.id as any)}
-                  className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                  className={`dugme-birincil p-3 rounded-xl border text-center transition-all cursor-pointer ${
                     studyMode === m.id
                       ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--surface)] font-bold shadow-xs'
                       : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-soft)]'
@@ -489,7 +489,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
           {/* Start Button */}
           <button
             onClick={initializeQueue}
-            className="w-full py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
+            className="dugme-birincil w-full py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
           >
             <span>Seansı Başlat</span>
             <ArrowRight className="w-4 h-4" />
@@ -505,7 +505,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
   if (isCompleted) {
     return (
       <div className="max-w-[600px] mx-auto space-y-6 pb-safe-nav animate-fadeIn">
-        <div className="bg-[var(--surface)] rounded-2xl p-8 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] text-center space-y-5">
+        <div className="parsomen-panel bg-[var(--surface)] rounded-2xl p-8 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] text-center space-y-5">
           <div className="w-12 h-12 rounded-xl bg-[var(--learned-soft)] text-[var(--learned)] flex items-center justify-center mx-auto">
             <Award className="w-6 h-6" />
           </div>
@@ -539,7 +539,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
                 setIsSessionStarted(false);
                 setIsCompleted(false);
               }}
-              className="flex-1 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+              className="dugme-birincil flex-1 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
             >
               Yeni Seans Başlat
             </button>
@@ -600,7 +600,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
       </div>
 
       {/* Main Flashcard Container */}
-      <div className="bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] overflow-hidden">
+      <div className="parsomen-panel bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] overflow-hidden">
         {/* Card Header Bar */}
         <div className="p-4 pb-3 border-b border-[var(--border-light)] flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
@@ -744,7 +744,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
                   <button
                     type="submit"
                     disabled={!typedInput.trim()}
-                    className="w-full py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 text-[var(--surface)] text-xs font-semibold rounded-xl transition-all cursor-pointer"
+                    className="dugme-birincil w-full py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 text-[var(--surface)] text-xs font-semibold rounded-xl transition-all cursor-pointer"
                   >
                     Cevabı Kontrol Et
                   </button>
@@ -830,7 +830,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
                     setIsFlipped(true);
                     speakText(card.word);
                   }}
-                  className="px-4 py-2 bg-[var(--primary)] text-[var(--surface)] text-xs font-semibold rounded-xl hover:bg-[var(--primary-hover)] cursor-pointer"
+                  className="dugme-birincil px-4 py-2 bg-[var(--primary)] text-[var(--surface)] text-xs font-semibold rounded-xl hover:bg-[var(--primary-hover)] cursor-pointer"
                 >
                   Cevabı Göster
                 </button>

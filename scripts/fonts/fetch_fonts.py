@@ -32,10 +32,16 @@ KAYNAK = (
     "?family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..600"
     "&family=Manrope:wght@500..800"
     "&family=JetBrains+Mono:wght@400..600"
-    # Cinzel: Anlora Realms temasının başlık ve İngilizce kelime yazı tipi.
-    # Roma yazıtlarından türeyen bir serif; ortaçağ havasını taşıyor ama
-    # süslü bir "fantezi" yazı tipi olmadığı için okunaklılığı bozmuyor.
-    "&family=Cinzel:wght@400..700"
+    # EB Garamond: Anlora Realms temasının başlık ve İngilizce kelime yazı
+    # tipi. 16. yüzyıl Garamond'undan türeyen bir serif — el yazması havasını
+    # taşıyor, Türkçe harfleri tam, ekranda okunaklı.
+    #
+    # NEDEN CİNZEL DEĞİL. Referans ekranlarda başlıklar gerçek küçük harfle
+    # yazılı ("Anlora", "Oxford 5000+"). Cinzel'in küçük harfleri ise tasarım
+    # gereği küçük KAPİTAL: tarayıcıda ölçtüm, "Anlora" yazınca ekrana
+    # "ANLORA" çıkıyor ve bunu CSS ile geri almak mümkün değil, çünkü harflerin
+    # kendisi öyle çizilmiş. Referansın açık şartı buydu.
+    "&family=EB+Garamond:wght@400..800"
     "&display=swap"
 )
 

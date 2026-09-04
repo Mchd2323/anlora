@@ -158,7 +158,7 @@ export const AddToCollectionModal: React.FC<AddToCollectionModalProps> = ({
                 />
                 <button
                   type="submit"
-                  className="w-full py-2 bg-[var(--primary)] text-[var(--surface)] rounded-lg font-bold text-xs hover:bg-[var(--primary-hover)] transition-colors cursor-pointer"
+                  className="dugme-birincil w-full py-2 bg-[var(--primary)] text-[var(--surface)] rounded-lg font-bold text-xs hover:bg-[var(--primary-hover)] transition-colors cursor-pointer"
                 >
                   Oluştur ve Ekle
                 </button>

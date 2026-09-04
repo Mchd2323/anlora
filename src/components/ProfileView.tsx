@@ -421,7 +421,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   return (
     <div className="space-y-6 pb-safe-nav max-w-[880px] mx-auto animate-fadeIn">
       {/* 1. Profil Başlık ve Hesap Kartı */}
-      <div className="bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
+      <div className="parsomen-panel bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
         <div className="flex items-center gap-3.5">
           <div className="w-13 h-13 rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center font-bold text-xl border border-[var(--primary-border)]">
             {profile.isLoggedIn && profile.name
@@ -471,7 +471,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           ) : hesapAcilabilir ? (
             <button
               onClick={onOpenAuthModal}
-              className="px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-[var(--surface)] text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+              className="dugme-birincil px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-[var(--surface)] text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <LogIn className="w-3.5 h-3.5" />
               <span>Giriş Yap / Ücretsiz Hesap Aç</span>
@@ -518,7 +518,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       )}
 
       {/* 2. Genel Öğrenme İstatistikleri */}
-      <div className="bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-4">
+      <div className="parsomen-panel bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-4">
         <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-1.5">
           <Award className="w-4 h-4 text-[var(--primary)]" />
           <span>Genel Öğrenme Durumu</span>
@@ -595,7 +595,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         bulunmayan kendi kelimeleri. Hepsi tek kutuda, öncekinin kapladığı
         yerden fazlasını almadan.
       */}
-      <div className="bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-5">
+      <div className="parsomen-panel bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-5">
         <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-1.5">
           <BarChart3 className="w-4 h-4 text-[var(--primary)]" />
           <span>İstatistikler</span>
@@ -860,7 +860,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       <SettingsPanel settings={settings} onChange={onUpdateSettings} />
 
       {/* 5. Veri Yönetimi & Yedekleme */}
-      <div className="bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-4">
+      <div className="parsomen-panel bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-4">
         <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-1.5">
           <Settings className="w-4 h-4 text-[var(--text-secondary)]" />
           <span>Veri ve Yedekleme</span>

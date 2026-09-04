@@ -22,14 +22,33 @@
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont,
     'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   /*
-   * Başlıklar Cinzel. Roma yazıtlarından türeyen bir serif: tema istenen
-   * ortaçağ havasını taşıyor ama süslü bir "fantezi" yazı tipi olmadığı için
-   * okunaklılığı bozmuyor. Yalnızca BAŞLIK ve İNGİLİZCE KELİME için; Türkçe
-   * gövde metni sans kalıyor, çünkü Cinzel yalnızca büyük harf çizer ve uzun
-   * Türkçe cümlelerde yorucu olur.
+   * Başlıklar EB Garamond. 16. yüzyıl Garamond'undan türeyen bir serif: el
+   * yazması havasını taşıyor ama süslü bir "fantezi" yazı tipi değil, uzun
+   * Türkçe başlıkta bile okunuyor.
+   *
+   * NEDEN CİNZEL DEĞİL. Önce Cinzel kullanılmıştı. Referans ekranlarda
+   * başlıklar gerçek küçük harfle yazılı ("Anlora", "Oxford 5000+"); Cinzel'in
+   * küçük harfleri ise tasarım gereği küçük KAPİTAL. Tarayıcıda ölçüldü:
+   * "Anlora" yazınca ekrana "ANLORA" çıkıyor ve bu CSS ile geri alınamıyor,
+   * çünkü harflerin kendisi öyle çizilmiş.
+   *
+   * Yalnızca BAŞLIK ve İNGİLİZCE KELİME için; Türkçe gövde metni sans kalıyor.
    */
-  --font-display: 'Cinzel', 'Manrope', Georgia, 'Times New Roman', serif;
+  --font-display: 'EB Garamond', Georgia, 'Times New Roman', serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /*
+   * KÖŞE YARIÇAPLARI — referansın daha köşeli parşömen panelleri.
+   *
+   * Tailwind'in varsayılanları (xl 12, 2xl 16, 3xl 24 piksel) modern, yumuşak
+   * bir kart dili üretiyor; referanstaki paneller ise el yazması sayfaları
+   * gibi neredeyse köşeli, 8-14 piksel arası. Ölçeği BURADA daraltmak
+   * kırk küsur bileşene dokunmadan bütün panelleri referansa yaklaştırıyor.
+   */
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-2xl: 12px;
+  --radius-3xl: 14px;
 }
 
 @layer base {
@@ -62,15 +81,30 @@
     --text-secondary: #4C515A;
     --text-muted: #5A5F68;
 
-    /* Parşömen kenarı. */
-    --border: #D9CCB0;
-    --border-light: #E7DCC4;
+    /*
+     * Panel kenarı — antik altın saç teli.
+     *
+     * Referansta paneli tanımlayan şey zemin farkı değil, parşömenin üstündeki
+     * ince altın çizgi. Kenar rengi bu yüzden nötr bejden sepya-altına çekildi.
+     */
+    --border: #C9B183;
+    --border-light: #DCC79B;
+
+    /* Arma plakasının lacivert alanı; açık temada da koyu kalır. */
+    --arma-alan: #1A2E48;
 
     /* Kuzey laciverti — birincil eylem rengi. */
     --primary: #15283D;
     --primary-hover: #0E1C2C;
-    --primary-soft: #E2EAF1;
-    --primary-border: #B6CBDB;
+    /*
+     * NEDEN AÇIK MAVİ DEĞİL. Önceki değerler (#E2EAF1 / #B6CBDB) açık mavi
+     * idi ve ipucu kutuları, seçili sekmeler, çağrı şeritleri gibi BÜYÜK
+     * alanları kaplıyordu. Referansın açık şartı: büyük alanlarda bebek
+     * mavisi olmayacak, açık mavi yalnızca buz/A2 gibi küçük vurgularda
+     * kalacak. Yumuşak yüzey artık parşömenin sıcak bir tonu, kenarı altın.
+     */
+    --primary-soft: #F1E8D5;
+    --primary-border: #D6BE8C;
 
     /* Orman yeşili — "öğrendim". */
     --learned: #355B4A;
@@ -277,10 +311,16 @@
       inset 0 -6px 8px -6px rgb(0 0 0 / 0.45);
   }
 
-  /** Kısa bölüm başlıkları ve marka adı: Anlora Realms yazıt serifi. */
+  /*
+   * Kısa bölüm başlıkları ve marka adı: Anlora Realms yazıt serifi.
+   *
+   * Harf aralığı sıfırlandı: eski değer (+0,02em) Cinzel'in küçük kapitalleri
+   * içindi. EB Garamond gerçek küçük harf çizdiği için ek aralık kelimeyi
+   * dağıtıyordu.
+   */
   .baslik-yazit {
     font-family: var(--font-display);
-    letter-spacing: 0.02em;
+    letter-spacing: 0;
   }
 
   /*
@@ -292,22 +332,99 @@
    */
   .kelime-basligi {
     font-family: var(--font-display);
-    letter-spacing: 0.01em;
+    letter-spacing: 0;
   }
 
   /*
    * PARŞÖMEN DOKUSU.
    *
-   * Kâğıt hissi düz bir renkle olmuyor; çok hafif bir gren gerekiyor. Doku
-   * bir görsel dosya değil, iki yumuşak degrade: ölçülebilir bir boyut
-   * getirmiyor ve her ekran yoğunluğunda keskin kalıyor. Yoğunluk bilerek
-   * düşük — metnin arkasında desen olmamalı.
+   * İlk hâlinde yalnızca iki yumuşak degrade vardı; referansın istediği
+   * "eskitilmiş kâğıt greni" çıkmıyordu, düz krem bir zemin gibi duruyordu.
+   * Artık üç katman var:
+   *   1. çok düşük yoğunluklu kâğıt greni (SVG gürültüsü),
+   *   2. lekelenme hissi veren geniş, yumuşak leke degradeleri,
+   *   3. kenarlara doğru hafif bir yaşlanma koyulaşması.
+   *
+   * Gren bir GÖRSEL DOSYA değil, satır içi SVG: pakete ölçülebilir bir boyut
+   * eklemiyor (bir kilobaytın altında), her ekran yoğunluğunda keskin kalıyor
+   * ve çevrimdışı çalışmak için ayrıca önbelleğe alınması gerekmiyor.
+   *
+   * Yoğunluk bilerek düşük tutuldu: metnin arkasında OKUNAN bir desen olmamalı.
    */
   body {
     background-image:
-      radial-gradient(ellipse 80% 60% at 15% 0%, rgba(183, 149, 82, 0.07), transparent 60%),
-      radial-gradient(ellipse 70% 50% at 100% 100%, rgba(21, 40, 61, 0.05), transparent 55%);
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E"),
+      radial-gradient(ellipse 60% 45% at 12% 8%, rgba(183, 149, 82, 0.10), transparent 62%),
+      radial-gradient(ellipse 55% 40% at 88% 32%, rgba(150, 118, 62, 0.07), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 100% 100%, rgba(21, 40, 61, 0.06), transparent 58%);
     background-attachment: fixed;
+  }
+
+  /*
+   * PARŞÖMEN PANELİ — referansın kart dili.
+   *
+   * Referansta bir bölümü tanımlayan şey dolgu farkı değil; parşömenin
+   * üstündeki İNCE ALTIN ÇİZGİ, onun hemen içindeki çok soluk lacivert çizgi
+   * ve köşelerdeki el yazması kıvrımları. Panel neredeyse zeminle aynı renk,
+   * kenarı konuşuyor.
+   *
+   * KÖŞE SÜSLERİ METNE DEĞMEZ. Dört köşede 18 piksellik birer kıvrım var;
+   * içerik dolgusu bundan geniş olduğu için hiçbir harfin arkasına girmiyor.
+   * `pointer-events` kapalı, yani dokunmayı da engellemiyor.
+   */
+  .parsomen-panel {
+    position: relative;
+    box-shadow:
+      inset 0 0 0 1px rgb(21 40 61 / 0.07),
+      inset 0 1px 0 0 rgb(255 255 255 / 0.55),
+      0 1px 2px rgb(90 70 35 / 0.06);
+  }
+
+  /*
+   * Dort kosedeki el yazmasi kivrimlari.
+   *
+   * NEDEN TEK SOZDE OGE, DORT ARKA PLAN. Once ::before ve ::after ile
+   * yalnizca iki kose cizilmisti; ekranda bakinca sol ust kosede tek basina
+   * duran bir kivrim, sus gibi degil, kazara kalmis bir isaret gibi
+   * okunuyordu. Tek sozde ogeye dort ayri arka plan gorseli koymak dordunu
+   * birden verir ve fazladan bir katman gerektirmez.
+   *
+   * Kivrimlar metne degmez: 12 piksel buyukluginde, panelin en dis 5
+   * pikselinde duruyorlar; icerik dolgusu (16-24 piksel) bundan genis.
+   * `pointer-events: none` dokunmayi da engellemez.
+   */
+  .parsomen-panel::before {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    background-size: 15px 15px;
+    background-position: left top, right top, right bottom, left bottom;
+    opacity: 0.65;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23B79552' stroke-width='0.9' stroke-linecap='round'%3E%3Cg transform='rotate(0 8 8)'%3E%3Cpath d='M1 15V5.6A4.6 4.6 0 0 1 5.6 1H15'/%3E%3Cpath d='M4.6 9.4V7.4A2.8 2.8 0 0 1 7.4 4.6h2' opacity='0.7'/%3E%3C/g%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23B79552' stroke-width='0.9' stroke-linecap='round'%3E%3Cg transform='rotate(90 8 8)'%3E%3Cpath d='M1 15V5.6A4.6 4.6 0 0 1 5.6 1H15'/%3E%3Cpath d='M4.6 9.4V7.4A2.8 2.8 0 0 1 7.4 4.6h2' opacity='0.7'/%3E%3C/g%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23B79552' stroke-width='0.9' stroke-linecap='round'%3E%3Cg transform='rotate(180 8 8)'%3E%3Cpath d='M1 15V5.6A4.6 4.6 0 0 1 5.6 1H15'/%3E%3Cpath d='M4.6 9.4V7.4A2.8 2.8 0 0 1 7.4 4.6h2' opacity='0.7'/%3E%3C/g%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23B79552' stroke-width='0.9' stroke-linecap='round'%3E%3Cg transform='rotate(270 8 8)'%3E%3Cpath d='M1 15V5.6A4.6 4.6 0 0 1 5.6 1H15'/%3E%3Cpath d='M4.6 9.4V7.4A2.8 2.8 0 0 1 7.4 4.6h2' opacity='0.7'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /*
+   * DÜĞMELER.
+   *
+   * Referansta birincil düğme koyu lacivert yüzey + fildişi yazı + İNCE ALTIN
+   * KENAR; ikincil düğme parşömen yüzey + lacivert/altın çizgi. Altın kenar
+   * düğmeyi parşömenden ayıran ayrıntı; onsuz düğme zemine gömülü bir leke
+   * gibi duruyordu.
+   */
+  .dugme-birincil {
+    box-shadow:
+      inset 0 0 0 1px rgb(183 149 82 / 0.55),
+      0 1px 2px rgb(21 40 61 / 0.18);
+  }
+
+  .dugme-ikincil {
+    box-shadow: inset 0 0 0 1px rgb(21 40 61 / 0.10);
   }
 }
 

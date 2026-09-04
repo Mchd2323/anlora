@@ -434,7 +434,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <div className="flex flex-col gap-2 pt-1">
               <button
                 onClick={onSyncNow}
-                className="w-full py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
+                className="dugme-birincil w-full py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
               >
                 Verileri Şimdi Eşitle
               </button>
@@ -481,7 +481,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   if (onMigrateGuestProgress) onMigrateGuestProgress();
                   onClose();
                 }}
-                className="w-full py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
+                className="dugme-birincil w-full py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
               >
                 İlerlememi Hesabıma Aktar
               </button>
@@ -555,7 +555,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="submit"
                 disabled={isLoading || verificationCode.length < 6}
-                className="w-full py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 text-[var(--surface)] font-semibold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                className="dugme-birincil w-full py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 text-[var(--surface)] font-semibold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 {isLoading ? (
                   <>
@@ -805,7 +805,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full mt-2 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 text-[var(--surface)] font-semibold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                className="dugme-birincil w-full mt-2 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 text-[var(--surface)] font-semibold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 {isLoading ? (
                   <>
@@ -881,7 +881,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   setIsRegisterMode(true);
                   setAuthStep('email_form');
                 }}
-                className="w-full py-2.5 px-4 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                className="dugme-birincil w-full py-2.5 px-4 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Mail className="w-4 h-4" />
                 <span>E-posta ile Hesap Oluştur</span>

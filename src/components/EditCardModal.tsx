@@ -183,7 +183,7 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
                   type="button"
                   onClick={() => setEntryType(secenek.id)}
                   aria-pressed={entryType === secenek.id}
-                  className={`px-2 py-2 rounded-xl border text-[11px] font-bold transition-all cursor-pointer ${
+                  className={`dugme-birincil px-2 py-2 rounded-xl border text-[11px] font-bold transition-all cursor-pointer ${
                     entryType === secenek.id
                       ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--surface)]'
                       : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-soft)]'
@@ -334,7 +334,7 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
 
               <button
                 type="submit"
-                className="px-5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+                className="dugme-birincil px-5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
               >
                 <Save className="w-3.5 h-3.5" />
                 <span>Kaydet</span>
