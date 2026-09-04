@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRemoteApi } from '../hooks/useRemoteApi';
-import { User, LogIn } from 'lucide-react';
+import { User, LogIn, NotebookPen } from 'lucide-react';
 import { UserProfile } from '../types';
 import { BRAND } from '../config/brand';
 import { ArmaPlaka } from './ui/ArmaPlaka';
@@ -67,7 +67,20 @@ export const Navbar: React.FC<NavbarProps> = ({
        * kullanıcının okurken kendi elyazısıyla not ettiği kelimeler.
        * Uygulamayı diğerlerinden ayıran fikir de tam olarak bu.
        */
-      ikon: 'sets' as const
+      ikon: 'sets' as const,
+      /*
+       * TEK İSTİSNA. Uygulamanın her yerinde "set" eylemi Realms sprite'ındaki
+       * `sets` (üst üste katmanlar) işaretini kullanıyor; yalnızca gezinme
+       * sekmesinde kalemli defter duruyor.
+       *
+       * Neden: karo/katman simgesi "koleksiyon" der; oysa buradaki şey
+       * kullanıcının okurken kendi elyazısıyla not ettiği kelimelerdir ve
+       * uygulamayı ayıran fikir de budur. Sekme, o fikrin görünen yüzü.
+       *
+       * Çizgi kalınlığı sprite'ınkiyle aynı (1,7) veriliyor ki iki ikon dili
+       * yan yana ayrışmasın.
+       */
+      sekmeIkonu: NotebookPen
       /*
        * Set SAYISI rozeti kaldırıldı. Rozet, ilgilenilmesi gereken bir şeyi
        * (okunmamış bildirim, bekleyen iş) haber vermek içindir. Kullanıcının
@@ -143,11 +156,19 @@ export const Navbar: React.FC<NavbarProps> = ({
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-soft)]'
                     }`}
                   >
-                    <RealmsIcon
-                      name={item.ikon}
-                      size={20}
-                      className={isActive ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'}
-                    />
+                    {item.sekmeIkonu ? (
+                      <item.sekmeIkonu
+                        size={20}
+                        strokeWidth={1.7}
+                        className={isActive ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'}
+                      />
+                    ) : (
+                      <RealmsIcon
+                        name={item.ikon}
+                        size={20}
+                        className={isActive ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'}
+                      />
+                    )}
                     <span>{item.label}</span>
                   </button>
                 );
@@ -208,11 +229,19 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div className="relative">
                 {/* Alt menü ikonu 22 piksel (paketin ölçüsü); dokunma
                     hedefi ve etiket değişmedi. */}
-                <RealmsIcon
-                  name={item.ikon}
-                  size={22}
-                  className={isActive ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'}
-                />
+                {item.sekmeIkonu ? (
+                  <item.sekmeIkonu
+                    size={22}
+                    strokeWidth={1.7}
+                    className={isActive ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'}
+                  />
+                ) : (
+                  <RealmsIcon
+                    name={item.ikon}
+                    size={22}
+                    className={isActive ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'}
+                  />
+                )}
               </div>
               <span className="mt-0.5 whitespace-nowrap">{item.shortLabel}</span>
             </button>
