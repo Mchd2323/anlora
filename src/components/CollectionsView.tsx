@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useId, useRef } from 'react';
 import {
   Collection,
   CollectionMembership,
@@ -112,6 +112,15 @@ const DECK_COLORS: { id: string; label: string; hex: string }[] = [
   { id: 'slate', label: 'Gri', hex: '#687080' }
 ];
 
+/**
+ * CEFR seviyeleri, kolaydan zora.
+ *
+ * Hem "Seviyeye göre" sıralaması hem de CSV içe aktarması aynı listeye
+ * bakar: ikisi ayrı yazılsaydı biri değiştiğinde diğeri sessizce geride
+ * kalırdı.
+ */
+const SEVIYELER: Level[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+
 const DECK_ICONS: { id: string; label: string; Icon: React.ElementType }[] = [
   { id: 'Layers', label: 'Katman', Icon: Layers },
   { id: 'BookOpen', label: 'Kitap', Icon: BookOpen },
@@ -176,6 +185,18 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
    * ikisi de hiç çizilmez.
    */
   const sunucuVar = useRemoteApi() === true;
+
+  /*
+   * FORM ALANLARININ KİMLİK ÖNEKİ.
+   *
+   * Bu ekrandaki etiketlerin hiçbiri girdiye bağlı değildi: TalkBack açıkken
+   * "Set Adı" ya da "Türkçe Anlamı" hiç duyurulmuyor, kullanıcı yalnızca boş
+   * bir "düzenleme kutusu" duyuyor ve iki metin alanının hangisi olduğunu
+   * ayırt edemiyordu. İpucu metni (placeholder) erişilebilir ad yerine geçmez;
+   * alan doldurulunca kaybolur. `useId` çakışmayan bir önek verir, böylece
+   * aynı pencere iki kez çizilse bile id'ler karışmaz.
+   */
+  const alanId = useId();
 
 
   const [activeDeckId, setActiveDeckId] = useState<string | null>(collections[0]?.id || null);
@@ -398,10 +419,9 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
       case 'level': {
         // Seviyesi olmayan kartlar (kullanıcının kendi kelimeleri) sona düşer:
         // uydurma bir seviye atamaktansa listenin sonunda dursunlar.
-        const order = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
         const rank = (card: WordCard) => {
-          const index = card.level ? order.indexOf(card.level) : -1;
-          return index < 0 ? order.length : index;
+          const index = card.level ? SEVIYELER.indexOf(card.level) : -1;
+          return index < 0 ? SEVIYELER.length : index;
         };
         return [...cards].sort(
           (a, b) => rank(a) - rank(b) || a.word.localeCompare(b.word, 'tr')
@@ -485,6 +505,34 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
       );
     });
   }, [activeDeckWords, searchQuery, turSuzgeci, setteKalipVarMi]);
+
+  /*
+   * IZGARADA ÇİZİLECEK KARTLAR.
+   *
+   * Kart nesnesi eskiden render'ın içinde, her çizimde yeniden kuruluyordu
+   * (`{ ...card, sourceContext: ... }`). Yeni nesne = yeni referans; React.memo
+   * ile sarılı WordCardComponent bunu her seferinde "prop değişti" sayıyor ve
+   * hiçbir şey değişmemişken bile bütün kartlar yeniden çiziliyordu. Üyelik de
+   * kart başına `memberships.find(...)` ile aranıyordu: 200 kelimelik bir sette
+   * her render n*m tarama.
+   *
+   * Burada üyelikler bir kez Map'e alınır ve kart yalnızca üyelikten gelen bir
+   * bağlam/kaynak GERÇEKTEN farklıysa kopyalanır; aksi hâlde kartın kendi
+   * referansı korunur.
+   */
+  const gorunenKartlar = useMemo(() => {
+    if (!activeDeck) return filteredWords;
+    const uyelikler = new Map(
+      memberships.filter(m => m.collectionId === activeDeck.id).map(m => [m.wordId, m])
+    );
+    return filteredWords.map(card => {
+      const uyelik = uyelikler.get(card.id);
+      const baglam = uyelik?.sourceContext || card.sourceContext;
+      const kaynak = uyelik?.sourceName || card.sourceName;
+      if (baglam === card.sourceContext && kaynak === card.sourceName) return card;
+      return { ...card, sourceContext: baglam, sourceName: kaynak };
+    });
+  }, [filteredWords, memberships, activeDeck]);
 
   /** Sette hiç kalıp/deyim yoksa süzgeci çizmenin anlamı yok. */
   const setteKalipVar = useMemo(
@@ -651,15 +699,48 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     setLookup({ kind: 'idle' });
   };
 
-  /** Seçimi tersine çevirir. */
-  const toggleSelected = (id: string) => {
+  /**
+   * Seçimi tersine çevirir.
+   *
+   * `useCallback` süs değil: aşağıdaki ızgara bu işlevden türettiği kart
+   * başına işleyicileri React.memo'lu WordCardComponent'e geçiyor. İşlev her
+   * render'da yeniden üretilseydi memo hiçbir şeyi engellemezdi.
+   */
+  const toggleSelected = useCallback((id: string) => {
     setSelectedIds(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
       return next;
     });
-  };
+  }, []);
+
+  /*
+   * KART BAŞINA SABİT SEÇİM İŞLEYİCİSİ.
+   *
+   * Izgara her karta `onToggleSelected={() => toggleSelected(card.id)}`
+   * geçiyordu; ok işlevinin kimliği her render'da değiştiği için React.memo
+   * asla tutmuyor, tek bir kutucuğa basmak ya da "Bu sette ara" kutusuna tek
+   * harf yazmak setteki BÜTÜN kartları yeniden çizdiriyordu. Yüzlerce kelimelik
+   * setlerde bu, her tuş vuruşunda gözle görülür bir takılma demekti.
+   *
+   * WordCard'ın `onToggleSelected` imzası argüman almadığı için kimliği kartın
+   * kendisinden okuyamıyoruz; onun yerine kart kimliği başına tek bir işlev
+   * üretip saklıyoruz. Ref'te tutulur, çünkü liste süzüldüğünde (arama) yeniden
+   * üretilmemeleri gerekir.
+   */
+  const secimIsleyicileri = useRef(new Map<string, () => void>());
+  const secimIsleyicisiAl = useCallback(
+    (id: string) => {
+      let isleyici = secimIsleyicileri.current.get(id);
+      if (!isleyici) {
+        isleyici = () => toggleSelected(id);
+        secimIsleyicileri.current.set(id, isleyici);
+      }
+      return isleyici;
+    },
+    [toggleSelected]
+  );
 
   /**
    * Seçili kelimeleri başka bir sete taşır ya da kopyalar.
@@ -929,6 +1010,16 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
     const wordCol = columnOf('kelime');
     const meaningCol = columnOf('anlamlar');
+    /*
+     * SEVİYE SÜTUNU.
+     *
+     * Dışa aktarma bu sütunu yazıyor, pencere metni de "isteğe bağlı: ...
+     * seviye ..." diyerek okunacağını söylüyordu; oysa içe aktarma onu hiç
+     * okumuyordu. Aynı seti dışa aktarıp geri almak seviyeyi sessizce siliyor,
+     * sonrasında "Seviyeye göre" sıralaması bu kartları topluca listenin
+     * sonuna atıyordu.
+     */
+    const seviyeCol = columnOf('seviye');
     if (wordCol < 0 || meaningCol < 0) {
       setSetNotice('Başlıkta "kelime" ve "anlamlar" sütunları olmalı.');
       return;
@@ -954,6 +1045,13 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
       const exEn = columnOf('ornek1_en') >= 0 ? cells[columnOf('ornek1_en')] : '';
       const exTr = columnOf('ornek1_tr') >= 0 ? cells[columnOf('ornek1_tr')] : '';
 
+      // Seviye beyaz listeyle doğrulanır: dosyadaki serbest metin karta
+      // "seviye" diye sızmasın, yalnızca bilinen CEFR değerleri kabul edilsin.
+      const seviyeHam = (seviyeCol >= 0 ? cells[seviyeCol] || '' : '').toUpperCase();
+      const seviye = (SEVIYELER as readonly string[]).includes(seviyeHam)
+        ? (seviyeHam as Level)
+        : undefined;
+
       onAddCustomWord(
         {
           id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
@@ -961,6 +1059,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
           partOfSpeech: columnOf('tur') >= 0 ? cells[columnOf('tur')] : '',
           turkishMeaning: meaning.replace(/\|/g, ', '),
           phonetic: columnOf('telaffuz') >= 0 ? cells[columnOf('telaffuz')] : undefined,
+          level: seviye,
           examples: exEn && exTr ? [{ en: exEn, tr: exTr }] : [],
           isCustom: true,
           sourceType: 'custom',
@@ -1804,18 +1903,8 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
             {/* Words Grid or Empty State */}
             {filteredWords.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {filteredWords.map((card) => {
+                {gorunenKartlar.map((card) => {
                   const state = learningStates[card.id];
-                  const membership = memberships.find(
-                    (m) => m.wordId === card.id && m.collectionId === activeDeck.id
-                  );
-
-                  const displayCard: WordCard = {
-                    ...card,
-                    sourceContext: membership?.sourceContext || card.sourceContext,
-                    sourceName: membership?.sourceName || card.sourceName
-                  };
-
                   const isSelected = selectedIds.has(card.id);
 
                   return (
@@ -1830,21 +1919,24 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                         satırında, seviye rozetinin yanında duruyor. Bindirilen
                         eski hâli tam da rozetin üstüne geliyor ve A1/B2 gibi
                         seviyeleri görünmez yapıyordu.
+
+                        Aşağıdaki üç geri çağrı doğrudan geçiliyor; WordCard
+                        kartı/kimliği zaten kendisi veriyor. Satır içi ok
+                        işlevleri her render'da yeni referans üretip
+                        React.memo'yu kırıyordu.
                       */}
                       <WordCardComponent
                         isSelected={isSelected}
-                        onToggleSelected={() => toggleSelected(card.id)}
-                        card={displayCard}
+                        onToggleSelected={secimIsleyicisiAl(card.id)}
+                        card={card}
                         isFavorite={favorites.includes(card.id)}
                         learningState={state}
                         status={getUserWordStatus(card.id, learningStates)}
                         onSetStatus={onSetWordStatus}
                         onToggleFavorite={onToggleFavorite}
-                        onEditCustom={card.isCustom ? () => onOpenEditModal(card) : undefined}
-                        onDeleteCustom={
-                          card.isCustom ? () => onDeleteCustomWord(card.id) : undefined
-                        }
-                        onOpenAddToCollection={() => onOpenAddToCollection(card)}
+                        onEditCustom={card.isCustom ? onOpenEditModal : undefined}
+                        onDeleteCustom={card.isCustom ? onDeleteCustomWord : undefined}
+                        onOpenAddToCollection={onOpenAddToCollection}
                       />
 
                       <button

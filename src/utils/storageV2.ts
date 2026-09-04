@@ -66,6 +66,28 @@ const MAX_REVIEW_LOGS_RETENTION = 500;
  */
 const MAX_MISTAKES_RETENTION = 300;
 
+/*
+ * Göç yazmaları için "yalnızca eksikse yaz" yardımcısı.
+ *
+ * Kusur: göç, yazmaların başarısını hiç denetlemeden "tamamlandı" bayrağını
+ * yazıyordu. Kotası dolmaya yakın bir cihazda en büyük yazma (binlerce
+ * kelimenin öğrenme durumu) diske düşmüyor, küçücük bayrak yazması ise
+ * başarılı oluyordu. Kullanıcı aynı oturumda hiçbir şey fark etmiyordu
+ * (safeStorage bellek yedeğinden okuyor), ama uygulamayı kapatıp açtığında
+ * "Öğrendim" işaretlerinin tamamı yok olmuştu; bayrak 'true' olduğu için
+ * telefonda yer açsa bile göç bir daha DENENMİYORDU.
+ *
+ * Bayrak artık ancak bütün yazmalar başarılıysa yazılıyor, yani göç yeniden
+ * çalışabiliyor. Bu yüzden yeniden denemenin zararsız olması gerekiyor:
+ * diskte zaten bir değer varsa (kullanıcı kısmi göçten sonra çalışmış,
+ * kart eklemiş olabilir) üzerine yazılmaz, o anahtar başarılı sayılır ve
+ * yalnızca eksik kalan anahtar tamamlanır.
+ */
+function writeMigrationKeyIfMissing(key: string, value: unknown): boolean {
+  if (readRaw(key) !== null) return true;
+  return writeJSON(key, value);
+}
+
 /**
  * Migration Runner: Runs once if V2 data is not initialized
  */
@@ -194,14 +216,17 @@ export function runV1toV2MigrationIfNeeded(oxfordWordsList: WordCard[] = []): vo
     });
 
     // 5. Save everything to V2 storage
-    writeJSON(V2_KEYS.COLLECTIONS, collections);
-    writeJSON(V2_KEYS.MEMBERSHIPS, memberships);
-    writeJSON(V2_KEYS.CUSTOM_WORDS, customWords);
-    writeJSON(V2_KEYS.LEARNING_STATES, learningStates);
-    writeJSON(V2_KEYS.REVIEW_HISTORY, []);
-    writeJSON(V2_KEYS.CONFUSION_PAIRS, []);
-    writeJSON(V2_KEYS.SETTINGS, DEFAULT_SETTINGS);
-    writeJSON(V2_KEYS.FAVORITES, v1Favorites);
+    // Her yazmanın sonucu toplanıyor; bayrak yalnızca hepsi diske düştüyse
+    // yazılacak (bkz. writeMigrationKeyIfMissing).
+    const writeResults: boolean[] = [];
+    writeResults.push(writeMigrationKeyIfMissing(V2_KEYS.COLLECTIONS, collections));
+    writeResults.push(writeMigrationKeyIfMissing(V2_KEYS.MEMBERSHIPS, memberships));
+    writeResults.push(writeMigrationKeyIfMissing(V2_KEYS.CUSTOM_WORDS, customWords));
+    writeResults.push(writeMigrationKeyIfMissing(V2_KEYS.LEARNING_STATES, learningStates));
+    writeResults.push(writeMigrationKeyIfMissing(V2_KEYS.REVIEW_HISTORY, []));
+    writeResults.push(writeMigrationKeyIfMissing(V2_KEYS.CONFUSION_PAIRS, []));
+    writeResults.push(writeMigrationKeyIfMissing(V2_KEYS.SETTINGS, DEFAULT_SETTINGS));
+    writeResults.push(writeMigrationKeyIfMissing(V2_KEYS.FAVORITES, v1Favorites));
 
     /*
      * YENİ KURULUMDA SERİ SIFIRDIR.
@@ -226,12 +251,19 @@ export function runV1toV2MigrationIfNeeded(oxfordWordsList: WordCard[] = []): vo
       favoriteCount: v1Favorites.length,
       customCardsCount: customWords.length
     };
-    writeJSON(V2_KEYS.STATS, finalStats);
-    writeJSON(V2_KEYS.BADGES, v1Badges);
-    writeJSON(V2_KEYS.PROFILE, v1Profile);
+    writeResults.push(writeMigrationKeyIfMissing(V2_KEYS.STATS, finalStats));
+    writeResults.push(writeMigrationKeyIfMissing(V2_KEYS.BADGES, v1Badges));
+    writeResults.push(writeMigrationKeyIfMissing(V2_KEYS.PROFILE, v1Profile));
 
-    writeRaw(V2_KEYS.MIGRATION_COMPLETED, 'true');
-    console.log('✅ Version 2 Migration successfully completed.');
+    if (writeResults.every(Boolean)) {
+      writeRaw(V2_KEYS.MIGRATION_COMPLETED, 'true');
+      console.log('✅ Version 2 Migration successfully completed.');
+    } else {
+      // Bayrak bilerek yazılmıyor: en az bir anahtar diske düşmedi. Böylece
+      // kullanıcı yer açtığında göç bir sonraki açılışta kaldığı yerden
+      // tamamlanır; V1 anahtarları hiç silinmediği için kaynak veri yerinde.
+      console.warn('Göç kısmi kaldı (depolama yazması başarısız); sonraki açılışta yeniden denenecek.');
+    }
   } catch (err) {
     console.error('Migration error:', err);
   }

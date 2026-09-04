@@ -111,6 +111,39 @@ function hataMetni(err: any): string {
   return kod ? `${kod}: ${mesaj}` : String(mesaj);
 }
 
+/**
+ * Yerel eklentinin RET METNİNİ doğru başarısızlık sebebine çevirir.
+ *
+ * Eskiden eklentiden gelen HER ret 'no-voice' sayılıyordu; kullanıcıya
+ * ne olursa olsun "Cihazda İngilizce seslendirme paketi bulunamadı,
+ * Ayarlar'dan ekleyebilirsin" deniyordu. Oysa Android eklentisi dört ayrı
+ * sebeple reddediyor: motor henüz hazır değil ("Not yet initialized or not
+ * available on this device."), dil desteklenmiyor ("This language is not
+ * supported."), metin okunamadı ("Failed to read text.", örn. karakter
+ * sınırı) ve genel istisna. Yalnızca ikincisi gerçekten "ses paketi yok"
+ * demek. Sonuç: İngilizce paketi ZATEN KURULU olan kullanıcı, motor bir
+ * saniye geç hazırlandığı için var olmayan bir paketi indirmeye
+ * gönderiliyordu.
+ *
+ * Eşleşmeyen metin bilerek 'error'a düşer: eklenti sürümü mesajını
+ * değiştirirse en kötü ihtimalle genel bir hata metni çıkar — yanlış
+ * yönlendirme değil.
+ */
+function retSebebi(metin: string): SpeechFailure {
+  const m = metin.toLowerCase();
+  // Not: "paket inmemiş" durumu da eklentide bu mesaja düşer, çünkü
+  // isLanguageAvailable LANG_MISSING_DATA'yı desteklenmiyor sayar.
+  if (m.includes('not supported') || m.includes('unsupported')) return 'no-voice';
+  if (
+    m.includes('unavailable') ||
+    m.includes('not yet initialized') ||
+    m.includes('not available on this device')
+  ) {
+    return 'unsupported';
+  }
+  return 'error';
+}
+
 /** Cihazda kurulu İngilizce dil etiketlerinden en uygununu seçer. */
 function bestEnglishTag(diller: string[], istenen: string): string | null {
   if (diller.length === 0) return null;
@@ -356,6 +389,11 @@ export async function speakText(
     // kuyruğuna takılmasın.
     await tts.stop().catch(() => undefined);
 
+    // Ret metni AYRICA yerel bir değişkende taşınıyor: `son_hata` modül
+    // düzeyinde ve art arda iki okumada ikinci çağrı birincinin metnini
+    // ezebiliyor; sebebi çağrının kendi hatasından çıkarmak zorundayız.
+    let retMetni = '';
+
     /*
      * OKUMANIN BİTMESİ BEKLENMEZ. Eklenti sözünü ancak konuşma bittiğinde
      * çözüyor; düğmenin işi ise okumayı BAŞLATMAK. Bitişi beklemek uzun
@@ -374,6 +412,7 @@ export async function speakText(
       .then(() => 'bitti' as const)
       .catch((err: any) => {
         son_hata = hataMetni(err);
+        retMetni = son_hata;
         return 'hata' as const;
       });
 
@@ -386,8 +425,15 @@ export async function speakText(
     });
 
     if (erken === 'hata') {
-      notifyFailure('no-voice');
-      return { ok: false, reason: 'no-voice' };
+      /*
+       * Ret metnine hiç bakmadan "ses paketi yok" demek, sorunu motorun
+       * hazır olmaması ya da metnin okunamaması olan kullanıcıyı zaten
+       * kurulu olan paketi aramaya gönderiyordu. Sebep artık metinden
+       * çıkarılıyor; bildirimin doğru olanı gösterebilmesinin tek yolu bu.
+       */
+      const sebep = retSebebi(retMetni);
+      notifyFailure(sebep);
+      return { ok: false, reason: sebep };
     }
     return { ok: true };
   } catch (err) {
@@ -399,6 +445,16 @@ export async function speakText(
 
 /** Son yerel hata; tanı ekranı bunu olduğu gibi gösterir. */
 let son_hata = '';
+
+/**
+ * Son ham hata metni. Genel "Telaffuz çalınamadı" bildirimi tek başına
+ * teşhis edilemiyordu — kullanıcı bize iletebileceği hiçbir bilgi
+ * göremiyordu. Arayüz katmanı 'error' durumunda bunu ekleyebilsin diye
+ * dışa açıldı; şimdiye kadar yalnızca gizli tanı ekranında görünüyordu.
+ */
+export function lastSpeechError(): string {
+  return son_hata;
+}
 
 /**
  * Android'in metin okuma verisi kurulum ekranını açar.

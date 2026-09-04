@@ -142,6 +142,16 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
      */
     let siraKorunsun = false;
 
+    /*
+     * "Bugünkü Tekrarlar", "Zayıf Kelimeler" ve "Tüm Oxford" gerçek bir
+     * koleksiyon değil, kelimeleri her yerden toplayan sözde kaynaklardır;
+     * onlarda kartın hangi setin adını taşıyacağı doğal olarak belirsizdir.
+     */
+    const sozdeKaynak =
+      selectedSource === 'DUE_TODAY' ||
+      selectedSource === 'WEAK_WORDS' ||
+      selectedSource === 'ALL_OXFORD';
+
     if (selectedSource === 'DUE_TODAY') {
       /*
        * VADESİ GELENLER ÖNCE, YENİLER KALAN BOŞLUĞA.
@@ -201,7 +211,21 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
       .map(id => {
         const card = allWordsMap.get(id);
         if (!card) return null;
-        const membership = memberships.find(m => m.wordId === id);
+        /*
+         * ÜYELİK ÇALIŞILAN SETTEN SEÇİLİR.
+         *
+         * Burada yalnızca `m.wordId === id` aranıyordu. Aynı kelime birden
+         * çok sete eklenebildiği için (her üyeliğin kendi adı ve kendi
+         * bağlam cümlesi var) dizideki İLK üyelik dönüyordu: kullanıcı
+         * "B Seti"ni çalışırken kartın üstünde "A Seti" yazıyor ve tırnak
+         * içinde A Seti'ne ait cümle çıkıyordu — yani seansta gördüğü
+         * bilgi yanlıştı. Artık belirli bir set çalışılırken yalnızca o
+         * setin üyeliği kullanılıyor; sözde kaynaklarda eski davranış
+         * (ilk üyelik) korunuyor.
+         */
+        const membership = sozdeKaynak
+          ? memberships.find(m => m.wordId === id)
+          : memberships.find(m => m.wordId === id && m.collectionId === selectedSource);
         const col = collections.find(c => c.id === membership?.collectionId);
         return {
           card,
@@ -606,27 +630,64 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
 
         {/* Card Body by Mode */}
         <div className="p-8 text-center space-y-5 min-h-[260px] flex flex-col justify-center items-center">
-          {/* Mode 1: Flashcard */}
+          {/*
+            Mode 1: Flashcard — KARTI ÇEVİRMEK KLAVYEYE DE AÇIK.
+
+            Çeviren öğe `onClick` taşıyan çıplak bir div'di: odak hiç
+            gelmiyor, Enter/Boşluk kartı çevirmiyordu. Derece düğmeleri
+            (`Tekrar Et`/`Öğrendim`) `isFlipped`e bağlı olduğu için kart
+            çevrilemeyince seans hiç ilerlemiyordu — klavye veya TalkBack
+            kullanan biri çalışma akışında tamamen kilitleniyordu. Gerçek
+            bir düğme yerine role/tabIndex seçildi: içeride h3/p/div gibi
+            blok öğeler var, onları düğmenin içine koymak geçersiz HTML
+            olurdu. Odak halkası global `[tabindex]:focus-visible`
+            kuralından geliyor.
+          */}
           {currentMode === 'flashcard' && (
             <div
+              role="button"
+              tabIndex={0}
+              aria-expanded={isFlipped}
+              aria-label={isFlipped ? 'Anlamı gizle' : 'Anlamı göster'}
               onClick={() => setIsFlipped(!isFlipped)}
-              className="cursor-pointer select-none space-y-3 w-full"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setIsFlipped(f => !f);
+                }
+              }}
+              className="cursor-pointer select-none space-y-3 w-full rounded-xl"
             >
-              <h3 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] tracking-tight">
+              {/*
+                İNGİLİZCE PARÇALAR `lang="en"` İLE İŞARETLİ.
+
+                Sayfa kökü `lang="tr"` olduğu için öğretilen kelime, fonetiği
+                ve İngilizce cümleler Türkçe dil bağlamını miras alıyordu:
+                ekran okuyucu 'island' kelimesini Türkçe ses motoruyla
+                okuyordu ve kullanıcı öğrenmesi gereken telaffuzu hiç
+                duyamıyordu. Türkçe anlam ve çeviri olduğu gibi kalır.
+              */}
+              <h3 lang="en" className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] tracking-tight">
                 {card.word}
               </h3>
               {card.phonetic && (
-                <p className="text-xs font-mono text-[var(--text-secondary)]">{card.phonetic}</p>
+                <p lang="en" className="text-xs font-mono text-[var(--text-secondary)]">{card.phonetic}</p>
               )}
 
               {/* Source Context Anchor */}
               {currentItem.sourceContext && (
-                <div className="p-3 bg-[var(--bg)] border border-[var(--border)] rounded-xl text-xs text-[var(--text-primary)] italic max-w-md mx-auto">
+                <div lang="en" className="p-3 bg-[var(--bg)] border border-[var(--border)] rounded-xl text-xs text-[var(--text-primary)] italic max-w-md mx-auto">
                   "{currentItem.sourceContext}"
                 </div>
               )}
 
-              <div className="pt-3">
+              {/*
+                Kartın çevrildiği ekran okuyucuya duyurulmalı; aksi hâlde
+                dokunmayan kullanıcı anlamın açıldığını hiç fark etmiyordu.
+                aria-live her zaman DOM'da duran bu sarmalayıcıda: sonradan
+                oluşturulan bir canlı bölge çoğu okuyucuda sessiz kalır.
+              */}
+              <div className="pt-3" aria-live="polite">
                 {isFlipped ? (
                   <div className="p-4 bg-[var(--neutral-50)] rounded-xl border border-[var(--border)] text-[var(--text-primary)] animate-fadeIn space-y-1">
                     <span className="text-[10px] font-bold text-[var(--primary)] uppercase tracking-wider block">
@@ -635,7 +696,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
                     <p className="text-lg font-bold text-[var(--text-primary)]">{card.turkishMeaning}</p>
                     {card.examples && card.examples[0] && (
                       <p className="text-xs text-[var(--text-secondary)] italic pt-2 border-t border-[var(--border)]">
-                        "{card.examples[0].en}" — {card.examples[0].tr}
+                        "<span lang="en">{card.examples[0].en}</span>" — {card.examples[0].tr}
                       </p>
                     )}
                   </div>
@@ -694,7 +755,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
                       </span>
                     </div>
 
-                    <p className="text-base font-bold text-[var(--text-primary)]">{card.word}</p>
+                    <p lang="en" className="text-base font-bold text-[var(--text-primary)]">{card.word}</p>
                   </div>
                 </div>
               )}
@@ -716,7 +777,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
               <div className="pt-1">
                 {isFlipped ? (
                   <div className="p-4 bg-[var(--neutral-50)] rounded-xl border border-[var(--border)] animate-fadeIn space-y-1">
-                    <h3 className="text-xl font-bold text-[var(--text-primary)]">{card.word}</h3>
+                    <h3 lang="en" className="text-xl font-bold text-[var(--text-primary)]">{card.word}</h3>
                     <p className="text-xs font-bold text-[var(--primary)]">{card.turkishMeaning}</p>
                   </div>
                 ) : (
@@ -740,7 +801,8 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
 
               {clozeSentence ? (
                 <div className="p-4 bg-[var(--bg)] rounded-xl border border-[var(--border)] text-xs font-medium text-[var(--text-primary)] leading-relaxed max-w-lg mx-auto">
-                  {clozeSentence.blanked}
+                  {/* Boşluklu cümle `examples[].en`den üretiliyor: İngilizce. */}
+                  <span lang="en">{clozeSentence.blanked}</span>
                   <p className="text-[11px] text-[var(--text-secondary)] italic mt-1.5">
                     "{clozeSentence.tr}"
                   </p>
@@ -752,7 +814,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
               {isFlipped ? (
                 <div className="p-3 bg-[var(--learned-soft)] rounded-xl border border-[var(--learned-border)] animate-fadeIn">
                   <span className="text-[11px] font-bold text-[var(--learned-text)]">Doğru Kelime:</span>
-                  <p className="text-lg font-bold text-[var(--learned-text)]">{card.word}</p>
+                  <p lang="en" className="text-lg font-bold text-[var(--learned-text)]">{card.word}</p>
                 </div>
               ) : (
                 <button

@@ -46,6 +46,35 @@ export function applyDifficultyModifier(intervalDays: number, difficulty: number
 }
 
 /**
+ * Saklanan bir aralığın hangi basamaktan geldiğini geri çözer.
+ *
+ * `intervalDays` diske zorluk çarpanı UYGULANDIKTAN sonra yazılıyor; bu yüzden
+ * `ladderIndexForInterval` ile kovalanamaz. Eski kod tam bunu yapıyor, sonra
+ * seçilen basamağa çarpanı bir kez daha uyguluyordu. difficulty 0,5'in
+ * üstündeyken çarpan (1.15 - d*0.45) bir üst basamağı yine alt basamağın
+ * kovasına düşürdüğü için tek adımlık ilerleme tamamen geri alınıyordu:
+ * zorlanılan bir kelimede kullanıcı arka arkaya sekiz kez doğru bilse bile
+ * aralık 2 günde çakılı kalıyor, kelime ekranda "MASTERED / %100" görünürken
+ * iki günde bir tekrar karşısına çıkıyordu. Aralığı, aynı zorlukla ölçeklenmiş
+ * merdivenle eşleştirmek çarpanı birebir geri alır; böylece başarı gerçekten
+ * bir basamak ilerletir ve zorluk yalnızca takvim gününü kaydırır.
+ */
+export function ladderIndexForStoredInterval(intervalDays: number, difficulty: number): number {
+  if (intervalDays <= 0) return -1;
+  let bestRung = 0;
+  let bestDistance = Infinity;
+  for (let i = 0; i < INTERVAL_LADDER.length; i++) {
+    const scheduled = Math.min(MAX_INTERVAL_DAYS, applyDifficultyModifier(INTERVAL_LADDER[i], difficulty));
+    const distance = Math.abs(scheduled - intervalDays);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      bestRung = i;
+    }
+  }
+  return bestRung;
+}
+
+/**
  * Creates initial default learning state for a newly added or unstudied word
  */
 export function createInitialLearningState(wordId: string, initialStage: LearningStage = 'NEW'): LearningState {
@@ -103,6 +132,9 @@ export function computeNextReviewState(
   const state: LearningState = currentState ? { ...currentState } : createInitialLearningState(wordId, 'NEW');
   const now = new Date();
   const weight = getEvidenceWeight(mode);
+  // Saklı aralık, bu cevaptan ÖNCEKİ zorlukla ölçeklenmişti; basamağı geri
+  // çözerken o değeri kullanmalıyız, yoksa çarpan iki kez uygulanmış olur.
+  const previousDifficulty = state.difficulty;
 
   state.reviewCount += 1;
   state.lastReviewedAt = now.toISOString();
@@ -127,7 +159,7 @@ export function computeNextReviewState(
 
     // Interval expansion: advance along the ladder, then let difficulty
     // stretch or compress the rung.
-    const currentRung = ladderIndexForInterval(state.intervalDays);
+    const currentRung = ladderIndexForStoredInterval(state.intervalDays, previousDifficulty);
     const step = quality === 'easy' ? 2 : 1;
     const nextRung = Math.min(INTERVAL_LADDER.length - 1, currentRung + step);
     state.intervalDays = Math.min(
@@ -170,7 +202,7 @@ export function computeNextReviewState(
     } else {
       // Hard (partially recalled or struggled): drop one rung rather than
       // scaling the raw interval, so the schedule stays on the ladder.
-      const rung = ladderIndexForInterval(state.intervalDays);
+      const rung = ladderIndexForStoredInterval(state.intervalDays, previousDifficulty);
       const droppedRung = Math.max(0, rung - 1);
       state.intervalDays = applyDifficultyModifier(INTERVAL_LADDER[droppedRung], state.difficulty);
       state.masteryScore = Math.max(0, Math.round(state.masteryScore - (10 * weight)));

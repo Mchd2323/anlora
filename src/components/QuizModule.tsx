@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
   WordCard,
   LearningState,
@@ -114,6 +114,15 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
   const [quizState, setQuizState] = useState<'IDLE' | 'ACTIVE' | 'FINISHED'>('IDLE');
   /** Toplu işaretlemenin sonucu; sessizce yapılan bir işlem yapılmamış gibidir. */
   const [topluSonuc, setTopluSonuc] = useState('');
+  /*
+   * Toplu işaretleme kelime başına tüm öğrenme durumlarını yeniden yazıyor;
+   * yüz soruluk bir sınavda arayüz saniyelerce donuyor. Donma sırasında
+   * kullanıcı düğmeye tekrar basıyor ve aynı iş bir kez daha yapılıyordu —
+   * hem bekleme ikiye katlanıyor hem de 500 kayıtlık tekrar geçmişi boşuna
+   * doluyordu. Uygulanan düğme bir daha basılamasın.
+   */
+  const [dogrularIsaretlendi, setDogrularIsaretlendi] = useState(false);
+  const [yanlislarIsaretlendi, setYanlislarIsaretlendi] = useState(false);
 
   // Configuration State
   const [quizMode, setQuizMode] = useState<QuizMode>('MIXED');
@@ -224,6 +233,18 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
 
   const startQuiz = () => {
     if (currentPool.length < MIN_POOL_SIZE) {
+      /*
+       * HAVUZ YETERSİZKEN SEBEBİ SÖYLE, SESSİZCE DÖNME.
+       *
+       * Aşağıdaki uyarı yalnızca kurulum (IDLE) ekranında çiziliyor. Sonuç
+       * ekranındaki "Yeniden Sına" buraya düştüğünde ekran FINISHED'de
+       * kalıyor, hiçbir metin belirmiyor ve düğme ölü görünüyordu — üstelik
+       * havuzun sınav sonrasında küçülmesi olağan bir yol: "Tekrar Etmem
+       * Gerekenler" süzgecindeyken doğruları "öğrendim" işaretlemek onları
+       * havuzdan düşürüyor. Uyarının görünebildiği ekrana dönüyoruz ki
+       * kullanıcı sorunu düzeltebileceği yerde olsun.
+       */
+      setQuizState('IDLE');
       setSetupError(
         `Seçtiğin kaynaklarda ${currentPool.length} kelime var. ` +
           `Sınav için en az ${MIN_POOL_SIZE} kelime gerekiyor; başka bir seviye ya da set ekleyebilirsin.`
@@ -248,6 +269,8 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
     setIsAnswered(false);
     // Yeni sınav: önceki turun toplu işaretleme bildirimi kalmasın.
     setTopluSonuc('');
+    setDogrularIsaretlendi(false);
+    setYanlislarIsaretlendi(false);
     setQuizState('ACTIVE');
   };
 
@@ -298,6 +321,30 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
     ]);
   };
 
+  /**
+   * Sınavı bitirir ve CEVAPLANAN soruların özetini kaydeder.
+   *
+   * Özet daha önce yalnızca son sorunun cevaplanmasıyla gönderiliyordu.
+   * Yarıda kesilen sınavda cevaplar SRS'e zaten yazılmış oluyor
+   * (onRecordStudyResult), ama oturum hiç kaydedilmediği için ne sınav
+   * sayacı ne de hata listesi ("tekrar listem") o cevapları görüyordu:
+   * kullanıcı 60 soru çözüp hiçbirini kazanamıyordu. Artık çıkış yolu da
+   * buradan geçiyor.
+   */
+  const sinaviBitir = (cevaplanan: number) => {
+    setQuizState('FINISHED');
+    if (!onFinishQuiz || cevaplanan === 0) return;
+    onFinishQuiz({
+      sessionId: `quiz-${Date.now()}`,
+      date: new Date().toISOString(),
+      totalQuestions: cevaplanan,
+      correctCount: score,
+      wrongCount: cevaplanan - score,
+      scorePercent: Math.round((score / cevaplanan) * 100),
+      mistakeWords: userAnswers.filter((a) => !a.isCorrect).map((a) => a.question.word.id)
+    });
+  };
+
   const handleNextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
@@ -305,22 +352,24 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
       setTypedAnswer('');
       setIsAnswered(false);
     } else {
-      setQuizState('FINISHED');
-      if (onFinishQuiz) {
-        onFinishQuiz({
-          sessionId: `quiz-${Date.now()}`,
-          date: new Date().toISOString(),
-          totalQuestions: questions.length,
-          correctCount: score,
-          wrongCount: questions.length - score,
-          scorePercent: Math.round((score / questions.length) * 100),
-          mistakeWords: userAnswers.filter((a) => !a.isCorrect).map((a) => a.question.word.id)
-        });
-      }
+      sinaviBitir(questions.length);
     }
   };
 
   const currentQ = questions[currentQuestionIndex];
+  /** Sonuç ekranındaki sayılar cevaplanan soruya bakar; sınav yarıda da bitebilir. */
+  const cevaplananSayisi = userAnswers.length;
+
+  /*
+   * Cevap verilince şıklar kilitleniyor ve odaktaki öğe devre dışı kalıyordu;
+   * odak gövdeye düşünce TalkBack/klavye kullanıcısı bulunduğu yeri kaybedip
+   * "Sonraki Soru"ya ulaşmak için sayfayı baştan geziyordu. Odağı doğrudan
+   * oraya taşıyoruz.
+   */
+  const sonrakiSoruRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (isAnswered) sonrakiSoruRef.current?.focus();
+  }, [isAnswered]);
 
   return (
     <div className="max-w-[760px] mx-auto space-y-6 pb-safe-nav animate-fadeIn">
@@ -554,6 +603,14 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
             Düğme boş seçimde KİLİTLENMİYOR, uyarı veriyor. Kilitli bir düğme
             neden kilitli olduğunu söylemez; kullanıcı dokunup sebebi
             öğrenebilmeli.
+
+            Aynı ilke havuz yetersizken de geçerli olmalıydı: düğme
+            `currentPool.length < MIN_POOL_SIZE` iken kilitleniyordu, bu yüzden
+            startQuiz'in "en az 4 kelime gerekiyor" uyarısına hiç
+            ulaşılamıyordu. Kullanıcı yalnızca "2 Kelime" rozetini ve solgun,
+            dokununca hiçbir şey yapmayan bir düğmeyi görüyordu. Kilit
+            kaldırıldı; sayı yetersizse sebebini yukarıdaki uyarı kutusu
+            söylüyor (startQuiz zaten sınavı başlatmıyor).
           */}
           <button
             onClick={() => {
@@ -563,11 +620,15 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
               }
               startQuiz();
             }}
-            disabled={selectedSources.length > 0 && currentPool.length < MIN_POOL_SIZE}
-            className="w-full py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 text-[var(--surface)] font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-[var(--surface)] font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <Sparkles className="w-4 h-4 text-[var(--learning-soft)]" />
-            <span>Sınavı Başlat ({Math.min(questionCount, currentPool.length)} Soru)</span>
+            {/* Havuz yetersizken soru sayısı yazmak olmayan bir sınavı vaat eder. */}
+            <span>
+              {currentPool.length < MIN_POOL_SIZE
+                ? 'Sınavı Başlat'
+                : `Sınavı Başlat (${Math.min(questionCount, currentPool.length)} Soru)`}
+            </span>
           </button>
         </div>
       )}
@@ -578,8 +639,29 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
           {/* Progress Header */}
           <div className="flex items-center justify-between border-b border-[var(--border-light)] pb-3.5">
             <div className="flex items-center gap-2">
+              {/*
+                ÇIKIŞ ONAYSIZ VE ÖZETSİZDİ.
+
+                Bu düğme yalnızca durumu IDLE'a çeviriyordu: 60. sorudaki bir
+                kullanıcı yanlışlıkla dokunduğunda tüm sınav uyarısız siliniyor,
+                geri dönüş yolu kalmıyordu. Üstelik verilen cevaplar SRS'e
+                yazılmış olmasına rağmen oturum hiç kaydedilmediği için ne sınav
+                sayacına ne de tekrar listesine giriyordu. Artık önce onay
+                isteniyor, onaylanırsa cevaplanan sorular sonuç ekranına ve
+                kayda geçiyor.
+              */}
               <button
-                onClick={() => setQuizState('IDLE')}
+                onClick={() => {
+                  if (userAnswers.length === 0) {
+                    setQuizState('IDLE');
+                    return;
+                  }
+                  const onay = confirm(
+                    `${userAnswers.length} soruyu cevapladın. Sınavı burada bitirip sonucunu kaydedelim mi?`
+                  );
+                  if (!onay) return;
+                  sinaviBitir(userAnswers.length);
+                }}
                 className="text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 cursor-pointer mr-2"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
@@ -669,7 +751,16 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                   return (
                     <button
                       key={idx}
-                      disabled={isAnswered}
+                      /*
+                        Cevaptan sonra `disabled` veriliyordu; odaktaki şık
+                        devre dışı kalınca odak gövdeye düşüyor ve ekran
+                        okuyucu kullanıcısı sınavın neresinde olduğunu
+                        kaybediyordu. aria-disabled ile şıklar gezilebilir
+                        kalıyor (hangisinin doğru işaretlendiği okunabiliyor);
+                        ikinci cevabı handleOptionSelect'teki mevcut
+                        `if (isAnswered) return;` koruması engelliyor.
+                      */
+                      aria-disabled={isAnswered}
                       onClick={() => handleOptionSelect(opt)}
                       className={`min-h-[48px] p-3.5 rounded-xl border text-left text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${btnStyle}`}
                     >
@@ -688,22 +779,42 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
           </div>
 
           {/* Answer Feedback & Next Button */}
-          {isAnswered && (
-            <div className="pt-3.5 border-t border-[var(--border-light)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="text-xs">
-                {selectedAnswer?.toLowerCase() === currentQ.correctAnswer.toLowerCase() ? (
+          {/*
+            GERİ BİLDİRİM EKRAN OKUYUCUYA HİÇ ULAŞMIYORDU.
+
+            Blok yalnızca cevaptan sonra DOM'a giriyor ve canlı bölge değildi:
+            TalkBack kullanıcısı ne "Doğru cevap!" diyebiliyor ne de doğru
+            cevabın ne olduğunu öğrenebiliyordu — dokunduğu şıkkın tutup
+            tutmadığını bilmeden sınava devam ediyordu. Bölgeyi cevaptan ÖNCE
+            de (boş olarak) DOM'da tutuyoruz ki içerik girdiğinde duyurulsun;
+            boşken kapsayıcının satır aralığını kaplamaması için üst boşluğu
+            sıfırlanıyor.
+          */}
+          <div
+            className={
+              isAnswered
+                ? 'pt-3.5 border-t border-[var(--border-light)] flex flex-col sm:flex-row sm:items-center justify-between gap-3'
+                : ''
+            }
+            style={isAnswered ? undefined : { marginTop: 0 }}
+          >
+            <div className="text-xs" role="status" aria-live="polite">
+              {isAnswered &&
+                (selectedAnswer?.toLowerCase() === currentQ.correctAnswer.toLowerCase() ? (
                   <span className="text-[var(--learned)] font-bold flex items-center gap-1">
-                    <CheckCircle2 className="w-4 h-4" /> Doğru cevap!
+                    <CheckCircle2 className="w-4 h-4" aria-hidden="true" /> Doğru cevap!
                   </span>
                 ) : (
                   <span className="text-[var(--danger)] font-bold flex items-center gap-1">
-                    <XCircle className="w-4 h-4" /> Doğru Cevap:{' '}
+                    <XCircle className="w-4 h-4" aria-hidden="true" /> Yanlış. Doğru cevap:{' '}
                     <strong className="text-[var(--text-primary)] ml-1">{currentQ.correctAnswer}</strong>
                   </span>
-                )}
-              </div>
+                ))}
+            </div>
 
+            {isAnswered && (
               <button
+                ref={sonrakiSoruRef}
                 onClick={handleNextQuestion}
                 className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
               >
@@ -712,8 +823,8 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                 </span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
 
@@ -724,7 +835,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
             <div className="w-12 h-12 rounded-xl bg-[var(--learned-soft)] text-[var(--learned)] flex items-center justify-center mx-auto">
               <Award className="w-6 h-6" />
             </div>
-            {score / questions.length >= 0.7 ? (
+            {cevaplananSayisi > 0 && score / cevaplananSayisi >= 0.7 ? (
               <div className="space-y-1">
                 <div className="text-base font-bold text-[var(--primary)]">
                   {BRAND.slogan}
@@ -739,7 +850,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
               </h2>
             )}
             <p className="text-xs text-[var(--text-secondary)]">
-              {questions.length} soruda {score} Doğru · {questions.length - score} Yanlış
+              {cevaplananSayisi} soruda {score} Doğru · {cevaplananSayisi - score} Yanlış
             </p>
           </div>
 
@@ -751,13 +862,13 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
             </div>
             <div className="p-3.5 bg-[var(--danger-soft)] rounded-xl border border-[var(--danger-border)] text-center">
               <span className="text-xl font-bold text-[var(--danger)]">
-                {questions.length - score}
+                {cevaplananSayisi - score}
               </span>
               <p className="text-[10px] text-[var(--danger)] font-bold uppercase mt-0.5">Yanlış</p>
             </div>
             <div className="p-3.5 bg-[var(--primary-soft)] rounded-xl border border-[var(--primary-border)] text-center">
               <span className="text-xl font-bold text-[var(--primary)]">
-                %{Math.round((score / questions.length) * 100)}
+                %{cevaplananSayisi > 0 ? Math.round((score / cevaplananSayisi) * 100) : 0}
               </span>
               <p className="text-[10px] text-[var(--primary)] font-bold uppercase mt-0.5">Başarı</p>
             </div>
@@ -779,34 +890,38 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
               {score > 0 && (
                 <button
                   type="button"
+                  disabled={dogrularIsaretlendi}
                   onClick={() => {
                     userAnswers
                       .filter(a => a.isCorrect)
                       .forEach(a => onSetWordStatus(a.question.word.id, 'learned'));
+                    setDogrularIsaretlendi(true);
                     setTopluSonuc(`${score} kelime "öğrendim" olarak işaretlendi.`);
                   }}
-                  className="flex-1 min-w-[150px] px-3.5 py-2.5 rounded-xl bg-[var(--learned-soft)] hover:bg-[var(--learned-soft-strong)] text-[var(--learned-text)] border border-[var(--learned-border)] text-xs font-bold inline-flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                  className="flex-1 min-w-[150px] px-3.5 py-2.5 rounded-xl bg-[var(--learned-soft)] hover:bg-[var(--learned-soft-strong)] text-[var(--learned-text)] border border-[var(--learned-border)] text-xs font-bold inline-flex items-center justify-center gap-1.5 cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   <Check className="w-3.5 h-3.5 stroke-[3]" />
                   Doğruları öğrendim ({score})
                 </button>
               )}
 
-              {questions.length - score > 0 && (
+              {cevaplananSayisi - score > 0 && (
                 <button
                   type="button"
+                  disabled={yanlislarIsaretlendi}
                   onClick={() => {
                     userAnswers
                       .filter(a => !a.isCorrect)
                       .forEach(a => onSetWordStatus(a.question.word.id, 'learning'));
+                    setYanlislarIsaretlendi(true);
                     setTopluSonuc(
-                      `${questions.length - score} kelime tekrar listene eklendi.`
+                      `${cevaplananSayisi - score} kelime tekrar listene eklendi.`
                     );
                   }}
-                  className="flex-1 min-w-[150px] px-3.5 py-2.5 rounded-xl bg-[var(--learning-soft)] hover:bg-[var(--learning-soft-hover)] text-[var(--learning-text)] border border-[var(--learning-border)] text-xs font-bold inline-flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                  className="flex-1 min-w-[150px] px-3.5 py-2.5 rounded-xl bg-[var(--learning-soft)] hover:bg-[var(--learning-soft-hover)] text-[var(--learning-text)] border border-[var(--learning-border)] text-xs font-bold inline-flex items-center justify-center gap-1.5 cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   <RotateCw className="w-3.5 h-3.5 stroke-[3]" />
-                  Yanlışları tekrar et ({questions.length - score})
+                  Yanlışları tekrar et ({cevaplananSayisi - score})
                 </button>
               )}
             </div>
