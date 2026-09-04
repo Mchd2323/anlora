@@ -38,7 +38,7 @@ import { CEFRBadge } from './ui/CEFRBadge';
 import { LearningStatusControl } from './ui/LearningStatusControl';
 import { BRAND } from '../config/brand';
 import { OxfordGroupKey } from '../types/oxford';
-import sahneEjderha from '../assets/realms/ejderha.svg';
+import sahneEjderha from '../assets/themes/realms/realms-dragon.webp';
 
 /** Sınav kaynağı olarak seçilebilen Oxford grupları. */
 /*
@@ -399,6 +399,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
           loading="lazy"
           decoding="async"
           className="w-full h-[92px] object-cover"
+          style={{ objectPosition: '70% center' }}
         />
         <div className="p-6 sm:p-8 space-y-6">
           <div className="text-center space-y-1.5">

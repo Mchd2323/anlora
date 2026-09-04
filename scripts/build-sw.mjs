@@ -86,7 +86,30 @@ if (fs.existsSync(varliklarDizini)) {
     // çevrimdışı çalışmanın ön koşulu: biri kelimelerin kendisi, diğeri
     // "bu kelime sözlükte var mı" sorusunun yanıtı.
     if (/^(oxford-data|extended-index)-.*\.js$/.test(dosya)) referanslar.add(`/assets/${dosya}`);
+
+    /*
+     * Tema sahneleri. index.html'den değil, bileşenlerin içinden çağrıldıkları
+     * için yukarıdaki HTML taraması onları da görmüyor. Dördü toplam ~290 KB;
+     * ön-önbelleğe alınmazlarsa çevrimdışı açılışta ana sayfanın tanıtım
+     * kartları ve Oxford kutusu boş çerçeveye düşer.
+     */
+    if (dosya.endsWith('.webp')) referanslar.add(`/assets/${dosya}`);
   }
+}
+
+/*
+ * Sahneler gerçekten listeye girdi mi. Görseller yeniden adlandırılır ya da
+ * başka bir klasöre taşınırsa yukarıdaki tarama sessizce hiçbir şey bulmaz;
+ * bunun bedeli, ancak kullanıcı uçak modundayken fark edilen boş kartlardır.
+ */
+const sahneSayisi = [...referanslar].filter(y => y.endsWith('.webp')).length;
+if (sahneSayisi < 4) {
+  console.error(
+    `build-sw: dist/assets içinde 4 tema sahnesi bekleniyordu, ${sahneSayisi} bulundu. ` +
+      'Görseller taşınmış ya da yeniden adlandırılmış olabilir; eksik sahneyle çevrimdışı ' +
+      'açılışta tanıtım kartları boş kalır.'
+  );
+  process.exit(1);
 }
 
 /*

@@ -39,10 +39,10 @@ import { HomeHeroArt } from './HomeHeroArt';
  * her ekran yoğunluğunda keskin ve dördü toplam 15 KB — aynı sahnelerin
  * yeterli çözünürlükte raster kopyaları yüzlerce KB tutardı.
  */
-import sahneKitaplik from '../assets/realms/kitaplik.svg';
-import sahneKuzgun from '../assets/realms/kuzgun-harita.svg';
-import sahneEjderha from '../assets/realms/ejderha.svg';
-import sahneBuzKalesi from '../assets/realms/buz-kalesi.svg';
+import sahneKitaplik from '../assets/themes/realms/realms-library.webp';
+import sahneKuzgun from '../assets/themes/realms/realms-raven-map.webp';
+import sahneEjderha from '../assets/themes/realms/realms-dragon.webp';
+import sahneBuzKalesi from '../assets/themes/realms/realms-ice-fortress.webp';
 
 interface TodayDashboardProps {
   collections: Collection[];
@@ -316,14 +316,15 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           slides={[
             {
               index: 1,
+              oncelikli: true,
               title: 'Kendi setlerin',
               gorsel: sahneKitaplik,
-              gorselAlt: 'Mum ışığında büyük kitaplık',
+              gorselAlt: 'Mum ışığında, rafları kitap dolu eski bir kütüphane; masada açık kitaplar',
               body: (
                 <>
                   Okurken, izlerken not ettiğin kelimeleri yükle; kendi setini kur ve her
                   birini Türkçe anlamı ile{' '}
-                  <b className="text-[var(--text-primary)]">üç örnek cümle</b> eşliğinde çalış.
+                  <b className="text-[#FBF7EF]">üç örnek cümle</b> eşliğinde çalış.
                 </>
               )
             },
@@ -331,13 +332,13 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
               index: 2,
               title: 'Oxford kelime listesi',
               gorsel: sahneKuzgun,
-              gorselAlt: 'Eski harita üzerinde kuzgun',
+              gorselAlt: 'Mum ışığında eski bir haritanın başında duran kuzgun',
               body: (
                 <>
                   Oxford Üniversitesi'nin{' '}
-                  <b className="text-[var(--text-primary)]">seviyelere göre</b> hazırladığı kelime
+                  <b className="text-[#FBF7EF]">seviyelere göre</b> hazırladığı kelime
                   ve kalıpları, Türkçe anlamı ile{' '}
-                  <b className="text-[var(--text-primary)]">üç örnek cümle</b> eşliğinde çalışarak
+                  <b className="text-[#FBF7EF]">üç örnek cümle</b> eşliğinde çalışarak
                   kendi dağarcığını tanı ve geliştir.
                 </>
               )
@@ -346,7 +347,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
               index: 3,
               title: 'Kendini sına',
               gorsel: sahneEjderha,
-              gorselAlt: 'Alacakaranlıkta uçan ejderha',
+              gorselAlt: 'Gün batımında bir kalenin üzerinde süzülen ejderha',
               body: (
                 <>
                   İstediğin kaynaktan, istediğin sınav türünde ve soru sayısında kendini test et;
@@ -550,6 +551,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           loading="lazy"
           decoding="async"
           className="w-full h-[96px] object-cover"
+          style={{ objectPosition: '70% center' }}
         />
         <div className="p-6 sm:p-7 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">

@@ -33,16 +33,39 @@ export interface IntroSlide {
   title: string;
   body: React.ReactNode;
   /**
-   * Manşetin arka planındaki sahne (Anlora Realms görselleri).
+   * Kartın zeminindeki sahne (Anlora Realms görselleri).
    *
-   * Görsel metnin ARKASINDA değil, ÜSTÜNDE ayrı bir şerit olarak duruyor:
-   * parşömen zeminde okunan bir metnin arkasına resim koymak, uygulamanın
-   * asıl işi olan okumayı zorlaştırırdı.
+   * Görsellerin dördünde de asıl konu SAĞDA, sol taraf ise karanlık. Kart bu
+   * kadrajı `object-position: 70% center` ile koruyor ve metnin durduğu sola
+   * soldan sağa açılan bir karartma seriyor: yazı kendi kontrastını
+   * görselden değil, karartmadan alıyor.
    */
   gorsel?: string;
   /** Ekran okuyucu için sahnenin kısa tarifi. */
   gorselAlt?: string;
+  /**
+   * İlk karta true. Karusel açılışta bu kartı gösterdiğinden görseli
+   * geciktirmenin anlamı yok; diğer üçü kaydırılana kadar beklesin diye
+   * tembel yükleniyor.
+   */
+  oncelikli?: boolean;
 }
+
+/*
+ * Metnin üzerindeki karartma. Sol uçta neredeyse opak, metin sütunu bittikten
+ * SONRA (%78'den itibaren) hızla açılıyor; böylece sahnenin sağdaki asıl
+ * konusu görünür kalırken yazı kendi kontrastını görselden değil karartmadan
+ * alıyor.
+ *
+ * NEDEN AÇILMA %78'DE BAŞLIYOR. İlk denemede karartma %45'te .78'e, %85'te
+ * .42'ye iniyordu. Ölçtüm: kitaplık ve kuzgun kartlarında sorun yoktu ama
+ * ejderha kartında gün batımı bulutu son satırın ucuna denk geliyor ve gövde
+ * metninin kontrastı 3,12'ye düşüyordu — eşik 4,5. Kartın arkasındaki gerçek
+ * pikselleri okuyarak ayarlandı, göz kararıyla değil.
+ */
+const KARARTMA =
+  'linear-gradient(90deg, rgba(15,25,38,.93) 0%, rgba(15,25,38,.88) 46%, ' +
+  'rgba(15,25,38,.78) 72%, rgba(15,25,38,.18) 92%, rgba(15,25,38,.10) 100%)';
 
 const GECIS_MS = 6000;
 
@@ -116,24 +139,66 @@ export const IntroCarousel: React.FC<{ slides: IntroSlide[] }> = ({ slides }) =>
         >
           {slides.map(s => (
             <div key={s.index} className="w-full shrink-0 px-0.5">
-              <div className="rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-light)] overflow-hidden min-h-[104px]">
+              <div className="relative rounded-xl border border-[var(--border-light)] overflow-hidden min-h-[132px] flex">
                 {s.gorsel && (
-                  <img
-                    src={s.gorsel}
-                    alt={s.gorselAlt || ''}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-[84px] object-cover"
-                  />
+                  <>
+                    {/*
+                      Sahne kartın zemininde. `object-cover` oranı korur —
+                      görsel hiçbir ekran genişliğinde esnemez — `70% center`
+                      ise kadrajı sağdaki asıl konuda tutar.
+                    */}
+                    <img
+                      src={s.gorsel}
+                      alt={s.gorselAlt || ''}
+                      loading={s.oncelikli ? 'eager' : 'lazy'}
+                      fetchPriority={s.oncelikli ? 'high' : 'low'}
+                      decoding="async"
+                      className="absolute inset-0 w-full h-full object-cover"
+                      style={{ objectPosition: '70% center' }}
+                    />
+                    <div
+                      className="absolute inset-0"
+                      style={{ background: KARARTMA }}
+                      aria-hidden="true"
+                    />
+                  </>
                 )}
-                <div className="p-4 space-y-1.5">
+                {/*
+                  Metin katmanı. Kutu, başlık ve açıklama sırası değişmedi;
+                  yalnızca artık karartmanın üzerinde duruyor. Genişlik sola
+                  sınırlı: sağdaki taraf sahneye bırakılıyor, yazı da
+                  karartmanın en koyu bölgesinde kalıyor.
+                */}
+                <div
+                  className={`relative p-4 space-y-1.5 self-center ${
+                    s.gorsel ? 'w-[78%]' : 'w-full'
+                  }`}
+                >
                 <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-lg bg-[var(--primary)] text-[var(--surface)] text-[11px] font-black flex items-center justify-center shrink-0">
+                  <span
+                    className={`w-5 h-5 rounded-lg text-[11px] font-black flex items-center justify-center shrink-0 ${
+                      s.gorsel
+                        ? 'bg-[#E9D7A8] text-[#15283D]'
+                        : 'bg-[var(--primary)] text-[var(--surface)]'
+                    }`}
+                  >
                     {s.index}
                   </span>
-                  <span className="text-sm font-bold text-[var(--text-primary)]">{s.title}</span>
+                  <span
+                    className={`text-sm font-bold ${
+                      s.gorsel ? 'text-[#FBF7EF]' : 'text-[var(--text-primary)]'
+                    }`}
+                  >
+                    {s.title}
+                  </span>
                 </div>
-                <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">{s.body}</p>
+                <p
+                  className={`text-[11px] leading-relaxed ${
+                    s.gorsel ? 'text-[#E6DECB]' : 'text-[var(--text-secondary)]'
+                  }`}
+                >
+                  {s.body}
+                </p>
                 </div>
               </div>
             </div>

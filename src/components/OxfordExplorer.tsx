@@ -8,7 +8,7 @@ import { Search, BookOpen, Play, X, Check, RotateCw, ChevronDown } from 'lucide-
 import { getUserWordStatus } from '../utils/storageV2';
 import { aramaAnahtari } from '../utils/aramaAnahtari';
 import { CEFRBadge } from './ui/CEFRBadge';
-import sahneKuzgun from '../assets/realms/kuzgun-harita.svg';
+import sahneKuzgun from '../assets/themes/realms/realms-raven-map.webp';
 
 /**
  * Oxford 5000 gezgini.
@@ -482,6 +482,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
           loading="lazy"
           decoding="async"
           className="w-full h-[92px] object-cover"
+          style={{ objectPosition: '70% center' }}
         />
         <div className="p-6">
         <div className="flex items-center gap-2">
