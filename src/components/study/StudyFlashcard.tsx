@@ -157,6 +157,29 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
     canSwipeRight: hasPrev
   });
 
+  // Çıkış animasyonu (SWIPE_EXIT_MS) boyunca kanca yalnızca kendi sürükleme
+  // yüzeyini kilitliyordu; destenin dışındaki gezinme yolları açık kalıyordu.
+  // Kartı kaydırıp 200 ms dolmadan "Sonraki"ye basan (ya da ok tuşuna dokunan)
+  // kullanıcı indeksi bir artırıyor, ardından zamanlayıcı bir kez daha
+  // artırıyordu: aradaki kelime hiç gösterilmeden atlanıyor, üstelik yeni kart
+  // exitDirection hâlâ dolu olduğu için görünmez monte olduğundan kart alanı
+  // bir an boş kalıyordu. Bu pencerede dışarıdaki gezinmeyi de yok sayıyoruz.
+  const isCommitting = swipe.exitDirection !== null;
+
+  // Dikkat: yukarıdaki onSwipe geri çağrısı korumasız hâlleri çağırmaya devam
+  // etmeli. Kancanın zamanlayıcısı önce onSwipe'ı çalıştırıp exitDirection'ı
+  // sonra temizlediğinden, oraya goNext/goPrev bağlanırsa isCommitting hâlâ
+  // true olur ve kaydırma geçişi hiç gerçekleşmez.
+  const goNext = useCallback(() => {
+    if (isCommitting) return;
+    handleNextCard();
+  }, [isCommitting, handleNextCard]);
+
+  const goPrev = useCallback(() => {
+    if (isCommitting) return;
+    handlePrevCard();
+  }, [isCommitting, handlePrevCard]);
+
   // Sürükleme bittiğinde tarayıcı ayrıca bir `click` üretir. Kaydırmayı
   // "anlamı aç" dokunuşu sanmamak için sürüklendiğini işaretliyoruz.
   const draggedRef = useRef(false);
@@ -190,10 +213,10 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
 
       if (e.key === 'ArrowRight') {
         e.preventDefault();
-        handleNextCard();
+        goNext();
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
-        handlePrevCard();
+        goPrev();
       } else if (e.key === ' ' || e.key === 'Enter') {
         if (target.tagName !== 'BUTTON') {
           e.preventDefault();
@@ -206,7 +229,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleNextCard, handlePrevCard, isFullscreen]);
+  }, [goNext, goPrev, isFullscreen]);
 
   const handlePlayAudio = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -706,7 +729,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
           --------------------------------------------------------------- */}
       <div className="mt-5 flex items-center justify-center gap-4">
         <button
-          onClick={handlePrevCard}
+          onClick={goPrev}
           disabled={!hasPrev}
           className="w-11 h-11 flex items-center justify-center bg-[var(--surface)] text-[var(--text-primary)] rounded-full border border-[var(--border)] shadow-[var(--elev-1)] transition-all cursor-pointer hover:border-[var(--primary-border)] hover:text-[var(--primary)] active:scale-95 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:border-[var(--border)] disabled:hover:text-[var(--text-primary)]"
           aria-label="Önceki kelime"
@@ -729,7 +752,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
         </p>
 
         <button
-          onClick={handleNextCard}
+          onClick={goNext}
           disabled={!hasNext}
           className="w-11 h-11 flex items-center justify-center bg-[var(--primary)] text-[var(--surface)] rounded-full shadow-[var(--elev-2)] transition-all cursor-pointer hover:bg-[var(--primary-hover)] active:scale-95 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-[var(--primary)]"
           aria-label="Sonraki kelime"

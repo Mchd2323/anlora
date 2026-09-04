@@ -28,8 +28,49 @@ const {
   addWordToCollectionV2,
   getMembershipsV2,
   toggleFavoriteV2,
-  getFavoritesV2
+  getFavoritesV2,
+  saveLearningStates,
+  getLearningStates,
+  saveUserStats,
+  getUserStats,
+  createDefaultUserStats,
+  saveUnlockedBadges,
+  getUnlockedBadges,
+  addReviewEvent,
+  getReviewHistory
 } = await import('../storageV2');
+
+const { createInitialLearningState } = await import('../srsEngine');
+const { BADGES_DATA } = await import('../../data/badges');
+
+/** Rozet kimliğini uydurmuyoruz; listede gerçekten var olan biri kullanılıyor. */
+const ROZET_ID = BADGES_DATA[0].id;
+
+/**
+ * Yedeğin taşıması gereken ilerleme verisini tohumlar.
+ *
+ * Koleksiyon ve favori kaybı can sıkıcıdır ama yeniden kurulabilir; aralıklı
+ * tekrar takvimi (`learningStates`), istatistikler, rozetler ve tekrar geçmişi
+ * ise YENİDEN ÜRETİLEMEZ — aylarca çalışmanın tek kaydı bunlardır. Testler
+ * bugüne kadar yalnızca koleksiyon/üyelik/favori iddia ediyordu; yedek
+ * yolundan ilerleme sessizce düşse paket yeşil kalıyordu ve kullanıcı cihaz
+ * değiştirip geri yüklediğinde her şeyi sıfırdan öğrenmeye başlıyordu.
+ */
+function ilerlemeTohumla(): void {
+  saveLearningStates({
+    'ox-run': { ...createInitialLearningState('ox-run', 'MASTERED'), intervalDays: 21 }
+  });
+  saveUserStats({ ...createDefaultUserStats(), totalCorrect: 42 });
+  saveUnlockedBadges([ROZET_ID]);
+  addReviewEvent({
+    id: 'rev-1',
+    wordId: 'ox-run',
+    timestamp: '2025-01-01T00:00:00.000Z',
+    quality: 'good',
+    mode: 'flashcard',
+    isCorrect: true
+  });
+}
 
 describe('yedekleme döngüsü', () => {
   beforeEach(() => storage.clear());
@@ -45,10 +86,24 @@ describe('yedekleme döngüsü', () => {
     expect(payload.memberships).toHaveLength(1);
   });
 
+  it('yedek öğrenme durumlarını ve istatistikleri de içerir', () => {
+    // Üretme yanı ayrıca korunuyor: `generateFullV2Backup`'tan tek bir alan
+    // düşse (ör. `learningStates`) geri yükleme testi hâlâ geçebilirdi,
+    // çünkü o zaman yedekte de diskte de aynı boşluk olurdu.
+    ilerlemeTohumla();
+
+    const payload = generateFullV2Backup();
+    expect(payload.learningStates['ox-run'].stage).toBe('MASTERED');
+    expect(payload.stats.totalCorrect).toBe(42);
+    expect(payload.unlockedBadges).toContain(ROZET_ID);
+    expect(payload.reviewHistory).toHaveLength(1);
+  });
+
   it('dışa aktarılan yedek geri yüklenebilir', () => {
     const deck = createCollectionV2('Sınav');
     addWordToCollectionV2('ox-run', deck.id);
     toggleFavoriteV2('ox-run');
+    ilerlemeTohumla();
     const payload = generateFullV2Backup();
 
     storage.clear();
@@ -59,6 +114,14 @@ describe('yedekleme döngüsü', () => {
     expect(getCollectionsV2()[0].name).toBe('Sınav');
     expect(getMembershipsV2()).toHaveLength(1);
     expect(getFavoritesV2()).toContain('ox-run');
+
+    // Asıl kurtarılması gereken veri: tekrar takvimi ve ilerleme.
+    expect(getLearningStates()['ox-run'].stage).toBe('MASTERED');
+    expect(getLearningStates()['ox-run'].intervalDays).toBe(21);
+    expect(getUserStats().totalCorrect).toBe(42);
+    expect(getUnlockedBadges()).toContain(ROZET_ID);
+    expect(getReviewHistory()).toHaveLength(1);
+    expect(getReviewHistory()[0].wordId).toBe('ox-run');
   });
 
   it('uyumsuz sürümü reddeder', () => {

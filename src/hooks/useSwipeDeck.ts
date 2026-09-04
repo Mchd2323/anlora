@@ -36,6 +36,14 @@ export type SwipeDirection = 'left' | 'right';
 const COMMIT_DISTANCE = 88;
 /** Geçişi tetikleyen fiske hızı (piksel/ms). */
 const COMMIT_VELOCITY = 0.4;
+/**
+ * Hızın "taze" sayıldığı en uzun süre (ms). Hız yalnızca pointermove'da
+ * ölçülür; parmak durunca yeni olay gelmediği için eski değer süresiz
+ * geçerli kalırdı. Kullanıcının yaşadığı: kartı hızlıca biraz itip parmağını
+ * bir saniye kıpırdatmadan tutup kaldırmak, mesafe eşiği aşılmamasına rağmen
+ * fiske sayılıp istemeden bir sonraki/önceki karta atlatıyordu.
+ */
+const VELOCITY_MAX_AGE = 100;
 /** Yön kilidi bu mesafeden sonra kararlaştırılır. */
 const AXIS_LOCK = 8;
 /** Kapalı yöne sürüklerken uygulanan sönümleme katsayısı. */
@@ -236,7 +244,16 @@ export function useSwipeDeck({
 
       const dx = event.clientX - startXRef.current;
       const direction: SwipeDirection = dx < 0 ? 'left' : 'right';
-      const flicked = Math.abs(velocityRef.current) >= COMMIT_VELOCITY;
+      // Bayat hız fiske sayılmaz: son hareketin üzerinden çok zaman geçtiyse
+      // parmak durmuş demektir, o hâlde bırakma anındaki hız sıfırdır.
+      const idle = event.timeStamp - lastTimeRef.current;
+      const velocity = idle > VELOCITY_MAX_AGE ? 0 : velocityRef.current;
+      // Hızın yönü de gitmek istenen yönle uyuşmalı. Önceden yalnızca
+      // büyüklüğe bakılıyordu; kullanıcı kartı ileri sürükleyip son anda geri
+      // çekerek vazgeçtiğinde bile (toplam dx hâlâ ileri) ters yöndeki hız
+      // geçişi tetikliyor, yani "vazgeçme" hareketi kart değiştiriyordu.
+      const flicked =
+        direction === 'left' ? velocity <= -COMMIT_VELOCITY : velocity >= COMMIT_VELOCITY;
       const dragged = Math.abs(dx) >= COMMIT_DISTANCE;
 
       if ((dragged || flicked) && canGo(direction)) {

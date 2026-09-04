@@ -102,6 +102,28 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
     return summarizeQueue(ids, learningStates);
   }, [oxfordWords, extraWords, customWords, learningStates]);
 
+  /*
+   * Duyurular: okunanı bir daha gösterme.
+   *
+   * KUSUR NEYDİ. Ekran duyuruları ham listeden çiziyordu ve kutuda kapatma
+   * düğmesi yoktu. Servisteki "okundu" defteri (getUnseenAnnouncements /
+   * markAnnouncementSeen) bunun için yazılmıştı ama hiçbir yerden
+   * çağrılmıyordu. Sonuç: yayınlanan bir duyuru, içerik dosyasından
+   * silinene kadar kullanıcının ana ekranında SONSUZA KADAR duruyordu;
+   * onu kaldırmanın hiçbir yolu yoktu.
+   *
+   * Okunmamışların kimliği servisten gelir — ekran listeyi prop olarak alsa
+   * da iki taraf da aynı içerik modülünden beslendiği için kimlikler eşleşir.
+   * Yerel liste yalnızca kapatma anında yeniden çizim içindir; kalıcı hafıza
+   * servisin defterindedir (yazma başarısız olsa bile kutu bu oturumda
+   * kapanır, kullanıcı düğmeye bastığında bir şeyin olduğunu görür).
+   */
+  const [kapatilanDuyurular, setKapatilanDuyurular] = useState<string[]>([]);
+  const gorunenDuyurular = useMemo(() => {
+    const okunmamis = new Set(getUnseenAnnouncements().map(d => d.id));
+    return announcements.filter(d => okunmamis.has(d.id) && !kapatilanDuyurular.includes(d.id));
+  }, [announcements, kapatilanDuyurular]);
+
   const reviewGoal = settings?.dailyReviewGoal ?? 15;
   const newGoal = settings?.dailyNewWordsGoal ?? 5;
   const plannedReviews = Math.min(todayQueue.dueCount, reviewGoal);
@@ -325,18 +347,30 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
         Duyurular. Yönetici bir şey yayınlamadıysa burası hiç çizilmez;
         boş bir "duyuru yok" kutusu göstermenin kimseye faydası olmaz.
       */}
-      {announcements.length > 0 && (
+      {gorunenDuyurular.length > 0 && (
         <div className="space-y-2">
-          {announcements.slice(0, 2).map(item => (
+          {gorunenDuyurular.slice(0, 2).map(item => (
             <div
               key={item.id}
               className="bg-[var(--primary-soft)] border border-[var(--primary-border)] rounded-2xl p-4 flex items-start gap-3"
             >
-              <Megaphone className="w-4 h-4 text-[var(--primary)] shrink-0 mt-0.5" />
-              <div>
+              <Megaphone className="w-4 h-4 text-[var(--primary)] shrink-0 mt-0.5" aria-hidden="true" />
+              <div className="min-w-0 flex-1">
                 <p className="text-sm font-bold text-[var(--text-primary)]">{item.title}</p>
                 <p className="text-xs text-[var(--text-secondary)] mt-0.5 leading-relaxed">{item.body}</p>
               </div>
+              {/* Kapatma: -m-2 p-2 dokunma alanını parmak boyuna büyütür, düzeni bozmaz. */}
+              <button
+                type="button"
+                aria-label="Duyuruyu kapat"
+                onClick={() => {
+                  markAnnouncementSeen(item.id);
+                  setKapatilanDuyurular(onceki => [...onceki, item.id]);
+                }}
+                className="shrink-0 -m-2 p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer"
+              >
+                <X className="w-4 h-4" aria-hidden="true" />
+              </button>
             </div>
           ))}
         </div>

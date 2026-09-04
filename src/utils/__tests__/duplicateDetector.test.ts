@@ -1,6 +1,33 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { detectWordDuplicate } from '../duplicateDetector';
 import { WordCard, Collection, CollectionMembership } from '../../types';
+
+/*
+ * `normalizeWordString` çağrılarını sayan sarmalayıcı.
+ *
+ * Aşağıdaki başarım testi eskiden yalnızca süre ölçüyordu (`< 1000 ms`) ve
+ * ölçülen gerçek maliyet birkaç milisaniyeydi: indeks önbelleği tamamen
+ * silinse bile süre eşiğin çok altında kalıyor, yani test koruduğunu iddia
+ * ettiği gerilemeyi göremiyordu. Toplu kelime eklerken arayüzün donması tam
+ * da bu yüzden fark edilmeden geri gelebilirdi.
+ *
+ * Süre yerine YAPILAN İŞ sayılıyor: normalize çağrısı sayısı hem makineden
+ * hem yükten bağımsızdır ve önbellek kaldırıldığı anda iki kat büyür.
+ * Sarmalayıcı gerçek uygulamaya devrettiği için dosyadaki diğer testlerin
+ * davranışı değişmez.
+ */
+const sayac = vi.hoisted(() => ({ normalize: 0 }));
+
+vi.mock('../lemmatizer', async importOriginal => {
+  const gercek = await importOriginal<typeof import('../lemmatizer')>();
+  return {
+    ...gercek,
+    normalizeWordString: (girdi: string) => {
+      sayac.normalize++;
+      return gercek.normalizeWordString(girdi);
+    }
+  };
+});
 
 function makeWord(id: string, word: string, level: any = 'A1'): WordCard {
   return { id, word, level, partOfSpeech: 'n.', turkishMeaning: 'anlam', examples: [] } as WordCard;
@@ -143,12 +170,14 @@ describe('detectWordDuplicate', () => {
     expect(result.matchedWordCard?.id).toBe('custom-2');
   });
 
-  it('büyük listede hızlı çalışır (indeks önbelleği)', () => {
+  it('büyük listede indeksi yalnızca bir kez kurar (indeks önbelleği)', () => {
     // Önceki sürüm her çağrıda tüm listeyi tarayıp her karşılaştırmada
     // normalizeWordString çalıştırıyordu; toplu eklemede arayüz donuyordu.
     const big = Array.from({ length: 4000 }, (_, i) => makeWord(`w${i}`, `word${i}`));
-    const started = Date.now();
-    for (let i = 0; i < 200; i++) {
+    const cagriSayisi = 200;
+
+    sayac.normalize = 0;
+    for (let i = 0; i < cagriSayisi; i++) {
       detectWordDuplicate({
         rawWord: `word${i}`,
         collections: COLLECTIONS,
@@ -157,6 +186,12 @@ describe('detectWordDuplicate', () => {
         oxfordWords: big
       });
     }
-    expect(Date.now() - started).toBeLessThan(1000);
+
+    // İndeks kurulurken liste bir kez baştan sona normalize edilir.
+    expect(sayac.normalize).toBeGreaterThanOrEqual(big.length);
+    // Ama YALNIZCA bir kez: sonraki çağrılar aynı dizi referansını gördüğü
+    // için önbellekten okur ve çağrı başına sabit iş yapar. Önbellek
+    // kaldırılsa bu sayı 4.200 yerine 800.200 olur ve test kırmızıya döner.
+    expect(sayac.normalize).toBeLessThan(big.length + cagriSayisi * 5);
   });
 });

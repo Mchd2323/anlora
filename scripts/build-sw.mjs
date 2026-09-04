@@ -132,11 +132,38 @@ if (eksikParcalar.length > 0) {
 const liste = ['/', '/index.html', ...[...referanslar].sort()];
 
 /*
- * Sürüm etiketi listenin içeriğinden türüyor: yeni bir dağıtımda paket
- * adları değişince etiket de değişir, eski önbellekler activate sırasında
- * silinir. Elle artırılan bir sürüm numarası unutulmaya açıktı.
+ * Sürüm etiketi ön-önbelleğe alınan dosyaların İÇERİĞİNDEN türüyor: yeni bir
+ * dağıtımda etiket değişir, eski önbellekler activate sırasında silinir. Elle
+ * artırılan bir sürüm numarası unutulmaya açıktı.
+ *
+ * Neden yalnızca yolları özetlemek yetmiyordu: listedeki girdilerin bir
+ * bölümünün adı içerik özeti taşımıyor — /index.html, /manifest.webmanifest,
+ * ikonlar, /fonts/fonts.css ve /fonts/*.woff2 her dağıtımda aynı adla çıkıyor.
+ * Yalnızca bunlardan biri değiştiğinde (yazı tiplerini yeniden üretmek,
+ * manifesti ya da bir ikonu düzenlemek, index.html'deki başlığı değiştirmek)
+ * yollar aynı kaldığı için sürüm de aynı kalıyor ve üretilen sw.js bir önceki
+ * dağıtımla BAYT BAYT aynı oluyordu. Tarayıcı servis çalışanını yalnızca bayt
+ * farkına bakarak güncellediği için install/activate hiç çalışmıyordu: kurulu
+ * cihazlarda install sırasında yazılan eski kopyalar (yazı tipleri, manifest,
+ * ikonlar) SHELL_CACHE'te öylece kalıyor, ağdan gelen taze kopya ASSET_CACHE'e
+ * yazılsa bile gölgede kalıyordu. Kullanıcı güncellemeyi hiç görmüyordu.
+ *
+ * Bedeli derleme başına listedeki dosyaların bir kez okunması (~4 MB); yalnızca
+ * derleme zamanında, çalışma zamanında değil.
  */
-const surum = 'anlora-' + crypto.createHash('sha256').update(liste.join('|')).digest('hex').slice(0, 10);
+const ozet = crypto.createHash('sha256');
+for (const yol of liste) {
+  // '/' diskte karşılığı olmayan sanal giriş; kabuğun kendisi index.html.
+  // Geri kalan her yol listeye alınmadan önce existsSync ile süzüldü.
+  const dosya = path.join(distDir, yol === '/' ? '/index.html' : yol);
+  // Yol ile içerik arasına ayırıcı koyuyoruz ki sınırlar birbirine karışıp
+  // iki farklı liste aynı özeti vermesin.
+  ozet.update(yol);
+  ozet.update('\0');
+  ozet.update(fs.readFileSync(dosya));
+  ozet.update('\0');
+}
+const surum = 'anlora-' + ozet.digest('hex').slice(0, 10);
 
 let sw = fs.readFileSync(swPath, 'utf8');
 const oncekiSurum = sw.match(/const VERSION = '([^']+)'/)?.[1];
