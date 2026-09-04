@@ -104,7 +104,7 @@ export const AddToCollectionModal: React.FC<AddToCollectionModalProps> = ({
 
           {/* Optional Context Inputs */}
           <div className="space-y-2 p-3 bg-[var(--bg)] rounded-xl border border-[var(--border)]">
-            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block">
+            <span className="text-[10px] font-bold text-[var(--text-muted)]  tracking-wider block">
               İsteğe Bağlı Bağlam Notu
             </span>
             <input
@@ -126,7 +126,7 @@ export const AddToCollectionModal: React.FC<AddToCollectionModalProps> = ({
           {/* Collections List */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+              <span className="text-xs font-bold text-[var(--text-secondary)]  tracking-wider">
                 Kelime Setlerin ({collections.length})
               </span>
               <button

@@ -534,7 +534,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <div className="text-2xl font-bold text-[var(--learned-text)]">
               {learningSummary.learnedCount}
             </div>
-            <div className="text-[10px] font-bold text-[var(--learned-text)] uppercase mt-0.5">
+            <div className="text-[10px] font-bold text-[var(--learned-text)]  mt-0.5">
               Öğrendim
             </div>
             <div className="text-[9px] text-[var(--learned)] mt-1 font-semibold">Listeyi aç →</div>
@@ -549,7 +549,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <div className="text-2xl font-bold text-[var(--learning-text)]">
               {learningSummary.learningCount}
             </div>
-            <div className="text-[10px] font-bold text-[var(--learning-text)] uppercase mt-0.5">
+            <div className="text-[10px] font-bold text-[var(--learning-text)]  mt-0.5">
               Öğreniyorum
             </div>
             <div className="text-[9px] text-[var(--learning)] mt-1 font-semibold">Listeyi aç →</div>
@@ -564,7 +564,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <div className="text-2xl font-bold text-[var(--danger)]">
               {favorites.length}
             </div>
-            <div className="text-[10px] font-bold text-[var(--danger)] uppercase mt-0.5">
+            <div className="text-[10px] font-bold text-[var(--danger)]  mt-0.5">
               Favori Kelimem
             </div>
             <div className="text-[9px] text-[var(--favorite)] mt-1 font-semibold">Listeyi aç →</div>
@@ -575,7 +575,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <div className="text-2xl font-bold text-[var(--primary)]">
               {stats.totalQuizzesTaken || 0}
             </div>
-            <div className="text-[10px] font-bold text-[var(--primary)] uppercase mt-0.5">
+            <div className="text-[10px] font-bold text-[var(--primary)]  mt-0.5">
               Çözülen Sınav
             </div>
           </div>
@@ -736,7 +736,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         {seviyelerAcik && (
         <div className="space-y-3">
           <div className="space-y-1">
-            <h4 className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider px-0.5">
+            <h4 className="text-[11px] font-bold text-[var(--text-secondary)]  tracking-wider px-0.5">
               Oxford Kelimeleri
             </h4>
             <div className="divide-y divide-[var(--border-light)] border border-[var(--border)] rounded-xl overflow-hidden">
@@ -778,7 +778,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           */}
           {kaliplar && (
             <div className="space-y-1">
-              <h4 className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider px-0.5">
+              <h4 className="text-[11px] font-bold text-[var(--text-secondary)]  tracking-wider px-0.5">
                 Oxford Kalıplar ve Deyimler
               </h4>
               <div className="divide-y divide-[var(--border-light)] border border-[var(--border)] rounded-xl overflow-hidden">

@@ -762,7 +762,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
               Şimdi çalışmaya başla ({filteredWords.length} kelime)
             </p>
           </div>
-          <div className="dugme-birincil w-10 h-10 rounded-xl bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
             <Play className="w-4 h-4 fill-current ml-0.5" />
           </div>
         </button>

@@ -1381,7 +1381,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
         {/* Left Column: Kelime Setleri */}
         <div className="lg:col-span-4 space-y-3">
           <div className="flex items-center justify-between px-1">
-            <h3 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+            <h3 className="text-xs font-bold text-[var(--text-secondary)]  tracking-wider">
               Set Listesi
             </h3>
             <span className="text-xs font-semibold text-[var(--text-muted)]">
@@ -1829,7 +1829,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     Şimdi çalışmaya başla ({activeDeckWords.length} kelime)
                   </p>
                 </div>
-                <div className="dugme-birincil w-10 h-10 rounded-xl bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
                   <Play className="w-4 h-4 fill-current ml-0.5" />
                 </div>
               </button>
@@ -2057,7 +2057,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               className="space-y-3.5"
             >
               <div>
-                <label htmlFor={`${alanId}-yeni-set-adi`} className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                <label htmlFor={`${alanId}-yeni-set-adi`} className="block text-xs font-bold text-[var(--text-secondary)]  mb-1">
                   Set Adı <span className="text-[var(--danger)]">*</span>
                 </label>
                 <input
@@ -2073,7 +2073,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               </div>
 
               <div>
-                <label htmlFor={`${alanId}-yeni-set-aciklama`} className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                <label htmlFor={`${alanId}-yeni-set-aciklama`} className="block text-xs font-bold text-[var(--text-secondary)]  mb-1">
                   Açıklama (İsteğe Bağlı)
                 </label>
                 <input
@@ -2135,7 +2135,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               className="space-y-3"
             >
               <div>
-                <label htmlFor={`${alanId}-set-adi`} className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                <label htmlFor={`${alanId}-set-adi`} className="block text-xs font-bold text-[var(--text-secondary)]  mb-1">
                   Set Adı
                 </label>
                 <input
@@ -2149,7 +2149,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               </div>
 
               <div>
-                <label htmlFor={`${alanId}-set-aciklama`} className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                <label htmlFor={`${alanId}-set-aciklama`} className="block text-xs font-bold text-[var(--text-secondary)]  mb-1">
                   Açıklama
                 </label>
                 <input
@@ -2234,7 +2234,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
             {creationMode === 'FORM' && (
               <form onSubmit={handleSaveManualCard} className="space-y-4">
                 <div>
-                  <label htmlFor={`${alanId}-ingilizce`} className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                  <label htmlFor={`${alanId}-ingilizce`} className="block text-xs font-bold text-[var(--text-secondary)]  mb-1">
                     İngilizce Kelime <span className="text-[var(--danger)]">*</span>
                   </label>
                   <input
@@ -2289,7 +2289,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 */}
                 {lookup.kind === 'not-found' && !sunucuVar && (
                   <div className="pt-3 border-t border-[var(--border-light)] space-y-1">
-                    <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                    <div className="text-[11px] font-bold text-[var(--text-muted)]  tracking-wider">
                       Bu kelime sözlükte yok
                     </div>
                     <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
@@ -2301,7 +2301,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
                 {lookup.kind === 'not-found' && sunucuVar && (
                 <div className="pt-3 border-t border-[var(--border-light)] space-y-2">
-                  <div className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                  <div className="text-[11px] font-bold text-[var(--text-muted)]  tracking-wider">
                     Bu kelime sözlükte yok
                   </div>
                   <button
@@ -2315,7 +2315,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     }`}
                   >
                     <div className="flex items-start gap-3">
-                      <div className="dugme-birincil w-9 h-9 rounded-xl bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center shrink-0">
+                      <div className="w-9 h-9 rounded-xl bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center shrink-0">
                         <Sparkles className="w-4 h-4" />
                       </div>
                       <div className="space-y-0.5">
@@ -2401,7 +2401,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   */}
                   <span
                     id={`${alanId}-kayit-turu`}
-                    className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5"
+                    className="block text-xs font-bold text-[var(--text-secondary)]  mb-1.5"
                   >
                     Ne ekliyorsun?
                   </span>
@@ -2450,7 +2450,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 </div>
 
                 <div>
-                  <label htmlFor={`${alanId}-turkce`} className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                  <label htmlFor={`${alanId}-turkce`} className="block text-xs font-bold text-[var(--text-secondary)]  mb-1">
                     Türkçe Anlamı <span className="text-[var(--danger)]">*</span>
                   </label>
                   <input
@@ -2465,7 +2465,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 </div>
 
                 <div>
-                  <label htmlFor={`${alanId}-kelime-turu`} className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                  <label htmlFor={`${alanId}-kelime-turu`} className="block text-xs font-bold text-[var(--text-secondary)]  mb-1">
                     Kelime Türü <span className="font-semibold normal-case text-[var(--text-muted)]">(isteğe bağlı)</span>
                   </label>
                   <select
@@ -2506,7 +2506,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 >
                   <span
                     id={`${alanId}-ornekler`}
-                    className="block text-xs font-bold text-[var(--text-secondary)] uppercase"
+                    className="block text-xs font-bold text-[var(--text-secondary)] "
                   >
                     Örnek Cümleler{' '}
                     <span className="font-semibold normal-case text-[var(--text-muted)]">(isteğe bağlı)</span>
@@ -2550,7 +2550,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 </div>
 
                 <div>
-                  <label htmlFor={`${alanId}-baglam`} className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                  <label htmlFor={`${alanId}-baglam`} className="block text-xs font-bold text-[var(--text-secondary)]  mb-1">
                     Bağlam ya da Not{' '}
                     <span className="font-semibold normal-case text-[var(--text-muted)]">(isteğe bağlı)</span>
                   </label>
@@ -2660,7 +2660,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   </div>
 
                   <div className="p-3 bg-white rounded-xl border border-[var(--border)]">
-                    <div className="text-[10px] font-bold text-[var(--primary)] uppercase">
+                    <div className="text-[10px] font-bold text-[var(--primary)] ">
                       Türkçe Anlamı
                     </div>
                     <div className="text-base font-bold text-[var(--text-primary)] mt-0.5">
@@ -2670,7 +2670,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
                   {generatedPreviewCard.examples && generatedPreviewCard.examples.length > 0 && (
                     <div className="space-y-1.5 pt-1">
-                      <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                      <div className="text-[10px] font-bold text-[var(--text-muted)]  tracking-wider">
                         Örnek Cümleler
                       </div>
                       {generatedPreviewCard.examples.map((ex, idx) => (
@@ -2816,7 +2816,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 <div>
                   <label
                     htmlFor={`${alanId}-paylasim-bagi`}
-                    className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1"
+                    className="block text-[10px] font-bold  tracking-wider text-[var(--text-muted)] mb-1"
                   >
                     Bağlantı
                   </label>

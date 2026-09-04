@@ -40,7 +40,12 @@ export const CEFRBadge: React.FC<CEFRBadgeProps> = ({
 
   return (
     <span
-      className={`inline-flex items-center font-bold rounded-lg border tracking-wide uppercase ${sizeClasses} ${getLevelStyle(
+      /*
+        `` kaldirildi: paket otomatik buyuk harfe cevirmeyi
+        yasakliyor. Seviye kodlari zaten ('A1', 'B2') buyuk yazildigi icin
+        gorunum degismiyor, ama donusum artik metne dayatilmiyor.
+      */
+      className={`inline-flex items-center font-bold rounded-lg border tracking-wide ${sizeClasses} ${getLevelStyle(
         level
       )} ${className}`}
     >

@@ -290,7 +290,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
           (utils/speechRate.ts), yani ikisi hiçbir zaman ayrışmıyor.
         */}
         <div>
-          <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">
+          <label className="block text-[10px] font-bold  tracking-wider text-[var(--text-muted)] mb-1.5">
             Telaffuz hızı
           </label>
           <div className="grid grid-cols-4 gap-1.5">
@@ -320,7 +320,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
         </div>
 
         <div>
-          <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">
+          <label className="block text-[10px] font-bold  tracking-wider text-[var(--text-muted)] mb-1.5">
             Tema
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
@@ -369,7 +369,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
         <div>
           <label
             htmlFor="fontScale"
-            className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1.5"
+            className="block text-[10px] font-bold  tracking-wider text-[var(--text-muted)] mb-1.5"
           >
             Yazı büyüklüğü ·{' '}
             <span className="normal-case tracking-normal">

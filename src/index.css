@@ -70,28 +70,49 @@
    * beyaza göre değil, rengin İÇİNDE yazıldığı tonlu kutuya göre de yapıldı.
    */
   :root {
-    /* Zeminler — parşömen ailesi. */
-    --bg: #F2EBDD;
-    --surface: #FBF7EF;
-    --surface-soft: #EBE1CD;
-    --surface-subtle: #F6F0E2;
-
-    /* Mürekkep. */
-    --text-primary: #23262B;
-    --text-secondary: #4C515A;
-    --text-muted: #5A5F68;
+    /*
+     * YÜZEYLER — master paketindeki ölçülmüş hedefler.
+     *
+     * Önceki değerler (#F2EBDD sayfa, #FBF7EF panel) referanstan daha beyaz
+     * ve daha düz görünüyordu; paket bunu ölçerek söylüyor. Görünür hedef
+     * sayfada #F2E8D8, panelde #F8F1E4 — aralarındaki sıcak ton farkı artık
+     * gözle seçiliyor. #FBF7EF büyük zemin olarak kullanılmıyor; yalnızca
+     * küçük yükseltilmiş yüzeylerde ve koyu zemin üstündeki yazıda kaldı.
+     */
+    --bg: #F2E8D8;
+    --surface: #F8F1E4;
+    --surface-soft: #EFE5D3;
+    --surface-subtle: #F3EAD9;
+    /** Koyu zemin üstünde fildişi yazı; büyük yüzey olarak kullanılmaz. */
+    --ivory: #FBF7EF;
 
     /*
-     * Panel kenarı — antik altın saç teli.
-     *
-     * Referansta paneli tanımlayan şey zemin farkı değil, parşömenin üstündeki
-     * ince altın çizgi. Kenar rengi bu yüzden nötr bejden sepya-altına çekildi.
+     * MÜREKKEP. Ana metin artık nötr gri değil, gece laciverti — paketin
+     * paletinde laciverdin ilk görevi bu.
      */
-    --border: #C9B183;
-    --border-light: #DCC79B;
+    --text-primary: #15283D;
+    --text-secondary: #59616B;
+    --text-muted: #59616B;
 
-    /* Arma plakasının lacivert alanı; açık temada da koyu kalır. */
+    /*
+     * KENAR SİSTEMİ. Paneli tanımlayan şey dolgu farkı değil, parşömenin
+     * üstündeki antik altın saç teli. Değerler paketten birebir.
+     */
+    --border: rgba(183, 149, 82, 0.76);
+    --border-light: rgba(134, 109, 56, 0.28);
+    /** Panelin altın çizgisinin hemen içindeki soluk lacivert çizgi. */
+    --line-inner: rgba(21, 40, 61, 0.16);
+
     --arma-alan: #1A2E48;
+
+    /* Panel ve denetim gölgeleri — paketten birebir. */
+    --panel-golge:
+      inset 0 0 0 1px var(--line-inner),
+      0 1px 0 rgb(255 255 255 / 0.72),
+      0 7px 18px rgb(68 48 20 / 0.075);
+    --denetim-golge:
+      inset 0 0 0 1px rgb(21 40 61 / 0.10),
+      0 2px 5px rgb(68 48 20 / 0.06);
 
     /* Kuzey laciverti — birincil eylem rengi. */
     --primary: #15283D;
@@ -113,8 +134,14 @@
     --learned-border: #B4CDC0;
 
     /* Kor bakırı — "tekrar et". */
-    --learning: #8A4E22;
-    --learning-text: #77441E;
+    /* Bakır — paketin 'tekrar / ikincil sıcak vurgu' rengi. */
+    --learning: #B66038;
+    /*
+     * Bakırın METİN karşılığı. #B66038 ölçüldü: parşömen panelde 3,96 —
+     * 4,5 eşiğinin altında. Paket bu rengi zaten metin için değil vurgu için
+     * veriyor; okunması gereken yerlerde aynı aileden koyu tonu kullanılıyor.
+     */
+    --learning-text: #914A2A;
     --learning-soft: #F6E9DB;
     --learning-border: #DFC0A0;
 
@@ -132,7 +159,7 @@
     /* Türev tonlar. Karanlık kip ve vurgular için her rengin bir
        değişkenden geçmesi gerekiyor; bileşende kalan sabit bir kod tema
        değişince olduğu yerde kalır ve okunmaz bir yüzey üretir. */
-    --cefr-b2-deep: #7A3A2A;
+    --cefr-b2-deep: #7C332F;
     --cefr-b2-strong: #A85B3E;
     --danger-border-strong: #D9B2AD;
     --danger-soft-hover: #F1D9D5;
@@ -145,7 +172,7 @@
     --learned-soft-hover: #D9E7DE;
     --learned-soft-strong: #CFE0D6;
     --learned-tint: #C6DACE;
-    --learning-deep: #6A3C1A;
+    --learning-deep: #613522;
     --learning-hover: #77441E;
     --learning-soft-hover: #F0DECA;
     --learning-soft-strong: #EBD5BC;
@@ -156,9 +183,9 @@
        üzerinde kirli görünüyor. */
     --neutral-25: #FDFBF6;
     --neutral-50: #F7F1E4;
-    --neutral-100: #F1E9D9;
+    --neutral-100: rgba(134, 109, 56, 0.08);
     --neutral-200: #E7DCC6;
-    --neutral-250: #DED0B6;
+    --neutral-250: rgba(134, 109, 56, 0.40);
     --neutral-300: #D2C2A5;
     --neutral-400: #BCA987;
     --neutral-500: #9C8A6B;
@@ -174,11 +201,12 @@
     --teal-border: #B7CFDD;
     --teal-hover: #24485C;
     --teal-soft: #E3EDF3;
-    --teal-text: #28536A;
+    --teal-text: #315E76;
 
     /* Antik altın — süs ve mühür rengi. Metinde de kullanılabilsin diye
        panodaki #B79552'den koyulaştırıldı (ölçüm: 4,47:1 → 5,51:1). */
-    --gold: #7A6127;
+    /* Altının METİN karşılığı; paketin B1 rozeti için verdiği okunur ton. */
+  --gold: #6D5B22;
     --gold-soft: #F5EEDC;
     --gold-border: #DCC98E;
     /* Süs çizgilerinde kullanılan parlak altın: METİN DEĞİL, yalnızca
@@ -189,20 +217,20 @@
        A1 orman, A2 buz, B1 altın, B2 kor, C1 ejderha: kolaydan zora giden
        bir sıcaklık artışı. */
     --cefr-a1: #355B4A;
-    --cefr-a1-soft: #E4EDE7;
-    --cefr-a1-border: #B4CDC0;
+    --cefr-a1-soft: rgba(53, 91, 74, 0.08);
+    --cefr-a1-border: rgba(53, 91, 74, 0.38);
 
     --cefr-a2: #2E5C74;
-    --cefr-a2-soft: #E3EDF3;
-    --cefr-a2-border: #B7CFDD;
+    --cefr-a2-soft: rgba(127, 170, 194, 0.12);
+    --cefr-a2-border: rgba(127, 170, 194, 0.52);
 
     --cefr-b1: #7A6127;
-    --cefr-b1-soft: #F5EEDC;
-    --cefr-b1-border: #DCC98E;
+    --cefr-b1-soft: rgba(183, 149, 82, 0.10);
+    --cefr-b1-border: rgba(183, 149, 82, 0.55);
 
     --cefr-b2: #8A4E22;
-    --cefr-b2-soft: #F6E9DB;
-    --cefr-b2-border: #DFC0A0;
+    --cefr-b2-soft: rgba(182, 96, 56, 0.09);
+    --cefr-b2-border: rgba(182, 96, 56, 0.45);
 
     /* Yükseklik ölçeği: kâğıt hissi için renkli değil, yumuşak ve alçak
        gölgeler. Her basamak bir anlam taşır — 1 dinlenen yüzey, 2 üstteki
@@ -336,98 +364,215 @@
   }
 
   /*
-   * PARŞÖMEN DOKUSU.
+   * PARŞÖMEN DOKUSU — master paketinin dosyaları.
    *
-   * İlk hâlinde yalnızca iki yumuşak degrade vardı; referansın istediği
-   * "eskitilmiş kâğıt greni" çıkmıyordu, düz krem bir zemin gibi duruyordu.
-   * Artık üç katman var:
-   *   1. çok düşük yoğunluklu kâğıt greni (SVG gürültüsü),
-   *   2. lekelenme hissi veren geniş, yumuşak leke degradeleri,
-   *   3. kenarlara doğru hafif bir yaşlanma koyulaşması.
+   * Doku artık elle yazılmış bir gürültü değil; paketteki iki SVG:
+   * `parchment-grain.svg` 240 piksellik bir kâğıt greni olarak DÖŞENİYOR,
+   * `parchment-stains.svg` ise yalnızca sayfa zemininde, dikeyde tekrar eden
+   * geniş lekelenmeyi veriyor. İkisi de `multiply` ile karışıyor, yani
+   * parşömeni sararTMIYOR, yalnızca dokusunu getiriyor.
    *
-   * Gren bir GÖRSEL DOSYA değil, satır içi SVG: pakete ölçülebilir bir boyut
-   * eklemiyor (bir kilobaytın altında), her ekran yoğunluğunda keskin kalıyor
-   * ve çevrimdışı çalışmak için ayrıca önbelleğe alınması gerekmiyor.
-   *
-   * Yoğunluk bilerek düşük tutuldu: metnin arkasında OKUNAN bir desen olmamalı.
+   * Dosyalar bir kilobaytın altında olduğu için Vite bunları CSS'in içine
+   * veri adresi olarak gömüyor: ayrıca indirilecek bir istek yok, çevrimdışı
+   * açılışta da kendiliğinden hazır.
    */
   body {
+    background-color: var(--bg);
     background-image:
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E"),
-      radial-gradient(ellipse 60% 45% at 12% 8%, rgba(183, 149, 82, 0.10), transparent 62%),
-      radial-gradient(ellipse 55% 40% at 88% 32%, rgba(150, 118, 62, 0.07), transparent 60%),
-      radial-gradient(ellipse 70% 50% at 100% 100%, rgba(21, 40, 61, 0.06), transparent 58%);
-    background-attachment: fixed;
+      url('./assets/themes/realms/textures/parchment-grain.svg'),
+      url('./assets/themes/realms/textures/parchment-stains.svg');
+    background-repeat: repeat, repeat-y;
+    background-size: 240px 240px, 100% auto;
+    background-blend-mode: multiply, multiply;
+    background-attachment: scroll;
   }
 
   /*
-   * PARŞÖMEN PANELİ — referansın kart dili.
+   * PARŞÖMEN PANELİ — paketin `.realm-panel--ornate` tanımı.
    *
-   * Referansta bir bölümü tanımlayan şey dolgu farkı değil; parşömenin
-   * üstündeki İNCE ALTIN ÇİZGİ, onun hemen içindeki çok soluk lacivert çizgi
-   * ve köşelerdeki el yazması kıvrımları. Panel neredeyse zeminle aynı renk,
-   * kenarı konuşuyor.
+   * Kenar sistemi referanstaki asıl farktı: tek çizgili yuvarlak kart yetmiyor.
+   * Panelde dört katman var:
+   *   1. 1 piksel antik altın dış çizgi (bileşendeki `border` sınıfı),
+   *   2. ince lacivert iç saç çizgisi,
+   *   3. üstte ince ışık ve altta yumuşak gölge,
+   *   4. dört köşede paketin filigran çizimleri.
    *
-   * KÖŞE SÜSLERİ METNE DEĞMEZ. Dört köşede 18 piksellik birer kıvrım var;
-   * içerik dolgusu bundan geniş olduğu için hiçbir harfin arkasına girmiyor.
-   * `pointer-events` kapalı, yani dokunmayı da engellemiyor.
+   * KÖŞELER PAKETTEN. Önceki sürümde bunlar elle çizilmiş basit L biçimli
+   * çizgilerdi; paket bunları kullanmayı açıkça yasaklıyor. Şimdi
+   * corner-tl/tr/br/bl.svg dosyaları, paketin verdiği ölçülerle: 34x34
+   * piksel, kenardan 8 piksel içeride.
+   *
+   * Köşeler ARKA PLAN olarak veriliyor, sözde öge olarak değil: böylece
+   * panelin kendi içeriğiyle yığın sırası çakışmıyor ve dokunmayı hiç
+   * etkilemiyorlar.
    */
   .parsomen-panel {
     position: relative;
-    box-shadow:
-      inset 0 0 0 1px rgb(21 40 61 / 0.07),
-      inset 0 1px 0 0 rgb(255 255 255 / 0.55),
-      0 1px 2px rgb(90 70 35 / 0.06);
+    background-image:
+      url('./assets/themes/realms/ornaments/corner-tl.svg'),
+      url('./assets/themes/realms/ornaments/corner-tr.svg'),
+      url('./assets/themes/realms/ornaments/corner-br.svg'),
+      url('./assets/themes/realms/ornaments/corner-bl.svg');
+    background-position:
+      8px 8px,
+      calc(100% - 8px) 8px,
+      calc(100% - 8px) calc(100% - 8px),
+      8px calc(100% - 8px);
+    background-size: 34px 34px;
+    background-repeat: no-repeat;
+    box-shadow: var(--panel-golge);
   }
 
   /*
-   * Dort kosedeki el yazmasi kivrimlari.
+   * Panelin kâğıt greni AYRI BİR KATMAN olarak seriliyor.
    *
-   * NEDEN TEK SOZDE OGE, DORT ARKA PLAN. Once ::before ve ::after ile
-   * yalnizca iki kose cizilmisti; ekranda bakinca sol ust kosede tek basina
-   * duran bir kivrim, sus gibi degil, kazara kalmis bir isaret gibi
-   * okunuyordu. Tek sozde ogeye dort ayri arka plan gorseli koymak dordunu
-   * birden verir ve fazladan bir katman gerektirmez.
-   *
-   * Kivrimlar metne degmez: 12 piksel buyukluginde, panelin en dis 5
-   * pikselinde duruyorlar; icerik dolgusu (16-24 piksel) bundan genis.
-   * `pointer-events: none` dokunmayi da engellemez.
+   * NEDEN ARKA PLAN LİSTESİNDE DEĞİL. Paketin gren dosyası ince gürültünün
+   * yanında üç geniş leke elipsi taşıyor. 240 piksellik döşeme bir panelde
+   * bir buçuk kez tekrarlandığı için bu elipsler "kâğıt" gibi değil,
+   * tekrarlayan bir desen gibi okunuyordu — ölçtüm: panel boyunca aydınlık
+   * farkı 6,6/255, yani dosyadaki %2,8'lik elips opaklığının tamamı.
+   * Paket dokunun "düşük yoğunlukla" serilmesini ve %50 yakınlaştırmada
+   * fark edilir bir desen OLMAMASINI istiyor; arka plan listesinde katman
+   * opaklığı ayarlanamadığı için gren kendi katmanına alındı ve yarıya
+   * indirildi. Dosya paketten, boyutu paketin verdiği 240 piksel.
    */
-  .parsomen-panel::before {
+  .parsomen-panel::after {
     content: '';
     position: absolute;
-    inset: 5px;
+    inset: 0;
     pointer-events: none;
-    background-repeat: no-repeat;
-    background-size: 15px 15px;
-    background-position: left top, right top, right bottom, left bottom;
-    opacity: 0.65;
-    background-image:
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23B79552' stroke-width='0.9' stroke-linecap='round'%3E%3Cg transform='rotate(0 8 8)'%3E%3Cpath d='M1 15V5.6A4.6 4.6 0 0 1 5.6 1H15'/%3E%3Cpath d='M4.6 9.4V7.4A2.8 2.8 0 0 1 7.4 4.6h2' opacity='0.7'/%3E%3C/g%3E%3C/svg%3E"),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23B79552' stroke-width='0.9' stroke-linecap='round'%3E%3Cg transform='rotate(90 8 8)'%3E%3Cpath d='M1 15V5.6A4.6 4.6 0 0 1 5.6 1H15'/%3E%3Cpath d='M4.6 9.4V7.4A2.8 2.8 0 0 1 7.4 4.6h2' opacity='0.7'/%3E%3C/g%3E%3C/svg%3E"),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23B79552' stroke-width='0.9' stroke-linecap='round'%3E%3Cg transform='rotate(180 8 8)'%3E%3Cpath d='M1 15V5.6A4.6 4.6 0 0 1 5.6 1H15'/%3E%3Cpath d='M4.6 9.4V7.4A2.8 2.8 0 0 1 7.4 4.6h2' opacity='0.7'/%3E%3C/g%3E%3C/svg%3E"),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23B79552' stroke-width='0.9' stroke-linecap='round'%3E%3Cg transform='rotate(270 8 8)'%3E%3Cpath d='M1 15V5.6A4.6 4.6 0 0 1 5.6 1H15'/%3E%3Cpath d='M4.6 9.4V7.4A2.8 2.8 0 0 1 7.4 4.6h2' opacity='0.7'/%3E%3C/g%3E%3C/svg%3E");
+    border-radius: inherit;
+    background: url('./assets/themes/realms/textures/parchment-grain.svg')
+      0 0 / 240px 240px repeat;
+    mix-blend-mode: multiply;
+    opacity: 0.5;
   }
 
   /*
-   * DÜĞMELER.
+   * Tam genişlikte fotoğrafla başlayan kartlar (ana sayfadaki Oxford 5000+
+   * kutusu). Altın çizgi ve gölge aynı, KÖŞE SÜSÜ YOK: paket bunu açıkça
+   * yasaklıyor — süs fotoğrafın üstünde süs gibi değil, karışmış bir çizgi
+   * gibi okunuyor.
+   */
+  .gorsel-panel {
+    box-shadow: var(--panel-golge);
+  }
+
+  /*
+   * SÜSLÜ AYRAÇ. Paketteki `ornate-divider.svg`; ekranda en fazla iki tane
+   * bulunmalı, bu yüzden yalnızca ana bölümlerin arasında kullanılıyor.
+   */
+  .suslu-ayrac {
+    height: 18px;
+    border: 0;
+    background: url('./assets/themes/realms/ornaments/ornate-divider.svg')
+      center / 100% 18px no-repeat;
+  }
+
+  /*
+   * DÜĞMELER — paketin kesin değerleri.
    *
-   * Referansta birincil düğme koyu lacivert yüzey + fildişi yazı + İNCE ALTIN
-   * KENAR; ikincil düğme parşömen yüzey + lacivert/altın çizgi. Altın kenar
-   * düğmeyi parşömenden ayıran ayrıntı; onsuz düğme zemine gömülü bir leke
-   * gibi duruyordu.
+   * Birincil: laciverdin çok hafif dikey degradesi, fildişi yazı, 1 piksel
+   * antik altın kenar. İkincil ve form denetimleri: form parşömeni, lacivert
+   * metin, altın dış çizgi ve hafif iç çizgi.
    */
   .dugme-birincil {
+    background-image: linear-gradient(180deg, #1A314A 0%, var(--primary) 100%);
+    border: 1px solid var(--gold-ornament);
     box-shadow:
-      inset 0 0 0 1px rgb(183 149 82 / 0.55),
-      0 1px 2px rgb(21 40 61 / 0.18);
+      inset 0 1px 0 rgb(255 255 255 / 0.10),
+      0 4px 9px rgb(21 40 61 / 0.16);
   }
 
   .dugme-ikincil {
-    box-shadow: inset 0 0 0 1px rgb(21 40 61 / 0.10);
+    box-shadow: var(--denetim-golge);
+  }
+
+  /*
+   * GÖVDE METNİ SATIR YÜKSEKLİĞİ — paket 1,45-1,58 aralığını istiyor.
+   * Tailwind'in varsayılanı (1,5) bu aralıkta; burada yalnızca gövdeye
+   * açıkça veriliyor ki bileşenlerde unutulan yerlerde de geçerli olsun.
+   */
+  body {
+    line-height: 1.5;
+  }
+
+  /*
+   * ÜST BAŞLIK ŞERİDİ — paketin `.realm-header` tanımı.
+   *
+   * Zemin panelden hafifçe açık ama düz beyaz değil; altında ince antik altın
+   * çizgi var. Yarı saydam + bulanıklık, kaydırırken altındaki parşömenin
+   * dokusunun sızmasını sağlıyor.
+   */
+  .baslik-cubugu {
+    min-height: 64px;
+    background: rgb(248 241 228 / 0.96);
+    border-bottom: 1px solid rgb(183 149 82 / 0.54);
+    box-shadow: 0 2px 10px rgb(68 48 20 / 0.045);
+    backdrop-filter: blur(8px);
+  }
+
+  /*
+   * ALT GEZİNME — paketin `.realm-bottom-nav` tanımı. Aktif sekmede dolu
+   * renkli kutu yok; lacivert ikon/metin ve ikonun üstünde 28x2 piksellik
+   * antik altın çizgi var.
+   */
+  .alt-gezinme {
+    min-height: 64px;
+    background: rgb(248 241 228 / 0.97);
+    border-top: 1px solid rgb(183 149 82 / 0.62);
+    box-shadow: 0 -4px 14px rgb(68 48 20 / 0.045);
+    /*
+     * Paket üst başlıkta bulanıklık veriyor, alt menüde vermemiş. Ama alt
+     * menü de yarı saydam: bulanıklık olmadan altından geçen yazı (ölçüldü:
+     * "Tüm Setlerimi Gör" satırı) menünün içinden okunuyordu. Aynı değer
+     * buraya da veriliyor.
+     */
+    backdrop-filter: blur(8px);
+  }
+
+  /*
+   * SEÇİLİ DURUM. Paket, seçili kartın yalnızca koyu çizgiyle bırakılmamasını
+   * istiyor: çok hafif bir antik altın yıkama ekleniyor, çizgi lacivert
+   * kalıyor. Böylece seçim yalnızca renkten değil, çizgiden de anlaşılıyor.
+   */
+  .secili-vurgu {
+    border-color: var(--primary);
+    background-image: linear-gradient(
+      180deg,
+      rgb(183 149 82 / 0.20),
+      rgb(183 149 82 / 0.10)
+    );
+    box-shadow: inset 0 0 0 1px rgb(21 40 61 / 0.20);
   }
 }
 
+
+/* ==========================================================================
+   Süslü panelde metin güvenli alanı
+   ==========================================================================
+
+   Paket iki şeyi birlikte söylüyor: köşe süsü 34x34 piksel ve kenardan 8
+   piksel içeride OLACAK, metin ise süsten en az 14 piksel uzakta DURACAK.
+   Süsün gövdesi panel koordinatlarında yaklaşık 10-36 piksel arasını
+   kaplıyor; bileşenlerin bugünkü üst dolgusu (20-24 piksel) tam onun üstüne
+   düşüyordu — ölçtüm, filigranın kıvrımı başlık satırının arkasına giriyordu.
+
+   Üst dolgu bu yüzden süsün bittiği yerin 14 piksel altına indiriliyor.
+   Yatayda ek boşluğa gerek yok: süs bir köşe karesi, altından geçen içerik
+   onu zaten temizliyor.
+
+   Kural KATMANSIZ yazıldı: Tailwind'in `p-6` gibi yardımcı sınıfları katmanlı
+   kuralları ezdiği için `@layer base` içinde yazılsaydı hiç uygulanmazdı.
+*/
+.parsomen-panel {
+  padding-top: 50px;
+}
+
+/* Süs, içeriği olmayan dar panellerde orantısız boşluk bırakmasın. */
+.parsomen-panel.dolgu-serbest {
+  padding-top: revert-layer;
+}
 
 /* ==========================================================================
    Karanlık mod

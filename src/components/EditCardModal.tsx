@@ -135,7 +135,7 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
           {/* Word & Level */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+              <label className="block text-xs font-bold text-[var(--text-secondary)]  mb-1">
                 İngilizce Kelime <span className="text-[var(--danger)]">*</span>
               </label>
               <input
@@ -148,7 +148,7 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+              <label className="block text-xs font-bold text-[var(--text-secondary)]  mb-1">
                 Seviye
               </label>
               <select
@@ -169,7 +169,7 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
 
           {/* Part of Speech & Phonetic */}
           <div>
-            <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5">
+            <label className="block text-xs font-bold text-[var(--text-secondary)]  mb-1.5">
               Ne bu?
             </label>
             <div className="grid grid-cols-3 gap-1.5">
@@ -197,7 +197,7 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+              <label className="block text-xs font-bold text-[var(--text-secondary)]  mb-1">
                 Kelime Türü
               </label>
               <input
@@ -210,7 +210,7 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+              <label className="block text-xs font-bold text-[var(--text-secondary)]  mb-1">
                 Okunuş (IPA)
               </label>
               <input
@@ -225,7 +225,7 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
 
           {/* Turkish Meaning */}
           <div>
-            <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+            <label className="block text-xs font-bold text-[var(--text-secondary)]  mb-1">
               Türkçe Anlamı <span className="text-[var(--danger)]">*</span>
             </label>
             <input
@@ -240,7 +240,7 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
 
           {/* Custom Note */}
           <div>
-            <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+            <label className="block text-xs font-bold text-[var(--text-secondary)]  mb-1">
               Kaynak / Not
             </label>
             <input

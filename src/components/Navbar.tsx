@@ -104,20 +104,20 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <>
       {/* Desktop Header */}
-      <header className="sticky top-0 z-40 bg-[var(--surface)] border-b border-[var(--border)] transition-colors safe-top">
+      <header className="baslik-cubugu sticky top-0 z-40 transition-colors safe-top">
         <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Brand Logo - Text Wordmark */}
             <div
               onClick={() => setActiveTab('today')}
-              className="flex items-center gap-2.5 cursor-pointer group select-none"
+              className="flex items-center gap-3 cursor-pointer group select-none"
             >
               {/*
                 Logo çıplak durmuyor: referanstaki gibi küçük bir lacivert-altın
                 hanedan plakasının içinde. Sıradan renkli kare ya da yuvarlak
                 kare kullanılmadı — plaka kalkan biçiminde.
               */}
-              <ArmaPlaka boyut={38} />
+              <ArmaPlaka genislik={38} />
               {/*
                 Ad ve slogan üst üste. Slogan ana sayfada ayrı bir satır
                 kaplıyordu; oradan alınıp buraya konuldu, çünkü marka sesi
@@ -167,7 +167,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onClick={() => setActiveTab('profile')}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--surface-soft)] hover:bg-[var(--primary-soft)] text-[var(--text-primary)] hover:text-[var(--primary)] text-xs font-semibold border border-[var(--border)] transition-colors cursor-pointer"
                 >
-                  <div className="dugme-birincil w-5 h-5 rounded-lg bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center text-[10px] font-bold">
+                  <div className="w-5 h-5 rounded-lg bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center text-[10px] font-bold">
                     {profile.email ? profile.email[0].toUpperCase() : 'U'}
                   </div>
                   <span className="hidden sm:inline max-w-[130px] truncate font-medium">
@@ -189,7 +189,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       </header>
 
       {/* Mobile Fixed Bottom Navigation Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--surface)] border-t border-[var(--border)] px-1 pt-1.5 pb-1.5 safe-bottom flex items-center justify-around shadow-sm">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 px-1 pt-1.5 pb-1.5 safe-bottom flex items-center justify-around alt-gezinme">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -208,7 +208,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               */}
               <span
                 aria-hidden="true"
-                className={`h-[2px] w-6 rounded-full mb-1 transition-colors ${
+                className={`h-[2px] w-7 rounded-full mb-1 transition-colors ${
                   isActive ? 'bg-[var(--gold-ornament)]' : 'bg-transparent'
                 }`}
               />

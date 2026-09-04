@@ -39,14 +39,14 @@ const config: CapacitorConfig = {
   plugins: {
     SplashScreen: {
       launchShowDuration: 600,
-      backgroundColor: '#F2EBDD',
+      backgroundColor: '#F2E8D8',
       showSpinner: false,
       androidSpinnerStyle: 'small'
     },
     StatusBar: {
       // Açık zeminli arayüz: durum çubuğu simgeleri koyu olmalı.
       style: 'LIGHT',
-      backgroundColor: '#FBF7EF',
+      backgroundColor: '#F8F1E4',
       /*
        * Durum çubuğu WebView'ın ÜSTÜNDE durur, üstüne binmez.
        *

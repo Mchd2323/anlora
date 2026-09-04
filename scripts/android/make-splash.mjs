@@ -24,9 +24,11 @@ const ROOT = process.cwd();
 const RES = path.join(ROOT, 'android/app/src/main/res');
 const LOGO = path.join(ROOT, 'src/assets/brand/anlora-realms-logo.png');
 const FONT = path.join(ROOT, 'public/fonts/EBGaramond-normal-400-800-latin.woff2');
+// Kalkan master paketinden; elle yeniden cizilmiyor.
+const KALKAN = path.join(ROOT, 'src/assets/themes/realms/ornaments/crest-plaque.svg');
 const EXE = process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium';
 
-for (const yol of [LOGO, FONT]) {
+for (const yol of [LOGO, FONT, KALKAN]) {
   if (!fs.existsSync(yol)) {
     console.error(`make-splash: gerekli dosya yok: ${yol}`);
     process.exit(1);
@@ -45,22 +47,19 @@ const sayfaHtml = `<!doctype html><meta charset="utf-8"><style>
 html,body{background:transparent}
 #blok{width:${GENISLIK}px;height:${YUKSEKLIK}px;display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:0;font-family:'EB Garamond',serif;color:#15283D}
-#arma{position:relative;width:112px;height:112px;display:flex;align-items:center;justify-content:center}
-#arma svg{position:absolute;inset:0;width:100%;height:100%}
-#arma img{position:relative;width:56px;height:56px;object-fit:contain}
+/* Plaka paketin 64x72 oranini korur; yukseklik 112 dp. */
+#arma{position:relative;width:99.6px;height:112px}
+#arma .kalkan{position:absolute;inset:0;width:100%;height:100%}
+/* Logonun kalkan icindeki yerlesimi de paketten: 9/8/10 piksel, oranli. */
+#arma .isaret{position:absolute;top:14px;left:12.5px;width:74.6px;height:68.4px;object-fit:contain}
 #ad{font-size:34px;font-weight:600;letter-spacing:0;margin-top:14px;line-height:1}
 #ayrac{margin-top:10px;width:120px;height:9px}
 #slogan{margin-top:9px;font-size:14px;font-weight:500;letter-spacing:.06em;color:#7A6127}
 </style>
 <div id="blok">
   <div id="arma">
-    <svg viewBox="0 0 48 48" fill="none">
-      <path d="M13.5 8h21a1.5 1.5 0 0 1 1.5 1.5V27c0 6.4-5.1 10.9-12 14.4C17.1 37.9 12 33.4 12 27V9.5A1.5 1.5 0 0 1 13.5 8Z" fill="#1A2E48"/>
-      <path d="M13.5 8h21a1.5 1.5 0 0 1 1.5 1.5V27c0 6.4-5.1 10.9-12 14.4C17.1 37.9 12 33.4 12 27V9.5A1.5 1.5 0 0 1 13.5 8Z" stroke="#B79552" stroke-width="1.6"/>
-      <path d="M15 10.4h18v16.4c0 5-4 8.7-9 11.6-5-2.9-9-6.6-9-11.6Z" stroke="#B79552" stroke-width=".7" opacity=".55"/>
-      <g fill="#B79552"><circle cx="24" cy="8" r="1.5"/><circle cx="13.6" cy="10.2" r="1.1"/><circle cx="34.4" cy="10.2" r="1.1"/><circle cx="24" cy="40.2" r="1.2"/></g>
-    </svg>
-    <img src="data:image/png;base64,${b64(LOGO)}" alt="">
+    <img class="kalkan" src="data:image/svg+xml;base64,${b64(KALKAN)}" alt="">
+    <img class="isaret" src="data:image/png;base64,${b64(LOGO)}" alt="">
   </div>
   <div id="ad">Anlora</div>
   <svg id="ayrac" viewBox="0 0 120 9" fill="none" stroke="#B79552" stroke-width="1" stroke-linecap="round">

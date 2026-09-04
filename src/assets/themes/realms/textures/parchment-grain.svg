@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">
+  <filter id="paper" x="-20%" y="-20%" width="140%" height="140%">
+    <feTurbulence type="fractalNoise" baseFrequency=".52" numOctaves="4" seed="23"/>
+    <feColorMatrix type="matrix" values="0 0 0 0 .42  0 0 0 0 .31  0 0 0 0 .18  0 0 0 .055 0"/>
+  </filter>
+  <rect width="240" height="240" filter="url(#paper)" opacity=".72"/>
+  <g fill="#866D38" opacity=".028">
+    <ellipse cx="34" cy="42" rx="29" ry="18"/>
+    <ellipse cx="192" cy="174" rx="42" ry="31"/>
+    <ellipse cx="120" cy="102" rx="19" ry="11"/>
+  </g>
+</svg>

@@ -398,7 +398,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
 
           {/* Select Study Source */}
           <div className="space-y-2.5">
-            <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+            <label className="block text-xs font-bold text-[var(--text-secondary)]  tracking-wider">
               1. Çalışılacak Kaynağı Seç:
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -457,7 +457,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
 
           {/* Select Study Mode */}
           <div className="space-y-2.5 pt-1">
-            <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+            <label className="block text-xs font-bold text-[var(--text-secondary)]  tracking-wider">
               2. Hatırlama Modu:
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -520,15 +520,15 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
           {/* Summary Metric Badges */}
           <div className="grid grid-cols-3 gap-3">
             <div className="p-3.5 bg-[var(--bg)] rounded-xl border border-[var(--border)]">
-              <span className="text-[10px] font-bold text-[var(--text-muted)] block uppercase">ÇALIŞILAN</span>
+              <span className="text-[10px] font-bold text-[var(--text-muted)] block ">Çalışılan</span>
               <span className="text-xl font-bold text-[var(--text-primary)]">{reviewedCount}</span>
             </div>
             <div className="p-3.5 bg-[var(--learned-soft)] rounded-xl border border-[var(--learned-border)]">
-              <span className="text-[10px] font-bold text-[var(--learned-text)] block uppercase">GÜÇLENEN</span>
+              <span className="text-[10px] font-bold text-[var(--learned-text)] block ">Güçlenen</span>
               <span className="text-xl font-bold text-[var(--learned-text)]">{upgradedCount}</span>
             </div>
             <div className="p-3.5 bg-[var(--danger-soft)] rounded-xl border border-[var(--danger-border)]">
-              <span className="text-[10px] font-bold text-[var(--danger)] block uppercase">HATA</span>
+              <span className="text-[10px] font-bold text-[var(--danger)] block ">Hata</span>
               <span className="text-xl font-bold text-[var(--danger)]">{mistakeWordIds.size}</span>
             </div>
           </div>
@@ -698,7 +698,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
               <div className="pt-3">
                 {isFlipped ? (
                   <div className="p-4 bg-[var(--neutral-50)] rounded-xl border border-[var(--border)] text-[var(--text-primary)] animate-fadeIn space-y-1">
-                    <span className="text-[10px] font-bold text-[var(--primary)] uppercase tracking-wider block">
+                    <span className="text-[10px] font-bold text-[var(--primary)]  tracking-wider block">
                       TÜRKÇE ANLAMI
                     </span>
                     <p className="text-lg font-bold text-[var(--text-primary)]">{card.turkishMeaning}</p>
@@ -722,7 +722,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
           {currentMode === 'typed' && (
             <div className="w-full space-y-4">
               <div className="space-y-1">
-                <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                <span className="text-[10px] font-bold text-[var(--text-muted)]  tracking-wider">
                   TÜRKÇE ANLAMI:
                 </span>
                 <h3 className="text-2xl font-bold text-[var(--text-primary)]">{card.turkishMeaning}</h3>
@@ -803,7 +803,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
           {/* Mode 4: Cloze Context */}
           {currentMode === 'cloze' && (
             <div className="w-full space-y-3">
-              <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block">
+              <span className="text-[10px] font-bold text-[var(--text-muted)]  tracking-wider block">
                 CÜMLEDEKİ BOŞLUĞU TAMAMLA:
               </span>
 
@@ -853,7 +853,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
           */}
         {(isFlipped || isAnswerSubmitted) && (
           <div className="p-4 bg-[var(--bg)] border-t border-[var(--border-light)] space-y-2.5 animate-fadeIn">
-            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block text-center">
+            <span className="text-[10px] font-bold text-[var(--text-muted)]  tracking-wider block text-center">
               Bu kelimeyi biliyor musun?
             </span>
             <div className="grid grid-cols-2 gap-2.5">

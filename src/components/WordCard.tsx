@@ -296,7 +296,7 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
               {/* Source Context Quote */}
               {card.sourceContext && (
                 <div className="mt-2.5 p-2.5 bg-[var(--surface-soft)] border border-[var(--border)] rounded-xl text-xs text-[var(--text-primary)]">
-                  <span className="font-semibold text-[var(--primary)] block text-[10px] uppercase tracking-wider mb-0.5">
+                  <span className="font-semibold text-[var(--primary)] block text-[10px]  tracking-wider mb-0.5">
                     Bağlam:
                   </span>
                   <p className="italic font-normal">"{card.sourceContext}"</p>
@@ -313,7 +313,7 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
             {isFlipped ? (
               <div className="p-4 bg-[var(--neutral-50)] rounded-xl border border-[var(--border)] animate-fadeIn space-y-2">
                 <div>
-                  <span className="text-[10px] font-bold text-[var(--primary)] uppercase tracking-wider block mb-0.5">
+                  <span className="text-[10px] font-bold text-[var(--primary)]  tracking-wider block mb-0.5">
                     Türkçe Anlamı
                   </span>
                   {card.turkishMeaning ? (

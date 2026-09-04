@@ -470,7 +470,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
           </div>
           <div
             aria-hidden="true"
-            className="dugme-birincil deck-hint absolute right-3 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5 px-3 py-2 rounded-full bg-[var(--primary)] text-[var(--surface)] text-[11px] font-bold shadow-[var(--elev-4)]"
+            className="deck-hint absolute right-3 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5 px-3 py-2 rounded-full bg-[var(--primary)] text-[var(--surface)] text-[11px] font-bold shadow-[var(--elev-4)]"
             style={{
               opacity: swipe.offsetX < -12 && hasNext ? swipe.progress : 0,
               transform: `translateY(-50%) scale(${0.85 + swipe.progress * 0.15})`

@@ -261,7 +261,7 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
           {step === 'input' ? (
             <div className="space-y-3.5">
               <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                <label className="block text-xs font-bold text-[var(--text-secondary)]  mb-1">
                   Kelimeleri Yapıştır (Her satıra bir kelime veya virgülle ayrılmış)
                 </label>
                 <textarea

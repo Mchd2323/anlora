@@ -32,7 +32,7 @@ interface Props {
 export const DeckOptionFields: React.FC<Props> = ({ deger, degistir, renkler, simgeler }) => (
   <>
     <div>
-      <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5">
+      <label className="block text-xs font-bold text-[var(--text-secondary)]  mb-1.5">
         Renk
       </label>
       <div className="flex flex-wrap gap-1">
@@ -67,7 +67,7 @@ export const DeckOptionFields: React.FC<Props> = ({ deger, degistir, renkler, si
     </div>
 
     <div>
-      <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5">
+      <label className="block text-xs font-bold text-[var(--text-secondary)]  mb-1.5">
         Simge
       </label>
       <div className="flex flex-wrap gap-1">
@@ -96,7 +96,7 @@ export const DeckOptionFields: React.FC<Props> = ({ deger, degistir, renkler, si
     </div>
 
     <div>
-      <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+      <label className="block text-xs font-bold text-[var(--text-secondary)]  mb-1">
         Kelime Sırası
       </label>
       <select

@@ -212,7 +212,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
         ) : (
           <>
             <div className="space-y-1.5">
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
+              <label className="block text-[10px] font-bold  tracking-wider text-[var(--text-muted)]">
                 Ne hakkında?
               </label>
               <div className="grid grid-cols-2 gap-1.5">
@@ -238,7 +238,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
 
             {kind === 'word' && (
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">
+                <label className="block text-[10px] font-bold  tracking-wider text-[var(--text-muted)] mb-1">
                   Hangi kelime?
                 </label>
                 <input
@@ -252,7 +252,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
             )}
 
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">
+              <label className="block text-[10px] font-bold  tracking-wider text-[var(--text-muted)] mb-1">
                 Anlat
               </label>
               <textarea
@@ -265,7 +265,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">
+              <label className="block text-[10px] font-bold  tracking-wider text-[var(--text-muted)] mb-1">
                 Yanıt istersen e-posta{' '}
                 <span className="normal-case tracking-normal font-semibold text-[var(--text-muted)]">
                   (isteğe bağlı)

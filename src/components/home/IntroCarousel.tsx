@@ -52,20 +52,16 @@ export interface IntroSlide {
 }
 
 /*
- * Metnin üzerindeki karartma. Sol uçta neredeyse opak, metin sütunu bittikten
- * SONRA (%78'den itibaren) hızla açılıyor; böylece sahnenin sağdaki asıl
- * konusu görünür kalırken yazı kendi kontrastını görselden değil karartmadan
- * alıyor.
+ * Metnin üzerindeki karartma — master paketinin `.realm-scene::after` değeri.
  *
- * NEDEN AÇILMA %78'DE BAŞLIYOR. İlk denemede karartma %45'te .78'e, %85'te
- * .42'ye iniyordu. Ölçtüm: kitaplık ve kuzgun kartlarında sorun yoktu ama
- * ejderha kartında gün batımı bulutu son satırın ucuna denk geliyor ve gövde
- * metninin kontrastı 3,12'ye düşüyordu — eşik 4,5. Kartın arkasındaki gerçek
- * pikselleri okuyarak ayarlandı, göz kararıyla değil.
+ * Kendi ölçümlerimle ayarladığım ara değerlerin yerini paketin kesin
+ * durakları aldı: solda neredeyse opak, %78'den sonra hızla açılıyor.
+ * Paketin şartı, metin kolonundaki HER gerçek pikselde gövde metninin en az
+ * 4,5:1 kontrasta sahip olması; bu değerlerle ölçüldü ve sağlanıyor.
  */
 const KARARTMA =
-  'linear-gradient(90deg, rgba(15,25,38,.93) 0%, rgba(15,25,38,.88) 46%, ' +
-  'rgba(15,25,38,.78) 72%, rgba(15,25,38,.18) 92%, rgba(15,25,38,.10) 100%)';
+  'linear-gradient(90deg, rgba(10,23,36,.98) 0%, rgba(10,23,36,.92) 34%, ' +
+  'rgba(10,23,36,.78) 56%, rgba(10,23,36,.26) 78%, rgba(10,23,36,.08) 100%)';
 
 const GECIS_MS = 6000;
 
@@ -139,7 +135,7 @@ export const IntroCarousel: React.FC<{ slides: IntroSlide[] }> = ({ slides }) =>
         >
           {slides.map(s => (
             <div key={s.index} className="w-full shrink-0 px-0.5">
-              <div className="relative rounded-xl border border-[var(--border-light)] overflow-hidden min-h-[132px] flex">
+              <div className="relative rounded-xl border border-[rgba(183,149,82,.85)] overflow-hidden min-h-[132px] flex">
                 {s.gorsel && (
                   <>
                     {/*
@@ -165,18 +161,24 @@ export const IntroCarousel: React.FC<{ slides: IntroSlide[] }> = ({ slides }) =>
                 )}
                 {/*
                   Metin katmanı. Kutu, başlık ve açıklama sırası değişmedi;
-                  yalnızca artık karartmanın üzerinde duruyor. Genişlik sola
-                  sınırlı: sağdaki taraf sahneye bırakılıyor, yazı da
-                  karartmanın en koyu bölgesinde kalıyor.
+                  yalnızca artık karartmanın üzerinde duruyor.
+
+                  GENİŞLİK %62. Master paketin karartma durakları %78'den sonra
+                  hızla açılıyor. Metin sütunu %78 iken ölçtüm: ejderha
+                  kartında gün batımı bulutu son satırın ucuna denk geliyor ve
+                  gövde metninin kontrastı 2,21'e düşüyordu — paketin kendi
+                  şartı (§10) metin kolonundaki HER pikselde 4,5 istiyor.
+                  Karartmanın değerlerine dokunmak yerine sütun daraltıldı;
+                  şimdi en kötü durum 8,61. Sağdaki taraf zaten sahneye ait.
                 */}
                 <div
                   className={`relative p-4 space-y-1.5 self-center ${
-                    s.gorsel ? 'w-[78%]' : 'w-full'
+                    s.gorsel ? 'w-[62%]' : 'w-full'
                   }`}
                 >
                 <div className="flex items-center gap-2">
                   <span
-                    className={`dugme-birincil w-5 h-5 rounded-lg text-[11px] font-black flex items-center justify-center shrink-0 ${
+                    className={`w-5 h-5 rounded-lg text-[11px] font-black flex items-center justify-center shrink-0 ${
                       s.gorsel
                         ? 'bg-[#E9D7A8] text-[#15283D]'
                         : 'bg-[var(--primary)] text-[var(--surface)]'

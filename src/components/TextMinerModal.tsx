@@ -140,7 +140,7 @@ export const TextMinerModal: React.FC<TextMinerModalProps> = ({
           {!minedResults ? (
             <div className="space-y-3.5">
               <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                <label className="block text-xs font-bold text-[var(--text-secondary)]  mb-1">
                   İngilizce Metin:
                 </label>
                 <textarea

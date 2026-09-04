@@ -408,7 +408,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
           <div className="space-y-5 pt-1">
             {/* 1. Sınav Türü Seçimi */}
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+              <label className="block text-xs font-bold text-[var(--text-secondary)]  tracking-wider">
                 1. Sınav Türü
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -438,7 +438,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
             {/* 2. Sınav Kaynakları Seçimi (Çoklu Seçim) */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+                <label className="block text-xs font-bold text-[var(--text-secondary)]  tracking-wider">
                   2. Kelime Kaynakları (Birden Fazla Seçilebilir)
                 </label>
                 <button
@@ -521,7 +521,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
 
             {/* 3. Durum Filtresi */}
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+              <label className="block text-xs font-bold text-[var(--text-secondary)]  tracking-wider">
                 3. Durum Filtresi
               </label>
               <div className="flex flex-wrap gap-2">
@@ -563,7 +563,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
 
             {/* 4. Soru Sayısı Seçimi */}
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+              <label className="block text-xs font-bold text-[var(--text-secondary)]  tracking-wider">
                 4. Soru Sayısı
               </label>
               <div className="grid grid-cols-4 gap-2">
@@ -874,19 +874,19 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
           <div className="grid grid-cols-3 gap-3 max-w-md mx-auto py-1">
             <div className="p-3.5 bg-[var(--learned-soft)] rounded-xl border border-[var(--learned-border)] text-center">
               <span className="text-xl font-bold text-[var(--learned-text)]">{score}</span>
-              <p className="text-[10px] text-[var(--learned-text)] font-bold uppercase mt-0.5">Doğru</p>
+              <p className="text-[10px] text-[var(--learned-text)] font-bold  mt-0.5">Doğru</p>
             </div>
             <div className="p-3.5 bg-[var(--danger-soft)] rounded-xl border border-[var(--danger-border)] text-center">
               <span className="text-xl font-bold text-[var(--danger)]">
                 {cevaplananSayisi - score}
               </span>
-              <p className="text-[10px] text-[var(--danger)] font-bold uppercase mt-0.5">Yanlış</p>
+              <p className="text-[10px] text-[var(--danger)] font-bold  mt-0.5">Yanlış</p>
             </div>
             <div className="p-3.5 bg-[var(--primary-soft)] rounded-xl border border-[var(--primary-border)] text-center">
               <span className="text-xl font-bold text-[var(--primary)]">
                 %{cevaplananSayisi > 0 ? Math.round((score / cevaplananSayisi) * 100) : 0}
               </span>
-              <p className="text-[10px] text-[var(--primary)] font-bold uppercase mt-0.5">Başarı</p>
+              <p className="text-[10px] text-[var(--primary)] font-bold  mt-0.5">Başarı</p>
             </div>
           </div>
 
@@ -959,7 +959,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
 
           {/* Sınavda Çıkan Kelimeler ve Hızlı Durum Güncelleme */}
           <div className="space-y-2.5 pt-3 border-t border-[var(--border-light)]">
-            <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-[var(--text-secondary)]  tracking-wider">
               Sınav Kelimeleri & Durumları
             </h4>
             <div className="divide-y divide-[var(--border-light)] border border-[var(--border)] rounded-xl overflow-hidden">

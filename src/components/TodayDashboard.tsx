@@ -545,7 +545,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
         kıvrımlar orada parşömenin üstünde değil, fotoğrafın üstünde kalıyor ve
         süs gibi değil, karışmış bir çizgi gibi okunuyordu (ekranda görüldü).
       */}
-      <div className="bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow-[var(--elev-1)] overflow-hidden">
+      <div className="gorsel-panel bg-[var(--surface)] rounded-2xl border border-[var(--border)] overflow-hidden">
         {/*
           Buz kalesi şeridi. Kutunun İÇERİĞİ hiç değişmedi — başlık, açıklama,
           seviye kartları ve düğmeler aynı sırada; sahne yalnızca üstte, metnin
@@ -714,7 +714,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
             <div className="text-2xl font-black text-[var(--primary)] tabular-nums">
               {todayQueue.dueCount}
             </div>
-            <div className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wide mt-0.5">
+            <div className="text-[10px] font-bold text-[var(--text-secondary)]  tracking-wide mt-0.5">
               Tekrar zamanı geldi
             </div>
             <p className="text-[10px] text-[var(--text-muted)] mt-1 leading-snug">
@@ -725,7 +725,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
             <div className="text-2xl font-black text-[var(--learned)] tabular-nums">
               {todayQueue.newCount.toLocaleString('tr-TR')}
             </div>
-            <div className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wide mt-0.5">
+            <div className="text-[10px] font-bold text-[var(--text-secondary)]  tracking-wide mt-0.5">
               Seni bekleyen kelime
             </div>
             <p className="text-[10px] text-[var(--text-muted)] mt-1 leading-snug">

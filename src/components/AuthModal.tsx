@@ -538,7 +538,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
             <form onSubmit={handleVerifyCodeSubmit} className="space-y-3.5">
               <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                <label className="block text-xs font-bold text-[var(--text-secondary)]  mb-1">
                   6 Haneli Kod
                 </label>
                 <input
@@ -656,7 +656,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               */}
               {isRegisterMode && adminClaimGerekli && (
                 <div className="p-3 rounded-xl bg-[var(--learning-soft)] border border-[var(--learning-border)] space-y-2">
-                  <label className="block text-[11px] font-bold text-[var(--learning-text)] uppercase">
+                  <label className="block text-[11px] font-bold text-[var(--learning-text)] ">
                     Yönetici kurulum kodu
                   </label>
                   <p className="text-[11px] text-[var(--learning-text)] leading-relaxed opacity-90">
@@ -677,7 +677,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
               {isRegisterMode && (
                 <div>
-                  <label className="block text-[11px] font-bold text-[var(--text-secondary)] uppercase mb-1">
+                  <label className="block text-[11px] font-bold text-[var(--text-secondary)]  mb-1">
                     Ad Soyad
                   </label>
                   <input
@@ -691,7 +691,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               )}
 
               <div>
-                <label className="block text-[11px] font-bold text-[var(--text-secondary)] uppercase mb-1">
+                <label className="block text-[11px] font-bold text-[var(--text-secondary)]  mb-1">
                   E-posta Adresi
                 </label>
                 <div className="relative">
@@ -708,7 +708,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-[var(--text-secondary)] uppercase mb-1">
+                <label className="block text-[11px] font-bold text-[var(--text-secondary)]  mb-1">
                   Şifre {isRegisterMode && <span className="text-[var(--text-muted)] font-normal">(en az 8 karakter)</span>}
                 </label>
                 <div className="relative">
@@ -729,7 +729,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <div className="grid grid-cols-2 gap-2.5 pt-0.5">
                   {/* Country */}
                   <div>
-                    <label className="block text-[11px] font-bold text-[var(--text-secondary)] uppercase mb-1">
+                    <label className="block text-[11px] font-bold text-[var(--text-secondary)]  mb-1">
                       Ülke
                     </label>
                     <div className="relative">
@@ -750,7 +750,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
                   {/* 81 Turkish Cities Searchable Dropdown */}
                   <div className="relative">
-                    <label className="block text-[11px] font-bold text-[var(--text-secondary)] uppercase mb-1">
+                    <label className="block text-[11px] font-bold text-[var(--text-secondary)]  mb-1">
                       Şehir (81 İl)
                     </label>
                     <button
@@ -871,7 +871,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
               <div className="flex items-center gap-2 my-2">
                 <div className="flex-1 h-px bg-[var(--border-light)]" />
-                <span className="text-[11px] font-semibold text-[var(--text-muted)] uppercase">veya</span>
+                <span className="text-[11px] font-semibold text-[var(--text-muted)] ">veya</span>
                 <div className="flex-1 h-px bg-[var(--border-light)]" />
               </div>
 
