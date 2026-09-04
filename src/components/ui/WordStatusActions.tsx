@@ -1,5 +1,6 @@
 import React from 'react';
-import { Check, RefreshCw } from 'lucide-react';
+import { Check } from 'lucide-react';
+import { RealmsIcon } from '../ui/RealmsIcon';
 
 export interface WordStatusActionsProps {
   status: 'learned' | 'learning' | 'unseen';
@@ -68,7 +69,7 @@ export const WordStatusActions: React.FC<WordStatusActionsProps> = ({
         }`}
         title="Tekrar Et listesine ekle / çıkar"
       >
-        <RefreshCw className={`w-3.5 h-3.5 ${isReview ? 'text-[var(--surface)]' : 'text-[var(--text-muted)]'}`} />
+        <RealmsIcon name="repeat" size={18} className="${isReview ? 'text-[var(--surface)]' : 'text-[var(--text-muted)]'}" />
         <span>Tekrar Et</span>
       </button>
 

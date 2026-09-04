@@ -1,16 +1,10 @@
 import React from 'react';
 import { useRemoteApi } from '../hooks/useRemoteApi';
-import {
-  BookOpen,
-  GraduationCap,
-  NotebookPen,
-  Home,
-  User,
-  LogIn
-} from 'lucide-react';
+import { User, LogIn } from 'lucide-react';
 import { UserProfile } from '../types';
 import { BRAND } from '../config/brand';
 import { ArmaPlaka } from './ui/ArmaPlaka';
+import { RealmsIcon } from './ui/RealmsIcon';
 
 /**
  * Uygulamadaki tüm görünümler.
@@ -61,7 +55,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       id: 'today' as TabType,
       label: 'Ana Sayfa',
       shortLabel: 'Ana Sayfa',
-      icon: Home
+      ikon: 'home' as const
     },
     {
       id: 'collections' as TabType,
@@ -73,7 +67,7 @@ export const Navbar: React.FC<NavbarProps> = ({
        * kullanıcının okurken kendi elyazısıyla not ettiği kelimeler.
        * Uygulamayı diğerlerinden ayıran fikir de tam olarak bu.
        */
-      icon: NotebookPen
+      ikon: 'sets' as const
       /*
        * Set SAYISI rozeti kaldırıldı. Rozet, ilgilenilmesi gereken bir şeyi
        * (okunmamış bildirim, bekleyen iş) haber vermek içindir. Kullanıcının
@@ -85,19 +79,19 @@ export const Navbar: React.FC<NavbarProps> = ({
       id: 'oxford' as TabType,
       label: 'Oxford Kelime Listesi',
       shortLabel: 'Oxford',
-      icon: BookOpen
+      ikon: 'book' as const
     },
     {
       id: 'quiz' as TabType,
       label: 'Sınav',
       shortLabel: 'Sınav',
-      icon: GraduationCap
+      ikon: 'exam' as const
     },
     {
       id: 'profile' as TabType,
       label: 'Profilim',
       shortLabel: 'Profil',
-      icon: User
+      ikon: 'profile' as const
     }
   ];
 
@@ -137,7 +131,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Desktop Navigation Links */}
             <nav className="hidden md:flex items-center gap-1">
               {navItems.map((item) => {
-                const Icon = item.icon;
+      
                 const isActive = activeTab === item.id;
                 return (
                   <button
@@ -149,10 +143,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-soft)]'
                     }`}
                   >
-                    <Icon
-                      className={`w-4 h-4 stroke-[2] ${
-                        isActive ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'
-                      }`}
+                    <RealmsIcon
+                      name={item.ikon}
+                      size={20}
+                      className={isActive ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'}
                     />
                     <span>{item.label}</span>
                   </button>
@@ -191,7 +185,6 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Mobile Fixed Bottom Navigation Bar */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 px-1 pt-1.5 pb-1.5 safe-bottom flex items-center justify-around alt-gezinme">
         {navItems.map((item) => {
-          const Icon = item.icon;
           const isActive = activeTab === item.id;
           return (
             <button
@@ -213,10 +206,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }`}
               />
               <div className="relative">
-                <Icon
-                  className={`w-[18px] h-[18px] stroke-[1.9] ${
-                    isActive ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'
-                  }`}
+                {/* Alt menü ikonu 22 piksel (paketin ölçüsü); dokunma
+                    hedefi ve etiket değişmedi. */}
+                <RealmsIcon
+                  name={item.ikon}
+                  size={22}
+                  className={isActive ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'}
                 />
               </div>
               <span className="mt-0.5 whitespace-nowrap">{item.shortLabel}</span>

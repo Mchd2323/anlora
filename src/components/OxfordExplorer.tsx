@@ -4,10 +4,11 @@ import { OxfordGroupKey } from '../types/oxford';
 import { WordCardComponent } from './WordCard';
 import { loadPhrases, getPhraseCards } from '../services/phraseRepository';
 import { StudyFlashcard } from './study/StudyFlashcard';
-import { Search, BookOpen, Play, X, Check, RotateCw, ChevronDown } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 import { getUserWordStatus } from '../utils/storageV2';
 import { aramaAnahtari } from '../utils/aramaAnahtari';
 import { CEFRBadge } from './ui/CEFRBadge';
+import { RealmsIcon } from './ui/RealmsIcon';
 
 /**
  * Oxford 5000 gezgini.
@@ -392,7 +393,6 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
     [filteredWords, visibleCount]
   );
 
-
   const clearFilters = useCallback(() => {
     setSearchQuery('');
     setPartOfSpeechFilter('ALL');
@@ -433,7 +433,6 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
   const kalipVerisiHazir = kaliplar !== null && kaliplar.length > 0;
   const kalipSayisiYaz = (sayi: number) =>
     !kalipMi || kalipVerisiHazir ? sayi.toLocaleString('tr-TR') : '…';
-
 
   if (isStudyingFlashcards) {
     return (
@@ -524,11 +523,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
                 }`}
               >
                 <span className="truncate">{LEVEL_LABEL[selectedLevel]}</span>
-                <ChevronDown
-                  className={`w-3.5 h-3.5 shrink-0 transition-transform ${
-                    seviyeMenusuAcik ? 'rotate-180' : ''
-                  }`}
-                />
+                <RealmsIcon name="chevron-down" size={18} className="shrink-0 transition-transform ${ seviyeMenusuAcik ? 'rotate-180' : '' }" />
               </button>
 
               {seviyeMenusuAcik && (
@@ -581,11 +576,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
                 <span className="truncate">
                   {kaliplarYukleniyor ? 'Yükleniyor…' : KALIP_ETIKET[kalipSeviyesi]}
                 </span>
-                <ChevronDown
-                  className={`w-3.5 h-3.5 shrink-0 transition-transform ${
-                    kalipMenusuAcik ? 'rotate-180' : ''
-                  }`}
-                />
+                <RealmsIcon name="chevron-down" size={18} className="shrink-0 transition-transform ${ kalipMenusuAcik ? 'rotate-180' : '' }" />
               </button>
 
               {kalipMenusuAcik && (
@@ -678,7 +669,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
                   : 'text-[var(--learning)] border-transparent hover:bg-[var(--learning-soft-hover)]'
               }`}
             >
-              <RotateCw className="w-3.5 h-3.5 stroke-[3]" aria-hidden="true" />
+              <RealmsIcon name="repeat" size={18} className="stroke-[3]" aria-hidden="true" />
               {kalipSayisiYaz(levelStats.learningCount)} Tekrar Et
             </button>
 
@@ -699,7 +690,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
         {/* Arama, tür ve durum */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
           <div className="relative">
-            <Search className="w-4 h-4 text-[var(--text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <RealmsIcon name="search" size={20} className="text-[var(--text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
@@ -763,7 +754,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
             </p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
-            <Play className="w-4 h-4 fill-current ml-0.5" />
+            <RealmsIcon name="play" size={20} className="fill-current ml-0.5" />
           </div>
         </button>
       )}
@@ -786,14 +777,9 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
                 : `${filteredWords.length} kelimeyi tek tek gör`}
             </span>
           </span>
-          <ChevronDown
-            className={`w-5 h-5 text-[var(--text-muted)] shrink-0 transition-transform ${
-              isListOpen ? 'rotate-180' : ''
-            }`}
-          />
+          <RealmsIcon name="chevron-down" size={22} className="text-[var(--text-muted)] shrink-0 transition-transform ${ isListOpen ? 'rotate-180' : '' }" />
         </button>
       )}
-
 
       {isListOpen && filteredWords.length > 0 ? (
         <>
@@ -850,7 +836,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
            * söyleniyor (App.tsx'teki "Sözlük yüklenemedi" ekranının eşi).
            */
           <div className="parsomen-panel text-center py-16 bg-[var(--surface)] rounded-2xl border border-[var(--border)] space-y-3">
-            <BookOpen className="w-8 h-8 text-[var(--text-muted)] mx-auto" />
+            <RealmsIcon name="book" size={22} className="text-[var(--text-muted)] mx-auto" />
             <h3 className="text-base font-bold text-[var(--text-primary)]">Kalıplar yüklenemedi</h3>
             <p className="text-xs text-[var(--text-secondary)] max-w-sm mx-auto">
               Kalıp verisi açılamadı. Uygulamayı tamamen kapatıp yeniden açmak
@@ -859,7 +845,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
           </div>
         ) : (
           <div className="parsomen-panel text-center py-16 bg-[var(--surface)] rounded-2xl border border-[var(--border)] space-y-3">
-            <BookOpen className="w-8 h-8 text-[var(--text-muted)] mx-auto" />
+            <RealmsIcon name="book" size={22} className="text-[var(--text-muted)] mx-auto" />
             <h3 className="text-base font-bold text-[var(--text-primary)]">Eşleşen kelime bulunamadı</h3>
             <p className="text-xs text-[var(--text-secondary)] max-w-sm mx-auto">
               Arama kriterlerinizi veya filtreleri temizleyerek tüm kelimeleri görebilirsiniz.

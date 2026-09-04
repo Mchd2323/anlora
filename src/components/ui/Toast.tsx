@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { Check, Heart, RefreshCw, AlertCircle, X } from 'lucide-react';
+import { Check, AlertCircle, X } from 'lucide-react';
+import { RealmsIcon } from '../ui/RealmsIcon';
 
 export interface ToastMessage {
   id: string;
@@ -58,21 +59,21 @@ const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void
           bg: 'bg-[var(--surface)]',
           border: 'border-[var(--learning-border)]',
           text: 'text-[var(--text-primary)]',
-          icon: <RefreshCw className="w-4 h-4 text-[var(--learning)]" />
+          icon: <RealmsIcon name="repeat" size={20} className="text-[var(--learning)]" />
         };
       case 'favorite':
         return {
           bg: 'bg-[var(--surface)]',
           border: 'border-[var(--danger-tint)]',
           text: 'text-[var(--text-primary)]',
-          icon: <Heart className="w-4 h-4 text-[var(--favorite)] fill-current" />
+          icon: <RealmsIcon name="favorite" size={20} className="text-[var(--favorite)] fill-current" />
         };
       case 'unfavorite':
         return {
           bg: 'bg-[var(--surface)]',
           border: 'border-[var(--border)]',
           text: 'text-[var(--text-secondary)]',
-          icon: <Heart className="w-4 h-4 text-[var(--text-muted)]" />
+          icon: <RealmsIcon name="favorite" size={20} className="text-[var(--text-muted)]" />
         };
       case 'error':
         return {

@@ -580,6 +580,92 @@
 
 
 /* ==========================================================================
+   Kelime kartı motifleri
+   ==========================================================================
+
+   Paketten geldi; iki noktada projeye uyarlandı, DEĞERLERİ değişmedi:
+
+     1. SEÇİCİLER. Paket `[data-theme="anlora-realms"]` /
+        `[data-theme="anlora-realms-dark"]` kullanıyordu; bu projede açık tema
+        `:root`, koyu tema ise hem `prefers-color-scheme` hem
+        `[data-theme="dark"]` altında tanımlı. Koyu kural üç seçiciye
+        çoğaltıldı, aksi hâlde sistem tercihi koyu olan cihazda motif açık tema
+        değerleriyle kalırdı.
+
+     2. KATMANSIZ. Kural `@layer` dışında; Tailwind yardımcı sınıfları
+        katmanlı kuralları ezdiği için kartın kendi sınıfları şeridi
+        bozabilirdi.
+
+   Opaklık paketin verdiği üst sınırlarda: açık .34, koyu .42.
+   Şerit yüksekliği 6 piksel ve sağa doğru maskeyle kayboluyor.
+*/
+.realm-card-motif {
+  --motif-image: none;
+  position: relative;
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  align-items: center;
+  gap: 10px;
+  min-height: 28px;
+  overflow: hidden;
+  color: #7faac2;
+}
+
+.realm-card-motif::after {
+  content: '';
+  height: 6px;
+  border-radius: 999px;
+  background-image:
+    linear-gradient(90deg, rgba(21, 40, 61, 0.12), rgba(21, 40, 61, 0.44), rgba(21, 40, 61, 0)),
+    var(--motif-image);
+  background-position: center;
+  background-size: 100% 100%, cover;
+  background-blend-mode: normal, multiply;
+  opacity: 0.34;
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 62%, transparent 100%);
+  mask-image: linear-gradient(90deg, #000 0%, #000 62%, transparent 100%);
+}
+
+:root[data-theme='dark'] .realm-card-motif::after,
+:root[data-theme='orman'] .realm-card-motif::after,
+:root[data-theme='komur'] .realm-card-motif::after {
+  background-image:
+    linear-gradient(90deg, rgba(127, 170, 194, 0.18), rgba(183, 149, 82, 0.32), rgba(13, 25, 37, 0)),
+    var(--motif-image);
+  background-blend-mode: screen, soft-light;
+  opacity: 0.42;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .realm-card-motif::after {
+    background-image:
+      linear-gradient(90deg, rgba(127, 170, 194, 0.18), rgba(183, 149, 82, 0.32), rgba(13, 25, 37, 0)),
+      var(--motif-image);
+    background-blend-mode: screen, soft-light;
+    opacity: 0.42;
+  }
+}
+
+.realm-card-motif[data-motif='frost-crystal'] {
+  --motif-image: url('/assets/themes/realms/motifs/frost-crystal.webp');
+}
+.realm-card-motif[data-motif='dragon-scale'] {
+  --motif-image: url('/assets/themes/realms/motifs/dragon-scale.webp');
+}
+.realm-card-motif[data-motif='raven-feather'] {
+  --motif-image: url('/assets/themes/realms/motifs/raven-feather.webp');
+}
+.realm-card-motif[data-motif='ancient-map'] {
+  --motif-image: url('/assets/themes/realms/motifs/ancient-map.webp');
+}
+.realm-card-motif[data-motif='forged-iron'] {
+  --motif-image: url('/assets/themes/realms/motifs/forged-iron.webp');
+}
+.realm-card-motif[data-motif='ember-spark'] {
+  --motif-image: url('/assets/themes/realms/motifs/ember-spark.webp');
+}
+
+/* ==========================================================================
    Süslü panelde metin güvenli alanı
    ==========================================================================
 

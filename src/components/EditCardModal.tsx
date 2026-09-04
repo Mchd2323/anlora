@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { WordCard, Level, ExampleSentence } from '../types';
-import { X, Save, Edit3, Plus, Trash2, BookOpen } from 'lucide-react';
+import { X, Save, Edit3, Trash2 } from 'lucide-react';
 import { useModalA11y } from '../hooks/useModalA11y';
+import { RealmsIcon } from './ui/RealmsIcon';
 
 interface EditCardModalProps {
   card: WordCard;
@@ -256,7 +257,7 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
           <div className="space-y-2.5 pt-1">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5">
-                <BookOpen className="w-3.5 h-3.5 text-[var(--primary)]" />
+                <RealmsIcon name="book" size={18} className="text-[var(--primary)]" />
                 Örnek Cümleler
               </label>
               <button
@@ -264,7 +265,7 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
                 onClick={handleAddExample}
                 className="text-xs font-semibold text-[var(--primary)] hover:underline flex items-center gap-1 cursor-pointer"
               >
-                <Plus className="w-3 h-3" /> Cümle Ekle
+                <RealmsIcon name="add" size={18} /> Cümle Ekle
               </button>
             </div>
 

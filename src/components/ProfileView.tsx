@@ -9,32 +9,7 @@ import {
   Collection,
   CollectionMembership
 } from '../types';
-import {
-  User,
-  LogOut,
-  LogIn,
-  CheckCircle2,
-  RefreshCw,
-  BookOpen,
-  Layers,
-  Award,
-  Download,
-  Upload,
-  Trash2,
-  Settings,
-  Sparkles,
-  Shield,
-  MessageSquareWarning,
-  Heart,
-  BrainCircuit,
-  Volume2
-,
-  BarChart3,
-  ChevronDown,
-  Send
-,
-  MessageSquareQuote
-} from 'lucide-react';
+import { LogOut, LogIn, CheckCircle2, BookOpen, Layers, Award, Trash2, Sparkles, Shield, BrainCircuit, Send, MessageSquareQuote } from 'lucide-react';
 import { getUserWordStatus } from '../utils/storageV2';
 import { BRAND } from '../config/brand';
 import { loadPhrases, getPhraseCards } from '../services/phraseRepository';
@@ -46,6 +21,7 @@ import { useRemoteApi } from '../hooks/useRemoteApi';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
+import { RealmsIcon } from './ui/RealmsIcon';
 
 interface ProfileViewProps {
   profile: UserProfile;
@@ -426,7 +402,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <div className="w-13 h-13 rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center font-bold text-xl border border-[var(--primary-border)]">
             {profile.isLoggedIn && profile.name
               ? profile.name.slice(0, 1).toUpperCase()
-              : <User className="w-6 h-6" />}
+              : <RealmsIcon name="profile" size={22} />}
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -545,7 +521,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             onClick={() => onOpenOxfordStatus?.('LEARNING')}
             className="p-4 bg-[var(--learning-soft)] rounded-xl border border-[var(--learning-border)] text-center transition-colors hover:bg-[var(--learning-soft-strong)] cursor-pointer"
           >
-            <RefreshCw className="w-5 h-5 text-[var(--learning)] mx-auto mb-1" />
+            <RealmsIcon name="repeat" size={22} className="text-[var(--learning)] mx-auto mb-1" />
             <div className="text-2xl font-bold text-[var(--learning-text)]">
               {learningSummary.learningCount}
             </div>
@@ -560,7 +536,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             onClick={() => onOpenOxfordStatus?.('FAVORITES')}
             className="p-4 bg-[var(--danger-soft)] rounded-xl border border-[var(--danger-border)] text-center transition-colors hover:bg-[var(--danger-soft-hover)] cursor-pointer"
           >
-            <Heart className="w-5 h-5 text-[var(--favorite)] mx-auto mb-1" />
+            <RealmsIcon name="favorite" size={22} className="text-[var(--favorite)] mx-auto mb-1" />
             <div className="text-2xl font-bold text-[var(--danger)]">
               {favorites.length}
             </div>
@@ -597,7 +573,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       */}
       <div className="parsomen-panel bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-5">
         <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-1.5">
-          <BarChart3 className="w-4 h-4 text-[var(--primary)]" />
+          <RealmsIcon name="progress" size={20} className="text-[var(--primary)]" />
           <span>İstatistikler</span>
         </h3>
 
@@ -669,11 +645,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               <span className="text-xs font-bold text-[var(--learning-text)]">
                 Sözlüğü birlikte büyütelim
               </span>
-              <ChevronDown
-                className={`w-4 h-4 text-[var(--learning-text)] shrink-0 transition-transform ${
-                  katkiAcik ? 'rotate-180' : ''
-                }`}
-              />
+              <RealmsIcon name="chevron-down" size={20} className="text-[var(--learning-text)] shrink-0 transition-transform ${ katkiAcik ? 'rotate-180' : '' }" />
             </button>
 
             {katkiAcik && (
@@ -726,11 +698,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <span className="text-xs font-bold text-[var(--text-primary)]">
             {seviyelerAcik ? 'Seviye ayrıntısını gizle' : 'Daha fazla istatistik'}
           </span>
-          <ChevronDown
-            className={`w-4 h-4 text-[var(--text-secondary)] shrink-0 transition-transform ${
-              seviyelerAcik ? 'rotate-180' : ''
-            }`}
-          />
+          <RealmsIcon name="chevron-down" size={20} className="text-[var(--text-secondary)] shrink-0 transition-transform ${ seviyelerAcik ? 'rotate-180' : '' }" />
         </button>
 
         {seviyelerAcik && (
@@ -752,7 +720,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     }}
                     className="w-full px-3.5 py-2.5 flex items-center gap-2.5 bg-[var(--bg)] hover:bg-[var(--surface-soft)] transition-colors cursor-pointer text-left"
                   >
-                    <BookOpen className="w-4 h-4 shrink-0 text-[var(--primary)]" />
+                    <RealmsIcon name="book" size={20} className="shrink-0 text-[var(--primary)]" />
                     <span className="text-[11px] text-[var(--text-secondary)] shrink-0">
                       {lvl} Seviyesi:
                     </span>
@@ -846,7 +814,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         >
           <div>
             <div className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
-              <MessageSquareWarning className="w-4 h-4 text-[var(--primary)]" />
+              <RealmsIcon name="report" size={20} className="text-[var(--primary)]" />
               Hata bildir · bize yaz
             </div>
             <p className="text-[11px] text-[var(--text-secondary)] mt-0.5">
@@ -862,7 +830,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       {/* 5. Veri Yönetimi & Yedekleme */}
       <div className="parsomen-panel bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-4">
         <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-1.5">
-          <Settings className="w-4 h-4 text-[var(--text-secondary)]" />
+          <RealmsIcon name="settings" size={20} className="text-[var(--text-secondary)]" />
           <span>Veri ve Yedekleme</span>
         </h3>
 
@@ -906,7 +874,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             onClick={handleExportData}
             className="px-3.5 py-2 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] text-xs font-semibold rounded-xl border border-[var(--border)] transition-colors flex items-center gap-1.5 cursor-pointer"
           >
-            <Download className="w-3.5 h-3.5 text-[var(--primary)]" />
+            <RealmsIcon name="download" size={18} className="text-[var(--primary)]" />
             <span>Verilerimi Yedekle (JSON İndir)</span>
           </button>
 
@@ -923,7 +891,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             onClick={() => importInputRef.current?.click()}
             className="px-3.5 py-2 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] text-xs font-semibold rounded-xl border border-[var(--border)] transition-colors flex items-center gap-1.5 cursor-pointer"
           >
-            <Upload className="w-3.5 h-3.5 text-[var(--primary)]" />
+            <RealmsIcon name="share" size={18} className="text-[var(--primary)]" />
             <span>Yedekten Geri Yükle</span>
           </button>
 

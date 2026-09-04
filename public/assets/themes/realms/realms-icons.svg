@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>.r{fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}</style>
+  </defs>
+
+  <symbol id="realm-audio" viewBox="0 0 24 24"><g class="r"><path d="M5 10v4h3l4 3V7l-4 3H5Z"/><path d="M15 9c1.6 1.7 1.6 4.3 0 6M18 6.5c3.2 3.1 3.2 7.9 0 11"/></g></symbol>
+  <symbol id="realm-add" viewBox="0 0 24 24"><g class="r"><path d="M12 4v16M4 12h16"/><path d="m12 4 1.2 1.2L12 6.4l-1.2-1.2L12 4Z"/></g></symbol>
+  <symbol id="realm-card" viewBox="0 0 24 24"><g class="r"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M7 9h7M7 13h10M7 16h6"/><path d="m18 7 .8.8-.8.8-.8-.8L18 7Z"/></g></symbol>
+  <symbol id="realm-filter" viewBox="0 0 24 24"><g class="r"><path d="M4 5h16l-6.2 7v5.2L10 19v-7L4 5Z"/><path d="M8 8h8"/></g></symbol>
+  <symbol id="realm-search" viewBox="0 0 24 24"><g class="r"><circle cx="10.5" cy="10.5" r="6.2"/><path d="m15 15 5 5"/><path d="m10.5 6.5.7.7-.7.7-.7-.7.7-.7Z"/></g></symbol>
+  <symbol id="realm-exam" viewBox="0 0 24 24"><g class="r"><path d="m3 9 9-5 9 5-9 5-9-5Z"/><path d="M7 12v4.5c3.2 2 6.8 2 10 0V12M20 10v5"/></g></symbol>
+  <symbol id="realm-progress" viewBox="0 0 24 24"><g class="r"><path d="M7 3h10v7c0 4.2-2.3 7.3-5 9-2.7-1.7-5-4.8-5-9V3Z"/><path d="m9.5 10 1.7 1.7 3.6-4"/><path d="m9 18-1 3 4-2 4 2-1-3"/></g></symbol>
+  <symbol id="realm-repeat" viewBox="0 0 24 24"><g class="r"><path d="M19 7V3l-2 2a8 8 0 1 0 2.2 8"/><path d="M19 3h-4M5 17v4l2-2"/></g></symbol>
+  <symbol id="realm-download" viewBox="0 0 24 24"><g class="r"><path d="M12 3v12M8 11l4 4 4-4M4 20h16"/></g></symbol>
+  <symbol id="realm-share" viewBox="0 0 24 24"><g class="r"><circle cx="18" cy="5" r="2.2"/><circle cx="6" cy="12" r="2.2"/><circle cx="18" cy="19" r="2.2"/><path d="m8 11 8-5M8 13l8 5"/></g></symbol>
+  <symbol id="realm-home" viewBox="0 0 24 24"><g class="r"><path d="m3 11 9-7 9 7v9H3v-9Z"/><path d="M8 20v-7h8v7M6 9h12"/><path d="m12 4 1 1-1 1-1-1 1-1Z"/></g></symbol>
+  <symbol id="realm-sets" viewBox="0 0 24 24"><g class="r"><path d="m4 8 8-4 8 4-8 4-8-4Z"/><path d="m4 12 8 4 8-4M4 16l8 4 8-4"/></g></symbol>
+  <symbol id="realm-book" viewBox="0 0 24 24"><g class="r"><path d="M4 5.5c3.2-.8 5.8-.2 8 2v12c-2.2-2.2-4.8-2.8-8-2V5.5ZM20 5.5c-3.2-.8-5.8-.2-8 2v12c2.2-2.2 4.8-2.8 8-2V5.5Z"/><path d="M12 7.5V20"/></g></symbol>
+  <symbol id="realm-profile" viewBox="0 0 24 24"><g class="r"><circle cx="12" cy="7.5" r="3.5"/><path d="M5 21v-2.2c0-3.8 3.1-6.8 7-6.8s7 3 7 6.8V21"/><path d="m12 3 .8.8-.8.8-.8-.8L12 3Z"/></g></symbol>
+  <symbol id="realm-favorite" viewBox="0 0 24 24"><path class="r" d="M12 20S4 15.4 4 9.3C4 6.4 6 4.5 8.5 4.5c1.7 0 2.8.8 3.5 2 .7-1.2 1.8-2 3.5-2C18 4.5 20 6.4 20 9.3 20 15.4 12 20 12 20Z"/></symbol>
+  <symbol id="realm-bookmark" viewBox="0 0 24 24"><g class="r"><path d="M6 3.5h12v17L12 17l-6 3.5v-17Z"/><path d="M9 8h6M12 5v6"/></g></symbol>
+  <symbol id="realm-report" viewBox="0 0 24 24"><g class="r"><path d="M4 4h16v13H9l-5 4V4Z"/><path d="M12 7v5M12 14.5v.5"/></g></symbol>
+  <symbol id="realm-play" viewBox="0 0 24 24"><path class="r" d="m8 5 11 7-11 7V5Z"/></symbol>
+  <symbol id="realm-settings" viewBox="0 0 24 24"><g class="r"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="11" cy="18" r="2"/></g></symbol>
+  <symbol id="realm-more" viewBox="0 0 24 24"><g fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></g></symbol>
+  <symbol id="realm-chevron-down" viewBox="0 0 24 24"><path class="r" d="m5 9 7 7 7-7"/></symbol>
+  <symbol id="realm-back" viewBox="0 0 24 24"><path class="r" d="m15 5-7 7 7 7"/></symbol>
+
+  <symbol id="motif-frost" viewBox="0 0 24 24"><g class="r"><path d="M12 2v20M3.3 7l17.4 10M20.7 7 3.3 17"/><path d="m9 4 3 2 3-2M9 20l3-2 3 2M5 9l.2-3.6L2 4M19 15l-.2 3.6L22 20M19 9l-.2-3.6L22 4M5 15l.2 3.6L2 20"/></g></symbol>
+  <symbol id="motif-scale" viewBox="0 0 24 24"><g class="r"><path d="M3 6c3 0 4.5 1.5 4.5 4.5C7.5 7.5 9 6 12 6s4.5 1.5 4.5 4.5C16.5 7.5 18 6 21 6"/><path d="M3 14c3 0 4.5 1.5 4.5 4.5C7.5 15.5 9 14 12 14s4.5 1.5 4.5 4.5C16.5 15.5 18 14 21 14"/></g></symbol>
+  <symbol id="motif-feather" viewBox="0 0 24 24"><g class="r"><path d="M5 20c7-2 12-7 14-16-8 1-13 6-14 13-.2 1.2-.1 2.2 0 3Z"/><path d="M5 20c3-5 7-9 12-13M8 15H5M11 12l-1-4M14 9h3"/></g></symbol>
+  <symbol id="motif-map" viewBox="0 0 24 24"><g class="r"><path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2V5Z"/><path d="M9 3v16M15 5v16"/><path d="m17 10 1 1-1 1-1-1 1-1Z"/></g></symbol>
+  <symbol id="motif-iron" viewBox="0 0 24 24"><g class="r"><path d="M4 5h16v14H4V5Z"/><path d="m4 11 5-6M10 19l10-11M4 17l11-11"/><circle cx="7" cy="8" r=".8" fill="currentColor"/><circle cx="17" cy="16" r=".8" fill="currentColor"/></g></symbol>
+  <symbol id="motif-ember" viewBox="0 0 24 24"><g class="r"><path d="M12 21c-4 0-7-2.5-7-6.2 0-3 2.2-5.2 5.3-8.2-.2 2.8.8 4.1 2.1 4.8.2-3.8 2-6.2 3.7-8.4.1 4.2 2.9 6.5 2.9 11.5 0 4-3 6.5-7 6.5Z"/><path d="M9 17c0-1.8 1.2-3 2.8-4.5 0 1.4.5 2.2 1.3 2.8.4-.8.8-1.5 1.2-2.1.5 2.8-.2 5.8-2.5 5.8C10.2 19 9 18.3 9 17Z"/></g></symbol>
+</svg>

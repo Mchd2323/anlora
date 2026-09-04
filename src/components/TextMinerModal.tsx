@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Collection, WordCard, LearningState, MinedWordItem } from '../types';
-import { FileText, Sparkles, Filter, CheckCircle2, BookmarkPlus, X, Loader2, ArrowRight } from 'lucide-react';
+import { FileText, Sparkles, Filter, X } from 'lucide-react';
 import { mineVocabularyFromText } from '../utils/textMiner';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { useModalA11y } from '../hooks/useModalA11y';
+import { RealmsIcon } from './ui/RealmsIcon';
 
 interface TextMinerModalProps {
   isOpen: boolean;
@@ -313,7 +314,7 @@ export const TextMinerModal: React.FC<TextMinerModalProps> = ({
                     disabled={isProcessing || Object.values(selectedWords).filter(Boolean).length === 0}
                     className="dugme-birincil px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] disabled:opacity-50 text-[var(--surface)] text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
                   >
-                    <BookmarkPlus className="w-3.5 h-3.5" />
+                    <RealmsIcon name="bookmark" size={18} />
                     <span>Seçilen {Object.values(selectedWords).filter(Boolean).length} Kelimeyi Ekle</span>
                   </button>
                 </div>

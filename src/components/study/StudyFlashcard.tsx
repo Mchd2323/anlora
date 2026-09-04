@@ -1,24 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { WordCard, LearningState } from '../../types';
-import {
-  Volume2,
-  Heart,
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  ChevronUp,
-  Maximize2,
-  Minimize2,
-  ArrowLeft,
-  Layers,
-  BookOpen,
-  BookmarkPlus,
-  Edit2,
-  Trash2,
-  MoreVertical
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronUp, Maximize2, Minimize2, Edit2, Trash2 } from 'lucide-react';
 import { PronounceButtons } from '../ui/PronounceButtons';
-import { KartMotifi } from '../ui/KartMotifi';
+import { CardMotif } from '../ui/CardMotif';
 import { speakText } from '../../utils/speech';
 import { CEFRBadge } from '../ui/CEFRBadge';
 import { shouldShowCefr } from '../../types/oxford';
@@ -27,6 +11,7 @@ import { getUserWordStatus } from '../../utils/storageV2';
 import { useSwipeDeck } from '../../hooks/useSwipeDeck';
 import { readJSON, writeJSON } from '../../utils/safeStorage';
 import { formatPhonetic } from '../../utils/phonetic';
+import { RealmsIcon } from '../ui/RealmsIcon';
 
 export interface StudyFlashcardProps {
   title: string;
@@ -260,7 +245,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
     return (
       <div className="max-w-md mx-auto text-center py-16 space-y-4 animate-fadeIn">
         <div className="w-14 h-14 rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center mx-auto border border-[var(--primary-border)]">
-          <BookOpen className="w-7 h-7" />
+          <RealmsIcon name="book" size={22} />
         </div>
         <h2 className="text-lg font-bold text-[var(--text-primary)]">{title}</h2>
         <p className="text-xs text-[var(--text-secondary)]">Bu grupta henüz çalışılacak kelime bulunmuyor.</p>
@@ -278,7 +263,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
     return (
       <div className="max-w-md mx-auto text-center py-16 space-y-4 animate-fadeIn">
         <div className="w-12 h-12 rounded-2xl bg-[var(--bg)] text-[var(--text-secondary)] flex items-center justify-center mx-auto border border-[var(--border)]">
-          <Layers className="w-6 h-6" />
+          <RealmsIcon name="sets" size={22} />
         </div>
         <h3 className="text-base font-bold text-[var(--text-primary)]">
           {filterMode === 'LEARNED' ? 'Öğrenilen Kelime Yok' : 'Tekrar Edilecek Kelime Yok'}
@@ -365,7 +350,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
           */
           title={sourceContextName ? `${sourceContextName} ekranına dön` : 'Geri'}
         >
-          <ArrowLeft className="w-4 h-4" />
+          <RealmsIcon name="back" size={20} />
           <span>{isFullscreen ? 'Tam ekrandan çık' : 'Geri'}</span>
         </button>
 
@@ -506,9 +491,11 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                 dolgusunu geçip şeridi kenara taşıyor — içerik sırası ya da
                 aralıkları değişmiyor.
               */}
-              <KartMotifi
-                level={currentCard.level}
-                className="-mt-3 sm:-mt-5 -mx-6 sm:-mx-8 mb-3"
+              <CardMotif
+                word={currentCard.word}
+                level={currentCard.level ?? ''}
+                wordType={currentCard.partOfSpeech ?? ''}
+                className="-mt-3 sm:-mt-5 -mx-3 sm:-mx-5 mb-3"
               />
 
               {/* Üst şerit: etiketler ve eylemler */}
@@ -549,7 +536,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                     aria-label="Favori"
                     aria-pressed={isFavorite}
                   >
-                    <Heart className={`w-[18px] h-[18px] ${isFavorite ? 'fill-current' : ''}`} />
+                    <RealmsIcon name="favorite" size={20} className="w-[18px] h-[18px] ${isFavorite ? 'fill-current' : ''}" />
                   </button>
 
                   {(isCustomDeck || onOpenEditCard || onDeleteCard || onOpenAddToCollection) && (
@@ -563,7 +550,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                         aria-label="Seçenekler"
                         aria-expanded={isMenuOpen}
                       >
-                        <MoreVertical className="w-[18px] h-[18px]" />
+                        <RealmsIcon name="more" size={20} className="w-[18px] h-[18px]" />
                       </button>
 
                       {isMenuOpen && (
@@ -579,7 +566,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                               }}
                               className="w-full px-3 py-1.5 text-xs text-left text-[var(--text-primary)] hover:bg-[var(--bg)] flex items-center gap-2 cursor-pointer"
                             >
-                              <BookmarkPlus className="w-3.5 h-3.5 text-[var(--primary)]" />
+                              <RealmsIcon name="bookmark" size={18} className="text-[var(--primary)]" />
                               <span>Sete Ekle</span>
                             </button>
                           )}
@@ -678,13 +665,13 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                           aria-expanded={isExamplesExpanded}
                         >
                           <span className="flex items-center gap-1.5">
-                            <BookOpen className="w-3.5 h-3.5 text-[var(--primary)]" />
+                            <RealmsIcon name="book" size={18} className="text-[var(--primary)]" />
                             <span>Örnek cümleler ({examples.length})</span>
                           </span>
                           {isExamplesExpanded ? (
                             <ChevronUp className="w-4 h-4" />
                           ) : (
-                            <ChevronDown className="w-4 h-4" />
+                            <RealmsIcon name="chevron-down" size={20} />
                           )}
                         </button>
 
@@ -708,7 +695,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                                     title="Cümleyi dinle"
                                     aria-label="Cümleyi dinle"
                                   >
-                                    <Volume2 className="w-3.5 h-3.5" />
+                                    <RealmsIcon name="audio" size={18} />
                                   </button>
                                 </div>
                                 <p className="text-[12px] text-[var(--text-muted)] leading-relaxed">

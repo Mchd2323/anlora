@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { MessageSquareWarning, X, Check, Loader2 } from 'lucide-react';
+import { X, Check, Loader2 } from 'lucide-react';
 import { apiUrl } from '../config/api';
 import { useRemoteApi } from '../hooks/useRemoteApi';
 import { BRAND } from '../config/brand';
 import { getSessionToken } from '../utils/authClient';
 import { useModalA11y } from '../hooks/useModalA11y';
+import { RealmsIcon } from './ui/RealmsIcon';
 
 /**
  * Hata bildirimi ve iletişim.
@@ -160,7 +161,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
             id="anlora-feedback-title"
             className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2"
           >
-            <MessageSquareWarning className="w-4 h-4 text-[var(--primary)]" />
+            <RealmsIcon name="report" size={20} className="text-[var(--primary)]" />
             Bize yaz
           </h3>
           <button

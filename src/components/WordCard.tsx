@@ -1,25 +1,13 @@
 import React, { useState } from 'react';
 import { WordCard as WordCardType, LearningState } from '../types';
-import {
-  Volume2,
-  Heart,
-  RotateCw,
-  BookOpen,
-  Sparkles,
-  ChevronDown,
-  ChevronUp,
-  Edit3,
-  Trash2,
-  BookmarkPlus,
-  Layers,
-  MessageSquareWarning
-} from 'lucide-react';
+import { Heart, Sparkles, ChevronUp, Edit3, Trash2 } from 'lucide-react';
 import { speakText } from '../utils/speech';
 import { PronounceButtons } from './ui/PronounceButtons';
-import { KartMotifi } from './ui/KartMotifi';
+import { CardMotif } from './ui/CardMotif';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { BRAND } from '../config/brand';
 import { LearningStatusControl } from './ui/LearningStatusControl';
+import { RealmsIcon } from './ui/RealmsIcon';
 
 interface WordCardProps {
   card: WordCardType;
@@ -123,7 +111,12 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
         kelimenin, IPA'nın ya da anlamın arkasına hiç girmiyor. Motif CEFR
         seviyesinden türüyor, rastgele değil.
       */}
-      <KartMotifi level={card.level} className="pt-3" />
+      <CardMotif
+        word={card.word}
+        level={card.level ?? ''}
+        wordType={card.partOfSpeech ?? ''}
+        className="mt-3 mx-4"
+      />
 
       <div>
         {/* Top Header: CEFR & POS info, Collections tag & Actions */}
@@ -194,7 +187,7 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
                 title="Sete Ekle"
                 className="p-1.5 text-[var(--text-muted)] hover:text-[var(--primary)] hover:bg-[var(--primary-soft)] rounded-lg transition-colors cursor-pointer"
               >
-                <BookmarkPlus className="w-4 h-4" />
+                <RealmsIcon name="bookmark" size={20} />
               </button>
             )}
 
@@ -207,7 +200,7 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
                 title="Bu kelimede hata bildir"
                 className="p-1.5 text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger-soft)] rounded-lg transition-colors cursor-pointer"
               >
-                <MessageSquareWarning className="w-4 h-4" />
+                <RealmsIcon name="report" size={20} />
               </button>
             )}
 
@@ -224,7 +217,7 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
                   : 'text-[var(--text-muted)] hover:text-[var(--favorite)] hover:bg-[var(--favorite-soft)]'
               }`}
             >
-              <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : 'stroke-[1.8]'}`} />
+              <RealmsIcon name="favorite" size={20} className="${isFavorite ? 'fill-current' : 'stroke-[1.8]'}" />
             </button>
 
             {/* Custom Card Editing */}
@@ -269,7 +262,7 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
                 key={idx}
                 className="text-[11px] font-medium px-2 py-0.5 bg-[var(--surface-soft)] text-[var(--text-secondary)] rounded-md flex items-center gap-1 border border-[var(--border)]"
               >
-                <Layers className="w-2.5 h-2.5 text-[var(--primary)]" />
+                <RealmsIcon name="sets" size={18} className="text-[var(--primary)]" />
                 {cName}
               </span>
             ))}
@@ -349,7 +342,7 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
             ) : (
               <div className="flex items-center justify-between py-1.5 text-xs text-[var(--text-secondary)] font-medium group-hover:text-[var(--primary)] transition-colors">
                 <span className="flex items-center gap-1.5">
-                  <RotateCw className="w-3.5 h-3.5 text-[var(--text-muted)] group-hover:text-[var(--primary)]" />
+                  <RealmsIcon name="repeat" size={18} className="text-[var(--text-muted)] group-hover:text-[var(--primary)]" />
                   <span>Türkçe anlamı görmek için dokunun</span>
                 </span>
               </div>
@@ -378,13 +371,13 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
             className="w-full flex items-center justify-between py-2 px-3 text-xs font-semibold text-[var(--text-secondary)] bg-[var(--bg)] hover:bg-[var(--surface-soft)] rounded-xl transition-colors border border-[var(--border)] cursor-pointer"
           >
             <span className="flex items-center gap-1.5">
-              <BookOpen className="w-3.5 h-3.5 text-[var(--primary)]" />
+              <RealmsIcon name="book" size={18} className="text-[var(--primary)]" />
               Örnek Cümleler ({card.examples?.length || 0})
             </span>
             {showExamples ? (
               <ChevronUp className="w-3.5 h-3.5 text-[var(--text-muted)]" />
             ) : (
-              <ChevronDown className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+              <RealmsIcon name="chevron-down" size={18} className="text-[var(--text-muted)]" />
             )}
           </button>
 
@@ -406,7 +399,7 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
                         className="p-1 text-[var(--text-muted)] hover:text-[var(--primary)] rounded transition-colors shrink-0 cursor-pointer"
                         title="Cümleyi Sesli Dinle"
                       >
-                        <Volume2 className="w-3.5 h-3.5" />
+                        <RealmsIcon name="audio" size={18} />
                       </button>
                     </div>
                     <p className="text-[var(--text-secondary)] italic pl-2.5 border-l-2 border-[var(--primary-border)] text-[11px]">

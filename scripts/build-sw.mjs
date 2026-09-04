@@ -113,6 +113,45 @@ if (sahneSayisi < 4) {
 }
 
 /*
+ * İKON SPRITE'I VE KART MOTİFLERİ.
+ *
+ * Bunlar `public/` altında duruyor, yani adları içerik özeti taşımıyor ve
+ * index.html'den de bağlanmıyorlar: sprite'a `<use href>` ile, motiflere CSS
+ * `url()` ile ulaşılıyor. Yukarıdaki taramalar ikisini de görmüyor.
+ *
+ * Ön-önbelleğe alınmazlarsa çevrimdışı açılışta bütün sistem ikonları boş
+ * kare, kart motifleri de düz çizgi olarak görünür.
+ */
+const ikonKok = path.join(distDir, 'assets/themes/realms');
+if (fs.existsSync(ikonKok)) {
+  if (fs.existsSync(path.join(ikonKok, 'realms-icons.svg'))) {
+    referanslar.add('/assets/themes/realms/realms-icons.svg');
+  }
+  const motifDizini = path.join(ikonKok, 'motifs');
+  if (fs.existsSync(motifDizini)) {
+    for (const dosya of fs.readdirSync(motifDizini)) {
+      if (dosya.endsWith('.webp')) referanslar.add(`/assets/themes/realms/motifs/${dosya}`);
+    }
+  }
+}
+
+/*
+ * Sprite ve altı motif gerçekten listeye girdi mi. Dosyalar taşınır ya da
+ * yeniden adlandırılırsa tarama sessizce hiçbir şey bulmaz; bunun bedeli,
+ * ancak kullanıcı uçak modundayken fark edilen boş ikonlardır.
+ */
+const spriteVar = referanslar.has('/assets/themes/realms/realms-icons.svg');
+const motifSayisi = [...referanslar].filter(y => y.includes('/realms/motifs/')).length;
+if (!spriteVar || motifSayisi !== 6) {
+  console.error(
+    `build-sw: ikon sprite'ı ${spriteVar ? 'var' : 'YOK'}, kart motifi ${motifSayisi}/6 bulundu. ` +
+      'public/assets/themes/realms altındaki dosyalar taşınmış olabilir; eksik varlıkla ' +
+      'çevrimdışı açılışta ikonlar boş görünür.'
+  );
+  process.exit(1);
+}
+
+/*
  * ÜRETİLEN LİSTE DENETLENİYOR.
  *
  * Bu betik şimdiye kadar ne bulursa onu yazıyor, hiçbir şey bulamasa da 0

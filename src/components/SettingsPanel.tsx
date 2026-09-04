@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { UserSettings } from '../types';
 import { HIZ_SECENEKLERI, VARSAYILAN_HIZ, hizRozeti } from '../utils/speechRate';
-import { Sliders, Target, Volume2, Keyboard, Layers, Download, Loader2, Sun, Bell } from 'lucide-react';
+import { Target, Keyboard, Loader2, Sun } from 'lucide-react';
+import { RealmsIcon } from './ui/RealmsIcon';
 import {
   describeSpeechSupport,
   openTtsInstall,
@@ -61,7 +62,6 @@ const THEME_OPTIONS = [
   { id: 'orman' as const, label: 'Koru', hint: 'Koyu — kuzeyin ormanı', zemin: '#0E1614', kenar: '#283B37', marka: '#7FB79A' },
   { id: 'komur' as const, label: 'Kor', hint: 'Koyu — sıcak kor ve kıvılcım', zemin: '#16110C', kenar: '#3A2E20', marka: '#D9954F' },
 ];
-
 
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange }) => {
   /*
@@ -176,7 +176,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
   return (
     <div className="parsomen-panel bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
       <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-1.5">
-        <Sliders className="w-4 h-4 text-[var(--text-secondary)]" />
+        <RealmsIcon name="filter" size={20} className="text-[var(--text-secondary)]" />
         <span>Çalışma Ayarları</span>
       </h3>
 
@@ -239,7 +239,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
           />
           <span>
             <span className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5">
-              <Volume2 className="w-3.5 h-3.5 text-[var(--primary)]" />
+              <RealmsIcon name="audio" size={18} className="text-[var(--primary)]" />
               Kart açılınca telaffuzu otomatik çal
             </span>
             <span className="text-[11px] text-[var(--text-secondary)]">
@@ -445,7 +445,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
       {/* Telaffuz sesi */}
       <div className="space-y-2 pt-2 border-t border-[var(--border-light)]">
         <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)]">
-          <Volume2 className="w-3.5 h-3.5" />
+          <RealmsIcon name="audio" size={18} />
           <span>Telaffuz Sesi</span>
         </div>
         <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
@@ -463,7 +463,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
             {isTesting ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
             ) : (
-              <Volume2 className="w-3.5 h-3.5" />
+              <RealmsIcon name="audio" size={18} />
             )}
             <span>Sesi Test Et</span>
           </button>
@@ -500,7 +500,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
               onClick={() => void openTtsInstall()}
               className="dugme-birincil px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer"
             >
-              <Download className="w-3.5 h-3.5" />
+              <RealmsIcon name="download" size={18} />
               <span>İngilizce Ses Paketini Yükle</span>
             </button>
           )}

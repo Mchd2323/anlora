@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Volume2, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { speakText } from '../../utils/speech';
+import { RealmsIcon } from '../ui/RealmsIcon';
 import {
   HIZ_SECENEKLERI,
   TelaffuzHizi,
@@ -90,7 +91,7 @@ export const PronounceButtons: React.FC<Props> = ({ text, compact = false, class
           caliyor ? 'opacity-70' : ''
         }`}
       >
-        <Volume2 className={`${ikonBoyu} stroke-[2.2]`} />
+        <RealmsIcon name="audio" size={20} className="${ikonBoyu} stroke-[2.2]" />
       </button>
 
       <button

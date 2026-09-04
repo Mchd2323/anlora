@@ -8,23 +8,7 @@ import {
   QuizSessionSummary,
   ResponseQuality
 } from '../types';
-import {
-  GraduationCap,
-  Sparkles,
-  Volume2,
-  CheckCircle2,
-  XCircle,
-  RotateCcw,
-  ArrowRight,
-  Brain,
-  Layers,
-  Award,
-  BookOpen,
-  Check,
-  PenTool,
-  CheckSquare,
-  Square,
-  ArrowLeft, RotateCw } from 'lucide-react';
+import { Sparkles, CheckCircle2, XCircle, ArrowRight, Award, Check, CheckSquare, Square } from 'lucide-react';
 import { speakText } from '../utils/speech';
 import {
   QuizQuestion,
@@ -38,6 +22,7 @@ import { CEFRBadge } from './ui/CEFRBadge';
 import { LearningStatusControl } from './ui/LearningStatusControl';
 import { BRAND } from '../config/brand';
 import { OxfordGroupKey } from '../types/oxford';
+import { RealmsIcon } from './ui/RealmsIcon';
 
 /** Sınav kaynağı olarak seçilebilen Oxford grupları. */
 /*
@@ -394,7 +379,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
         <div className="parsomen-panel bg-[var(--surface)] p-6 sm:p-8 rounded-2xl border border-[var(--border)] space-y-6">
           <div className="text-center space-y-1.5">
             <div className="w-10 h-10 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center mx-auto">
-              <GraduationCap className="w-5 h-5" />
+              <RealmsIcon name="exam" size={22} />
             </div>
             <h2 className="baslik-yazit text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
               Sınav Modu
@@ -680,7 +665,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                 }}
                 className="text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 cursor-pointer mr-2"
               >
-                <ArrowLeft className="w-3.5 h-3.5" />
+                <RealmsIcon name="back" size={18} />
                 <span>Çık</span>
               </button>
               <span className="px-2.5 py-1 text-xs font-bold bg-[var(--primary-soft)] text-[var(--primary)] rounded-lg border border-[var(--primary-border)]">
@@ -715,7 +700,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
               onClick={() => speakText(currentQ.word.word)}
                   className="px-3 py-1.5 bg-[var(--surface)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] font-semibold text-xs rounded-xl border border-[var(--border)] transition-transform active:scale-95 inline-flex items-center gap-1.5 cursor-pointer"
                 >
-                  <Volume2 className="w-3.5 h-3.5 text-[var(--primary)]" />
+                  <RealmsIcon name="audio" size={18} className="text-[var(--primary)]" />
                   <span>Telaffuzu Dinle</span>
                 </button>
               )}
@@ -941,7 +926,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                   }}
                   className="flex-1 min-w-[150px] px-3.5 py-2.5 rounded-xl bg-[var(--learning-soft)] hover:bg-[var(--learning-soft-hover)] text-[var(--learning-text)] border border-[var(--learning-border)] text-xs font-bold inline-flex items-center justify-center gap-1.5 cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  <RotateCw className="w-3.5 h-3.5 stroke-[3]" />
+                  <RealmsIcon name="repeat" size={18} className="stroke-[3]" />
                   Yanlışları tekrar et ({cevaplananSayisi - score})
                 </button>
               )}
@@ -1019,7 +1004,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
               onClick={startQuiz}
               className="dugme-birincil px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
             >
-              <RotateCcw className="w-3.5 h-3.5" />
+              <RealmsIcon name="repeat" size={18} />
               <span>Yeniden Sına</span>
             </button>
             <button

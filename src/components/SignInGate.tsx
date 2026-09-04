@@ -1,5 +1,6 @@
 import React from 'react';
-import { Layers, CloudUpload, Check } from 'lucide-react';
+import { CloudUpload, Check } from 'lucide-react';
+import { RealmsIcon } from './ui/RealmsIcon';
 
 /**
  * Kelime setleri için üyelik kapısı.
@@ -26,7 +27,7 @@ export const SignInGate: React.FC<{
   <div className="max-w-lg mx-auto animate-fadeIn pb-safe-nav">
     <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-7 space-y-5 text-center">
       <div className="w-14 h-14 rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center mx-auto">
-        <Layers className="w-7 h-7" />
+        <RealmsIcon name="sets" size={22} />
       </div>
 
       <div className="space-y-2">

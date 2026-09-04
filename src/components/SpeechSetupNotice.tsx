@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Volume2, Download, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { describeSpeechSupport, openTtsInstall, type SpeechDiagnostics } from '../utils/speech';
 import { readRaw, writeRaw } from '../utils/safeStorage';
+import { RealmsIcon } from './ui/RealmsIcon';
 
 const KAPATILDI = 'anlora.speechNoticeDismissed.v1';
 
@@ -47,7 +48,7 @@ export const SpeechSetupNotice: React.FC<{ className?: string }> = ({ className 
     <div
       className={`bg-[var(--learning-soft)] border border-[var(--learning-border)] rounded-2xl p-4 flex items-start gap-3 ${className}`}
     >
-      <Volume2 className="w-4 h-4 text-[var(--learning-text)] shrink-0 mt-0.5" aria-hidden="true" />
+      <RealmsIcon name="audio" size={20} className="text-[var(--learning-text)] shrink-0 mt-0.5" aria-hidden="true" />
       <div className="min-w-0 flex-1">
         <p className="text-sm font-bold text-[var(--learning-text)]">
           Telaffuz için tek seferlik bir kurulum gerekiyor
@@ -78,7 +79,7 @@ export const SpeechSetupNotice: React.FC<{ className?: string }> = ({ className 
             }}
             className="px-3 py-2 bg-[var(--learning)] hover:opacity-90 disabled:opacity-60 text-[var(--surface)] text-[11px] font-bold rounded-lg cursor-pointer inline-flex items-center gap-1.5"
           >
-            <Download className="w-3.5 h-3.5" aria-hidden="true" />
+            <RealmsIcon name="download" size={18} aria-hidden="true" />
             {aciliyor ? 'Açılıyor…' : 'Ses paketini kur'}
           </button>
           <button

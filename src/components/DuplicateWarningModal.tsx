@@ -1,9 +1,10 @@
 import React from 'react';
 import { DuplicateCheckResult, WordCard } from '../types';
-import { AlertCircle, Plus, Edit2, Link, BookOpen, X } from 'lucide-react';
+import { AlertCircle, Edit2, Link, X } from 'lucide-react';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { shouldShowCefr } from '../types/oxford';
 import { useModalA11y } from '../hooks/useModalA11y';
+import { RealmsIcon } from './ui/RealmsIcon';
 
 interface DuplicateWarningModalProps {
   isOpen: boolean;
@@ -172,7 +173,7 @@ export const DuplicateWarningModal: React.FC<DuplicateWarningModalProps> = ({
                 onClick={() => onUseBaseForm(duplicateInfo.lemmaSuggestion!.baseForm)}
                 className="dugme-birincil w-full py-2 px-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <BookOpen className="w-3.5 h-3.5" />
+                <RealmsIcon name="book" size={18} />
                 <span>Kök Biçimini ("{duplicateInfo.lemmaSuggestion.baseForm}") Ekle</span>
               </button>
             )}
@@ -213,7 +214,7 @@ export const DuplicateWarningModal: React.FC<DuplicateWarningModalProps> = ({
                 onClick={onForceCreateNew}
                 className="w-full py-2 px-3 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] text-xs font-semibold rounded-xl border border-[var(--border)] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <RealmsIcon name="add" size={18} />
                 <span>Farklı anlam için yine de ekle</span>
               </button>
             )}

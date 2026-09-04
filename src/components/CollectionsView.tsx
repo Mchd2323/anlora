@@ -9,40 +9,7 @@ import {
 } from '../types';
 import { WordCardComponent } from './WordCard';
 import { StudyFlashcard } from './study/StudyFlashcard';
-import {
-  Layers,
-  Plus,
-  Search,
-  Sparkles,
-  BookOpen,
-  GraduationCap,
-  Tv,
-  Briefcase,
-  Plane,
-  Download,
-  Upload,
-  Merge,
-  MoveRight,
-  X,
-  Share2,
-  Pin,
-  Trash2,
-  Edit2,
-  Copy,
-  FileText,
-  Play,
-  MoreVertical,
-  Check,
-  CheckCircle2,
-  Loader2,
-  RotateCw,
-  AlertCircle,
-  Volume2,
-  ChevronDown,
-  GitMerge,
-  ArrowUp,
-  ArrowDown
-} from 'lucide-react';
+import { Layers, Search, Sparkles, BookOpen, GraduationCap, Tv, Briefcase, Plane, Merge, MoveRight, X, Pin, Trash2, Edit2, Copy, FileText, Check, CheckCircle2, Loader2, AlertCircle, GitMerge, ArrowUp, ArrowDown } from 'lucide-react';
 import { getPhraseCard } from '../services/phraseRepository';
 import { DeckOptionFields, DeckOptionValues } from './collections/DeckOptionFields';
 import { BatchWordModal } from './BatchWordModal';
@@ -63,6 +30,7 @@ import { useRemoteApi } from '../hooks/useRemoteApi';
 import { apiFetch } from '../utils/authClient';
 import { formatPhonetic } from '../utils/phonetic';
 import { reportMissingWord } from '../services/usageReporter';
+import { RealmsIcon } from './ui/RealmsIcon';
 import {
   hasExtendedWord,
   getExtendedCard,
@@ -210,7 +178,6 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
    * aynı pencere iki kez çizilse bile id'ler karışmaz.
    */
   const alanId = useId();
-
 
   const [activeDeckId, setActiveDeckId] = useState<string | null>(collections[0]?.id || null);
 
@@ -1370,7 +1337,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
             onClick={() => setShowCreateModal(true)}
             className="dugme-birincil px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-1.5 active:scale-[0.98] cursor-pointer"
           >
-            <Plus className="w-4 h-4" />
+            <RealmsIcon name="add" size={20} />
             <span>Yeni Kelime Seti</span>
           </button>
         </div>
@@ -1472,7 +1439,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                         className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-soft)] rounded-lg transition-colors cursor-pointer"
                         title="Set Seçenekleri"
                       >
-                        <MoreVertical className="w-4 h-4" />
+                        <RealmsIcon name="more" size={20} />
                       </button>
                     </div>
                   </div>
@@ -1587,7 +1554,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                           <Check className="w-3 h-3 stroke-[3]" aria-hidden="true" />{learned} Öğrendim
                         </span>
                       <span className="text-[var(--learning)] inline-flex items-center gap-1">
-                          <RotateCw className="w-3 h-3 stroke-[3]" aria-hidden="true" />{learning} Tekrar Et
+                          <RealmsIcon name="repeat" size={18} className="stroke-[3]" aria-hidden="true" />{learning} Tekrar Et
                         </span>
                     </div>
                     <div className="h-1.5 w-full bg-[var(--border)] rounded-full overflow-hidden">
@@ -1629,17 +1596,13 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 aria-expanded={setListesiAcik}
                 className="w-full px-4 py-3 rounded-xl border-2 border-[var(--primary-border)] bg-[var(--primary-soft)] hover:bg-[var(--primary-soft-hover)] text-xs font-bold text-[var(--primary)] flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
-                <Layers className="w-4 h-4" />
+                <RealmsIcon name="sets" size={20} />
                 <span>
                   {setListesiAcik
                     ? 'Listeyi kapat'
                     : `Tüm setleri gör (${collections.length})`}
                 </span>
-                <ChevronDown
-                  className={`w-3.5 h-3.5 transition-transform ${
-                    setListesiAcik ? 'rotate-180' : ''
-                  }`}
-                />
+                <RealmsIcon name="chevron-down" size={18} className="transition-transform ${ setListesiAcik ? 'rotate-180' : '' }" />
               </button>
 
               {setListesiAcik && (
@@ -1719,7 +1682,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     onClick={() => onStartQuiz(activeDeck.id)}
                     className="px-3.5 py-2 bg-[var(--surface-soft)] hover:bg-[var(--primary-soft)] text-[var(--primary)] border border-[var(--primary-border)] text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
                   >
-                    <GraduationCap className="w-4 h-4 text-[var(--primary)]" />
+                    <RealmsIcon name="exam" size={20} className="text-[var(--primary)]" />
                     <span>Sınav Yap</span>
                   </button>
                 </div>
@@ -1735,7 +1698,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     }}
                     className="dugme-birincil px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl shadow-xs transition-colors flex items-center gap-1.5 active:scale-[0.98] cursor-pointer"
                   >
-                    <Plus className="w-3.5 h-3.5" />
+                    <RealmsIcon name="add" size={18} />
                     <span>Kelime Ekle</span>
                   </button>
 
@@ -1743,7 +1706,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     onClick={() => setShowBatchModal(true)}
                     className="px-3.5 py-2 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] text-xs font-semibold rounded-xl border border-[var(--border)] transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
-                    <Layers className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
+                    <RealmsIcon name="sets" size={18} className="text-[var(--text-secondary)]" />
                     <span>Toplu Ekle</span>
                   </button>
 
@@ -1752,7 +1715,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     title="Bu seti CSV olarak indir"
                     className="px-3 py-2 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] text-xs font-semibold rounded-xl border border-[var(--border)] transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
-                    <Download className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
+                    <RealmsIcon name="download" size={18} className="text-[var(--text-secondary)]" />
                     <span className="hidden sm:inline">CSV</span>
                   </button>
 
@@ -1761,7 +1724,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     title="CSV'den bu sete kelime ekle"
                     className="px-3 py-2 bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] text-xs font-semibold rounded-xl border border-[var(--border)] transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
-                    <Upload className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
+                    <RealmsIcon name="share" size={18} className="text-[var(--text-secondary)]" />
                   </button>
 
                   {/*
@@ -1780,7 +1743,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                         : 'bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] border-[var(--border)]'
                     }`}
                   >
-                    <Share2 className="w-3.5 h-3.5" />
+                    <RealmsIcon name="share" size={18} />
                     <span className="hidden sm:inline">
                       {activeDeck.shareCode ? 'Paylaşıldı' : 'Paylaş'}
                     </span>
@@ -1800,7 +1763,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
                 {/* Search in Set */}
                 <div className="relative min-w-[200px] flex-1 max-w-xs">
-                  <Search className="w-3.5 h-3.5 text-[var(--text-muted)] absolute left-3 top-1/2 -translate-y-1/2" />
+                  <RealmsIcon name="search" size={18} className="text-[var(--text-muted)] absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={searchQuery}
@@ -1830,7 +1793,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   </p>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
-                  <Play className="w-4 h-4 fill-current ml-0.5" />
+                  <RealmsIcon name="play" size={20} className="fill-current ml-0.5" />
                 </div>
               </button>
             )}
@@ -1987,7 +1950,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
             ) : (
               /* Empty Set View */
               <div className="parsomen-panel bg-[var(--surface)] p-10 rounded-2xl border border-[var(--border)] text-center space-y-3 shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
-                <BookOpen className="w-8 h-8 text-[var(--text-muted)] mx-auto" />
+                <RealmsIcon name="book" size={22} className="text-[var(--text-muted)] mx-auto" />
                 <div className="space-y-1">
                   <h4 className="text-base font-bold text-[var(--text-primary)]">Henüz kelime yok</h4>
                   <p className="text-xs text-[var(--text-secondary)] max-w-sm mx-auto leading-relaxed">
@@ -2002,7 +1965,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     }}
                     className="dugme-birincil px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl inline-flex items-center gap-1.5 cursor-pointer"
                   >
-                    <Plus className="w-3.5 h-3.5" />
+                    <RealmsIcon name="add" size={18} />
                     <span>İlk Kelimemi Ekle</span>
                   </button>
                 </div>
@@ -2022,7 +1985,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
           className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
           <div className="parsomen-panel bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
             <h3 id="anlora-create-set-title" className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[var(--primary)]" />
+              <RealmsIcon name="sets" size={20} className="text-[var(--primary)]" />
               Yeni Kelime Seti Oluştur
             </h3>
             <form
@@ -2206,7 +2169,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
           <div className="parsomen-panel bg-[var(--surface)] rounded-2xl max-w-lg w-full border border-[var(--border)] shadow-xl p-6 sm:p-7 space-y-5 my-8">
             <div className="flex items-center justify-between">
               <h3 id="anlora-add-word-title" className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
-                <Plus className="w-4 h-4 text-[var(--primary)]" />
+                <RealmsIcon name="add" size={20} className="text-[var(--primary)]" />
                 Yeni Kelime Ekle
               </h3>
               <span className="text-xs font-bold text-[var(--primary)] bg-[var(--primary-soft)] px-2.5 py-1 rounded-lg border border-[var(--primary-border)]">
@@ -2374,7 +2337,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       onClick={() => addLookedUpCard(lookup.card, lookup.source)}
                       className="w-full py-2.5 bg-[var(--learned)] hover:bg-[var(--learned-hover)] text-[var(--surface)] text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                     >
-                      <Plus className="w-4 h-4" />
+                      <RealmsIcon name="add" size={20} />
                       <span>Bu kelimeyi sete ekle</span>
                     </button>
 
@@ -2655,7 +2618,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       className="p-2 rounded-xl bg-white border border-[var(--border)] text-[var(--primary)] hover:bg-[var(--primary-soft)] cursor-pointer"
                       title="Dinle"
                     >
-                      <Volume2 className="w-4 h-4" />
+                      <RealmsIcon name="audio" size={20} />
                     </button>
                   </div>
 
@@ -2792,7 +2755,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
           <div className="parsomen-panel bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 id="anlora-share-title" className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
-                <Share2 className="w-4 h-4 text-[var(--teal)]" />
+                <RealmsIcon name="share" size={20} className="text-[var(--teal)]" />
                 Seti paylaş
               </h3>
               <button

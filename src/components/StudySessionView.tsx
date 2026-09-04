@@ -8,24 +8,7 @@ import {
   UserSettings,
   StudySessionSummary
 } from '../types';
-import {
-  Brain,
-  RotateCcw,
-  Check,
-  RotateCw,
-  Volume2,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  Sparkles,
-  ArrowRight,
-  Zap,
-  HelpCircle,
-  Layers,
-  ChevronRight,
-  Flame,
-  Award
-} from 'lucide-react';
+import { Brain, Check, CheckCircle2, XCircle, ArrowRight, Zap, Flame, Award } from 'lucide-react';
 import { sample } from '../utils/random';
 import { PronounceButtons } from './ui/PronounceButtons';
 import { speakText } from '../utils/speech';
@@ -36,6 +19,7 @@ import { oxfordCoreRepository } from '../services/oxfordCoreRepository';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { shouldShowCefr } from '../types/oxford';
 import { readJSON, writeJSON } from '../utils/safeStorage';
+import { RealmsIcon } from './ui/RealmsIcon';
 
 /** Son seçilen çalışma modu; oturum bunu hatırlar. */
 const SON_MOD_ANAHTARI = 'anlora.sonCalismaModu.v1';
@@ -447,7 +431,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold truncate">{col.name}</span>
-                    <Layers className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+                    <RealmsIcon name="sets" size={18} className="text-[var(--text-muted)]" />
                   </div>
                   <p className="text-[11px] text-[var(--text-secondary)] mt-0.5 truncate">{col.description || 'Özel Set'}</p>
                 </button>
@@ -710,7 +694,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
                   </div>
                 ) : (
                   <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[var(--bg)] hover:bg-[var(--surface-soft)] rounded-xl text-xs font-semibold text-[var(--text-secondary)] transition-colors border border-[var(--border)]">
-                    <RotateCw className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+                    <RealmsIcon name="repeat" size={18} className="text-[var(--text-muted)]" />
                     <span>Anlamı Görmek İçin Dokun</span>
                   </div>
                 )}
@@ -778,7 +762,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
               onClick={() => speakText(card.word)}
                 className="w-14 h-14 rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center mx-auto hover:bg-[var(--primary-soft-hover)] transition-transform active:scale-95 cursor-pointer"
               >
-                <Volume2 className="w-6 h-6 stroke-[2.2]" />
+                <RealmsIcon name="audio" size={22} className="stroke-[2.2]" />
               </button>
               <p className="text-xs text-[var(--text-secondary)]">Telaffuzu dinle ve kelimeyi hatırla</p>
 
@@ -861,7 +845,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
                 onClick={() => handleGradeResponse('again')}
                 className="py-3 px-3 rounded-xl bg-[var(--learning-soft)] hover:bg-[var(--learning-tint)] text-[var(--learning-text)] border border-[var(--learning-border)] text-sm font-bold transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer min-h-[48px]"
               >
-                <RotateCcw className="w-4 h-4" />
+                <RealmsIcon name="repeat" size={20} />
                 <span>Tekrar Et</span>
               </button>
 

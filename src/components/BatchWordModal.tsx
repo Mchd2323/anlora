@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Collection, WordCard, CollectionMembership } from '../types';
-import { Layers, Sparkles, ArrowRight, X, Loader2 } from 'lucide-react';
+import { Sparkles, ArrowRight, X, Loader2 } from 'lucide-react';
 import { normalizeWordString } from '../utils/lemmatizer';
 import { detectWordDuplicate } from '../utils/duplicateDetector';
 import { useModalA11y } from '../hooks/useModalA11y';
 import { apiUrl } from '../config/api';
 import { useRemoteApi } from '../hooks/useRemoteApi';
+import { RealmsIcon } from './ui/RealmsIcon';
 
 interface BatchWordModalProps {
   isOpen: boolean;
@@ -240,7 +241,7 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
         <div className="bg-[var(--surface)] border-b border-[var(--border-light)] p-5 flex items-start justify-between">
           <div className="flex items-center gap-2.5">
             <div className="p-2 bg-[var(--primary-soft)] text-[var(--primary)] rounded-xl">
-              <Layers className="w-4 h-4" />
+              <RealmsIcon name="sets" size={20} />
             </div>
             <div>
               <h3 id="anlora-batch-word-title" className="text-sm font-bold text-[var(--text-primary)]">Toplu Kelime Ekle</h3>

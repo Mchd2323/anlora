@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Collection, WordCard } from '../types';
-import { BookmarkPlus, Plus, Check, X, Layers, FolderPlus } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { shouldShowCefr } from '../types/oxford';
 import { useModalA11y } from '../hooks/useModalA11y';
+import { RealmsIcon } from './ui/RealmsIcon';
 
 interface AddToCollectionModalProps {
   isOpen: boolean;
@@ -70,7 +71,7 @@ export const AddToCollectionModal: React.FC<AddToCollectionModalProps> = ({
         <div className="bg-[var(--surface)] border-b border-[var(--border-light)] p-5 flex items-start justify-between">
           <div className="flex items-center gap-2.5">
             <div className="p-2 bg-[var(--primary-soft)] rounded-xl text-[var(--primary)]">
-              <BookmarkPlus className="w-4 h-4" />
+              <RealmsIcon name="bookmark" size={20} />
             </div>
             <div>
               <h3 id="anlora-add-collection-title" className="text-sm font-bold text-[var(--text-primary)]">Kelimelerime Ekle</h3>
@@ -134,7 +135,7 @@ export const AddToCollectionModal: React.FC<AddToCollectionModalProps> = ({
                 onClick={() => setIsCreatingNew(!isCreatingNew)}
                 className="text-xs font-bold text-[var(--primary)] hover:underline flex items-center gap-1 cursor-pointer"
               >
-                <FolderPlus className="w-3.5 h-3.5" />
+                <RealmsIcon name="add" size={18} />
                 <span>{isCreatingNew ? 'Listeyi Gör' : 'Yeni Set'}</span>
               </button>
             </div>
@@ -185,7 +186,7 @@ export const AddToCollectionModal: React.FC<AddToCollectionModalProps> = ({
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
                           <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isMember ? 'bg-[var(--learned)] text-[var(--surface)]' : 'bg-[var(--surface-soft)] text-[var(--text-secondary)]'}`}>
-                            <Layers className="w-3.5 h-3.5" />
+                            <RealmsIcon name="sets" size={18} />
                           </div>
                           <div className="truncate">
                             <h4 className="text-xs font-bold truncate">{col.name}</h4>

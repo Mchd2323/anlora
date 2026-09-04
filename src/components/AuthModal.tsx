@@ -3,25 +3,10 @@ import { UserProfile } from '../types';
 import { apiFetch, storeSession, clearSession } from '../utils/authClient';
 import { hasRemoteApi } from '../config/api';
 import { useModalA11y } from '../hooks/useModalA11y';
-import {
-  CloudCheck,
-  ShieldCheck,
-  Lock,
-  Mail,
-  X,
-  Loader2,
-  LogOut,
-  MapPin,
-  Globe,
-  Search,
-  CheckCircle2,
-  AlertCircle,
-  ArrowLeft,
-  KeyRound,
-  Sparkles
-} from 'lucide-react';
+import { CloudCheck, ShieldCheck, Lock, Mail, X, Loader2, LogOut, MapPin, Globe, CheckCircle2, AlertCircle, KeyRound, Sparkles } from 'lucide-react';
 import { BRAND } from '../config/brand';
 import { COUNTRIES, TURKISH_CITIES, filterTurkishCities } from '../data/locations';
+import { RealmsIcon } from './ui/RealmsIcon';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -500,7 +485,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               onClick={() => setAuthStep('email_form')}
               className="flex items-center gap-1 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-semibold transition-colors cursor-pointer"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
+              <RealmsIcon name="back" size={18} />
               <span>Geri Dön</span>
             </button>
 
@@ -588,7 +573,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               onClick={() => setAuthStep('main')}
               className="flex items-center gap-1 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-semibold transition-colors cursor-pointer"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
+              <RealmsIcon name="back" size={18} />
               <span>Geri Dön</span>
             </button>
 
@@ -765,7 +750,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     {isCityDropdownOpen && (
                       <div className="absolute left-0 right-0 top-full mt-1 bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-lg z-30 p-2 space-y-1.5">
                         <div className="relative">
-                          <Search className="w-3 h-3 text-[var(--text-muted)] absolute left-2 top-1/2 -translate-y-1/2" />
+                          <RealmsIcon name="search" size={18} className="text-[var(--text-muted)] absolute left-2 top-1/2 -translate-y-1/2" />
                           <input
                             type="text"
                             autoFocus

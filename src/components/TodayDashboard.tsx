@@ -9,22 +9,7 @@ import {
   UserSettings,
   UserStats
 } from '../types';
-import {
-  Layers,
-  BookOpen,
-  Plus,
-  ArrowRight,
-  ChevronRight,
-  Sparkles,
-  Flame,
-  Target,
-  Play,
-  Megaphone,
-  X,
-  Check,
-  RotateCw,
-  CloudUpload
-} from 'lucide-react';
+import { ArrowRight, ChevronRight, Sparkles, Flame, Target, Megaphone, X, Check, CloudUpload } from 'lucide-react';
 import { getUserWordStatus, getCurrentStreak, streakCountedToday } from '../utils/storageV2';
 import { getUnseenAnnouncements, markAnnouncementSeen } from '../services/appContent';
 import { readJSON, writeJSON } from '../utils/safeStorage';
@@ -43,6 +28,7 @@ import sahneKitaplik from '../assets/themes/realms/realms-library.webp';
 import sahneKuzgun from '../assets/themes/realms/realms-raven-map.webp';
 import sahneEjderha from '../assets/themes/realms/realms-dragon.webp';
 import sahneBuzKalesi from '../assets/themes/realms/realms-ice-fortress.webp';
+import { RealmsIcon } from './ui/RealmsIcon';
 
 interface TodayDashboardProps {
   collections: Collection[];
@@ -392,7 +378,6 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
         </div>
       )}
 
-
       {/*
         SIRALAMA
         Kullanıcının kendi setleri en üstte durur: uygulamaya girme sebebi
@@ -405,7 +390,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           <div className="space-y-2 max-w-xl">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center">
-                <Layers className="w-4 h-4" />
+                <RealmsIcon name="sets" size={20} />
               </div>
               <h2 className="baslik-yazit text-xl font-bold text-[var(--text-primary)]">Kelime Setlerim</h2>
             </div>
@@ -438,7 +423,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
               onClick={handleCreateSetClick}
               className="dugme-birincil px-4 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-[var(--surface)] text-xs font-semibold rounded-xl transition-all flex items-center gap-2 shadow-xs cursor-pointer"
             >
-              <Plus className="w-4 h-4" />
+              <RealmsIcon name="add" size={20} />
               <span>+ Kelime Seti Oluştur</span>
             </button>
           </div>
@@ -492,7 +477,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
                           <Check className="w-3 h-3 stroke-[3]" aria-hidden="true" />{learned} Öğrendim
                         </span>
                         <span className="text-[var(--learning)] inline-flex items-center gap-1">
-                          <RotateCw className="w-3 h-3 stroke-[3]" aria-hidden="true" />{learning} Tekrar Et
+                          <RealmsIcon name="repeat" size={18} className="stroke-[3]" aria-hidden="true" />{learning} Tekrar Et
                         </span>
                       </div>
                       <div className="h-1.5 w-full bg-[var(--border)] rounded-full overflow-hidden">
@@ -530,7 +515,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
                 onClick={handleCreateSetClick}
                 className="dugme-birincil px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl transition-all inline-flex items-center gap-1.5 cursor-pointer"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <RealmsIcon name="add" size={18} />
                 <span>İlk Setimi Oluştur</span>
               </button>
             </div>
@@ -564,7 +549,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-xl bg-[var(--cefr-a1-soft)] text-[var(--learned)] flex items-center justify-center">
-                <BookOpen className="w-4 h-4" />
+                <RealmsIcon name="book" size={20} />
               </div>
               <h2 className="baslik-yazit text-xl font-bold text-[var(--text-primary)]">Oxford 5000</h2>
             </div>
@@ -742,7 +727,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
             disabled={plannedTotal === 0}
             className="dugme-birincil w-full mt-4 py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 text-[var(--surface)] text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <Play className="w-4 h-4" />
+            <RealmsIcon name="play" size={20} />
             <span>
               {plannedTotal > 0
                 ? `Kaldığın yerden devam et (${plannedTotal} kelime)`
