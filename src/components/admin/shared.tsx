@@ -100,7 +100,7 @@ export const BarSeries: React.FC<{
   data: { day: string; count: number }[];
   label: string;
   color?: string;
-}> = ({ data, label, color = '#4F46A5' }) => {
+}> = ({ data, label, color = '#15283D' }) => {
   const max = Math.max(1, ...data.map(d => d.count));
   const peak = data.reduce((best, d, i) => (d.count > data[best].count ? i : best), 0);
 
