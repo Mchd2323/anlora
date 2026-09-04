@@ -69,7 +69,11 @@ export const WordStatusActions: React.FC<WordStatusActionsProps> = ({
         }`}
         title="Tekrar Et listesine ekle / çıkar"
       >
-        <RealmsIcon name="repeat" size={18} className="${isReview ? 'text-[var(--surface)]' : 'text-[var(--text-muted)]'}" />
+        <RealmsIcon
+          name="repeat"
+          size={18}
+          className={isReview ? 'text-[var(--surface)]' : 'text-[var(--text-muted)]'}
+        />
         <span>Tekrar Et</span>
       </button>
 

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { WordCard as WordCardType, LearningState } from '../types';
-import { Heart, Sparkles, ChevronUp, Edit3, Trash2 } from 'lucide-react';
+import { Heart, Sparkles, ChevronUp, Edit3, Trash2, Maximize2, Minimize2 } from 'lucide-react';
 import { speakText } from '../utils/speech';
 import { PronounceButtons } from './ui/PronounceButtons';
 import { CardMotif } from './ui/CardMotif';
@@ -96,9 +96,41 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
     }
   };
 
-  return (
+  /*
+   * TAM EKRAN.
+   *
+   * Kullanıcı kartı çalışırken telefonda yalnızca kartı görmek isteyebilir:
+   * liste, süzgeçler ve alt menü göz önünden kalksın. Açıkken kart, ekranı
+   * kaplayan sabit bir katmana taşınıyor; kapanınca listedeki yerine dönüyor.
+   *
+   * Durum KART BAŞINA tutuluyor ama aynı anda yalnızca biri açık olabilir,
+   * çünkü katman ekranı kaplıyor.
+   */
+  const [tamEkran, setTamEkran] = useState(false);
+
+  /*
+   * Esc ile kapansın ve arkadaki liste kaymasın: tam ekran bir kip, kipten
+   * çıkışın klavye karşılığı olmalı.
+   */
+  useEffect(() => {
+    if (!tamEkran) return;
+    const kapat = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setTamEkran(false);
+    };
+    window.addEventListener('keydown', kapat);
+    const eskiTasma = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', kapat);
+      document.body.style.overflow = eskiTasma;
+    };
+  }, [tamEkran]);
+
+  const kart = (
     <div
-      className={`group relative bg-[var(--surface)] rounded-2xl border transition-all duration-200 flex flex-col justify-between hover:-translate-y-0.5 ${
+      className={`group relative bg-[var(--surface)] rounded-2xl border transition-all duration-200 flex flex-col justify-between ${
+        tamEkran ? 'w-full max-w-[560px] max-h-full overflow-y-auto' : 'hover:-translate-y-0.5'
+      } ${
         currentStatus === 'learned'
           ? 'border-[var(--learned-border)] shadow-[0_2px_12px_-2px_rgba(79,128,106,0.08)]'
           : currentStatus === 'learning'
@@ -117,6 +149,30 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
         wordType={card.partOfSpeech ?? ''}
         className="mt-3 mx-4"
       />
+
+      {/*
+        TAM EKRAN — kartın sağ üst köşesinde, motif şeridinin hizasında.
+
+        Eylem satırına (yer imi, hata bildir, favori) konmamasının nedeni
+        ölçüldü: 360 piksellik ekranda satır dolduğu için sözcük türü etiketi
+        iki satıra düşüyor ve kartın düzeni bozuluyordu. Şeridin sağ ucu zaten
+        boş; düğme oraya oturunca eylem satırı olduğu gibi kalıyor.
+      */}
+      <button
+        onClick={e => {
+          e.stopPropagation();
+          setTamEkran(v => !v);
+        }}
+        title={tamEkran ? 'Tam ekrandan çık (Esc)' : 'Tam ekran'}
+        aria-label={tamEkran ? 'Tam ekrandan çık' : 'Tam ekran'}
+        className="absolute top-1.5 right-1.5 z-10 p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--primary)] hover:bg-[var(--primary-soft)] transition-colors cursor-pointer"
+      >
+        {tamEkran ? (
+          <Minimize2 size={18} strokeWidth={1.7} />
+        ) : (
+          <Maximize2 size={18} strokeWidth={1.7} />
+        )}
+      </button>
 
       <div>
         {/* Top Header: CEFR & POS info, Collections tag & Actions */}
@@ -217,7 +273,11 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
                   : 'text-[var(--text-muted)] hover:text-[var(--favorite)] hover:bg-[var(--favorite-soft)]'
               }`}
             >
-              <RealmsIcon name="favorite" size={20} className="${isFavorite ? 'fill-current' : 'stroke-[1.8]'}" />
+              <RealmsIcon
+                name="favorite"
+                size={20}
+                className={isFavorite ? 'fill-current' : 'stroke-[1.8]'}
+              />
             </button>
 
             {/* Custom Card Editing */}
@@ -433,6 +493,24 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
           size="md"
         />
       </div>
+    </div>
+  );
+
+  if (!tamEkran) return kart;
+
+  /*
+   * Tam ekran katmanı. Kartın KENDİSİ değişmiyor — aynı düğüm, aynı durum,
+   * açık örnek cümleler açık kalıyor; yalnızca ekranı kaplayan bir kapsayıcının
+   * içine giriyor. Bu yüzden kapatınca kullanıcı bıraktığı yerden devam ediyor.
+   */
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${card.word} — tam ekran`}
+      className="fixed inset-0 z-50 bg-[var(--bg)] p-3 sm:p-6 flex items-start justify-center overflow-y-auto"
+    >
+      {kart}
     </div>
   );
 };

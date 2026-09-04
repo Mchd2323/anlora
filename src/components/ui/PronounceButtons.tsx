@@ -75,7 +75,8 @@ export const PronounceButtons: React.FC<Props> = ({ text, compact = false, class
   };
 
   const dugmeBoyu = compact ? 'p-2' : 'p-2.5';
-  const ikonBoyu = compact ? 'w-3.5 h-3.5' : 'w-4 h-4';
+  /* Paketin ölçüsü: küçük araç 18, normal eylem 20 piksel. */
+  const ikonBoyu = compact ? 18 : 20;
 
   return (
     <div ref={kapsayici} className={`relative flex items-center gap-1 shrink-0 ${className}`}>
@@ -91,7 +92,7 @@ export const PronounceButtons: React.FC<Props> = ({ text, compact = false, class
           caliyor ? 'opacity-70' : ''
         }`}
       >
-        <RealmsIcon name="audio" size={20} className="${ikonBoyu} stroke-[2.2]" />
+        <RealmsIcon name="audio" size={ikonBoyu} />
       </button>
 
       <button

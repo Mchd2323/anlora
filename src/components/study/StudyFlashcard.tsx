@@ -358,14 +358,13 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
           <p className="text-xs font-bold text-[var(--text-primary)] truncate">{title}</p>
         </div>
 
-        <button
-          onClick={() => setIsFullscreen(!isFullscreen)}
-          className="p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--surface-soft)] transition-colors cursor-pointer shrink-0"
-          title={isFullscreen ? 'Tam ekrandan çık (Esc)' : 'Tam ekran'}
-          aria-label={isFullscreen ? 'Tam ekrandan çık' : 'Tam ekran'}
-        >
-          {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-        </button>
+        {/*
+          TAM EKRAN DÜĞMESİ BURADAN KARTIN SAĞ ÜST KÖŞESİNE TAŞINDI.
+          Ekranın üst çubuğunda dururken kartın kendisiyle ilgisi görünmüyordu;
+          artık diğer kart eylemlerinin (ses, favori, menü) yanında.
+          Yerine hizalamayı koruyan boş bir alan bırakıldı.
+        */}
+        <span className="w-9 shrink-0" aria-hidden="true" />
       </div>
 
       {/* İnce ilerleme çizgisi + sayaç */}
@@ -498,6 +497,35 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                 className="-mt-3 sm:-mt-5 -mx-3 sm:-mx-5 mb-3"
               />
 
+              {/*
+                TAM EKRAN — kartın sağ üst köşesinde, motif şeridinin hizasında.
+                
+                Önce eylem satırına (ses, hız, favori, menü) konmuştu; ölçtüm,
+                360 piksellik ekranda satır dolduğu için sözcük türü etiketi
+                iki satıra düşüyor ve kartın düzeni bozuluyordu. Şeridin sağ ucu
+                zaten boş (desen sağa doğru kayboluyor), düğme oraya oturunca
+                eylem satırı eski hâline döndü.
+
+                Kullanıcı kartı çalışırken telefonda yalnızca kartı görmek
+                isteyebilir; başlık, ilerleme çubuğu ve sekmeler kalkar. Esc ile
+                de kapanıyor.
+              */}
+              <button
+                onClick={e => {
+                  e.stopPropagation();
+                  setIsFullscreen(!isFullscreen);
+                }}
+                className="absolute top-2 right-2 z-10 p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--primary)] hover:bg-[var(--primary-soft)] transition-colors cursor-pointer"
+                title={isFullscreen ? 'Tam ekrandan çık (Esc)' : 'Tam ekran'}
+                aria-label={isFullscreen ? 'Tam ekrandan çık' : 'Tam ekran'}
+              >
+                {isFullscreen ? (
+                  <Minimize2 size={18} strokeWidth={1.7} />
+                ) : (
+                  <Maximize2 size={18} strokeWidth={1.7} />
+                )}
+              </button>
+
               {/* Üst şerit: etiketler ve eylemler */}
               <div className="flex items-start justify-between gap-2">
                 <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
@@ -536,7 +564,11 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                     aria-label="Favori"
                     aria-pressed={isFavorite}
                   >
-                    <RealmsIcon name="favorite" size={20} className="w-[18px] h-[18px] ${isFavorite ? 'fill-current' : ''}" />
+                    <RealmsIcon
+                      name="favorite"
+                      size={18}
+                      className={isFavorite ? 'fill-current' : ''}
+                    />
                   </button>
 
                   {(isCustomDeck || onOpenEditCard || onDeleteCard || onOpenAddToCollection) && (

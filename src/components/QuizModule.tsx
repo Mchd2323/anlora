@@ -92,6 +92,15 @@ interface QuizModuleProps {
 
 type StatusFilter = 'ALL' | 'LEARNING' | 'LEARNED';
 
+/**
+ * Sınavda seçilebilen soru sayıları.
+ *
+ * Liste burada duruyor ki hem açılır menü hem de ileride başka bir yer aynı
+ * kaynaktan okusun. En küçük değer 2: havuzun alt sınırı olan dört kelimenin
+ * altına inmiyor, yani hızlı bir deneme sınavı da üretilebiliyor.
+ */
+const SORU_SAYILARI = [2, 5, 10, 15, 20, 30, 50, 75, 100] as const;
+
 export const QuizModule: React.FC<QuizModuleProps> = ({
   initialCollectionId,
   allWords,
@@ -546,27 +555,37 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
               </div>
             </div>
 
-            {/* 4. Soru Sayısı Seçimi */}
+            {/*
+              4. SORU SAYISI — AÇILIR MENÜ.
+
+              Önceden sekiz seçenek dört sütunlu bir ızgarada duruyordu; sınav
+              kurulumunun en uzun bloğu buydu ve ekranın yarısını kaplıyordu.
+              Açılır menü aynı seçenekleri tek satırda veriyor, seçili değer
+              kapalıyken de görünüyor.
+
+              2 SORU EKLENDİ. Havuzun alt sınırı dört kelime (MIN_POOL_SIZE);
+              iki soruluk hızlı bir deneme bunun altına inmiyor, yani sınav
+              üretimi için sorun yok.
+            */}
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-[var(--text-secondary)]  tracking-wider">
+              <label
+                htmlFor="anlora-soru-sayisi"
+                className="block text-xs font-bold text-[var(--text-secondary)] tracking-wider"
+              >
                 4. Soru Sayısı
               </label>
-              <div className="grid grid-cols-4 gap-2">
-                {[5, 10, 15, 20, 30, 50, 75, 100].map((count) => (
-                  <button
-                    key={count}
-                    type="button"
-                    onClick={() => setQuestionCount(count)}
-                    className={`dugme-birincil p-2.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-                      questionCount === count
-                        ? 'bg-[var(--primary)] text-[var(--surface)] border-[var(--primary)] shadow-xs'
-                        : 'bg-[var(--bg)] text-[var(--text-primary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
-                    }`}
-                  >
+              <select
+                id="anlora-soru-sayisi"
+                value={questionCount}
+                onChange={e => setQuestionCount(Number(e.target.value))}
+                className="w-full py-2.5 px-3 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:outline-none focus:bg-[var(--surface)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] font-medium text-[var(--text-primary)] cursor-pointer"
+              >
+                {SORU_SAYILARI.map(count => (
+                  <option key={count} value={count}>
                     {count} Soru
-                  </button>
+                  </option>
                 ))}
-              </div>
+              </select>
             </div>
 
             {/* Pool summary badge */}
