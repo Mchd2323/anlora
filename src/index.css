@@ -105,10 +105,24 @@
 
     --arma-alan: #1A2E48;
 
+    /*
+     * Şerit zeminleri ve düğme degradesinin üst durağı belirteçte.
+     * Değerleri açık temada birebir aynı; koyu temada bu belirteçler
+     * §14'ün değerlerine dönüyor, böylece şeritler ve düğme koyu zeminde
+     * açık renkte kalmıyor.
+     */
+    --cubuk-zemin: rgb(248 241 228 / 0.96);
+    --menu-zemin: rgb(248 241 228 / 0.97);
+    --dugme-ust: #1A314A;
+    --panel-isik: rgb(255 255 255 / 0.72);
+    --dugme-golge: rgb(21 40 61 / 0.16);
+    /** Köşe filigranlarının opaklığı; koyu temada §14 gereği düşer. */
+    --kose-opaklik: 1;
+
     /* Panel ve denetim gölgeleri — paketten birebir. */
     --panel-golge:
       inset 0 0 0 1px var(--line-inner),
-      0 1px 0 rgb(255 255 255 / 0.72),
+      0 1px 0 var(--panel-isik),
       0 7px 18px rgb(68 48 20 / 0.075);
     --denetim-golge:
       inset 0 0 0 1px rgb(21 40 61 / 0.10),
@@ -408,6 +422,24 @@
    */
   .parsomen-panel {
     position: relative;
+    box-shadow: var(--panel-golge);
+  }
+
+  /*
+   * Köşe filigranları KENDİ KATMANINDA.
+   *
+   * Panelin arka plan listesinde dururken opaklıkları ayarlanamıyordu; §14
+   * koyu temada süslerin açık temadan yaklaşık %15 daha soluk olmasını
+   * istiyor. Kendi katmanına alınınca opaklık tek belirteçten yönetiliyor —
+   * açık temada 1, yani onaylanan görünüm birebir korunuyor.
+   */
+  .parsomen-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    opacity: var(--kose-opaklik);
     background-image:
       url('./assets/themes/realms/ornaments/corner-tl.svg'),
       url('./assets/themes/realms/ornaments/corner-tr.svg'),
@@ -420,7 +452,6 @@
       8px calc(100% - 8px);
     background-size: 34px 34px;
     background-repeat: no-repeat;
-    box-shadow: var(--panel-golge);
   }
 
   /*
@@ -477,11 +508,11 @@
    * metin, altın dış çizgi ve hafif iç çizgi.
    */
   .dugme-birincil {
-    background-image: linear-gradient(180deg, #1A314A 0%, var(--primary) 100%);
+    background-image: linear-gradient(180deg, var(--dugme-ust) 0%, var(--primary) 100%);
     border: 1px solid var(--gold-ornament);
     box-shadow:
       inset 0 1px 0 rgb(255 255 255 / 0.10),
-      0 4px 9px rgb(21 40 61 / 0.16);
+      0 4px 9px var(--dugme-golge);
   }
 
   .dugme-ikincil {
@@ -506,7 +537,7 @@
    */
   .baslik-cubugu {
     min-height: 64px;
-    background: rgb(248 241 228 / 0.96);
+    background: var(--cubuk-zemin);
     border-bottom: 1px solid rgb(183 149 82 / 0.54);
     box-shadow: 0 2px 10px rgb(68 48 20 / 0.045);
     backdrop-filter: blur(8px);
@@ -519,7 +550,7 @@
    */
   .alt-gezinme {
     min-height: 64px;
-    background: rgb(248 241 228 / 0.97);
+    background: var(--menu-zemin);
     border-top: 1px solid rgb(183 149 82 / 0.62);
     box-shadow: 0 -4px 14px rgb(68 48 20 / 0.045);
     /*
@@ -597,9 +628,9 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
-    --bg: #0F1922;
-    --border: #2B3B49;
-    --border-light: #223140;
+    --bg: #0D1925;
+    --border: rgba(183, 149, 82, 0.62);
+    --border-light: rgba(183, 149, 82, 0.38);
     --cefr-a1: #7FB79A;
     --cefr-a1-border: #2C4A3B;
     --cefr-a1-soft: #152A22;
@@ -667,18 +698,27 @@
     --primary-soft-hover: #22374A;
     --primary-soft-strong: #263D50;
     --primary-tint: #182835;
-    --surface: #17242F;
-    --surface-soft: #1E2E3B;
-    --surface-subtle: #13202A;
+    --surface: #142433;
+    --surface-soft: #0F1D29;
+    --surface-subtle: #0F1D29;
     --teal: #7FAAC2;
     --teal-border: #2E4A5C;
     --teal-hover: #96BDD2;
     --teal-soft: #16262F;
     --teal-text: #96BDD2;
-    --text-muted: #9AA4AF;
-    --text-primary: #ECE4D4;
-    --text-secondary: #B7BFC9;
-  }
+    --text-muted: #B9C4CC;
+    --text-primary: #F2EBDD;
+    --text-secondary: #B9C4CC;
+  --line-inner: rgba(127, 170, 194, 0.20);
+  --cubuk-zemin: rgb(20 36 51 / 0.96);
+  --menu-zemin: rgb(20 36 51 / 0.97);
+  --dugme-ust: #2A4A66;
+  --panel-isik: rgb(255 255 255 / 0.05);
+  --dugme-golge: rgb(0 0 0 / 0.35);
+  --kose-opaklik: 0.85;
+  --ivory: #F2EBDD;
+  --arma-alan: #15283D;
+}
 }
 
 :root[data-theme="dark"],
@@ -711,7 +751,26 @@
 :root[data-theme="komur"] { color-scheme: dark; }
 :root[data-theme="light"] { color-scheme: light; }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) { color-scheme: dark; }
+  :root:not([data-theme]) { color-scheme: dark;
+  --bg: #0D1925;
+  --surface: #142433;
+  --surface-subtle: #0F1D29;
+  --surface-soft: #0F1D29;
+  --text-primary: #F2EBDD;
+  --text-secondary: #B9C4CC;
+  --text-muted: #B9C4CC;
+  --border: rgba(183, 149, 82, 0.62);
+  --border-light: rgba(183, 149, 82, 0.38);
+  --line-inner: rgba(127, 170, 194, 0.20);
+  --cubuk-zemin: rgb(20 36 51 / 0.96);
+  --menu-zemin: rgb(20 36 51 / 0.97);
+  --dugme-ust: #2A4A66;
+  --panel-isik: rgb(255 255 255 / 0.05);
+  --dugme-golge: rgb(0 0 0 / 0.35);
+  --kose-opaklik: 0.85;
+  --ivory: #F2EBDD;
+  --arma-alan: #15283D;
+}
 }
 
 /* ==========================================================================
@@ -1103,9 +1162,9 @@ textarea:focus-visible,
    * zemin için ayrıca seçildi ve ölçüldü; en düşük ön plan/zemin oranı bile
    * 4,5:1 eşiğinin üstünde.
    */
-  --bg: #0F1922;
-  --border: #2B3B49;
-  --border-light: #223140;
+  --bg: #0D1925;
+  --border: rgba(183, 149, 82, 0.62);
+  --border-light: rgba(183, 149, 82, 0.38);
   --cefr-a1: #7FB79A;
   --cefr-a1-border: #2C4A3B;
   --cefr-a1-soft: #152A22;
@@ -1173,16 +1232,25 @@ textarea:focus-visible,
   --primary-soft-hover: #22374A;
   --primary-soft-strong: #263D50;
   --primary-tint: #182835;
-  --surface: #17242F;
-  --surface-soft: #1E2E3B;
-  --surface-subtle: #13202A;
+  --surface: #142433;
+  --surface-soft: #0F1D29;
+  --surface-subtle: #0F1D29;
   --teal: #7FAAC2;
   --teal-border: #2E4A5C;
   --teal-hover: #96BDD2;
   --teal-soft: #16262F;
   --teal-text: #96BDD2;
-  --text-muted: #9AA4AF;
-  --text-primary: #ECE4D4;
-  --text-secondary: #B7BFC9;
+  --text-muted: #B9C4CC;
+  --text-primary: #F2EBDD;
+  --text-secondary: #B9C4CC;
+  --line-inner: rgba(127, 170, 194, 0.20);
+  --cubuk-zemin: rgb(20 36 51 / 0.96);
+  --menu-zemin: rgb(20 36 51 / 0.97);
+  --dugme-ust: #2A4A66;
+  --panel-isik: rgb(255 255 255 / 0.05);
+  --dugme-golge: rgb(0 0 0 / 0.35);
+  --kose-opaklik: 0.85;
+  --ivory: #F2EBDD;
+  --arma-alan: #15283D;
 }
 
