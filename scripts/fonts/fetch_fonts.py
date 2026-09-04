@@ -32,6 +32,10 @@ KAYNAK = (
     "?family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..600"
     "&family=Manrope:wght@500..800"
     "&family=JetBrains+Mono:wght@400..600"
+    # Cinzel: Anlora Realms temasının başlık ve İngilizce kelime yazı tipi.
+    # Roma yazıtlarından türeyen bir serif; ortaçağ havasını taşıyor ama
+    # süslü bir "fantezi" yazı tipi olmadığı için okunaklılığı bozmuyor.
+    "&family=Cinzel:wght@400..700"
     "&display=swap"
 )
 
@@ -101,7 +105,7 @@ def main():
         " * Yalnızca latin ve latin-ext altkümeleri gömülüdür: Türkçe'nin\n"
         " * ğ, ş, ı, İ, ö, ü, ç harfleri latin-ext'te bulunur.\n"
         " *\n"
-        " * Plus Jakarta Sans, Manrope ve JetBrains Mono — SIL Open Font License 1.1\n"
+        " * Plus Jakarta Sans, Manrope, JetBrains Mono ve Cinzel — SIL Open Font License 1.1\n"
         " * (bkz. OFL.txt).\n"
         " */\n\n"
     )

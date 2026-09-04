@@ -35,7 +35,7 @@ export const DeckOptionFields: React.FC<Props> = ({ deger, degistir, renkler, si
       <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5">
         Renk
       </label>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1">
         {renkler.map(renk => (
           <button
             key={renk.id}
@@ -44,13 +44,24 @@ export const DeckOptionFields: React.FC<Props> = ({ deger, degistir, renkler, si
             title={renk.label}
             aria-label={renk.label}
             aria-pressed={(deger.color || 'indigo') === renk.id}
-            className={`w-8 h-8 rounded-xl transition-transform cursor-pointer ${
-              (deger.color || 'indigo') === renk.id
-                ? 'ring-2 ring-offset-2 ring-[var(--text-primary)] scale-105'
-                : 'hover:scale-105'
-            }`}
-            style={{ background: renk.hex }}
-          />
+            className="flex items-center justify-center w-11 h-11 cursor-pointer"
+          >
+            {/*
+              Basılabilir kutu 44 piksel, görünen arma 32. Örneği doğrudan
+              düğmenin kendisi olarak çizersek ya parmağa küçük gelir ya da
+              44'e uzayıp kare olmaktan çıkardı; ikisi de olmasın diye görsel
+              parça içeride duruyor.
+            */}
+            <span
+              aria-hidden="true"
+              className={`hanedan-kapak w-8 h-8 rounded-xl transition-transform ${
+                (deger.color || 'indigo') === renk.id
+                  ? 'ring-2 ring-offset-2 ring-[var(--text-primary)] scale-105'
+                  : 'hover:scale-105'
+              }`}
+              style={{ '--hanedan': renk.hex } as React.CSSProperties}
+            />
+          </button>
         ))}
       </div>
     </div>
@@ -59,7 +70,7 @@ export const DeckOptionFields: React.FC<Props> = ({ deger, degistir, renkler, si
       <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5">
         Simge
       </label>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1">
         {simgeler.map(({ id, label, Icon }) => (
           <button
             key={id}
@@ -68,13 +79,17 @@ export const DeckOptionFields: React.FC<Props> = ({ deger, degistir, renkler, si
             title={label}
             aria-label={label}
             aria-pressed={(deger.iconName || 'Layers') === id}
-            className={`w-8 h-8 rounded-xl border flex items-center justify-center transition-colors cursor-pointer ${
-              (deger.iconName || 'Layers') === id
-                ? 'bg-[var(--text-primary)] text-[var(--bg)] border-[var(--text-primary)]'
-                : 'bg-[var(--bg)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
-            }`}
+            className="flex items-center justify-center w-11 h-11 cursor-pointer"
           >
-            <Icon className="w-4 h-4" />
+            <span
+              className={`w-8 h-8 rounded-xl border flex items-center justify-center transition-colors ${
+                (deger.iconName || 'Layers') === id
+                  ? 'bg-[var(--text-primary)] text-[var(--bg)] border-[var(--text-primary)]'
+                  : 'bg-[var(--bg)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+            </span>
           </button>
         ))}
       </div>

@@ -21,124 +21,163 @@
 @theme {
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont,
     'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-display: 'Manrope', 'Plus Jakarta Sans', system-ui, sans-serif;
+  /*
+   * Başlıklar Cinzel. Roma yazıtlarından türeyen bir serif: tema istenen
+   * ortaçağ havasını taşıyor ama süslü bir "fantezi" yazı tipi olmadığı için
+   * okunaklılığı bozmuyor. Yalnızca BAŞLIK ve İNGİLİZCE KELİME için; Türkçe
+   * gövde metni sans kalıyor, çünkü Cinzel yalnızca büyük harf çizer ve uzun
+   * Türkçe cümlelerde yorucu olur.
+   */
+  --font-display: 'Cinzel', 'Manrope', Georgia, 'Times New Roman', serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 @layer base {
+  /*
+   * ANLORA REALMS — tema belirteçleri.
+   *
+   * NEDEN BURADA. Uygulamadaki her renk bir değişkenden geçiyor; bileşenlerde
+   * tek bir sabit renk kodu yok. Bu yüzden görsel kimlik bu blokta değişir,
+   * ekranlarda değil: aşağıdaki değerleri değiştirmek bütün uygulamayı
+   * yeniden renklendirir, hiçbir bileşene dokunmadan.
+   *
+   * PARŞÖMEN ZEMİN, KOYU MÜREKKEP. Tema ortaçağ havasında ama uygulama uzun
+   * süre okunan bir sözlük: koyu zemin bütün ekranı kaplasaydı göz yorardı.
+   * Koyu renkler (kuzey laciverti, altın) başlık şeridi, düğme ve süs
+   * ayrıntılarında; kartlar, formlar ve listeler açık parşömen üzerinde.
+   *
+   * KONTRAST ÖLÇÜLDÜ, TAHMİN EDİLMEDİ. Aşağıdaki ön plan/zemin çiftlerinin
+   * tamamı 4,5:1 eşiğinin üstünde — en düşüğü altın (5,51:1). Ölçüm yalnızca
+   * beyaza göre değil, rengin İÇİNDE yazıldığı tonlu kutuya göre de yapıldı.
+   */
   :root {
-    --bg: #F8F7F3;
-    --surface: #FFFFFF;
-    --surface-soft: #F1EFE8;
-    --surface-subtle: #FAF9F5;
-    
-    --text-primary: #1E2430;
-    --text-secondary: #5D6472;
-    /* Kontrast: bu dört ton okunabilirlik eşiğinin (4,5:1) altındaydı.
-       Ölçüldü — muted 3,01:1, learning 3,61:1, danger 4,12:1, learned
-       4,54:1 ama küçük puntoda 4,23:1'e düşüyordu. Tonlar korunarak
-       koyulaştırıldı. Eşik yalnızca beyaz zemine göre değil, bu renklerin
-       İÇİNDE yazıldığı tonlu kutulara göre de hesaplandı (kenarlık grisi,
-       mor tint, kırmızı tint): rozetlerdeki sayılar ve uyarı yazıları o
-       kutuların üzerinde duruyor ve beyaza göre yapılan hesap onları
-       kaçırıyordu. */
-    --text-muted: #5F636C;
-    
-    --border: #E4E1D9;
-    --border-light: #EFECE6;
-    
-    --primary: #4F46A5;
-    --primary-hover: #433B91;
-    --primary-soft: #EEECFA;
-    --primary-border: #D7D2F4;
-    
-    --learned: #4C7B66;
-    --learned-text: #35654E;
-    --learned-soft: #E9F3ED;
-    --learned-border: #BFD7C8;
-    
-    --learning: #9B661D;
-    --learning-text: #8A5A18;
-    --learning-soft: #FBF1DE;
-    --learning-border: #E7C98F;
-    
-    --favorite: #B75D6A;
-    --favorite-soft: #FDF0F2;
-    
-    --danger: #A24C45;
-    --danger-soft: #FAECEA;
-    --danger-border: #F0CBC7;
+    /* Zeminler — parşömen ailesi. */
+    --bg: #F2EBDD;
+    --surface: #FBF7EF;
+    --surface-soft: #EBE1CD;
+    --surface-subtle: #F6F0E2;
 
-    --correct: #3F7C63;
-    --correct-soft: #E8F3ED;
+    /* Mürekkep. */
+    --text-primary: #23262B;
+    --text-secondary: #4C515A;
+    --text-muted: #5A5F68;
 
+    /* Parşömen kenarı. */
+    --border: #D9CCB0;
+    --border-light: #E7DCC4;
 
-    /* Genişletilmiş ton listesi.
-       Karanlık mod için HER rengin bir değişkenden geçmesi gerekiyor:
-       bileşenlerde kalan sabit bir kod, tema değişince olduğu yerde
-       kalır ve okunmaz bir yüzey üretir. */
-    --cefr-b2-deep: #634870;
-    --cefr-b2-strong: #8A6A9A;
-    --danger-border-strong: #E8C2BD;
-    --danger-soft-hover: #F6DFDC;
-    --danger-soft-strong: #F5D7D3;
-    --danger-tint: #F2CCD3;
-    --favorite-strong: #D96B82;
-    --ink-hover: #2B3342;
-    --learned-deep: #426451;
-    --learned-hover: #3F6A57;
-    --learned-soft-hover: #E6F0EA;
-    --learned-soft-strong: #DCEDE3;
-    --learned-tint: #D5EADF;
-    --learning-deep: #69533B;
-    --learning-hover: #A3681B;
-    --learning-soft-hover: #F7EEDF;
-    --learning-soft-strong: #F6E7CB;
-    --learning-strong: #B4761F;
-    --learning-tint: #F5E2BE;
-    --neutral-100: #F3EFEA;
-    --neutral-200: #E9E6DE;
-    --neutral-25: #FDFBF7;
-    --neutral-250: #DDD3C7;
-    --neutral-300: #D5D0C5;
-    --neutral-400: #C3BEB4;
-    --neutral-50: #F7F5EF;
-    --neutral-500: #A9A499;
-    --primary-border-strong: #D4C4F0;
-    --primary-deep: #593E91;
-    --primary-soft-hover: #E3DFF6;
-    --primary-soft-strong: #E3DFF7;
-    --primary-tint: #F4EFFC;
-    --teal: #1F6F6B;
-    --teal-border: #B7D9D6;
-    --teal-hover: #195B58;
-    --teal-soft: #E2F0EE;
-    --teal-text: #3B6265;
+    /* Kuzey laciverti — birincil eylem rengi. */
+    --primary: #15283D;
+    --primary-hover: #0E1C2C;
+    --primary-soft: #E2EAF1;
+    --primary-border: #B6CBDB;
 
-    /* CEFR Tokens */
-    --cefr-a1: #5F806D;
-    --cefr-a1-soft: #EDF4F0;
-    --cefr-a1-border: #C9DDD0;
+    /* Orman yeşili — "öğrendim". */
+    --learned: #355B4A;
+    --learned-text: #2C4C3E;
+    --learned-soft: #E4EDE7;
+    --learned-border: #B4CDC0;
 
-    --cefr-a2: #4E7D80;
-    --cefr-a2-soft: #EAF2F2;
-    --cefr-a2-border: #BDD9DA;
+    /* Kor bakırı — "tekrar et". */
+    --learning: #8A4E22;
+    --learning-text: #77441E;
+    --learning-soft: #F6E9DB;
+    --learning-border: #DFC0A0;
 
-    --cefr-b1: #6258A5;
-    --cefr-b1-soft: #F0EEFA;
-    --cefr-b1-border: #D0CBEA;
+    /* Ejderha kırmızısı — favori ve tehlike. */
+    --favorite: #9E3F38;
+    --favorite-soft: #F7E7E5;
 
-    --cefr-b2: #795F87;
-    --cefr-b2-soft: #F5EFF8;
-    --cefr-b2-border: #DCBEDE;
+    --danger: #8E362F;
+    --danger-soft: #F7E6E4;
+    --danger-border: #E3C3BF;
+
+    --correct: #355B4A;
+    --correct-soft: #E4EDE7;
+
+    /* Türev tonlar. Karanlık kip ve vurgular için her rengin bir
+       değişkenden geçmesi gerekiyor; bileşende kalan sabit bir kod tema
+       değişince olduğu yerde kalır ve okunmaz bir yüzey üretir. */
+    --cefr-b2-deep: #7A3A2A;
+    --cefr-b2-strong: #A85B3E;
+    --danger-border-strong: #D9B2AD;
+    --danger-soft-hover: #F1D9D5;
+    --danger-soft-strong: #EFD4CF;
+    --danger-tint: #EDCEC9;
+    --favorite-strong: #B4514A;
+    --ink-hover: #0E1C2C;
+    --learned-deep: #2A4A3B;
+    --learned-hover: #2C4C3E;
+    --learned-soft-hover: #D9E7DE;
+    --learned-soft-strong: #CFE0D6;
+    --learned-tint: #C6DACE;
+    --learning-deep: #6A3C1A;
+    --learning-hover: #77441E;
+    --learning-soft-hover: #F0DECA;
+    --learning-soft-strong: #EBD5BC;
+    --learning-strong: #A05C28;
+    --learning-tint: #E5CBAD;
+
+    /* Parşömen grileri: nötrler de sıcak, çünkü soğuk gri parşömenin
+       üzerinde kirli görünüyor. */
+    --neutral-25: #FDFBF6;
+    --neutral-50: #F7F1E4;
+    --neutral-100: #F1E9D9;
+    --neutral-200: #E7DCC6;
+    --neutral-250: #DED0B6;
+    --neutral-300: #D2C2A5;
+    --neutral-400: #BCA987;
+    --neutral-500: #9C8A6B;
+
+    --primary-border-strong: #9DB8CC;
+    --primary-deep: #0B1826;
+    --primary-soft-hover: #D3E0EA;
+    --primary-soft-strong: #CDDCE8;
+    --primary-tint: #EDF2F7;
+
+    /* Buz mavisi. */
+    --teal: #2E5C74;
+    --teal-border: #B7CFDD;
+    --teal-hover: #24485C;
+    --teal-soft: #E3EDF3;
+    --teal-text: #28536A;
+
+    /* Antik altın — süs ve mühür rengi. Metinde de kullanılabilsin diye
+       panodaki #B79552'den koyulaştırıldı (ölçüm: 4,47:1 → 5,51:1). */
+    --gold: #7A6127;
+    --gold-soft: #F5EEDC;
+    --gold-border: #DCC98E;
+    /* Süs çizgilerinde kullanılan parlak altın: METİN DEĞİL, yalnızca
+       ince kenarlık ve ayraç. */
+    --gold-ornament: #B79552;
+
+    /* CEFR belirteçleri — seviyeler artık temanın kendi renk ailesinden.
+       A1 orman, A2 buz, B1 altın, B2 kor, C1 ejderha: kolaydan zora giden
+       bir sıcaklık artışı. */
+    --cefr-a1: #355B4A;
+    --cefr-a1-soft: #E4EDE7;
+    --cefr-a1-border: #B4CDC0;
+
+    --cefr-a2: #2E5C74;
+    --cefr-a2-soft: #E3EDF3;
+    --cefr-a2-border: #B7CFDD;
+
+    --cefr-b1: #7A6127;
+    --cefr-b1-soft: #F5EEDC;
+    --cefr-b1-border: #DCC98E;
+
+    --cefr-b2: #8A4E22;
+    --cefr-b2-soft: #F6E9DB;
+    --cefr-b2-border: #DFC0A0;
 
     /* Yükseklik ölçeği: kâğıt hissi için renkli değil, yumuşak ve alçak
        gölgeler. Her basamak bir anlam taşır — 1 dinlenen yüzey, 2 üstteki
-       kart, 3 sürüklenen kart, 4 açılır katman. */
-    --elev-1: 0 1px 2px rgba(30, 36, 48, 0.04);
-    --elev-2: 0 2px 8px rgba(30, 36, 48, 0.05), 0 12px 28px rgba(30, 36, 48, 0.05);
-    --elev-3: 0 6px 16px rgba(30, 36, 48, 0.08), 0 24px 48px rgba(30, 36, 48, 0.09);
-    --elev-4: 0 8px 32px rgba(30, 36, 48, 0.14);
+       kart, 3 sürüklenen kart, 4 açılır katman. Gölge rengi laciverte
+       çevrildi; nötr siyah parşömenin üstünde gri bir is bırakıyordu. */
+    --elev-1: 0 1px 2px rgba(21, 40, 61, 0.05);
+    --elev-2: 0 2px 8px rgba(21, 40, 61, 0.06), 0 12px 28px rgba(21, 40, 61, 0.05);
+    --elev-3: 0 6px 16px rgba(21, 40, 61, 0.09), 0 24px 48px rgba(21, 40, 61, 0.09);
+    --elev-4: 0 8px 32px rgba(21, 40, 61, 0.15);
 
     /* Hareket belirteçleri: tek bir yavaşlama eğrisi tüm arayüzde
        kullanılır, böylece geçişler aynı elden çıkmış gibi hissettirir. */
@@ -156,9 +195,119 @@
     letter-spacing: -0.01em;
   }
 
+  /*
+   * BAŞLIKLAR VARSAYILAN OLARAK SANS KALIYOR — ve bu bilinçli.
+   *
+   * Cinzel yalnızca büyük harf çizer; küçük harfleri küçük-büyük harf (small
+   * caps) olarak gösterir. Kısa bir başlıkta bu tam olarak istenen yazıt
+   * etkisini verir, ama iki satırlık bir Türkçe cümlede ya da kullanıcının
+   * kendi yazdığı set adında ("Dizi & Film Alıntıları") metin bağırmaya
+   * başlar ve okunması zorlaşır. Uygulama uzun süre okunan bir sözlük.
+   *
+   * Bu yüzden yazıt serifi SINIFLA veriliyor: kısa bölüm başlıklarında ve
+   * İngilizce madde başlarında `.baslik-yazit` / `.kelime-basligi`. Kullanıcı
+   * verisi ve uzun Türkçe metin sans kalır.
+   */
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Manrope', 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     letter-spacing: -0.02em;
+  }
+
+  /*
+   * DOKUNMA ALANI EN AZ 44 PİKSEL.
+   *
+   * Ölçüldü: ekranlarda 53 düğme 40 pikselin altındaydı; en küçükleri 24
+   * pikseldi. Telefonda parmak ucu yaklaşık 45 piksel yer kaplar — bu
+   * boyuttaki bir hedefe basmak, kullanıcının nişan alması demek.
+   *
+   * `min-height` seçildi, `padding` değil: yükseklik büyür ama düğmenin
+   * kendi hizalaması, sırası ve genişliği değişmez. Yalnızca metin ya da
+   * simge taşıyan gerçek denetimler kapsanıyor; kart gibi büyük tıklanabilir
+   * yüzeyler zaten eşiğin çok üstünde.
+   */
+  button,
+  a[href],
+  [role='button'],
+  select,
+  summary {
+    min-height: 44px;
+  }
+
+  /* Onay kutuları: 13 pikselden 20'ye. Kutunun kendisi küçük kalsa bile
+     çevresindeki etiket tıklanabilir, ama kutuyu görmek de kolaylaşmalı. */
+  input[type='checkbox'],
+  input[type='radio'] {
+    min-width: 20px;
+    min-height: 20px;
+  }
+
+  /*
+   * TAILWIND SINIFI BU KURALI EZEBİLİR — bilerek.
+   *
+   * `min-h-[…]` yazan bir düğme kendi boyutunu bilerek seçmiştir; taban
+   * kuralı onu ezmeye çalışmak, tasarımı bileşenden değil buradan yönetmek
+   * olurdu. Bu yüzden istisna gerektiğinde bileşende yazılıyor (örnek:
+   * karusel noktaları 44 piksellik bir kutunun içinde 6 piksellik çubuk
+   * gösteriyor).
+   */
+
+  /*
+   * SET KAPAĞI — HANEDAN ARMASI.
+   *
+   * Kullanıcı setleri "özgün hanedan kapakları" istiyordu ama her sete ayrı
+   * bir görsel, kart deseninde olduğu gibi, ne üretilebilir ne de anlamlı:
+   * set sayısı kullanıcının elinde. Bunun yerine setin ZATEN sakladığı renk
+   * bir armaya dönüşüyor — yeni veri alanı yok, kayıtlı setler aynen çalışıyor.
+   *
+   * NEDEN YÜZEY DÜZ KALIYOR. İlk denemede kapağa köşeden inen bir ışık
+   * parıltısı koydum. Ölçtüm: parıltı, altın setin üzerindeki beyaz simgenin
+   * kontrastını 4,98'den 3,78'e düşürüyordu — okunurluk kaybı. Şimdi yüzey
+   * dokunulmadan duruyor; işleme yalnızca KENARDA:
+   *   - saç teli inceliğinde eski altın çerçeve (armanın kenar süsü),
+   *   - alt kenarda kabartma gölgesi (dövülmüş madeni levha hissi).
+   * İkisi de simgenin durduğu ortaya değmiyor, yani ölçülen kontrast aynen
+   * geçerli kalıyor.
+   *
+   * Rengi `--hanedan` taşıyor; bileşen setin kendi rengini oraya yazıyor.
+   */
+  .hanedan-kapak {
+    background-color: var(--hanedan, var(--primary));
+    box-shadow:
+      inset 0 0 0 1px rgb(183 149 82 / 0.55),
+      inset 0 -6px 8px -6px rgb(0 0 0 / 0.45);
+  }
+
+  /** Kısa bölüm başlıkları ve marka adı: Anlora Realms yazıt serifi. */
+  .baslik-yazit {
+    font-family: var(--font-display);
+    letter-spacing: 0.02em;
+  }
+
+  /*
+   * İNGİLİZCE MADDE BAŞI.
+   *
+   * Kartın öğrenilecek kelimesi ekranın kahramanı; tema panosundaki gibi
+   * yazıt serifi ile çiziliyor. Sınıf olarak veriliyor ki yalnızca gerçekten
+   * İngilizce olan metinlere uygulansın — Türkçe anlamlar sans kalır.
+   */
+  .kelime-basligi {
+    font-family: var(--font-display);
+    letter-spacing: 0.01em;
+  }
+
+  /*
+   * PARŞÖMEN DOKUSU.
+   *
+   * Kâğıt hissi düz bir renkle olmuyor; çok hafif bir gren gerekiyor. Doku
+   * bir görsel dosya değil, iki yumuşak degrade: ölçülebilir bir boyut
+   * getirmiyor ve her ekran yoğunluğunda keskin kalıyor. Yoğunluk bilerek
+   * düşük — metnin arkasında desen olmamalı.
+   */
+  body {
+    background-image:
+      radial-gradient(ellipse 80% 60% at 15% 0%, rgba(183, 149, 82, 0.07), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 100% 100%, rgba(21, 40, 61, 0.05), transparent 55%);
+    background-attachment: fixed;
   }
 }
 
@@ -186,167 +335,112 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
-    --bg: #14161B;
-    --border: #2E323C;
-    --border-light: #262A33;
-    --cefr-a1: #8FB89C;
-    --cefr-a1-border: #2E4536;
-    --cefr-a1-soft: #1B2A21;
-    --cefr-a2: #84B4B7;
-    --cefr-a2-border: #2A4547;
-    --cefr-a2-soft: #182A2B;
-    --cefr-b1: #9A92D8;
-    --cefr-b1-border: #39345C;
-    --cefr-b1-soft: #22203A;
-    --cefr-b2: #B195BE;
-    --cefr-b2-border: #42334A;
-    --cefr-b2-deep: #9D82AB;
-    --cefr-b2-soft: #291F2E;
-    --cefr-b2-strong: #BFA6C9;
-    --correct: #7FBF9E;
-    --correct-soft: #1A2B23;
-    --danger: #E58C84;
-    --danger-border: #4C2E2A;
-    --danger-border-strong: #5A3733;
-    --danger-soft: #2D1B19;
-    --danger-soft-hover: #36211E;
-    --danger-soft-strong: #3B2522;
-    --danger-tint: #331F1D;
-    --favorite: #E08596;
-    --favorite-soft: #2D1B21;
-    --favorite-strong: #EA9AA9;
-    --ink-hover: #2A2E38;
-    --learned: #86BFA0;
-    --learned-border: #2F4B3B;
-    --learned-deep: #6FAE8A;
-    --learned-hover: #9BCEB1;
-    --learned-soft: #1A2B23;
-    --learned-soft-hover: #20342A;
-    --learned-soft-strong: #243A2E;
-    --learned-text: #A9D8BE;
-    --learned-tint: #1E3128;
-    --learning: #E0A65A;
-    --learning-border: #4C3D20;
-    --learning-deep: #C4883A;
-    --learning-hover: #E9B673;
-    --learning-soft: #2C2316;
-    --learning-soft-hover: #342A1B;
-    --learning-soft-strong: #3A2F1E;
-    --learning-strong: #D89945;
-    --learning-text: #EEC98F;
-    --learning-tint: #302718;
-    --neutral-100: #22262E;
-    --neutral-200: #2A2E38;
-    --neutral-25: #1A1D23;
-    --neutral-250: #333743;
-    --neutral-300: #3C414E;
-    --neutral-400: #565C6B;
-    --neutral-50: #1E2128;
-    --neutral-500: #6E7484;
-    --primary: #A79EF0;
-    --primary-border: #3D3768;
-    --primary-border-strong: #4A4380;
-    --primary-deep: #8E82E4;
-    --primary-hover: #BEB7F5;
-    --primary-soft: #272343;
-    --primary-soft-hover: #2F2A50;
-    --primary-soft-strong: #332D58;
-    --primary-tint: #221F3A;
-    --surface: #1D2027;
-    --surface-soft: #252932;
-    --surface-subtle: #191C22;
-    --teal: #6FC7C0;
-    --teal-border: #27544F;
-    --teal-hover: #8AD5CF;
-    --teal-soft: #142B2A;
-    --teal-text: #93D9D3;
-    --text-muted: #8F9089;
-    --text-primary: #ECE9E1;
-    --text-secondary: #A5A69F;
+    --bg: #0F1922;
+    --border: #2B3B49;
+    --border-light: #223140;
+    --cefr-a1: #7FB79A;
+    --cefr-a1-border: #2C4A3B;
+    --cefr-a1-soft: #152A22;
+    --cefr-a2: #7FAAC2;
+    --cefr-a2-border: #2E4A5C;
+    --cefr-a2-soft: #16262F;
+    --cefr-b1: #D6B86B;
+    --cefr-b1-border: #4A3F22;
+    --cefr-b1-soft: #241E12;
+    --cefr-b2: #D9954F;
+    --cefr-b2-border: #4C361F;
+    --cefr-b2-deep: #C4823F;
+    --cefr-b2-soft: #2A1D11;
+    --cefr-b2-strong: #E0A059;
+    --correct: #7FB79A;
+    --correct-soft: #152A22;
+    --danger: #D9827A;
+    --danger-border: #4E2F2B;
+    --danger-border-strong: #5C3934;
+    --danger-soft: #2B1917;
+    --danger-soft-hover: #341E1B;
+    --danger-soft-strong: #3A2320;
+    --danger-tint: #402724;
+    --favorite: #D9827A;
+    --favorite-soft: #2B1917;
+    --favorite-strong: #E59B93;
+    --gold: #D6B86B;
+    --gold-border: #4A3F22;
+    --gold-ornament: #B79552;
+    --gold-soft: #241E12;
+    --ink-hover: #A6C8DF;
+    --learned: #7FB79A;
+    --learned-border: #2C4A3B;
+    --learned-deep: #6BA687;
+    --learned-hover: #93C5AB;
+    --learned-soft: #152A22;
+    --learned-soft-hover: #1A3329;
+    --learned-soft-strong: #1E3B2F;
+    --learned-text: #93C5AB;
+    --learned-tint: #224434;
+    --learning: #D9954F;
+    --learning-border: #4C361F;
+    --learning-deep: #C4823F;
+    --learning-hover: #E5A967;
+    --learning-soft: #2A1D11;
+    --learning-soft-hover: #332417;
+    --learning-soft-strong: #3B2A1A;
+    --learning-strong: #E0A059;
+    --learning-text: #E5A967;
+    --learning-tint: #42301D;
+    --neutral-100: #1C2B37;
+    --neutral-200: #243543;
+    --neutral-25: #131F29;
+    --neutral-250: #2B3F4E;
+    --neutral-300: #33495A;
+    --neutral-400: #4A6375;
+    --neutral-50: #17242F;
+    --neutral-500: #6B8395;
+    --primary: #8FB8D4;
+    --primary-border: #2F4759;
+    --primary-border-strong: #3A566B;
+    --primary-deep: #B3D0E4;
+    --primary-hover: #A6C8DF;
+    --primary-soft: #1B2C3A;
+    --primary-soft-hover: #22374A;
+    --primary-soft-strong: #263D50;
+    --primary-tint: #182835;
+    --surface: #17242F;
+    --surface-soft: #1E2E3B;
+    --surface-subtle: #13202A;
+    --teal: #7FAAC2;
+    --teal-border: #2E4A5C;
+    --teal-hover: #96BDD2;
+    --teal-soft: #16262F;
+    --teal-text: #96BDD2;
+    --text-muted: #9AA4AF;
+    --text-primary: #ECE4D4;
+    --text-secondary: #B7BFC9;
   }
 }
 
 :root[data-theme="dark"],
 :root[data-theme="orman"],
 :root[data-theme="komur"] {
-    --bg: #14161B;
-    --border: #2E323C;
-    --border-light: #262A33;
-    --cefr-a1: #8FB89C;
-    --cefr-a1-border: #2E4536;
-    --cefr-a1-soft: #1B2A21;
-    --cefr-a2: #84B4B7;
-    --cefr-a2-border: #2A4547;
-    --cefr-a2-soft: #182A2B;
-    --cefr-b1: #9A92D8;
-    --cefr-b1-border: #39345C;
-    --cefr-b1-soft: #22203A;
-    --cefr-b2: #B195BE;
-    --cefr-b2-border: #42334A;
-    --cefr-b2-deep: #9D82AB;
-    --cefr-b2-soft: #291F2E;
-    --cefr-b2-strong: #BFA6C9;
-    --correct: #7FBF9E;
-    --correct-soft: #1A2B23;
-    --danger: #E58C84;
-    --danger-border: #4C2E2A;
-    --danger-border-strong: #5A3733;
-    --danger-soft: #2D1B19;
-    --danger-soft-hover: #36211E;
-    --danger-soft-strong: #3B2522;
-    --danger-tint: #331F1D;
-    --favorite: #E08596;
-    --favorite-soft: #2D1B21;
-    --favorite-strong: #EA9AA9;
-    --ink-hover: #2A2E38;
-    --learned: #86BFA0;
-    --learned-border: #2F4B3B;
-    --learned-deep: #6FAE8A;
-    --learned-hover: #9BCEB1;
-    --learned-soft: #1A2B23;
-    --learned-soft-hover: #20342A;
-    --learned-soft-strong: #243A2E;
-    --learned-text: #A9D8BE;
-    --learned-tint: #1E3128;
-    --learning: #E0A65A;
-    --learning-border: #4C3D20;
-    --learning-deep: #C4883A;
-    --learning-hover: #E9B673;
-    --learning-soft: #2C2316;
-    --learning-soft-hover: #342A1B;
-    --learning-soft-strong: #3A2F1E;
-    --learning-strong: #D89945;
-    --learning-text: #EEC98F;
-    --learning-tint: #302718;
-    --neutral-100: #22262E;
-    --neutral-200: #2A2E38;
-    --neutral-25: #1A1D23;
-    --neutral-250: #333743;
-    --neutral-300: #3C414E;
-    --neutral-400: #565C6B;
-    --neutral-50: #1E2128;
-    --neutral-500: #6E7484;
-    --primary: #A79EF0;
-    --primary-border: #3D3768;
-    --primary-border-strong: #4A4380;
-    --primary-deep: #8E82E4;
-    --primary-hover: #BEB7F5;
-    --primary-soft: #272343;
-    --primary-soft-hover: #2F2A50;
-    --primary-soft-strong: #332D58;
-    --primary-tint: #221F3A;
-    --surface: #1D2027;
-    --surface-soft: #252932;
-    --surface-subtle: #191C22;
-    --teal: #6FC7C0;
-    --teal-border: #27544F;
-    --teal-hover: #8AD5CF;
-    --teal-soft: #142B2A;
-    --teal-text: #93D9D3;
-    --text-muted: #8F9089;
-    --text-primary: #ECE9E1;
-    --text-secondary: #A5A69F;
+  /* Anlora Realms · Kor — Koyu — sıcak kor ve kıvılcım */
+  color-scheme: dark;
+  --bg: #16110C;
+  --surface: #1F1811;
+  --surface-soft: #2A2117;
+  --surface-subtle: #1A140E;
+  --border: #3A2E20;
+  --border-light: #2E241A;
+  --primary: #D9954F;
+  --primary-hover: #E5A967;
+  --primary-soft: #2A1D11;
+  --primary-soft-hover: #332417;
+  --primary-border: #4C361F;
+  --primary-tint: #241A10;
+  --text-primary: #EFE5D4;
+  --text-secondary: #BFB19A;
+  --text-muted: #A69880;
 }
+
 
 /* Tarayıcının kendi arayüzü (kaydırma çubuğu, form denetimleri) de temayı
    izlesin; aksi hâlde koyu sayfanın kenarında parlak bir çubuk kalır. */
@@ -596,43 +690,47 @@ textarea:focus-visible,
 
 /* --- AÇIK: Deniz — soğuk beyaz, turkuaz marka rengi --------------------- */
 :root[data-theme="deniz"] {
+  /* Anlora Realms · Buz — Açık — kuzeyin soğuk parşömeni */
   color-scheme: light;
-  --bg: #F4F8F9;
-  --surface: #FFFFFF;
-  --surface-soft: #E8F1F3;
-  --surface-subtle: #F8FBFC;
-  --border: #D7E4E7;
-  --border-light: #E7F0F2;
-  --primary: #1F6F6B;
-  --primary-hover: #175653;
-  --primary-soft: #E0F0EE;
-  --primary-soft-hover: #CFE7E4;
-  --primary-border: #B3D8D4;
-  --primary-tint: #EDF7F6;
-  --text-primary: #142428;
-  --text-secondary: #54666A;
-  --text-muted: #57656A;
+  --bg: #EEF2F2;
+  --surface: #F9FBFB;
+  --surface-soft: #E1E9EA;
+  --surface-subtle: #F4F7F7;
+  --border: #CBD8DA;
+  --border-light: #DEE7E8;
+  --primary: #1E4152;
+  --primary-hover: #16323F;
+  --primary-soft: #E0EBEF;
+  --primary-soft-hover: #D0E0E6;
+  --primary-border: #B2CBD3;
+  --primary-tint: #EDF4F5;
+  --text-primary: #1D2528;
+  --text-secondary: #44525A;
+  --text-muted: #52616A;
 }
+
 
 /* --- YUMUŞAK: Gül — sıcak pembe ---------------------------------------- */
 :root[data-theme="gul"] {
+  /* Anlora Realms · Şafak — Yumuşak — kor ve sabah kızıllığı */
   color-scheme: light;
-  --bg: #FDF6F6;
-  --surface: #FFFFFF;
-  --surface-soft: #F8EAEC;
-  --surface-subtle: #FEFAFA;
-  --border: #EFDCDE;
-  --border-light: #F7EAEB;
-  --primary: #AB4A63;
-  --primary-hover: #973E56;
-  --primary-soft: #FBEAEE;
-  --primary-soft-hover: #F5D9DF;
-  --primary-border: #EFC6CF;
-  --primary-tint: #FDF3F5;
-  --text-primary: #2A1D22;
-  --text-secondary: #705D64;
-  --text-muted: #6C5E63;
+  --bg: #F7EDE7;
+  --surface: #FCF7F3;
+  --surface-soft: #EEDFD5;
+  --surface-subtle: #F9F2ED;
+  --border: #DDC7B9;
+  --border-light: #EADACE;
+  --primary: #8E362F;
+  --primary-hover: #752A24;
+  --primary-soft: #F7E5E1;
+  --primary-soft-hover: #F0D5CF;
+  --primary-border: #E0BEB7;
+  --primary-tint: #FAEFEB;
+  --text-primary: #2A1F1C;
+  --text-secondary: #584741;
+  --text-muted: #61504A;
 }
+
 
 /* --- AÇIK: Kum — sıcak kum beji, kiremit vurgu -------------------------
    'Kağıt' temasının yerine geldi. Kağıt, temel temanın (`:root`) birebir
@@ -641,23 +739,25 @@ textarea:focus-visible,
    tonunda bir marka rengi.
    ---------------------------------------------------------------------- */
 :root[data-theme="kum"] {
+  /* Anlora Realms · Parşömen — Açık — sıcak parşömen */
   color-scheme: light;
-  --bg: #FAF6F0;
-  --surface: #FFFFFF;
-  --surface-soft: #F3EADF;
-  --surface-subtle: #FCF9F5;
-  --border: #E6D9C9;
-  --border-light: #F1E8DC;
-  --primary: #A8542F;
-  --primary-hover: #8E4526;
-  --primary-soft: #F8E9E0;
-  --primary-soft-hover: #F1DACB;
-  --primary-border: #E5C7B4;
-  --primary-tint: #FBF2EC;
-  --text-primary: #2B2019;
-  --text-secondary: #6B5B4C;
-  --text-muted: #6A5A4B;
+  --bg: #F2EBDD;
+  --surface: #FBF7EF;
+  --surface-soft: #EBE1CD;
+  --surface-subtle: #F6F0E2;
+  --border: #D9CCB0;
+  --border-light: #E7DCC4;
+  --primary: #7A4B1E;
+  --primary-hover: #653D18;
+  --primary-soft: #F5E9D9;
+  --primary-soft-hover: #EEDDC6;
+  --primary-border: #DEC49F;
+  --primary-tint: #F8F1E5;
+  --text-primary: #241E16;
+  --text-secondary: #544737;
+  --text-muted: #5D5040;
 }
+
 
 /* --- AÇIK: Sis — soğuk gri-mavi, sakin ---------------------------------
    'Lavanta' temasının yerine geldi. Sis, ekranda hiçbir rengin öne
@@ -665,42 +765,47 @@ textarea:focus-visible,
    yerine nötr bir sakinlik.
    ---------------------------------------------------------------------- */
 :root[data-theme="sis"] {
+  /* Anlora Realms · Sis — Yumuşak — sakin gri-mavi */
   color-scheme: light;
-  --bg: #F5F7F9;
-  --surface: #FFFFFF;
-  --surface-soft: #E9EDF2;
-  --surface-subtle: #FAFBFC;
-  --border: #DCE2E9;
-  --border-light: #EBEFF3;
-  --primary: #3F5A78;
-  --primary-hover: #334A63;
-  --primary-soft: #E6ECF3;
-  --primary-soft-hover: #D6DFEA;
-  --primary-border: #BFCCDC;
-  --primary-tint: #F0F4F8;
-  --text-primary: #1B2430;
-  --text-secondary: #5A6875;
-  --text-muted: #5C6874;
+  --bg: #F0F2F4;
+  --surface: #FAFBFC;
+  --surface-soft: #E3E7EB;
+  --surface-subtle: #F5F7F8;
+  --border: #CDD4DB;
+  --border-light: #DFE4E9;
+  --primary: #2C445C;
+  --primary-hover: #213548;
+  --primary-soft: #E4EAF0;
+  --primary-soft-hover: #D5DEE7;
+  --primary-border: #B8C6D4;
+  --primary-tint: #EFF3F6;
+  --text-primary: #1F242A;
+  --text-secondary: #48515B;
+  --text-muted: #555E68;
 }
+
 
 /* --- KOYU: Orman — yeşile çalan koyu ----------------------------------- */
 :root[data-theme="orman"] {
-  --bg: #101714;
-  --surface: #18211D;
-  --surface-soft: #1F2A25;
-  --surface-subtle: #141C19;
-  --border: #2A3833;
-  --border-light: #222E29;
-  --primary: #6FB89A;
-  --primary-hover: #86C9AD;
-  --primary-soft: #1A2A24;
-  --primary-soft-hover: #223730;
-  --primary-border: #2F4A40;
-  --primary-tint: #16231E;
-  --text-primary: #E6EFE9;
-  --text-secondary: #A9BAB1;
-  --text-muted: #81948B;
+  /* Anlora Realms · Koru — Koyu — kuzeyin ormanı */
+  color-scheme: dark;
+  --bg: #0E1614;
+  --surface: #152220;
+  --surface-soft: #1C2C29;
+  --surface-subtle: #111C1A;
+  --border: #283B37;
+  --border-light: #20302D;
+  --primary: #7FB79A;
+  --primary-hover: #95C7AC;
+  --primary-soft: #152A22;
+  --primary-soft-hover: #1A3329;
+  --primary-border: #2C4A3B;
+  --primary-tint: #132420;
+  --text-primary: #E6E9DF;
+  --text-secondary: #B0BDB6;
+  --text-muted: #95A39C;
 }
+
 
 /* --- KOYU: Kömür — sıcak amber marka rengi ----------------------------- */
 :root[data-theme="komur"] {
@@ -728,19 +833,94 @@ textarea:focus-visible,
    Bu blok ortak koyu tanımlardan SONRA geldiği için onların üstüne yazar.
    ---------------------------------------------------------------------- */
 :root[data-theme="dark"] {
-  --bg: #0F1320;
-  --surface: #171C2C;
-  --surface-soft: #1F2637;
-  --surface-subtle: #141828;
-  --border: #2A3247;
-  --border-light: #222839;
-  --primary: #8C9EF0;
-  --primary-hover: #A3B2F5;
-  --primary-soft: #1B2138;
-  --primary-soft-hover: #232B45;
-  --primary-border: #333D5C;
-  --primary-tint: #171D30;
-  --text-primary: #E6E9F5;
-  --text-secondary: #A8AFC6;
-  --text-muted: #838BA4;
+  /*
+   * ANLORA REALMS — GECE.
+   *
+   * Ters çevrilmiş bir açık tema değil: kuzey gecesi. Zemin derin lacivert,
+   * mürekkep parşömen beyazı, vurgular mum ışığı ve buz mavisi. Her ton koyu
+   * zemin için ayrıca seçildi ve ölçüldü; en düşük ön plan/zemin oranı bile
+   * 4,5:1 eşiğinin üstünde.
+   */
+  --bg: #0F1922;
+  --border: #2B3B49;
+  --border-light: #223140;
+  --cefr-a1: #7FB79A;
+  --cefr-a1-border: #2C4A3B;
+  --cefr-a1-soft: #152A22;
+  --cefr-a2: #7FAAC2;
+  --cefr-a2-border: #2E4A5C;
+  --cefr-a2-soft: #16262F;
+  --cefr-b1: #D6B86B;
+  --cefr-b1-border: #4A3F22;
+  --cefr-b1-soft: #241E12;
+  --cefr-b2: #D9954F;
+  --cefr-b2-border: #4C361F;
+  --cefr-b2-deep: #C4823F;
+  --cefr-b2-soft: #2A1D11;
+  --cefr-b2-strong: #E0A059;
+  --correct: #7FB79A;
+  --correct-soft: #152A22;
+  --danger: #D9827A;
+  --danger-border: #4E2F2B;
+  --danger-border-strong: #5C3934;
+  --danger-soft: #2B1917;
+  --danger-soft-hover: #341E1B;
+  --danger-soft-strong: #3A2320;
+  --danger-tint: #402724;
+  --favorite: #D9827A;
+  --favorite-soft: #2B1917;
+  --favorite-strong: #E59B93;
+  --gold: #D6B86B;
+  --gold-border: #4A3F22;
+  --gold-ornament: #B79552;
+  --gold-soft: #241E12;
+  --ink-hover: #A6C8DF;
+  --learned: #7FB79A;
+  --learned-border: #2C4A3B;
+  --learned-deep: #6BA687;
+  --learned-hover: #93C5AB;
+  --learned-soft: #152A22;
+  --learned-soft-hover: #1A3329;
+  --learned-soft-strong: #1E3B2F;
+  --learned-text: #93C5AB;
+  --learned-tint: #224434;
+  --learning: #D9954F;
+  --learning-border: #4C361F;
+  --learning-deep: #C4823F;
+  --learning-hover: #E5A967;
+  --learning-soft: #2A1D11;
+  --learning-soft-hover: #332417;
+  --learning-soft-strong: #3B2A1A;
+  --learning-strong: #E0A059;
+  --learning-text: #E5A967;
+  --learning-tint: #42301D;
+  --neutral-100: #1C2B37;
+  --neutral-200: #243543;
+  --neutral-25: #131F29;
+  --neutral-250: #2B3F4E;
+  --neutral-300: #33495A;
+  --neutral-400: #4A6375;
+  --neutral-50: #17242F;
+  --neutral-500: #6B8395;
+  --primary: #8FB8D4;
+  --primary-border: #2F4759;
+  --primary-border-strong: #3A566B;
+  --primary-deep: #B3D0E4;
+  --primary-hover: #A6C8DF;
+  --primary-soft: #1B2C3A;
+  --primary-soft-hover: #22374A;
+  --primary-soft-strong: #263D50;
+  --primary-tint: #182835;
+  --surface: #17242F;
+  --surface-soft: #1E2E3B;
+  --surface-subtle: #13202A;
+  --teal: #7FAAC2;
+  --teal-border: #2E4A5C;
+  --teal-hover: #96BDD2;
+  --teal-soft: #16262F;
+  --teal-text: #96BDD2;
+  --text-muted: #9AA4AF;
+  --text-primary: #ECE4D4;
+  --text-secondary: #B7BFC9;
 }
+

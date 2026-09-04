@@ -100,7 +100,7 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({
             <Heart className="w-5 h-5 fill-current" />
           </div>
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
+            <h2 className="baslik-yazit text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
               Favori Kelimelerim ({favoriteWords.length})
             </h2>
             <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-0.5">

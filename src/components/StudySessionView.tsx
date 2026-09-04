@@ -388,7 +388,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
             <div className="w-10 h-10 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center mx-auto">
               <Brain className="w-5 h-5" />
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
+            <h2 className="baslik-yazit text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
               Kartları Çalış
             </h2>
             <p className="text-xs sm:text-sm text-[var(--text-secondary)] max-w-md mx-auto">
@@ -511,7 +511,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
           </div>
 
           <div className="space-y-1">
-            <h2 className="text-2xl font-bold text-[var(--text-primary)]">Tebrikler!</h2>
+            <h2 className="baslik-yazit text-2xl font-bold text-[var(--text-primary)]">Tebrikler!</h2>
             <p className="text-xs text-[var(--text-secondary)]">
               Bu seanstaki tüm kartlar hafıza döngüne işlendi.
             </p>

@@ -103,13 +103,26 @@ interface CollectionsViewProps {
  * zorlaştırır. Değerler uygulamanın kendi jetonlarından geliyor, rastgele
  * seçilmiş tonlar değil.
  */
+/*
+ * Setlerin arma renkleri.
+ *
+ * KİMLİKLER DEĞİŞMİYOR. Renk, sette `color: 'amber'` gibi saklanıyor; kimliği
+ * değiştirmek kullanıcının kurduğu bütün setlerin rengini varsayılana
+ * düşürürdü. Bu yüzden yalnızca ad ve renk değeri Realms paletine taşındı —
+ * her biri kendi renk ailesinde kaldı (mor→kuzey lacivert, petrol→buz,
+ * yeşil→koru, kehribar→altın, gül→ejderha, gri→demir), yani kimsenin seti
+ * tanınmaz hâle gelmiyor.
+ *
+ * Değerler ölçülerek seçildi: üstündeki beyaz simgeyle kontrast oranı en
+ * düşük olan altın bile 4,98 — WCAG'ın 4,5 eşiğinin üstünde.
+ */
 const DECK_COLORS: { id: string; label: string; hex: string }[] = [
-  { id: 'indigo', label: 'Mor', hex: '#4F46A5' },
-  { id: 'teal', label: 'Petrol', hex: '#1F6F6B' },
-  { id: 'emerald', label: 'Yeşil', hex: '#4F806A' },
-  { id: 'amber', label: 'Kehribar', hex: '#B4761F' },
-  { id: 'rose', label: 'Gül', hex: '#B75D6A' },
-  { id: 'slate', label: 'Gri', hex: '#687080' }
+  { id: 'indigo', label: 'Kuzey', hex: '#1B3A57' },
+  { id: 'teal', label: 'Buz', hex: '#3A6982' },
+  { id: 'emerald', label: 'Koru', hex: '#355B4A' },
+  { id: 'amber', label: 'Altın', hex: '#8A6B2B' },
+  { id: 'rose', label: 'Ejderha', hex: '#9E3F38' },
+  { id: 'slate', label: 'Demir', hex: '#5A6272' }
 ];
 
 /**
@@ -1322,7 +1335,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
       <div className="bg-[var(--surface)] p-6 sm:p-7 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
+            <h2 className="baslik-yazit text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
               Kelime Setlerim
             </h2>
             <span className="px-2 py-0.5 bg-[var(--primary-soft)] text-[var(--primary)] text-xs font-bold rounded-lg border border-[var(--primary-border)]">
@@ -1422,8 +1435,8 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                         bunlar tanıtır; kullanıcı okumadan bulur.
                       */}
                       <span
-                        className="w-8 h-8 rounded-xl flex items-center justify-center text-white shrink-0 mt-0.5"
-                        style={{ background: deckColorHex(deck.color) }}
+                        className="hanedan-kapak w-8 h-8 rounded-xl flex items-center justify-center text-white shrink-0 mt-0.5"
+                        style={{ '--hanedan': deckColorHex(deck.color) } as React.CSSProperties}
                         aria-hidden="true"
                       >
                         <DeckIcon name={deck.iconName} className="w-4 h-4" />
@@ -2748,8 +2761,8 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     className="w-full text-left px-3.5 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--bg)] hover:bg-[var(--primary-soft)] hover:border-[var(--primary-border)] transition-colors cursor-pointer flex items-center gap-2.5"
                   >
                     <span
-                      className="w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0"
-                      style={{ background: deckColorHex(deck.color) }}
+                      className="hanedan-kapak w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0"
+                      style={{ '--hanedan': deckColorHex(deck.color) } as React.CSSProperties}
                     >
                       <DeckIcon name={deck.iconName} className="w-3.5 h-3.5" />
                     </span>

@@ -8,6 +8,7 @@ import { Search, BookOpen, Play, X, Check, RotateCw, ChevronDown } from 'lucide-
 import { getUserWordStatus } from '../utils/storageV2';
 import { aramaAnahtari } from '../utils/aramaAnahtari';
 import { CEFRBadge } from './ui/CEFRBadge';
+import sahneKuzgun from '../assets/realms/kuzgun-harita.svg';
 
 /**
  * Oxford 5000 gezgini.
@@ -468,9 +469,23 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
         her birinde zaten kendi ses düğmesi var. 'Sınav Başlat' da alt
         menüdeki Sınav sekmesiyle aynı işi yapıyordu.
       */}
-      <div className="bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
+      <div className="bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] overflow-hidden">
+        {/*
+          Kuzgun ve eski harita: Oxford listesi bu ekranın konusu.
+          Kutunun İÇERİĞİ hiç değişmedi — başlık, açıklama ve düğmeler aynı
+          sırada duruyor; sahne yalnızca üstte, metnin arkasına girmeyen ayrı
+          bir katman.
+        */}
+        <img
+          src={sahneKuzgun}
+          alt="Eski bir haritanın üzerinde uçan kuzgun"
+          loading="lazy"
+          decoding="async"
+          className="w-full h-[92px] object-cover"
+        />
+        <div className="p-6">
         <div className="flex items-center gap-2">
-          <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
+          <h2 className="baslik-yazit text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
             Oxford Kelime Listesi
           </h2>
           {selectedLevel !== 'ALL' && <CEFRBadge level={selectedLevel} />}
@@ -480,6 +495,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
           belirlediği kelime ve kalıplar. Kendi seviyeni seçip kelime dağarcığını oradan
           geliştirebilirsin — toplam {levelCounts.ALL.toLocaleString('tr-TR')} kayıt.
         </p>
+        </div>
       </div>
 
       {/* Filtreler */}

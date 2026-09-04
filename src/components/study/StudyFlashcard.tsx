@@ -18,6 +18,7 @@ import {
   MoreVertical
 } from 'lucide-react';
 import { PronounceButtons } from '../ui/PronounceButtons';
+import { KartMotifi } from '../ui/KartMotifi';
 import { speakText } from '../../utils/speech';
 import { CEFRBadge } from '../ui/CEFRBadge';
 import { shouldShowCefr } from '../../types/oxford';
@@ -498,6 +499,18 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                 opacity: swipe.exitDirection ? 0 : 1
               }}
             >
+              {/*
+                Tema şeridi. Kelime kartlarındakiyle aynı motif: seviyeden
+                türüyor, kartın en üst kenarında duruyor ve hiçbir metnin
+                arkasına girmiyor. Eksi kenar boşlukları kartın kendi iç
+                dolgusunu geçip şeridi kenara taşıyor — içerik sırası ya da
+                aralıkları değişmiyor.
+              */}
+              <KartMotifi
+                level={currentCard.level}
+                className="-mt-3 sm:-mt-5 -mx-6 sm:-mx-8 mb-3"
+              />
+
               {/* Üst şerit: etiketler ve eylemler */}
               <div className="flex items-start justify-between gap-2">
                 <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
@@ -613,7 +626,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                   aria-expanded={isMeaningRevealed}
                   className="group flex flex-col items-center gap-2 cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-4 rounded-2xl"
                 >
-                  <h2 className="text-[2rem] sm:text-[2.75rem] leading-[1.1] font-black text-[var(--text-primary)] tracking-[-0.03em]">
+                  <h2 className="kelime-basligi text-[2rem] sm:text-[2.75rem] leading-[1.1] font-bold text-[var(--text-primary)]">
                     {currentCard.word}
                   </h2>
                   {formatPhonetic(currentCard.phonetic) && (

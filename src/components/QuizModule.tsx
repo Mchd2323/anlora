@@ -38,6 +38,7 @@ import { CEFRBadge } from './ui/CEFRBadge';
 import { LearningStatusControl } from './ui/LearningStatusControl';
 import { BRAND } from '../config/brand';
 import { OxfordGroupKey } from '../types/oxford';
+import sahneEjderha from '../assets/realms/ejderha.svg';
 
 /** Sınav kaynağı olarak seçilebilen Oxford grupları. */
 /*
@@ -385,12 +386,26 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
     <div className="max-w-[760px] mx-auto space-y-6 pb-safe-nav animate-fadeIn">
       {/* 1. Sınav Kurulum Ekranı */}
       {quizState === 'IDLE' && (
-        <div className="bg-[var(--surface)] p-6 sm:p-8 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
+        <div className="bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] overflow-hidden">
+        {/*
+          Uçan ejderha: "kendini sına" bu ekranın karşılığı.
+          Kutunun İÇERİĞİ hiç değişmedi — başlık, açıklama ve düğmeler aynı
+          sırada duruyor; sahne yalnızca üstte, metnin arkasına girmeyen ayrı
+          bir katman.
+        */}
+        <img
+          src={sahneEjderha}
+          alt="Gökyüzünde uçan ejderha"
+          loading="lazy"
+          decoding="async"
+          className="w-full h-[92px] object-cover"
+        />
+        <div className="p-6 sm:p-8 space-y-6">
           <div className="text-center space-y-1.5">
             <div className="w-10 h-10 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center mx-auto">
               <GraduationCap className="w-5 h-5" />
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
+            <h2 className="baslik-yazit text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
               Sınav Modu
             </h2>
             <p className="text-xs sm:text-sm text-[var(--text-secondary)] max-w-md mx-auto">
@@ -641,6 +656,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
             </span>
           </button>
         </div>
+        </div>
       )}
 
       {/* 2. Aktif Soru Ekranı */}
@@ -850,12 +866,12 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                 <div className="text-base font-bold text-[var(--primary)]">
                   {BRAND.slogan}
                 </div>
-                <h2 className="text-2xl font-bold text-[var(--text-primary)]">
+                <h2 className="baslik-yazit text-2xl font-bold text-[var(--text-primary)]">
                   Sınav Başarıyla Tamamlandı
                 </h2>
               </div>
             ) : (
-              <h2 className="text-2xl font-bold text-[var(--text-primary)]">
+              <h2 className="baslik-yazit text-2xl font-bold text-[var(--text-primary)]">
                 Sınav Tamamlandı
               </h2>
             )}

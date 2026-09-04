@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { speakText } from '../utils/speech';
 import { PronounceButtons } from './ui/PronounceButtons';
+import { KartMotifi } from './ui/KartMotifi';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { BRAND } from '../config/brand';
 import { LearningStatusControl } from './ui/LearningStatusControl';
@@ -117,6 +118,13 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
           : 'border-[var(--border)] hover:border-[var(--neutral-300)] shadow-[0_1px_3px_rgba(30,36,48,0.03)]'
       }`}
     >
+      {/*
+        Tema şeridi. Kartın en üstünde, içeriğin dışında duruyor: desen
+        kelimenin, IPA'nın ya da anlamın arkasına hiç girmiyor. Motif CEFR
+        seviyesinden türüyor, rastgele değil.
+      */}
+      <KartMotifi level={card.level} className="pt-3" />
+
       <div>
         {/* Top Header: CEFR & POS info, Collections tag & Actions */}
         <div className="flex items-center justify-between p-4 pb-3 border-b border-[var(--border-light)]">
@@ -276,7 +284,7 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
           <div className="flex items-start justify-between gap-3">
             <div>
               {/* English Word: High visual hierarchy */}
-              <h3 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] tracking-tight group-hover:text-[var(--primary)] transition-colors leading-none">
+              <h3 className="kelime-basligi text-3xl sm:text-4xl font-bold text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors leading-none">
                 {card.word}
               </h3>
               {card.phonetic && (

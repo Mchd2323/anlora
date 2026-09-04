@@ -32,6 +32,16 @@ export interface IntroSlide {
   index: number;
   title: string;
   body: React.ReactNode;
+  /**
+   * Manşetin arka planındaki sahne (Anlora Realms görselleri).
+   *
+   * Görsel metnin ARKASINDA değil, ÜSTÜNDE ayrı bir şerit olarak duruyor:
+   * parşömen zeminde okunan bir metnin arkasına resim koymak, uygulamanın
+   * asıl işi olan okumayı zorlaştırırdı.
+   */
+  gorsel?: string;
+  /** Ekran okuyucu için sahnenin kısa tarifi. */
+  gorselAlt?: string;
 }
 
 const GECIS_MS = 6000;
@@ -106,7 +116,17 @@ export const IntroCarousel: React.FC<{ slides: IntroSlide[] }> = ({ slides }) =>
         >
           {slides.map(s => (
             <div key={s.index} className="w-full shrink-0 px-0.5">
-              <div className="p-4 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-light)] space-y-1.5 min-h-[104px]">
+              <div className="rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-light)] overflow-hidden min-h-[104px]">
+                {s.gorsel && (
+                  <img
+                    src={s.gorsel}
+                    alt={s.gorselAlt || ''}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-[84px] object-cover"
+                  />
+                )}
+                <div className="p-4 space-y-1.5">
                 <div className="flex items-center gap-2">
                   <span className="w-5 h-5 rounded-lg bg-[var(--primary)] text-[var(--surface)] text-[11px] font-black flex items-center justify-center shrink-0">
                     {s.index}
@@ -114,6 +134,7 @@ export const IntroCarousel: React.FC<{ slides: IntroSlide[] }> = ({ slides }) =>
                   <span className="text-sm font-bold text-[var(--text-primary)]">{s.title}</span>
                 </div>
                 <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">{s.body}</p>
+                </div>
               </div>
             </div>
           ))}
@@ -131,7 +152,7 @@ export const IntroCarousel: React.FC<{ slides: IntroSlide[] }> = ({ slides }) =>
               onClick={() => elle(i)}
               aria-label={`${i + 1}. tanıtım: ${s.title}`}
               aria-current={i === aktif ? 'true' : undefined}
-              className="group flex items-center justify-center min-w-[24px] min-h-[24px] cursor-pointer"
+              className="group flex items-center justify-center min-w-[28px] min-h-[44px] cursor-pointer"
             >
               {/* Görünen çubuk: boyutu eskisiyle birebir aynı, yalnızca artık
                   basılabilir kutunun içinde duruyor. */}

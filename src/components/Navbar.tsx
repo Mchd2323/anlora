@@ -121,7 +121,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 değil — bir kez, üst çubukta durması yeterli.
               */}
               <span className="flex flex-col leading-none">
-                <span className="text-xl font-bold tracking-tight text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors">
+                <span className="baslik-yazit text-xl font-bold text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors">
                   {BRAND.name}
                 </span>
                 <span className="text-[10px] font-medium text-[var(--primary)] tracking-tight mt-0.5">

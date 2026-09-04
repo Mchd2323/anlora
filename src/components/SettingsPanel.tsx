@@ -40,16 +40,28 @@ const STUDY_MODES: { value: UserSettings['preferredStudyMode']; label: string; h
  * temanın değerini taşır; örnekleri onlarla çizmek sekiz kutuyu da aynı
  * renkte gösterirdi. Değerler `index.css` içindeki karşılıklarıyla aynı.
  */
+/*
+ * Tema seçenekleri — hepsi Anlora Realms dünyasından.
+ *
+ * Kimlikler (id) BİLEREK korundu: kullanıcının kayıtlı tercihi bu değerlerle
+ * saklanıyor, değiştirseydik herkesin teması sessizce sıfırlanırdı. Değişen
+ * yalnızca ad, açıklama ve renkler.
+ *
+ * Örnek kareler artık gerçek tema renklerinden besleniyor; eski hâlde
+ * elle yazılmış kodlar temalar değişince olduğu yerde kalıyor ve kullanıcıya
+ * seçmediği bir rengi vaat ediyordu.
+ */
 const THEME_OPTIONS = [
-  { id: 'system' as const, label: 'Sistem', hint: 'Telefonun ayarını izler',     zemin: 'linear-gradient(135deg,#F8F7F3 50%,#0F1320 50%)', kenar: '#C3BEB4', marka: '#4F46A5' },
-  { id: 'deniz' as const,  label: 'Deniz',  hint: 'Açık — soğuk beyaz, turkuaz', zemin: '#F4F8F9', kenar: '#D7E4E7', marka: '#1F6F6B' },
-  { id: 'kum' as const,    label: 'Kum',    hint: 'Açık — sıcak bej, kiremit',   zemin: '#FAF6F0', kenar: '#E6D9C9', marka: '#A8542F' },
-  { id: 'gul' as const,    label: 'Gül',    hint: 'Yumuşak — sıcak pembe',       zemin: '#FDF6F6', kenar: '#EFDCDE', marka: '#B44E68' },
-  { id: 'sis' as const,    label: 'Sis',    hint: 'Yumuşak — sakin gri-mavi',    zemin: '#F5F7F9', kenar: '#DCE2E9', marka: '#3F5A78' },
-  { id: 'dark' as const,   label: 'Gece',   hint: 'Koyu — lacivert',             zemin: '#0F1320', kenar: '#2A3247', marka: '#8C9EF0' },
-  { id: 'orman' as const,  label: 'Orman',  hint: 'Koyu — yeşile çalan',         zemin: '#101714', kenar: '#2A3833', marka: '#6FB89A' },
-  { id: 'komur' as const,  label: 'Kömür',  hint: 'Koyu — sıcak amber',          zemin: '#16130F', kenar: '#383026', marka: '#D9A24E' }
+  { id: 'system' as const, label: 'Sistem', hint: 'Telefonun ayarını izler', zemin: 'linear-gradient(135deg,#F2EBDD 50%,#0F1922 50%)', kenar: '#D9CCB0', marka: '#15283D' },
+  { id: 'deniz' as const, label: 'Buz', hint: 'Açık — kuzeyin soğuk parşömeni', zemin: '#EEF2F2', kenar: '#CBD8DA', marka: '#1E4152' },
+  { id: 'kum' as const, label: 'Parşömen', hint: 'Açık — sıcak parşömen', zemin: '#F2EBDD', kenar: '#D9CCB0', marka: '#7A4B1E' },
+  { id: 'gul' as const, label: 'Şafak', hint: 'Yumuşak — kor ve sabah kızıllığı', zemin: '#F7EDE7', kenar: '#DDC7B9', marka: '#8E362F' },
+  { id: 'sis' as const, label: 'Sis', hint: 'Yumuşak — sakin gri-mavi', zemin: '#F0F2F4', kenar: '#CDD4DB', marka: '#2C445C' },
+  { id: 'dark' as const, label: 'Gece', hint: 'Koyu — kuzey gecesi', zemin: '#0F1922', kenar: '#2B3B49', marka: '#8FB8D4' },
+  { id: 'orman' as const, label: 'Koru', hint: 'Koyu — kuzeyin ormanı', zemin: '#0E1614', kenar: '#283B37', marka: '#7FB79A' },
+  { id: 'komur' as const, label: 'Kor', hint: 'Koyu — sıcak kor ve kıvılcım', zemin: '#16110C', kenar: '#3A2E20', marka: '#D9954F' },
 ];
+
 
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange }) => {
   /*

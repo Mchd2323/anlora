@@ -34,6 +34,15 @@ import { BRAND } from '../config/brand';
 import { useRemoteApi } from '../hooks/useRemoteApi';
 import { IntroCarousel } from './home/IntroCarousel';
 import { HomeHeroArt } from './HomeHeroArt';
+/*
+ * Anlora Realms sahneleri. SVG olarak duruyorlar: pakete gömülü, çevrimdışı,
+ * her ekran yoğunluğunda keskin ve dördü toplam 15 KB — aynı sahnelerin
+ * yeterli çözünürlükte raster kopyaları yüzlerce KB tutardı.
+ */
+import sahneKitaplik from '../assets/realms/kitaplik.svg';
+import sahneKuzgun from '../assets/realms/kuzgun-harita.svg';
+import sahneEjderha from '../assets/realms/ejderha.svg';
+import sahneBuzKalesi from '../assets/realms/buz-kalesi.svg';
 
 interface TodayDashboardProps {
   collections: Collection[];
@@ -308,6 +317,8 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
             {
               index: 1,
               title: 'Kendi setlerin',
+              gorsel: sahneKitaplik,
+              gorselAlt: 'Mum ışığında büyük kitaplık',
               body: (
                 <>
                   Okurken, izlerken not ettiğin kelimeleri yükle; kendi setini kur ve her
@@ -319,6 +330,8 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
             {
               index: 2,
               title: 'Oxford kelime listesi',
+              gorsel: sahneKuzgun,
+              gorselAlt: 'Eski harita üzerinde kuzgun',
               body: (
                 <>
                   Oxford Üniversitesi'nin{' '}
@@ -332,6 +345,8 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
             {
               index: 3,
               title: 'Kendini sına',
+              gorsel: sahneEjderha,
+              gorselAlt: 'Alacakaranlıkta uçan ejderha',
               body: (
                 <>
                   İstediğin kaynaktan, istediğin sınav türünde ve soru sayısında kendini test et;
@@ -391,7 +406,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
               <div className="w-8 h-8 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center">
                 <Layers className="w-4 h-4" />
               </div>
-              <h2 className="text-xl font-bold text-[var(--text-primary)]">Kelime Setlerim</h2>
+              <h2 className="baslik-yazit text-xl font-bold text-[var(--text-primary)]">Kelime Setlerim</h2>
             </div>
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
               {branding.setsIntro ||
@@ -523,14 +538,27 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
       </div>
 
       {/* 2. OXFORD 5000 */}
-      <div className="bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-5">
+      <div className="bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow-[var(--elev-1)] overflow-hidden">
+        {/*
+          Buz kalesi şeridi. Kutunun İÇERİĞİ hiç değişmedi — başlık, açıklama,
+          seviye kartları ve düğmeler aynı sırada; sahne yalnızca üstte, metnin
+          arkasına girmeyen ayrı bir katman olarak duruyor.
+        */}
+        <img
+          src={sahneBuzKalesi}
+          alt="Kar altında buzdan kale"
+          loading="lazy"
+          decoding="async"
+          className="w-full h-[96px] object-cover"
+        />
+        <div className="p-6 sm:p-7 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-xl bg-[var(--cefr-a1-soft)] text-[var(--learned)] flex items-center justify-center">
                 <BookOpen className="w-4 h-4" />
               </div>
-              <h2 className="text-xl font-bold text-[var(--text-primary)]">Oxford 5000</h2>
+              <h2 className="baslik-yazit text-xl font-bold text-[var(--text-primary)]">Oxford 5000</h2>
             </div>
             <p className="text-sm text-[var(--text-secondary)]">
               A1'den C1'e İngilizce kelimelerini seviyene göre çalış.
@@ -621,6 +649,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
             );
           })}
         </div>
+        </div>
       </div>
 
       {/*
@@ -642,7 +671,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
               <Target className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-[var(--text-primary)]">Günlük Çalışma Planı</h2>
+              <h2 className="baslik-yazit text-base font-bold text-[var(--text-primary)]">Günlük Çalışma Planı</h2>
               <p className="text-[11px] text-[var(--text-secondary)]">
                 Kendi hedefin: günde {reviewGoal} tekrar + {newGoal} yeni kelime
                 <span className="text-[var(--text-muted)]"> · Profilden değiştirilebilir</span>

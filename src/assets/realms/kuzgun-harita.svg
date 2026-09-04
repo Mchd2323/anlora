@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 360" width="800" height="360" role="img" aria-label="Eski harita üzerinde kuzgun">
+  <defs>
+    <linearGradient id="h-kagit" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E8DCBE"/><stop offset="0.5" stop-color="#DCCDA8"/><stop offset="1" stop-color="#C9B78E"/>
+    </linearGradient>
+    <radialGradient id="h-leke" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#8A6F2E" stop-opacity="0"/><stop offset="1" stop-color="#6B5320" stop-opacity="0.4"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="800" height="360" fill="url(#h-kagit)"/>
+  <rect width="800" height="360" fill="url(#h-leke)"/>
+
+  <!-- Harita çizgileri: kıyı ve enlem -->
+  <g stroke="#7A6127" fill="none" opacity="0.45">
+    <path d="M60 268c40-22 62-6 96-24s52-58 96-56 58 40 96 30 54-46 96-40 62 40 96 34" stroke-width="2.2"/>
+    <path d="M40 300c48-18 74 2 112-16s56-46 100-44 60 34 98 26 56-40 98-34" stroke-width="1.4" opacity="0.6"/>
+    <g stroke-width="0.9" opacity="0.4">
+      <path d="M0 90h800M0 150h800M0 210h800"/>
+      <path d="M140 0v360M300 0v360M460 0v360M620 0v360"/>
+    </g>
+  </g>
+
+  <!-- Rota: kesikli çizgi ve iki mühür noktası -->
+  <path d="M170 214C260 150 340 250 430 176s150-40 210-96" stroke="#9E3F38" stroke-width="2.4" fill="none" stroke-dasharray="9 8" opacity="0.75"/>
+  <circle cx="170" cy="214" r="6" fill="#9E3F38"/><circle cx="170" cy="214" r="11" fill="none" stroke="#9E3F38" stroke-width="1.6" opacity="0.5"/>
+  <circle cx="640" cy="80" r="6" fill="#9E3F38"/><circle cx="640" cy="80" r="11" fill="none" stroke="#9E3F38" stroke-width="1.6" opacity="0.5"/>
+
+  <!-- Pusula gülü -->
+  <g transform="translate(672,268)" opacity="0.7">
+    <circle r="40" fill="none" stroke="#7A6127" stroke-width="1.6"/>
+    <circle r="30" fill="none" stroke="#7A6127" stroke-width="0.9" opacity="0.7"/>
+    <path d="M0-38 8-8 38 0 8 8 0 38-8 8-38 0-8-8z" fill="#7A6127" opacity="0.85"/>
+    <path d="M0-38 8-8 0 0z" fill="#15283D"/>
+  </g>
+
+  <!-- Kuzgun: dala tünemiş, sola bakan siluet -->
+  <g transform="translate(238,72)">
+    <!-- dal -->
+    <path d="M-140 158c54-14 112-12 172 2" stroke="#3A2C14" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <path d="M-70 164l-12 20M-24 168l-4 22" stroke="#3A2C14" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+    <!-- bacaklar -->
+    <path d="M6 132v24M26 132v22" stroke="#15283D" stroke-width="5" stroke-linecap="round"/>
+    <path d="M-2 156h16M18 154h16" stroke="#15283D" stroke-width="4" stroke-linecap="round"/>
+    <g fill="#15283D">
+      <!-- gövde: yumurta biçimi, sağa doğru daralıyor -->
+      <path d="M12 132c-24 0-42-18-42-42 0-30 22-52 52-52 26 0 44 16 50 38 4 14 2 28-6 38-12 14-32 18-54 18z"/>
+      <!-- kuyruk: sağa uzanan sivri üçgen -->
+      <path d="M62 88c26 4 48 14 66 30-22-4-42-2-60 6-2-12-4-24-6-36z"/>
+      <!-- katlı kanat: gövdenin üstünde ayrı bir dilim -->
+      <path d="M6 62c22-6 42 0 56 16 8 10 10 22 6 32-14-14-34-22-58-22-6-10-6-18-4-26z" fill="#1D3550"/>
+      <!-- baş: gövdeden ayrı, boyunla bağlı -->
+      <path d="M-30 74c-14-4-24-16-24-30 0-18 14-32 32-32 14 0 26 8 30 20 3 9 1 18-4 25-8 11-20 18-34 17z"/>
+    </g>
+    <!-- gaga: sola uzanan keskin üçgen -->
+    <path d="M-54 40l-30 8 28 12z" fill="#23262B"/>
+    <path d="M-54 40l-30 8 14 4z" fill="#3A3F47"/>
+    <!-- göz -->
+    <circle cx="-34" cy="38" r="4.2" fill="#B79552"/>
+    <circle cx="-33" cy="37" r="1.6" fill="#15283D"/>
+  </g>
+
+  <!-- Kenar yıpranması -->
+  <rect x="4" y="4" width="792" height="352" fill="none" stroke="#7A6127" stroke-width="2" opacity="0.35"/>
+  <rect x="12" y="12" width="776" height="336" fill="none" stroke="#7A6127" stroke-width="0.8" opacity="0.25"/>
+</svg>
