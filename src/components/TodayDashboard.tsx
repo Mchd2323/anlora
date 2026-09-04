@@ -181,26 +181,27 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
   return (
     <div className="space-y-6 pb-safe-nav max-w-[1080px] mx-auto animate-fadeIn">
       {/*
-        ÜYELİK TEŞVİKİ — zorlamadan.
-
         Yalnızca kaybedecek bir şeyi olan kullanıcıya gösterilir: hiç kelime
-        eklememiş birine "verilerin kaybolmasın" demek boş bir uyarıdır ve
-        uygulamayı ilk açan kişiyi hesap açmaya iter. Kapatılabilir; her
-        açılışta aynı şeyi söylemek uyarıyı görünmez kılar.
+        eklememiş birine "verilerin kaybolmasın" demek boş bir uyarıdır.
+        Kapatılabilir; her açılışta aynı şeyi söylemek uyarıyı görünmez kılar.
       */}
       {/*
-        HESAP TEŞVİKİ YALNIZCA HESAP VARSA ÇIKAR.
+        VERİNİN NEREDE DURDUĞU SÖYLENİYOR — DOĞRU CÜMLEYLE.
 
-        Bu kutu "hesap açmak ücretsiz; kelimelerin buluta yedeklenir" diyor
-        ve sunucusuz kurulumda da çiziliyordu. Orada ne hesap var ne bulut:
-        "Hesap aç" düğmesi kullanıcıyı özelliğin kapalı olduğunu söyleyen bir
-        pencereye götürüyordu. Var olmayan bir güvenceyi vaat etmek, hiç
-        uyarmamaktan kötü — kullanıcı verisinin yedeklendiğini sanır.
+        Bu kutu eskiden "hesap açmak ücretsiz; kelimelerin buluta yedeklenir"
+        diyordu ve sunucusuz kurulumda da çiziliyordu. Orada ne hesap var ne
+        bulut: düğme kullanıcıyı özelliğin kapalı olduğunu söyleyen bir
+        pencereye götürüyordu.
 
-        `useRemoteApi()` üç değer döner; `true` gelene kadar kutu çizilmez,
-        yani yoklama sürerken de bir şey vaat edilmez.
+        Ama kutuyu tamamen gizlemek de yanlış olurdu: kendi kelimelerini
+        eklemiş biri, o kelimelerin YALNIZCA bu telefonda durduğunu bilmeli.
+        Bu yüzden kutu duruyor, yalnızca doğru şeyi söylüyor ve gerçekten
+        çalışan bir yere — yerel yedeğe — götürüyor.
+
+        Sunuculu kurulumda ayrıca hesap teklif edilir; sunucusuzda hiç
+        bahsedilmez, çünkü orada hesap diye bir şey yok.
       */}
-      {remoteReady === true && !profile?.isLoggedIn && customWordCount > 0 && !isNudgeDismissed && (
+      {customWordCount > 0 && !isNudgeDismissed && (
         <div className="bg-[var(--learning-soft)] border border-[var(--learning-border)] rounded-2xl p-4 flex items-start gap-3">
           <CloudUpload className="w-4 h-4 text-[var(--learning-text)] shrink-0 mt-0.5" />
           <div className="min-w-0 flex-1">
@@ -209,16 +210,28 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
             </p>
             <p className="text-xs text-[var(--learning-text)] mt-0.5 leading-relaxed opacity-90">
               Uygulamayı silersen ya da telefonun kaybolursa bunlar da gider.
-              Hesap açmak ücretsiz; kelimelerin buluta yedeklenir.
+              {remoteReady === true && !profile?.isLoggedIn
+                ? ' Hesap açmak ücretsiz; kelimelerin buluta yedeklenir.'
+                : ' Profilden yedek alıp dosyayı güvenli bir yere koy.'}
             </p>
             <div className="flex flex-wrap gap-2 mt-2.5">
-              <button
-                type="button"
-                onClick={onOpenAuthModal}
-                className="px-3 py-1.5 bg-[var(--learning)] hover:opacity-90 text-[var(--surface)] text-[11px] font-bold rounded-lg cursor-pointer"
-              >
-                Hesap aç
-              </button>
+              {remoteReady === true && !profile?.isLoggedIn ? (
+                <button
+                  type="button"
+                  onClick={onOpenAuthModal}
+                  className="px-3 py-1.5 bg-[var(--learning)] hover:opacity-90 text-[var(--surface)] text-[11px] font-bold rounded-lg cursor-pointer"
+                >
+                  Hesap aç
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => onNavigateToTab?.('profile')}
+                  className="px-3 py-1.5 bg-[var(--learning)] hover:opacity-90 text-[var(--surface)] text-[11px] font-bold rounded-lg cursor-pointer"
+                >
+                  Yedek al
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => setIsNudgeDismissed(true)}
