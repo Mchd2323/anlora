@@ -66,7 +66,13 @@ function normalize(phrase: string): string {
     .toLowerCase()
     .replace(/[’]/g, "'")
     .replace(/…/g, ' ')
-    .replace(/\b(sb\/sth|sth\/sb|sb|sth|do sth|A and B)\b/g, ' ')
+    /*
+     * Yer tutucular. Hepsi KÜÇÜK harfle yazılmalı: bir satır yukarıda
+     * `.toLowerCase()` çalışıyor, dolayısıyla büyük harfli 'A and B' bu
+     * noktada hiçbir zaman eşleşmiyordu — sözlükte o yer tutucuyu taşıyan
+     * kalıp, kullanıcı doğru yazsa bile bulunamıyordu.
+     */
+    .replace(/\b(sb\/sth|sth\/sb|do sth|sb|sth|a and b)\b/g, ' ')
     .replace(/[^a-z0-9' ]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();

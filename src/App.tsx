@@ -57,7 +57,8 @@ import {
   saveUserSettingsV2,
   getUserProfileV2,
   saveUserProfileV2,
-  setUserWordStatus
+  setUserWordStatus,
+  setUserWordStatuses
 } from './utils/storageV2';
 import { apiFetch, logout } from './utils/authClient';
 import { runOxfordIdMigrationIfNeeded } from './utils/oxfordIdMigration';
@@ -505,6 +506,25 @@ export default function App() {
     setUnlockedBadges(checkAndUnlockBadgesV2());
   }, []);
 
+  /**
+   * Toplu durum işaretleme (sınav sonucu ekranındaki iki düğme).
+   *
+   * Tek tek `handleSetWordStatus` çağırmak, kelime başına bütün öğrenme
+   * durumu yığınını yeniden ayrıştırıp yazıyordu; yirmi soruluk bir sınavda
+   * arayüz saniyelerce donuyordu. Depo tarafı tek yazmada hallediyor, burada
+   * da ekran durumu tek kez tazeleniyor.
+   */
+  const handleSetWordStatuses = useCallback(
+    (ids: string[], status: 'learned' | 'learning' | 'unseen') => {
+      if (ids.length === 0) return;
+      setUserWordStatuses(ids, status);
+      setLearningStates(getAllLearningStatesV2());
+      setStats(getUserStatsV2());
+      setUnlockedBadges(checkAndUnlockBadgesV2());
+    },
+    []
+  );
+
   const handleOpenAddToCollection = useCallback((card: WordCard) => {
     setCardToAddToCollection(card);
   }, []);
@@ -780,6 +800,7 @@ export default function App() {
             onRecordStudyResult={(wId, qual, mode) => handleRecordStudyResult(wId, qual, mode)}
             onGoToMistakes={() => setActiveTab('profile')}
             onSetWordStatus={handleSetWordStatus}
+            onSetWordStatuses={handleSetWordStatuses}
           />
         )}
 

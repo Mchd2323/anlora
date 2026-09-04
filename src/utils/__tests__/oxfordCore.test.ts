@@ -131,11 +131,43 @@ describe('WordCard dönüşümü', () => {
     expect(getPartOfSpeechLabel(boost)).toBe('v., n.');
   });
 
-  it('anlamı olmayan kayıtta yedek anlam kullanılır', () => {
-    const withLegacy = entries.find(e => e.legacyMeaning);
-    if (withLegacy) {
-      expect(getPrimaryMeaning(withLegacy)).toBe(withLegacy.legacyMeaning);
-    }
+  /*
+   * TEST VERİYE BAĞLI OLMAMALI.
+   *
+   * Bu blok eskiden `entries.find(e => e.legacyMeaning)` ile veride bir örnek
+   * arıyor, bulamazsa hiçbir iddia çalıştırmadan yeşil geçiyordu. Veri
+   * yeniden üretildiğinde `legacyMeaning` taşıyan kayıt kalmadı: test o günden
+   * beri hiçbir şey doğrulamıyor, ama "geçti" diyordu. Kuralı veriden
+   * bağımsız, elle kurulmuş kayıtlarla sınıyoruz.
+   */
+  const kayitKur = (
+    id: string,
+    turkishMeanings: string[],
+    legacyMeaning?: string
+  ): OxfordEntry => ({
+    id,
+    headword: 'about',
+    cefr: 'A1',
+    sourceCollection: 'oxford3000',
+    sourceOrder: 1,
+    sourceEntry: 'about prep., adv.',
+    senses: [{ id: `${id}-prep`, partOfSpeech: 'prep.', turkishMeanings, examples: [] }],
+    legacyMeaning
+  });
+
+  it('sense anlamı yoksa yedek anlam kullanılır', () => {
+    expect(getPrimaryMeaning(kayitKur('t-1', [], 'hakkında'))).toBe('hakkında');
+  });
+
+  it('sense anlamı varsa yedek anlamı yener', () => {
+    expect(getPrimaryMeaning(kayitKur('t-2', ['ilgili'], 'hakkında'))).toBe('ilgili');
+  });
+
+  it('gerçek veride her kaydın gösterilebilir bir anlamı var', () => {
+    // Yukarıdaki iki test kuralı sınıyor; bu satır kuralın gerçek veriye
+    // uygulandığında boşluk bırakmadığını sınıyor.
+    const anlamsiz = entries.filter(e => !getPrimaryMeaning(e));
+    expect(anlamsiz.map(e => e.id)).toEqual([]);
   });
 
   it('kart görünümü kimliği korur', () => {

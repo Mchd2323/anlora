@@ -94,6 +94,15 @@ interface QuizModuleProps {
   onFinishQuiz?: (summary: QuizSessionSummary) => void;
   onGoToMistakes?: () => void;
   onSetWordStatus?: (id: string, status: 'learned' | 'learning' | 'unseen') => void;
+  /**
+   * Toplu işaretleme için tek yazmalık yol.
+   *
+   * Sonuç ekranındaki iki düğme kelime başına `onSetWordStatus` çağırıyordu;
+   * her çağrı bütün öğrenme durumu yığınını yeniden ayrıştırıp yazdığı için
+   * yirmi soruluk bir sınavda arayüz saniyelerce donuyor, kullanıcı düğme
+   * çalışmadı sanıp tekrar basıyordu.
+   */
+  onSetWordStatuses?: (ids: string[], status: 'learned' | 'learning' | 'unseen') => void;
 }
 
 type StatusFilter = 'ALL' | 'LEARNING' | 'LEARNED';
@@ -109,7 +118,8 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
   onRecordStudyResult,
   onFinishQuiz,
   onGoToMistakes,
-  onSetWordStatus
+  onSetWordStatus,
+  onSetWordStatuses
 }) => {
   const [quizState, setQuizState] = useState<'IDLE' | 'ACTIVE' | 'FINISHED'>('IDLE');
   /** Toplu işaretlemenin sonucu; sessizce yapılan bir işlem yapılmamış gibidir. */
@@ -892,9 +902,12 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                   type="button"
                   disabled={dogrularIsaretlendi}
                   onClick={() => {
-                    userAnswers
+                    const dogruIdler = userAnswers
                       .filter(a => a.isCorrect)
-                      .forEach(a => onSetWordStatus(a.question.word.id, 'learned'));
+                      .map(a => a.question.word.id);
+                    // Tek yazma; yoksa her kelime için bütün yığın yeniden yazılıyordu.
+                    if (onSetWordStatuses) onSetWordStatuses(dogruIdler, 'learned');
+                    else dogruIdler.forEach(id => onSetWordStatus(id, 'learned'));
                     setDogrularIsaretlendi(true);
                     setTopluSonuc(`${score} kelime "öğrendim" olarak işaretlendi.`);
                   }}
@@ -910,9 +923,11 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                   type="button"
                   disabled={yanlislarIsaretlendi}
                   onClick={() => {
-                    userAnswers
+                    const yanlisIdler = userAnswers
                       .filter(a => !a.isCorrect)
-                      .forEach(a => onSetWordStatus(a.question.word.id, 'learning'));
+                      .map(a => a.question.word.id);
+                    if (onSetWordStatuses) onSetWordStatuses(yanlisIdler, 'learning');
+                    else yanlisIdler.forEach(id => onSetWordStatus(id, 'learning'));
                     setYanlislarIsaretlendi(true);
                     setTopluSonuc(
                       `${cevaplananSayisi - score} kelime tekrar listene eklendi.`

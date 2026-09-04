@@ -487,12 +487,17 @@ export function getUserWordStatus(
   return 'unseen';
 }
 
-export function setUserWordStatus(
+/**
+ * Bir kelimenin durumunu HESAPLAR; diske yazmaz.
+ *
+ * Tek kelimelik ve toplu yol aynı kuralı kullansın diye ayrıldı: iki ayrı
+ * kopya olsaydı biri değiştiğinde diğeri sessizce geride kalırdı.
+ */
+function applyWordStatus(
+  states: Record<string, LearningState>,
   wordId: string,
-  status: 'learned' | 'learning' | 'unseen',
-  customCollectionId?: string
-): Record<string, LearningState> {
-  const states = getLearningStates();
+  status: 'learned' | 'learning' | 'unseen'
+): LearningState {
   let state = states[wordId];
 
   if (!state) {
@@ -502,18 +507,20 @@ export function setUserWordStatus(
     );
   }
 
+  const simdi = new Date().toISOString();
+
   if (status === 'learned') {
     state.userStatus = 'learned';
     state.stage = 'MASTERED';
     state.masteryScore = Math.max(state.masteryScore || 0, 85);
-    state.lastReviewedAt = new Date().toISOString();
+    state.lastReviewedAt = simdi;
   } else if (status === 'learning') {
     state.userStatus = 'learning';
     state.stage = 'LEARNING';
     state.difficulty = Math.max(state.difficulty || 0.3, 0.4);
     // Mark for immediate / prioritized review
-    state.nextReviewAt = new Date().toISOString();
-    state.lastReviewedAt = new Date().toISOString();
+    state.nextReviewAt = simdi;
+    state.lastReviewedAt = simdi;
   } else {
     state.userStatus = 'unseen';
     state.stage = 'NEW';
@@ -521,19 +528,72 @@ export function setUserWordStatus(
   }
 
   states[wordId] = state;
+  return state;
+}
+
+/** Tekrar kaydı üretir; kimlik toplu üretimde de benzersiz kalsın diye sıra alır. */
+function durumOlayi(
+  wordId: string,
+  status: 'learned' | 'learning',
+  sira: number,
+  collectionId?: string
+): ReviewEvent {
+  return {
+    id: `rev-status-${Date.now()}-${sira}-${Math.random().toString(36).slice(2, 6)}`,
+    wordId,
+    collectionId,
+    timestamp: new Date().toISOString(),
+    quality: status === 'learned' ? 'easy' : 'again',
+    mode: 'flashcard',
+    isCorrect: status === 'learned'
+  };
+}
+
+export function setUserWordStatus(
+  wordId: string,
+  status: 'learned' | 'learning' | 'unseen',
+  customCollectionId?: string
+): Record<string, LearningState> {
+  const states = getLearningStates();
+  applyWordStatus(states, wordId, status);
   saveLearningStates(states);
 
   // Also record review log for progress tracking
   if (status !== 'unseen') {
-    addReviewEvent({
-      id: `rev-status-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-      wordId,
-      collectionId: customCollectionId,
-      timestamp: new Date().toISOString(),
-      quality: status === 'learned' ? 'easy' : 'again',
-      mode: 'flashcard',
-      isCorrect: status === 'learned'
-    });
+    addReviewEvent(durumOlayi(wordId, status, 0, customCollectionId));
+  }
+
+  return states;
+}
+
+/**
+ * Birden çok kelimenin durumunu TEK yazmada değiştirir.
+ *
+ * NEDEN GEREKLİ. Sınav sonucundaki "Doğruları öğrendim (N)" düğmesi kelime
+ * başına `setUserWordStatus` çağırıyordu; her çağrı bütün öğrenme durumları
+ * yığınını (binlerce kelime) baştan ayrıştırıp baştan yazıyor, üstelik tekrar
+ * geçmişini de ayrıca okuyup yazıyordu. Yirmi soruluk bir sınavda bu, aynı
+ * verinin kırk kez serileştirilmesi demek: arayüz saniyelerce donuyor ve
+ * kullanıcı düğmenin çalışmadığını sanıp tekrar basıyordu.
+ *
+ * Burada yığın bir kez okunuyor, hepsi bellekte güncelleniyor, bir kez
+ * yazılıyor. Kural `applyWordStatus`ta ortak olduğu için iki yol ayrışmıyor.
+ */
+export function setUserWordStatuses(
+  wordIds: string[],
+  status: 'learned' | 'learning' | 'unseen',
+  customCollectionId?: string
+): Record<string, LearningState> {
+  const states = getLearningStates();
+  if (wordIds.length === 0) return states;
+
+  wordIds.forEach(id => applyWordStatus(states, id, status));
+  saveLearningStates(states);
+
+  if (status !== 'unseen') {
+    addReviewEvents(
+      wordIds.map((id, i) => durumOlayi(id, status, i, customCollectionId))
+    );
   }
 
   return states;
@@ -576,9 +636,20 @@ export function getReviewHistory(): ReviewEvent[] {
 }
 
 export function addReviewEvent(event: ReviewEvent): void {
+  addReviewEvents([event]);
+}
+
+/**
+ * Birden çok tekrar kaydını TEK yazmada ekler.
+ *
+ * Toplu işaretlemede kayıt başına ayrı bir okuma-yazma yapmak, aynı 500
+ * maddelik geçmişin defalarca serileştirilmesi demekti.
+ */
+export function addReviewEvents(events: ReviewEvent[]): void {
+  if (events.length === 0) return;
   try {
     const history = getReviewHistory();
-    const updated = [event, ...history.slice(0, MAX_REVIEW_LOGS_RETENTION - 1)];
+    const updated = [...events, ...history].slice(0, MAX_REVIEW_LOGS_RETENTION);
     writeJSON(V2_KEYS.REVIEW_HISTORY, updated);
   } catch {}
 }
