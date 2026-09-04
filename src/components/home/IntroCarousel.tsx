@@ -17,6 +17,14 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
  * ERİŞİLEBİLİRLİK: noktalar gerçek düğmedir ve hangi slaytta olunduğunu
  * `aria-current` ile bildirir; hareketi azaltılmış cihazlarda otomatik geçiş
  * hiç başlamaz.
+ *
+ * NOKTALARIN DOKUNMA HEDEFİ GÖRSEL BOYUTUNDAN BAĞIMSIZDIR. Nokta bir süre
+ * yalnızca 6×6 pikseldi: ekranda şık duruyordu ama parmak ucuyla basılamıyordu,
+ * çoğu deneme ıskalanıyordu. Yazı boyutunu küçülten kullanıcıda (bkz.
+ * useTheme kök font ölçeği) 6 pikselin de altına iniyordu. Kaydırma jesti
+ * bilen için bir çıkış yolu, ama motor becerisi kısıtlı kullanıcının tek
+ * erişilebilir yolu bu düğmeler. Bu yüzden görünen çubuk içteki span'da kaldı,
+ * basılabilir kutu ise düğmenin kendisinde en az 24×24 piksel tutuluyor.
  */
 
 export interface IntroSlide {
@@ -113,7 +121,9 @@ export const IntroCarousel: React.FC<{ slides: IntroSlide[] }> = ({ slides }) =>
       </div>
 
       {slides.length > 1 && (
-        <div className="flex items-center justify-center gap-1.5 mt-2.5">
+        // Noktalar arasındaki boşluk artık düğmelerin kendi 24 piksellik
+        // hedeflerinden geliyor; ek bir gap hedefleri gereksizce ayırırdı.
+        <div className="flex items-center justify-center mt-2.5">
           {slides.map((s, i) => (
             <button
               key={s.index}
@@ -121,12 +131,19 @@ export const IntroCarousel: React.FC<{ slides: IntroSlide[] }> = ({ slides }) =>
               onClick={() => elle(i)}
               aria-label={`${i + 1}. tanıtım: ${s.title}`}
               aria-current={i === aktif ? 'true' : undefined}
-              className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                i === aktif
-                  ? 'w-5 bg-[var(--primary)]'
-                  : 'w-1.5 bg-[var(--border)] hover:bg-[var(--text-muted)]'
-              }`}
-            />
+              className="group flex items-center justify-center min-w-[24px] min-h-[24px] cursor-pointer"
+            >
+              {/* Görünen çubuk: boyutu eskisiyle birebir aynı, yalnızca artık
+                  basılabilir kutunun içinde duruyor. */}
+              <span
+                aria-hidden="true"
+                className={`h-1.5 rounded-full transition-all ${
+                  i === aktif
+                    ? 'w-5 bg-[var(--primary)]'
+                    : 'w-1.5 bg-[var(--border)] group-hover:bg-[var(--text-muted)]'
+                }`}
+              />
+            </button>
           ))}
         </div>
       )}

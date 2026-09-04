@@ -1,9 +1,22 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { WordCard, LearningState } from '../types';
 import { WordCardComponent } from './WordCard';
 import { Heart, Search, Volume2 } from 'lucide-react';
 import { speakText } from '../utils/speech';
 import { getUserWordStatus } from '../utils/storageV2';
+
+/**
+ * Tek bir okuma isteğine sığdırılacak azami karakter.
+ *
+ * Android'in metin okuma servisi tek istekte 4000 karakterden uzun metni
+ * geçersiz sayıp reddediyor (TextToSpeech.getMaxSpeechInputLength). Reddi
+ * eklenti hataya çeviriyor, speech.ts de bunu "no-voice" olarak bildiriyor:
+ * yani favorisi çok olan kullanıcı hiç ses duymadan "Cihazda İngilizce
+ * seslendirme paketi bulunamadı" uyarısı alıyor ve paket kurulu olduğu hâlde
+ * gereksiz yere Android ayarlarına yönlendiriliyordu. Motorun kendi payını da
+ * aşmamak için sınırın belirgin biçimde altında kalıyoruz.
+ */
+const TEK_OKUMA_KARAKTER_SINIRI = 3500;
 
 interface FavoritesViewProps {
   favoriteWords: WordCard[];
@@ -35,10 +48,37 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({
       card.turkishMeaning.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  /*
+   * Motora YALNIZCA İngilizce kelimeler gidiyor.
+   *
+   * Önceden metin `kelime. Türkçe anlam` biçiminde birleştiriliyordu; oysa
+   * speech.ts her zaman İngilizce bir ses etiketi seçiyor (bestEnglishTag
+   * İngilizce dışını eliyor). Türkçe anlamlar İngilizce fonetikle okunduğu
+   * için tek favorisi olan kullanıcı bile anlaşılmaz bir ses duyuyordu.
+   * SpeechOptions tek bir `lang` taşıdığından karışık dilli okuma bu
+   * mimaride zaten mümkün değil; anlamlar bu yüzden okunmuyor.
+   *
+   * Liste ayrıca karakter sınırına göre kırpılıyor: kırpılmazsa istek
+   * bütünüyle reddedilir ve TEK BİR kelime bile okunmaz.
+   */
+  const okunacakKelimeler = useMemo(() => {
+    const secilenler: string[] = [];
+    let uzunluk = 0;
+    for (const kart of favoriteWords) {
+      const kelime = kart.word.trim();
+      if (!kelime) continue;
+      // İlk kelime hariç her kelime '. ' ayırıcısıyla ekleniyor.
+      const artis = secilenler.length === 0 ? kelime.length : kelime.length + 2;
+      if (uzunluk + artis > TEK_OKUMA_KARAKTER_SINIRI) break;
+      secilenler.push(kelime);
+      uzunluk += artis;
+    }
+    return secilenler;
+  }, [favoriteWords]);
+
   const handlePlayAllFavorites = () => {
-    if (favoriteWords.length === 0) return;
-    const text = favoriteWords.map((w) => `${w.word}. ${w.turkishMeaning}`).join('. ');
-    speakText(text);
+    if (okunacakKelimeler.length === 0) return;
+    void speakText(okunacakKelimeler.join('. '));
   };
 
   return (
@@ -70,13 +110,26 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({
         </div>
 
         {favoriteWords.length > 0 && (
-          <button
-            onClick={handlePlayAllFavorites}
-            className="px-3.5 py-2 bg-[var(--danger-soft)] hover:bg-[var(--danger-soft-strong)] text-[var(--favorite)] font-semibold text-xs rounded-xl border border-[var(--danger-border)] transition-colors flex items-center gap-1.5 cursor-pointer"
-          >
-            <Volume2 className="w-4 h-4 text-[var(--favorite)]" />
-            <span>Tümünü Dinle</span>
-          </button>
+          <div className="flex flex-col items-start sm:items-end gap-1.5">
+            <button
+              onClick={handlePlayAllFavorites}
+              className="px-3.5 py-2 bg-[var(--danger-soft)] hover:bg-[var(--danger-soft-strong)] text-[var(--favorite)] font-semibold text-xs rounded-xl border border-[var(--danger-border)] transition-colors flex items-center gap-1.5 cursor-pointer"
+            >
+              <Volume2 className="w-4 h-4 text-[var(--favorite)]" />
+              <span>Tümünü Dinle</span>
+            </button>
+            {/*
+              Kırpma sessiz kalmamalı: kullanıcı listenin tamamını duymayı
+              beklerken yalnızca bir bölümünü duyduğunda bunu eksiklik değil
+              arıza sanıyor.
+            */}
+            {okunacakKelimeler.length < favoriteWords.length && (
+              <p className="text-[11px] text-[var(--text-secondary)] sm:text-right max-w-[15rem]">
+                Cihaz tek seferde bu kadar uzun metni okuyamıyor; ilk{' '}
+                {okunacakKelimeler.length} kelime okunacak.
+              </p>
+            )}
+          </div>
         )}
       </div>
 

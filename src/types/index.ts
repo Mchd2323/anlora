@@ -286,6 +286,15 @@ export interface UserSettings {
    * oynamak, düzeni yerinden oynatırdı.
    */
   fontScale?: number;
+  /**
+   * Telaffuz hızı (1 = doğal hız).
+   *
+   * Kartlardaki hoparlörün varsayılanı. Kart üstündeki menüden geçici olarak
+   * değiştirilebilir; buradaki değer bütün kartların çıkış noktası.
+   * İsteğe bağlı: eski kurulumlardan gelen ayar nesnesinde bu alan yok,
+   * o durumda 1 kabul edilir.
+   */
+  speechRate?: number;
 }
 
 // Duplicate check result structure

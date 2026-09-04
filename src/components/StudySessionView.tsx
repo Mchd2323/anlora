@@ -642,13 +642,19 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
             blok öğeler var, onları düğmenin içine koymak geçersiz HTML
             olurdu. Odak halkası global `[tabindex]:focus-visible`
             kuralından geliyor.
+
+            Bilerek `aria-label` YOK: düğme rolünde alt öğeler sunumsal
+            sayılır, verilecek bir etiket kartın içeriğinin yerine geçer ve
+            öğretilen kelimeyi ekran okuyucudan tamamen gizlerdi. Ad,
+            içerikten hesaplanıyor (kelime + fonetik + açılan anlam);
+            çevrilme durumunu `aria-expanded` bildiriyor. Aynı çözüm
+            study/StudyFlashcard.tsx'te de kullanılıyor.
           */}
           {currentMode === 'flashcard' && (
             <div
               role="button"
               tabIndex={0}
               aria-expanded={isFlipped}
-              aria-label={isFlipped ? 'Anlamı gizle' : 'Anlamı göster'}
               onClick={() => setIsFlipped(!isFlipped)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -682,12 +688,14 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
               )}
 
               {/*
-                Kartın çevrildiği ekran okuyucuya duyurulmalı; aksi hâlde
-                dokunmayan kullanıcı anlamın açıldığını hiç fark etmiyordu.
-                aria-live her zaman DOM'da duran bu sarmalayıcıda: sonradan
-                oluşturulan bir canlı bölge çoğu okuyucuda sessiz kalır.
+                Buraya `aria-live` konmadı: bu kutu düğme rolündeki
+                sarmalayıcının içinde kalıyor, o alt ağaç sunumsal
+                sayıldığı için canlı bölge çoğu ekran okuyucuda sessiz
+                kalırdı. Açılan anlam, düğmenin hesaplanan adının parçası
+                olduğu için `aria-expanded` değişimiyle birlikte zaten
+                yeniden okunuyor.
               */}
-              <div className="pt-3" aria-live="polite">
+              <div className="pt-3">
                 {isFlipped ? (
                   <div className="p-4 bg-[var(--neutral-50)] rounded-xl border border-[var(--border)] text-[var(--text-primary)] animate-fadeIn space-y-1">
                     <span className="text-[10px] font-bold text-[var(--primary)] uppercase tracking-wider block">

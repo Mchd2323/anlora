@@ -54,7 +54,9 @@ const DEFAULT_SETTINGS: UserSettings = {
   preferredStudyMode: 'mixed',
   enableTypoTolerance: true,
   theme: 'system',
-  fontScale: 1
+  fontScale: 1,
+  // Doğal hız. Kart üstündeki rozet bunun üzerine geçici seçim koyabilir.
+  speechRate: 1
 };
 
 const MAX_REVIEW_LOGS_RETENTION = 500;

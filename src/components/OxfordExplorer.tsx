@@ -243,20 +243,31 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
   const filteredWords = useMemo(() => {
     const query = aramaAnahtari(searchQuery);
 
+    /*
+     * DURUM SÜZGECİ TEK YERDEN GEÇER.
+     *
+     * Aynı kontrol üç ayrı yere kopyalanmıştı ve biri — arama sonuçlarının
+     * sonuna eklenen kalıplar — unutulmuştu. "♥ Favorilerim" ya da
+     * "✓ Öğrendiklerim" seçiliyken 'give' aratan kullanıcı, hiç
+     * favorilemediği 'give up', 'give in' kartlarını hem listede hem de
+     * "Kartlarla Çalış" destesinde buluyordu; süzgeç açıkken süzgece
+     * uymayan kart görmek, sayılara olan güveni bitiriyor. Tek fonksiyon,
+     * üç çağrı: bir daha ayrışamaz.
+     */
+    const durumUyuyor = (id: string) => {
+      if (statusFilter === 'ALL') return true;
+      if (statusFilter === 'FAVORITES') return favorites.includes(id);
+      const status = getUserWordStatus(id, learningStates);
+      if (statusFilter === 'LEARNED') return status === 'learned';
+      if (statusFilter === 'LEARNING') return status === 'learning';
+      return status === 'unseen';
+    };
+
     if (aktifKaynak === 'kalip') {
       return (kaliplar || [])
         .filter(k => (kalipSeviyesi === 'ALL' ? true : k.level === kalipSeviyesi))
         .filter(k => {
-          if (statusFilter !== 'ALL') {
-            if (statusFilter === 'FAVORITES') {
-              if (!favorites.includes(k.id)) return false;
-            } else {
-              const st = getUserWordStatus(k.id, learningStates);
-              if (statusFilter === 'LEARNED' && st !== 'learned') return false;
-              if (statusFilter === 'LEARNING' && st !== 'learning') return false;
-              if (statusFilter === 'UNSEEN' && st !== 'unseen') return false;
-            }
-          }
+          if (!durumUyuyor(k.id)) return false;
           if (!query) return true;
           return (
             aramaAnahtari(k.word).includes(query) ||
@@ -274,16 +285,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
           return false;
         }
 
-        if (statusFilter !== 'ALL') {
-          if (statusFilter === 'FAVORITES') {
-            if (!favorites.includes(card.id)) return false;
-          } else {
-            const status = getUserWordStatus(card.id, learningStates);
-            if (statusFilter === 'LEARNED' && status !== 'learned') return false;
-            if (statusFilter === 'LEARNING' && status !== 'learning') return false;
-            if (statusFilter === 'UNSEEN' && status !== 'unseen') return false;
-          }
-        }
+        if (!durumUyuyor(card.id)) return false;
 
         if (query) {
           return (
@@ -299,12 +301,24 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
     if (!query) return kelimeler;
 
     /*
-     * Eşleşen kalıplar sonuçların sonuna eklenir. Seviye süzgeci onlara da
-     * uygulanır: kullanıcı A1 seçtiyse A1 kalıpları görmeli, yoksa süzgeç
+     * SÖZCÜK TÜRÜ SEÇİLİYSE KALIP EKLENMEZ.
+     *
+     * Kalıpların sözcük türü sabit 'phrase'; menüdeki hiçbir seçenek
+     * (n., v., adj. …) onunla eşleşmez. Tür süzgeci açıkken kelimeler
+     * elenip kalıplar yine listeye girdiğinde kullanıcı "Fiiller" seçmesine
+     * rağmen fiil olmayan kartlar görüyordu.
+     */
+    if (partOfSpeechFilter !== 'ALL') return kelimeler;
+
+    /*
+     * Eşleşen kalıplar sonuçların sonuna eklenir. Seviye VE durum süzgeci
+     * onlara da uygulanır: kullanıcı A1 seçtiyse A1 kalıpları görmeli,
+     * "Öğrendiklerim" seçtiyse yalnızca öğrendiği kalıpları — yoksa süzgeç
      * yalnızca yarı yarıya çalışıyormuş gibi olurdu.
      */
     const eslesenKaliplar = (kaliplar || []).filter(k => {
       if (selectedLevel !== 'ALL' && k.level !== selectedLevel) return false;
+      if (!durumUyuyor(k.id)) return false;
       return (
         aramaAnahtari(k.word).includes(query) ||
         aramaAnahtari(k.turkishMeaning).includes(query)
@@ -325,10 +339,25 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
     kalipSeviyesi
   ]);
 
-  // Filtre değişince sayfalama başa döner.
+  /*
+   * Filtre, kaynak ya da seviye değişince sayfalama başa döner.
+   *
+   * `aktifKaynak` ile `kalipSeviyesi` bağımlılıklarda yoktu: "Daha fazla
+   * göster"e defalarca basıp listeyi yüzlerce karta çıkaran kullanıcı
+   * kalıplara (ya da başka bir kalıp seviyesine) geçtiğinde yeni listenin
+   * o kadarı tek render'da DOM'a basılıyordu — PAGE_SIZE'ın önlemek için
+   * var olduğu donma geri geliyordu.
+   */
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [searchQuery, partOfSpeechFilter, statusFilter, selectedLevel]);
+  }, [
+    searchQuery,
+    partOfSpeechFilter,
+    statusFilter,
+    selectedLevel,
+    aktifKaynak,
+    kalipSeviyesi
+  ]);
 
   /*
    * Arama yazılınca liste kendiliğinden açılır: aramanın tek amacı zaten
@@ -386,6 +415,24 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
     ? `Kalıplar ve Deyimler${kalipSuffix}`
     : `Oxford 5000${levelSuffix}`;
   const desteKimligi = kalipMi ? `phrases:${kalipSeviyesi}` : `oxford:${selectedLevel}`;
+
+  /*
+   * KALIP SAYILARI VERİ GELMEDEN YAZILMAZ.
+   *
+   * Kalıp menüsü, veriyi indiren tıklamayla aynı karede açılıyor; o an
+   * `kaliplar` henüz null olduğu için altı seviyenin de yanında "0"
+   * yazıyordu. Kullanıcı bunu "bu seviyede kalıp yok" diye okuyor, üstelik
+   * o pencerede bir seviyeye dokunursa bilgilendirme kutusu da "Toplam 0
+   * kalıp içinde: 0 Öğrendim" diyordu. Bilinmeyen sayı yerine 0 basmak
+   * kullanıcıya doğrudan yanlış bilgi vermek; sayı bilinene kadar bekleme
+   * işareti duruyor.
+   *
+   * Boş dizi de "hazır değil" sayılır: phrases.json'da her seviyede kayıt
+   * var, dolayısıyla boş dizi ancak indirme düştüğünde oluşur.
+   */
+  const kalipVerisiHazir = kaliplar !== null && kaliplar.length > 0;
+  const kalipSayisiYaz = (sayi: number) =>
+    !kalipMi || kalipVerisiHazir ? sayi.toLocaleString('tr-TR') : '…';
 
 
   if (isStudyingFlashcards) {
@@ -565,7 +612,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
                       >
                         <span className="text-xs">{KALIP_ETIKET[seviye]}</span>
                         <span className="text-[10px] text-[var(--text-muted)]">
-                          {sayi.toLocaleString('tr-TR')}
+                          {kalipVerisiHazir ? sayi.toLocaleString('tr-TR') : '…'}
                         </span>
                       </button>
                     );
@@ -603,7 +650,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
             <br />
             Toplam{' '}
             <strong className="text-[var(--text-primary)]">
-              {levelStats.total.toLocaleString('tr-TR')}
+              {kalipSayisiYaz(levelStats.total)}
             </strong>{' '}
             {kalipMi ? 'kalıp' : 'kelime'} içinde:
           </div>
@@ -619,7 +666,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
             >
               {/* Renk tek başına ayırt etmiyor; biçim de taşınıyor. */}
               <Check className="w-3.5 h-3.5 stroke-[3]" aria-hidden="true" />
-              {levelStats.learnedCount.toLocaleString('tr-TR')} Öğrendim
+              {kalipSayisiYaz(levelStats.learnedCount)} Öğrendim
             </button>
 
             <button
@@ -632,7 +679,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
               }`}
             >
               <RotateCw className="w-3.5 h-3.5 stroke-[3]" aria-hidden="true" />
-              {levelStats.learningCount.toLocaleString('tr-TR')} Tekrar Et
+              {kalipSayisiYaz(levelStats.learningCount)} Tekrar Et
             </button>
 
             <button
@@ -644,7 +691,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
                   : 'text-[var(--text-muted)] border-transparent hover:bg-[var(--surface-soft)]'
               }`}
             >
-              {levelStats.unseenCount.toLocaleString('tr-TR')} İncelenmedi
+              {kalipSayisiYaz(levelStats.unseenCount)} İncelenmedi
             </button>
           </div>
         </div>
@@ -777,19 +824,54 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
           )}
         </>
       ) : filteredWords.length === 0 ? (
-        <div className="text-center py-16 bg-[var(--surface)] rounded-2xl border border-[var(--border)] space-y-3">
-          <BookOpen className="w-8 h-8 text-[var(--text-muted)] mx-auto" />
-          <h3 className="text-base font-bold text-[var(--text-primary)]">Eşleşen kelime bulunamadı</h3>
-          <p className="text-xs text-[var(--text-secondary)] max-w-sm mx-auto">
-            Arama kriterlerinizi veya filtreleri temizleyerek tüm kelimeleri görebilirsiniz.
-          </p>
-          <button
-            onClick={clearFilters}
-            className="px-4 py-2 bg-[var(--surface-soft)] hover:bg-[var(--primary-soft)] text-[var(--primary)] text-xs font-semibold rounded-xl transition-colors cursor-pointer"
-          >
-            Filtreleri Temizle
-          </button>
-        </div>
+        /*
+         * BOŞ LİSTE HER ZAMAN "SONUÇ YOK" DEMEK DEĞİL.
+         *
+         * Kalıplar inerken de, hiç inemediğinde de aynı "Eşleşen kelime
+         * bulunamadı — filtreleri temizle" kutusu çiziliyordu. Ortada
+         * temizlenecek bir filtre olmadığı için o düğme hiçbir şeyi
+         * düzeltmiyor, kullanıcıya 750 kalıp hiç yokmuş gibi görünüyordu.
+         * Üç durum artık ayrı konuşuyor: yükleniyor, yüklenemedi, sonuç yok.
+         */
+        kalipMi && kaliplarYukleniyor ? (
+          <div className="text-center py-16 bg-[var(--surface)] rounded-2xl border border-[var(--border)] space-y-3">
+            <div className="w-8 h-8 border-3 border-[var(--primary-border)] border-t-[var(--primary)] rounded-full animate-spin mx-auto" />
+            <h3 className="text-base font-bold text-[var(--text-primary)]">Kalıplar yükleniyor…</h3>
+            <p className="text-xs text-[var(--text-secondary)] max-w-sm mx-auto">
+              Kalıp ve deyim listesi hazırlanıyor, birkaç saniye sürebilir.
+            </p>
+          </div>
+        ) : kalipMi && kaliplar !== null && kaliplar.length === 0 ? (
+          /*
+           * Yükleme düştü. Dönen çark göstermeye devam etmek yalan olurdu:
+           * beklenen bir şey yok. "Yeniden dene" düğmesi de konmadı, çünkü
+           * kalıp verisi katmanı sonucu önbelleğe yazdığı için aynı oturumda
+           * ikinci deneme yapılamıyor; kullanıcıya işe yarayan tek çıkış
+           * söyleniyor (App.tsx'teki "Sözlük yüklenemedi" ekranının eşi).
+           */
+          <div className="text-center py-16 bg-[var(--surface)] rounded-2xl border border-[var(--border)] space-y-3">
+            <BookOpen className="w-8 h-8 text-[var(--text-muted)] mx-auto" />
+            <h3 className="text-base font-bold text-[var(--text-primary)]">Kalıplar yüklenemedi</h3>
+            <p className="text-xs text-[var(--text-secondary)] max-w-sm mx-auto">
+              Kalıp verisi açılamadı. Uygulamayı tamamen kapatıp yeniden açmak
+              çoğu durumda yeterli oluyor.
+            </p>
+          </div>
+        ) : (
+          <div className="text-center py-16 bg-[var(--surface)] rounded-2xl border border-[var(--border)] space-y-3">
+            <BookOpen className="w-8 h-8 text-[var(--text-muted)] mx-auto" />
+            <h3 className="text-base font-bold text-[var(--text-primary)]">Eşleşen kelime bulunamadı</h3>
+            <p className="text-xs text-[var(--text-secondary)] max-w-sm mx-auto">
+              Arama kriterlerinizi veya filtreleri temizleyerek tüm kelimeleri görebilirsiniz.
+            </p>
+            <button
+              onClick={clearFilters}
+              className="px-4 py-2 bg-[var(--surface-soft)] hover:bg-[var(--primary-soft)] text-[var(--primary)] text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+            >
+              Filtreleri Temizle
+            </button>
+          </div>
+        )
       ) : null}
     </div>
   );

@@ -43,7 +43,17 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
     return (
       <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center p-6">
-        <div className="max-w-md w-full bg-white rounded-2xl border border-[var(--border)] p-8 text-center">
+        {/*
+          Kartın zemini eskiden sabit `bg-white` idi; başlık ve açıklama ise tema
+          jetonlarını (--text-primary / --text-secondary) kullanıyordu. Karanlık
+          temalarda (Gece, Orman, Kömür ve tema "system" iken sistemin karanlık
+          olduğu hâl) bu jetonlar açık renge dönüştüğü için beyaz kartın üstünde
+          kontrast ~1,2:1'e düşüyor, metin pratikte görünmez oluyordu. Kullanıcı
+          çökme anında yalnızca ikonu ve düğmeyi görüyor, "verileriniz silinmedi"
+          diyen tek açıklamayı okuyamıyordu. Zemini de --surface jetonuna bağladık:
+          aydınlık temalarda değer zaten #FFFFFF olduğu için görünüm değişmiyor.
+        */}
+        <div className="max-w-md w-full bg-[var(--surface)] rounded-2xl border border-[var(--border)] p-8 text-center">
           <div className="w-12 h-12 rounded-xl bg-[var(--danger-soft)] flex items-center justify-center mx-auto mb-5">
             <AlertTriangle className="w-6 h-6 text-[var(--danger)]" />
           </div>

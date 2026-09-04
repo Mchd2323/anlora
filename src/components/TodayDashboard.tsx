@@ -20,11 +20,13 @@ import {
   Target,
   Play,
   Megaphone,
+  X,
   Check,
   RotateCw,
   CloudUpload
 } from 'lucide-react';
 import { getUserWordStatus, getCurrentStreak, streakCountedToday } from '../utils/storageV2';
+import { getUnseenAnnouncements, markAnnouncementSeen } from '../services/appContent';
 import { readJSON, writeJSON } from '../utils/safeStorage';
 import { summarizeQueue } from '../utils/srsEngine';
 import { CEFRBadge } from './ui/CEFRBadge';

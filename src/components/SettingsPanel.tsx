@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { UserSettings } from '../types';
+import { HIZ_SECENEKLERI, VARSAYILAN_HIZ, hizRozeti } from '../utils/speechRate';
 import { Sliders, Target, Volume2, Keyboard, Layers, Download, Loader2, Sun, Bell } from 'lucide-react';
 import {
   describeSpeechSupport,
@@ -268,6 +269,44 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
           sabit değerlerle çizilir, çünkü değişkenler o an SEÇİLİ olan
           temayı taşır — hepsi aynı renkte görünürdü.
         */}
+        {/*
+          TELAFFUZ HIZI — bütün kartların varsayılanı.
+
+          Kart üstündeki rozetten hız değiştirmek yalnızca o kart için
+          geçerli; bir daha, bir daha seçmek zorunda kalmamak için kalıcı
+          tercihin yeri burası. İki yer aynı değeri okuyup yazıyor
+          (utils/speechRate.ts), yani ikisi hiçbir zaman ayrışmıyor.
+        */}
+        <div>
+          <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">
+            Telaffuz hızı
+          </label>
+          <div className="grid grid-cols-4 gap-1.5">
+            {HIZ_SECENEKLERI.map(secenek => {
+              const secili = (settings.speechRate ?? VARSAYILAN_HIZ) === secenek;
+              return (
+                <button
+                  key={secenek}
+                  type="button"
+                  onClick={() => update('speechRate', secenek)}
+                  aria-pressed={secili}
+                  className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                    secili
+                      ? 'bg-[var(--primary-soft)] border-[var(--primary)] text-[var(--primary)] ring-2 ring-[var(--primary)]/25'
+                      : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-soft)]'
+                  }`}
+                >
+                  {hizRozeti(secenek)}
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-[11px] text-[var(--text-muted)] mt-1">
+            Yavaş hız yeni başlayanlarda sesleri ayırmayı kolaylaştırır. Tek bir
+            kart için kartın üstündeki hız rozetinden de değiştirebilirsin.
+          </p>
+        </div>
+
         <div>
           <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">
             Tema

@@ -1,42 +1,34 @@
-import React, { useState } from 'react';
-import { Volume2, Turtle } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Volume2, Check } from 'lucide-react';
 import { speakText } from '../../utils/speech';
-import { readJSON, writeJSON } from '../../utils/safeStorage';
+import {
+  HIZ_SECENEKLERI,
+  TelaffuzHizi,
+  hizEtiketi,
+  hizRozeti,
+  varsayilanHiziDinle,
+  varsayilanHiziOku,
+  varsayilanHiziYaz
+} from '../../utils/speechRate';
 
 /**
- * Telaffuz denetimleri: normal hız + yavaş hız.
+ * Telaffuz denetimi: hoparlör + hız rozeti.
  *
- * NEDEN İKİ DÜĞME. Yeni başlayan biri için doğal hızdaki İngilizce telaffuz
- * çoğu zaman anlaşılmıyor; kelimeyi duyuyor ama sesleri ayıramıyor. Tek bir
- * düğmeyi yavaşlatmak ise ileri seviyedeki kullanıcıdan doğal telaffuzu alır.
- * İkisi ayrı duruyor: hoparlör her zaman normal hızda çalar, kaplumbağa
- * yavaş çalar.
+ * NEDEN İKİ PARÇA. Yeni başlayan biri doğal hızdaki İngilizcede sesleri
+ * ayıramıyor; ama tek düğmeyi kalıcı olarak yavaşlatmak ileri seviyedeki
+ * kullanıcıdan doğal telaffuzu alır. Bu yüzden hoparlör her zaman "çal"
+ * demek, yanındaki küçük rozet ise "hangi hızda" demek.
  *
- * NEDEN HIZ DÜĞMENİN ÜSTÜNDE YAZIYOR. Yavaş düğmesine her basış hem çalar
- * hem de bir sonraki hızı seçer (0,75× → 0,5× → 0,75×). Gizli bir kip
- * olsaydı kullanıcı hangi hızda dinlediğini bilemezdi; sayı düğmenin
- * üstünde durduğu için durum her zaman görünür.
+ * NEDEN HIZ YAZIYOR. Gizli bir kip olsaydı kullanıcı hangi hızda dinlediğini
+ * bilemezdi. Rozet o anki hızı gösteriyor, dokununca menü açılıyor, seçilen
+ * hız hemen çalıyor.
  *
- * Seçim saklanıyor: bir kez 0,5× diyen biri her kartta yeniden seçmek
- * zorunda kalmıyor.
+ * KART SEÇİMİ GEÇİCİDİR. Menüden seçilen hız yalnızca o kart için geçerli;
+ * sonraki kartta varsayılana dönülür. Her kelimenin ayrı ve görünmeyen bir
+ * hızı olsaydı, kullanıcı "bu kelime neden yavaş çalıyor" diye sorardı ve
+ * cevabı hiçbir ekranda bulamazdı. Kalıcı isteyen için menünün altında
+ * "Tüm kartlarda kullan" var — profile gitmeye gerek kalmıyor.
  */
-
-const HIZ_ANAHTARI = 'anlora.yavasTelaffuzHizi.v1';
-
-/** Kullanılabilir yavaş hızlar. Sıra, düğmeye basıldıkça izlenen döngüdür. */
-const YAVAS_HIZLAR = [0.75, 0.5] as const;
-
-type YavasHiz = (typeof YAVAS_HIZLAR)[number];
-
-function kayitliHiz(): YavasHiz {
-  const deger = readJSON<number>(HIZ_ANAHTARI, YAVAS_HIZLAR[0]);
-  return (YAVAS_HIZLAR as readonly number[]).includes(deger) ? (deger as YavasHiz) : YAVAS_HIZLAR[0];
-}
-
-/** Hız etiketini Türkçe biçimde yazar: 0.75 → "0,75×". */
-function hizEtiketi(hiz: number): string {
-  return `${hiz.toString().replace('.', ',')}×`;
-}
 
 interface Props {
   /** Okunacak metin (İngilizce kelime ya da cümle). */
@@ -47,61 +39,133 @@ interface Props {
 }
 
 export const PronounceButtons: React.FC<Props> = ({ text, compact = false, className = '' }) => {
-  const [yavasHiz, setYavasHiz] = useState<YavasHiz>(kayitliHiz);
-  const [calan, setCalan] = useState<'normal' | 'yavas' | null>(null);
+  const [varsayilan, setVarsayilan] = useState<TelaffuzHizi>(varsayilanHiziOku);
+  /** Bu kart için seçilmiş geçici hız; yoksa varsayılan kullanılır. */
+  const [kartHizi, setKartHizi] = useState<TelaffuzHizi | null>(null);
+  const [menuAcik, setMenuAcik] = useState(false);
+  const [caliyor, setCaliyor] = useState(false);
+  const kapsayici = useRef<HTMLDivElement>(null);
 
-  const boyut = compact ? 'p-2' : 'p-2.5';
-  const ikon = compact ? 'w-3.5 h-3.5' : 'w-4 h-4';
+  const hiz = kartHizi ?? varsayilan;
 
-  /**
-   * `hiz` verilmezse uygulamanın kendi varsayılanı (0,85) kullanılır.
-   *
-   * Normal düğmesi bilerek 1,0 GÖNDERMİYOR: bugünkü telaffuz zaten 0,85 ve
-   * doğal duyuluyor. 1,0'a çıkarmak, hız seçeneği eklerken normal telaffuzu
-   * hızlandırmak olurdu — kimsenin istemediği bir değişiklik.
-   */
-  const oku = (kip: 'normal' | 'yavas', hiz?: number) => {
-    setCalan(kip);
-    // `speakText` reddetmez; hata durumunu kendi tanı akışına bildirir.
-    void speakText(text, hiz === undefined ? {} : { rate: hiz }).finally(() => setCalan(null));
+  // Başka bir karttan varsayılan değiştirilirse rozet burada da güncellensin.
+  useEffect(() => varsayilanHiziDinle(setVarsayilan), []);
+
+  // Kart değişince geçici seçim düşer: seçim karta özeldi, kelimeye değil.
+  useEffect(() => {
+    setKartHizi(null);
+    setMenuAcik(false);
+  }, [text]);
+
+  // Dışarı dokunmak menüyü kapatır; açık kalan menü kartın üstünü örtüyordu.
+  useEffect(() => {
+    if (!menuAcik) return;
+    const disariDokunuldu = (e: PointerEvent) => {
+      if (!kapsayici.current?.contains(e.target as Node)) setMenuAcik(false);
+    };
+    document.addEventListener('pointerdown', disariDokunuldu);
+    return () => document.removeEventListener('pointerdown', disariDokunuldu);
+  }, [menuAcik]);
+
+  const oku = (h: TelaffuzHizi) => {
+    setCaliyor(true);
+    // `speakText` reddetmez; hatayı kendi tanı akışına bildirir.
+    void speakText(text, { rate: h }).finally(() => setCaliyor(false));
   };
 
+  const dugmeBoyu = compact ? 'p-2' : 'p-2.5';
+  const ikonBoyu = compact ? 'w-3.5 h-3.5' : 'w-4 h-4';
+
   return (
-    <div className={`flex items-center gap-1 shrink-0 ${className}`}>
+    <div ref={kapsayici} className={`relative flex items-center gap-1 shrink-0 ${className}`}>
       <button
         type="button"
         onClick={e => {
           e.stopPropagation();
-          oku('normal');
+          oku(hiz);
         }}
-        aria-label={`${text} — normal hızda dinle`}
+        aria-label={`${text} — ${hizEtiketi(hiz).toLocaleLowerCase('tr')} hızda dinle`}
         title="Telaffuzu dinle"
-        className={`${boyut} rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] hover:bg-[var(--primary-soft-hover)] transition-all active:scale-95 cursor-pointer ${
-          calan === 'normal' ? 'opacity-70' : ''
+        className={`${dugmeBoyu} rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] hover:bg-[var(--primary-soft-hover)] transition-all active:scale-95 cursor-pointer ${
+          caliyor ? 'opacity-70' : ''
         }`}
       >
-        <Volume2 className={`${ikon} stroke-[2.2]`} />
+        <Volume2 className={`${ikonBoyu} stroke-[2.2]`} />
       </button>
 
       <button
         type="button"
         onClick={e => {
           e.stopPropagation();
-          oku('yavas', yavasHiz);
-          // Sonraki basış bir sonraki hızı dener.
-          const sonraki = YAVAS_HIZLAR[(YAVAS_HIZLAR.indexOf(yavasHiz) + 1) % YAVAS_HIZLAR.length];
-          setYavasHiz(sonraki);
-          writeJSON(HIZ_ANAHTARI, sonraki);
+          setMenuAcik(a => !a);
         }}
-        aria-label={`${text} — yavaş dinle (${hizEtiketi(yavasHiz)}); tekrar dokunmak hızı değiştirir`}
-        title={`Yavaş dinle (${hizEtiketi(yavasHiz)}) — tekrar dokunursan hız değişir`}
-        className={`${compact ? 'px-1.5 py-1' : 'px-2 py-1.5'} rounded-xl bg-[var(--bg)] border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-soft)] hover:text-[var(--text-primary)] transition-all active:scale-95 cursor-pointer flex items-center gap-1 ${
-          calan === 'yavas' ? 'opacity-70' : ''
+        aria-expanded={menuAcik}
+        aria-haspopup="menu"
+        aria-label={`Telaffuz hızı: ${hizEtiketi(hiz)}. Değiştirmek için dokun.`}
+        title="Telaffuz hızı"
+        className={`px-1.5 py-1 rounded-lg text-[10px] font-bold tabular-nums transition-colors cursor-pointer border ${
+          hiz === varsayilan
+            ? 'text-[var(--text-muted)] border-transparent hover:bg-[var(--surface-soft)]'
+            : 'text-[var(--primary)] border-[var(--primary-border)] bg-[var(--primary-soft)]'
         }`}
       >
-        <Turtle className={compact ? 'w-3 h-3' : 'w-3.5 h-3.5'} />
-        <span className="text-[10px] font-bold tabular-nums">{hizEtiketi(yavasHiz)}</span>
+        {hizRozeti(hiz)}
       </button>
+
+      {menuAcik && (
+        <div
+          role="menu"
+          className="absolute top-full right-0 mt-1.5 z-40 min-w-[160px] rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-lg overflow-hidden"
+        >
+          {HIZ_SECENEKLERI.map(secenek => (
+            <button
+              key={secenek}
+              type="button"
+              role="menuitemradio"
+              aria-checked={hiz === secenek}
+              onClick={e => {
+                e.stopPropagation();
+                setKartHizi(secenek);
+                setMenuAcik(false);
+                oku(secenek);
+              }}
+              className={`w-full px-3 py-2.5 flex items-center justify-between gap-2 text-left border-b border-[var(--border-light)] cursor-pointer ${
+                hiz === secenek
+                  ? 'bg-[var(--primary-soft)] text-[var(--primary)] font-bold'
+                  : 'hover:bg-[var(--surface-soft)] text-[var(--text-primary)] font-semibold'
+              }`}
+            >
+              <span className="text-xs">{hizEtiketi(secenek)}</span>
+              {hiz === secenek && <Check className="w-3.5 h-3.5 shrink-0" />}
+            </button>
+          ))}
+
+          {/*
+            Kart seçimini kalıcı yapmanın kısa yolu. Bu satır olmasaydı
+            kullanıcı beğendiği hızı her kartta yeniden seçmek ya da profile
+            gidip aramak zorunda kalırdı.
+          */}
+          <button
+            type="button"
+            role="menuitem"
+            onClick={e => {
+              e.stopPropagation();
+              varsayilanHiziYaz(hiz);
+              setKartHizi(null);
+              setMenuAcik(false);
+            }}
+            disabled={hiz === varsayilan}
+            className={`w-full px-3 py-2.5 flex items-center gap-1.5 text-left text-[11px] font-semibold ${
+              hiz === varsayilan
+                ? 'text-[var(--text-muted)] cursor-default'
+                : 'text-[var(--primary)] hover:bg-[var(--surface-soft)] cursor-pointer'
+            }`}
+          >
+            <Check className="w-3.5 h-3.5 shrink-0" />
+            {hiz === varsayilan ? 'Zaten tüm kartlarda geçerli' : 'Tüm kartlarda kullan'}
+          </button>
+        </div>
+      )}
     </div>
   );
 };

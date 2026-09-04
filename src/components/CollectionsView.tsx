@@ -384,6 +384,25 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   // Active Deck Object
   const activeDeck = collections.find((c) => c.id === activeDeckId) || collections[0] || null;
 
+  /*
+   * KALAN PENCERELERİN ERİŞİLEBİLİRLİĞİ.
+   *
+   * "Yeni set" ve "Kelime ekle" dışındaki beş pencere ortak kancaya hiç
+   * bağlanmamıştı: Escape kapatmıyor, Tab'a basınca odak pencerenin ARKASINDAKİ
+   * sayfaya (set kartları, "Kelime Ekle" düğmesi) kayıyor, ekran okuyucu bir
+   * iletişim kutusu açıldığını hiç duyurmuyor ve pencere kapanınca odak onu
+   * açan düğmeye dönmüyordu. Android'de geri tuşu da pencereyi kapatmak yerine
+   * kullanıcıyı başka bir sekmeye atıyor, o sırada düzenlenen set adı gidiyordu.
+   *
+   * Kancanın açık/kapalı ölçütü aşağıdaki render koşullarıyla BİREBİR aynı
+   * olmalı; yoksa DOM'da bulunmayan bir kapsayıcıya odak tuzağı kurulur.
+   */
+  const editDeckRef = useModalA11y(!!editingDeck, () => setEditingDeck(null));
+  const bulkModalRef = useModalA11y(!!bulkTarget && !!activeDeck, () => setBulkTarget(null));
+  const shareModalRef = useModalA11y(showShare && !!activeDeck, () => setShowShare(false));
+  const mergeModalRef = useModalA11y(showMerge && !!activeDeck, () => setShowMerge(false));
+  const importModalRef = useModalA11y(showImport && !!activeDeck, () => setShowImport(false));
+
   // Words in the active deck
   const activeDeckWords = useMemo(() => {
     if (!activeDeck) return [];
@@ -1010,6 +1029,11 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
     const wordCol = columnOf('kelime');
     const meaningCol = columnOf('anlamlar');
+    if (wordCol < 0 || meaningCol < 0) {
+      setSetNotice('Başlıkta "kelime" ve "anlamlar" sütunları olmalı.');
+      return;
+    }
+
     /*
      * SEVİYE SÜTUNU.
      *
@@ -1020,10 +1044,6 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
      * sonuna atıyordu.
      */
     const seviyeCol = columnOf('seviye');
-    if (wordCol < 0 || meaningCol < 0) {
-      setSetNotice('Başlıkta "kelime" ve "anlamlar" sütunları olmalı.');
-      return;
-    }
 
     const existing = new Set(activeDeckWords.map(c => aramaAnahtari(c.word)));
     let added = 0;
@@ -1618,6 +1638,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                         value={setAramasi}
                         onChange={e => setSetAramasi(e.target.value)}
                         placeholder="Set ara..."
+                        aria-label="Set ara"
                         className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-[var(--border)] bg-[var(--bg)] text-[var(--text-primary)] outline-hidden focus:border-[var(--primary)]"
                       />
                     </div>
@@ -1772,6 +1793,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Bu sette ara..."
+                    aria-label="Bu sette ara"
                     className="w-full pl-8 pr-3 py-1.5 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:border-[var(--primary)] focus:outline-none text-[var(--text-primary)]"
                   />
                 </div>
@@ -2022,10 +2044,11 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               className="space-y-3.5"
             >
               <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                <label htmlFor={`${alanId}-yeni-set-adi`} className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
                   Set Adı <span className="text-[var(--danger)]">*</span>
                 </label>
                 <input
+                  id={`${alanId}-yeni-set-adi`}
                   type="text"
                   value={newDeckName}
                   onChange={(e) => setNewDeckName(e.target.value)}
@@ -2037,10 +2060,11 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                <label htmlFor={`${alanId}-yeni-set-aciklama`} className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
                   Açıklama (İsteğe Bağlı)
                 </label>
                 <input
+                  id={`${alanId}-yeni-set-aciklama`}
                   type="text"
                   value={newDeckDesc}
                   onChange={(e) => setNewDeckDesc(e.target.value)}
@@ -2078,9 +2102,14 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
       {/* MODAL: SETİ DÜZENLE */}
       {editingDeck && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="anlora-edit-set-title"
+          ref={editDeckRef}
+          className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
           <div className="bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
-            <h3 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
+            <h3 id="anlora-edit-set-title" className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
               <Edit2 className="w-4 h-4 text-[var(--primary)]" />
               Seti Düzenle
             </h3>
@@ -2093,10 +2122,11 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               className="space-y-3"
             >
               <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                <label htmlFor={`${alanId}-set-adi`} className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
                   Set Adı
                 </label>
                 <input
+                  id={`${alanId}-set-adi`}
                   type="text"
                   value={editingDeck.name}
                   onChange={(e) => setEditingDeck({ ...editingDeck, name: e.target.value })}
@@ -2106,10 +2136,11 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                <label htmlFor={`${alanId}-set-aciklama`} className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
                   Açıklama
                 </label>
                 <input
+                  id={`${alanId}-set-aciklama`}
                   type="text"
                   value={editingDeck.description || ''}
                   onChange={(e) =>
@@ -2190,10 +2221,11 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
             {creationMode === 'FORM' && (
               <form onSubmit={handleSaveManualCard} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                  <label htmlFor={`${alanId}-ingilizce`} className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
                     İngilizce Kelime <span className="text-[var(--danger)]">*</span>
                   </label>
                   <input
+                    id={`${alanId}-ingilizce`}
                     type="text"
                     value={wordInput}
                     onChange={(e) => setWordInput(e.target.value)}
@@ -2348,10 +2380,23 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   kullanıcı ne eklediğini önce burada söylüyor.
                 */}
                 <div>
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5">
+                  {/*
+                    Bu başlık tek bir girdiye değil, üç düğmelik bir seçime ait.
+                    `<label>` olarak yazıldığında ekran okuyucu onu hiçbir
+                    denetime bağlayamıyor ve kullanıcı düğmelere geldiğinde
+                    neyi seçtiğini duymuyordu; başlık artık gruba veriliyor.
+                  */}
+                  <span
+                    id={`${alanId}-kayit-turu`}
+                    className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5"
+                  >
                     Ne ekliyorsun?
-                  </label>
-                  <div className="grid grid-cols-3 gap-1.5">
+                  </span>
+                  <div
+                    role="group"
+                    aria-labelledby={`${alanId}-kayit-turu`}
+                    className="grid grid-cols-3 gap-1.5"
+                  >
                     {([
                       { id: 'word' as const, label: 'Kelime', ornek: 'reluctant' },
                       { id: 'phrase' as const, label: 'Kalıp', ornek: 'give up' },
@@ -2392,10 +2437,11 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                  <label htmlFor={`${alanId}-turkce`} className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
                     Türkçe Anlamı <span className="text-[var(--danger)]">*</span>
                   </label>
                   <input
+                    id={`${alanId}-turkce`}
                     type="text"
                     value={manualTurkishMeaning}
                     onChange={(e) => setManualTurkishMeaning(e.target.value)}
@@ -2406,10 +2452,11 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                  <label htmlFor={`${alanId}-kelime-turu`} className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
                     Kelime Türü <span className="font-semibold normal-case text-[var(--text-muted)]">(isteğe bağlı)</span>
                   </label>
                   <select
+                    id={`${alanId}-kelime-turu`}
                     value={manualPartOfSpeech}
                     onChange={(e) => setManualPartOfSpeech(e.target.value)}
                     className="w-full px-3.5 py-2.5 text-sm bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] font-semibold text-[var(--text-primary)]"
@@ -2433,11 +2480,24 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   kalanından daha zayıf olur. Alanlar isteğe bağlıdır ama
                   görünürdür: kullanıcı doldurmayı seçebilsin diye.
                 */}
-                <div className="space-y-2">
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase">
+                {/*
+                  Tek etiket, altı ayrı girdi. Etiketi bir tanesine bağlamak
+                  yanlış olurdu: başlık gruba, ad da her kutuya ayrı ayrı
+                  veriliyor — ipucu metni doldurulunca kayboluyor ve ekran
+                  okuyucuya ad bırakmıyordu.
+                */}
+                <div
+                  role="group"
+                  aria-labelledby={`${alanId}-ornekler`}
+                  className="space-y-2"
+                >
+                  <span
+                    id={`${alanId}-ornekler`}
+                    className="block text-xs font-bold text-[var(--text-secondary)] uppercase"
+                  >
                     Örnek Cümleler{' '}
                     <span className="font-semibold normal-case text-[var(--text-muted)]">(isteğe bağlı)</span>
-                  </label>
+                  </span>
                   <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">
                     Kelimeyi cümle içinde görmek kalıcı öğrenmenin en hızlı yolu.
                     Sözlükten gelen kelimelerde üç örnek hazır gelir; kendi
@@ -2450,6 +2510,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                         value={ex.en}
                         onChange={e => handleExampleChange(i, 'en', e.target.value)}
                         placeholder={`${i + 1}. örnek (İngilizce)`}
+                        aria-label={`${i + 1}. örnek — İngilizce`}
                         className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] text-[var(--text-primary)]"
                       />
                       {ex.en.trim() && (
@@ -2458,6 +2519,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                           value={ex.tr}
                           onChange={e => handleExampleChange(i, 'tr', e.target.value)}
                           placeholder={`${i + 1}. örneğin Türkçesi`}
+                          aria-label={`${i + 1}. örnek — Türkçe`}
                           className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] italic text-[var(--text-secondary)]"
                         />
                       )}
@@ -2475,11 +2537,12 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
+                  <label htmlFor={`${alanId}-baglam`} className="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1">
                     Bağlam ya da Not{' '}
                     <span className="font-semibold normal-case text-[var(--text-muted)]">(isteğe bağlı)</span>
                   </label>
                   <textarea
+                    id={`${alanId}-baglam`}
                     value={contextInput}
                     onChange={(e) => setContextInput(e.target.value)}
                     placeholder="Kelimeyi gördüğün cümle ya da kendi notun..."
@@ -2647,10 +2710,15 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
       {/* MODAL: SEÇİLENLERİ TAŞI / KOPYALA */}
       {bulkTarget && activeDeck && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="anlora-bulk-move-title"
+          ref={bulkModalRef}
+          className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
           <div className="bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-[var(--text-primary)]">
+              <h3 id="anlora-bulk-move-title" className="text-base font-bold text-[var(--text-primary)]">
                 {selectedIds.size} kelimeyi {bulkTarget === 'move' ? 'taşı' : 'kopyala'}
               </h3>
               <button
@@ -2702,10 +2770,15 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
       {/* MODAL: SETİ PAYLAŞ */}
       {showShare && activeDeck && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="anlora-share-title"
+          ref={shareModalRef}
+          className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
           <div className="bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
+              <h3 id="anlora-share-title" className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
                 <Share2 className="w-4 h-4 text-[var(--teal)]" />
                 Seti paylaş
               </h3>
@@ -2728,11 +2801,15 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">
+                  <label
+                    htmlFor={`${alanId}-paylasim-bagi`}
+                    className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1"
+                  >
                     Bağlantı
                   </label>
                   <div className="flex gap-2">
                     <input
+                      id={`${alanId}-paylasim-bagi`}
                       type="text"
                       readOnly
                       value={`${window.location.origin}/?set=${activeDeck.shareCode}`}
@@ -2816,10 +2893,15 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
       {/* MODAL: SET BİRLEŞTİR */}
       {showMerge && activeDeck && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="anlora-merge-title"
+          ref={mergeModalRef}
+          className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
           <div className="bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-[var(--text-primary)]">Seti bu sete kat</h3>
+              <h3 id="anlora-merge-title" className="text-base font-bold text-[var(--text-primary)]">Seti bu sete kat</h3>
               <button
                 type="button"
                 onClick={() => setShowMerge(false)}
@@ -2839,6 +2921,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
             <select
               value={mergeSource}
               onChange={e => setMergeSource(e.target.value)}
+              aria-label="Katılacak set"
               className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl font-semibold text-[var(--text-primary)]"
             >
               <option value="">Katılacak seti seç…</option>
@@ -2874,10 +2957,15 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
       {/* MODAL: CSV'DEN EKLE */}
       {showImport && activeDeck && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="anlora-import-title"
+          ref={importModalRef}
+          className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
           <div className="bg-[var(--surface)] rounded-2xl max-w-lg w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-[var(--text-primary)]">CSV'den kelime ekle</h3>
+              <h3 id="anlora-import-title" className="text-base font-bold text-[var(--text-primary)]">CSV'den kelime ekle</h3>
               <button
                 type="button"
                 onClick={() => setShowImport(false)}
@@ -2899,6 +2987,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               value={importText}
               onChange={e => setImportText(e.target.value)}
               rows={8}
+              aria-label="CSV içeriği"
               placeholder={'kelime;anlamlar\nthrive;gelişmek'}
               className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-white focus:outline-none focus:border-[var(--primary)] font-mono text-[var(--text-primary)]"
             />
