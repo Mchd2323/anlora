@@ -1,13 +1,23 @@
 /**
- * Anlora marka ikonundan Android launcher ikonlarını üretir.
+ * Anlora Realms logosundan uygulama simgelerini ve açılış ekranı logosunu üretir.
  *
- * Kaynak `public/icon.svg`; web, PWA ve Android tek bir işaretten türer,
- * böylece ikon üç yüzeyde ayrışmaz. Çizim Chromium ile yapılır — depoda
- * ikili görüntü aracı bulundurmamak için.
+ * KAYNAK: src/assets/brand/anlora-realms-logo.png — şeffaf zeminli logonun
+ * kendisi. Web, PWA ve Android tek bir dosyadan türüyor, böylece simge üç
+ * yüzeyde ayrışmıyor.
  *
- * Uyarlanabilir (adaptive) ikon iki katmandır: düz zemin rengi ve ortadaki
- * simge. Android katmanın dış %25'ini maskeleyebildiği için simge güvenli
- * alana sığacak şekilde küçültülür.
+ * Logoya YALNIZCA oranı koruyan ölçekleme uygulanıyor: kırpma yok, renk
+ * değişikliği yok, filtre yok. Zemin rengi ayrı bir katman; logonun kendi
+ * pikselleri hiç değişmiyor.
+ *
+ * GÜVENLİ ALAN. Uyarlanabilir (adaptive) simgede tuval 108 dp'dir ama Android
+ * cihaza göre daire, yuvarlak kare ya da damla maskesi uygular; her maskede
+ * görünmesi garanti olan bölge ortadaki 66 dp, yani %61. Logonun kendi iç
+ * boşluğu yok (ölçüldü: kenarlarda yalnızca %1,5-2,7), bu yüzden boşluğu
+ * burada veriyoruz — ön katmanda logo tuvalin %58'i. Tam kadraj verilseydi
+ * yuvarlak maskede tacın uçları ve kitabın köşeleri kesilirdi.
+ *
+ * Çizim Chromium ile yapılıyor: depoya ayrıca bir görüntü işleme bağımlılığı
+ * eklememek için, zaten var olan playwright-core kullanılıyor.
  *
  * Kullanım: node scripts/android/make-icons.mjs
  */
@@ -17,143 +27,102 @@ import path from 'node:path';
 
 const ROOT = process.cwd();
 const RES = path.join(ROOT, 'android/app/src/main/res');
-const EXE = process.env.CHROMIUM_PATH || undefined;
+const PUBLIC = path.join(ROOT, 'public');
+const KAYNAK = path.join(ROOT, 'src/assets/brand/anlora-realms-logo.png');
+const EXE = process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium';
 
-/** mipmap yoğunlukları ve kenar uzunlukları (px). */
-const DENSITIES = {
-  'mipmap-mdpi': 48,
-  'mipmap-hdpi': 72,
-  'mipmap-xhdpi': 96,
-  'mipmap-xxhdpi': 144,
-  'mipmap-xxxhdpi': 192
-};
+/** Realms kuzey laciverti — simge zemini. */
+const LACIVERT = '#15283D';
+/** Realms parşömeni — açılış ekranı zemini. */
+const PARSOMEN = '#F2EBDD';
 
-/** Uyarlanabilir ikon katmanı her zaman 108dp'lik tuvale çizilir. */
-const FOREGROUND = {
-  'mipmap-mdpi': 108,
-  'mipmap-hdpi': 162,
-  'mipmap-xhdpi': 216,
-  'mipmap-xxhdpi': 324,
-  'mipmap-xxxhdpi': 432
-};
+/** Yoğunluk çarpanları: mdpi 1x taban. */
+const YOGUNLUK = { mdpi: 1, hdpi: 1.5, xhdpi: 2, xxhdpi: 3, xxxhdpi: 4 };
 
-const BRAND_BG = '#4F46A5';
-const MARK =
-  'M256 97 91 415h72l31-60h124l31 60h72L256 97Zm0 96 48 93h-96l48-93Z';
-
-/** Köşesi yuvarlatılmış klasik ikon. */
-function squareSvg(size) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 512 512">
-    <rect width="512" height="512" rx="112" fill="${BRAND_BG}"/>
-    <path d="${MARK}" fill="#F8F7F3"/>
-  </svg>`;
+if (!fs.existsSync(KAYNAK)) {
+  console.error(`make-icons: kaynak logo yok: ${KAYNAK}`);
+  process.exit(1);
 }
-
-/** Yuvarlak ikon (ic_launcher_round). */
-function roundSvg(size) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 512 512">
-    <circle cx="256" cy="256" r="256" fill="${BRAND_BG}"/>
-    <path d="${MARK}" fill="#F8F7F3"/>
-  </svg>`;
-}
+const LOGO_URI = 'data:image/png;base64,' + fs.readFileSync(KAYNAK).toString('base64');
 
 /**
- * Uyarlanabilir ikonun ön katmanı: saydam zemin, ortada simge.
- * Simge 108'lik tuvalin ortadaki 72'lik güvenli alanına sığar.
+ * Tek bir simge çizer.
+ *
+ * @param boy     kenar uzunluğu (px)
+ * @param oran    logonun tuvale göre genişliği (0-1)
+ * @param zemin   arka plan rengi, ya da null (şeffaf)
+ * @param sekil   'kare' | 'yuvarlak-kare' | 'daire'
  */
-function foregroundSvg(size) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 108 108">
-    <g transform="translate(18 18) scale(${72 / 512})">
-      <path d="${MARK}" fill="#F8F7F3"/>
-    </g>
-  </svg>`;
-}
+async function ciz(sayfa, boy, oran, zemin, sekil) {
+  return sayfa.evaluate(
+    async ([uri, boy, oran, zemin, sekil]) => {
+      const c = document.createElement('canvas');
+      c.width = c.height = boy;
+      const x = c.getContext('2d');
 
-const browser = await chromium.launch(EXE ? { executablePath: EXE } : {});
-const page = await browser.newPage();
+      if (zemin) {
+        x.fillStyle = zemin;
+        if (sekil === 'daire') {
+          x.beginPath();
+          x.arc(boy / 2, boy / 2, boy / 2, 0, Math.PI * 2);
+          x.fill();
+        } else if (sekil === 'yuvarlak-kare') {
+          const r = boy * 0.22;
+          x.beginPath();
+          x.roundRect(0, 0, boy, boy, r);
+          x.fill();
+        } else {
+          x.fillRect(0, 0, boy, boy);
+        }
+      }
 
-async function render(svg, size, outPath) {
-  await page.setViewportSize({ width: size, height: size });
-  await page.setContent(
-    `<body style="margin:0;background:transparent">${svg}</body>`,
-    { waitUntil: 'load' }
+      const im = new Image();
+      im.src = uri;
+      await im.decode();
+      // Oranı koruyan ölçek: uzun kenar hedefe oturur, kırpma olmaz.
+      const k = (boy * oran) / Math.max(im.width, im.height);
+      const w = Math.round(im.width * k);
+      const h = Math.round(im.height * k);
+      x.imageSmoothingQuality = 'high';
+      x.drawImage(im, Math.round((boy - w) / 2), Math.round((boy - h) / 2), w, h);
+
+      return c.toDataURL('image/png').split(',')[1];
+    },
+    [LOGO_URI, boy, oran, zemin, sekil]
   );
-  fs.mkdirSync(path.dirname(outPath), { recursive: true });
-  await page.screenshot({ path: outPath, omitBackground: true });
 }
 
-for (const [dir, size] of Object.entries(DENSITIES)) {
-  await render(squareSvg(size), size, path.join(RES, dir, 'ic_launcher.png'));
-  await render(roundSvg(size), size, path.join(RES, dir, 'ic_launcher_round.png'));
-}
-
-for (const [dir, size] of Object.entries(FOREGROUND)) {
-  await render(
-    foregroundSvg(size),
-    size,
-    path.join(RES, dir, 'ic_launcher_foreground.png')
-  );
-}
-
-// --- Açılış ekranı ---------------------------------------------------------
-// Capacitor'ın varsayılanı beyaz zeminde Capacitor logosudur. Uygulamanın
-// kendi zemin rengiyle (--bg) ve markasıyla değiştiriyoruz; böylece açılışta
-// beyazdan krem zemine sıçrama olmuyor.
-
-const SPLASH_BG = '#F8F7F3';
-
-/** Ortada marka işareti olan düz zemin. İşaret kısa kenarın %22'si kadar. */
-function splashSvg(width, height) {
-  const mark = Math.round(Math.min(width, height) * 0.22);
-  const x = Math.round((width - mark) / 2);
-  const y = Math.round((height - mark) / 2);
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-    <rect width="${width}" height="${height}" fill="${SPLASH_BG}"/>
-    <g transform="translate(${x} ${y}) scale(${mark / 512})">
-      <path d="${MARK}" fill="${BRAND_BG}"/>
-    </g>
-  </svg>`;
-}
-
-/** Dikey açılış ekranı boyutları; yatay olanlar bunların devriğidir. */
-const SPLASH_PORTRAIT = {
-  mdpi: [320, 480],
-  hdpi: [480, 800],
-  xhdpi: [720, 1280],
-  xxhdpi: [960, 1600],
-  xxxhdpi: [1280, 1920]
+const yaz = (yol, b64) => {
+  fs.mkdirSync(path.dirname(yol), { recursive: true });
+  fs.writeFileSync(yol, Buffer.from(b64, 'base64'));
 };
 
-async function renderSized(svg, width, height, outPath) {
-  await page.setViewportSize({ width, height });
-  await page.setContent(
-    `<body style="margin:0">${svg}</body>`,
-    { waitUntil: 'load' }
-  );
-  fs.mkdirSync(path.dirname(outPath), { recursive: true });
-  await page.screenshot({ path: outPath });
+const tarayici = await chromium.launch({ executablePath: EXE });
+const sayfa = await (await tarayici.newContext()).newPage();
+await sayfa.goto('about:blank');
+
+for (const [ad, kat] of Object.entries(YOGUNLUK)) {
+  // Uyarlanabilir ön katman: şeffaf, logo güvenli alanın içinde.
+  yaz(path.join(RES, `mipmap-${ad}/ic_launcher_foreground.png`),
+      await ciz(sayfa, Math.round(108 * kat), 0.58, null, 'kare'));
+  // Eski (API < 26) simgeler: zemin katmanı yok, kendi zeminlerini taşırlar.
+  yaz(path.join(RES, `mipmap-${ad}/ic_launcher.png`),
+      await ciz(sayfa, Math.round(48 * kat), 0.62, LACIVERT, 'yuvarlak-kare'));
+  yaz(path.join(RES, `mipmap-${ad}/ic_launcher_round.png`),
+      await ciz(sayfa, Math.round(48 * kat), 0.58, LACIVERT, 'daire'));
+  // Açılış ekranı logosu: 112 dp, katmanlı çizimde ortalanacak (bkz.
+  // drawable/splash.xml — orada `gravity="center"` ile ölçeklenmeden çizilir).
+  yaz(path.join(RES, `drawable-${ad}/splash_logo.png`),
+      await ciz(sayfa, Math.round(112 * kat), 1, null, 'kare'));
 }
 
-for (const [density, [w, h]] of Object.entries(SPLASH_PORTRAIT)) {
-  await renderSized(
-    splashSvg(w, h),
-    w,
-    h,
-    path.join(RES, `drawable-port-${density}`, 'splash.png')
-  );
-  await renderSized(
-    splashSvg(h, w),
-    h,
-    w,
-    path.join(RES, `drawable-land-${density}`, 'splash.png')
-  );
+// PWA ve tarayıcı simgeleri.
+for (const boy of [192, 512]) {
+  yaz(path.join(PUBLIC, `icon-${boy}.png`), await ciz(sayfa, boy, 0.70, LACIVERT, 'yuvarlak-kare'));
 }
+yaz(path.join(PUBLIC, 'icon-180.png'), await ciz(sayfa, 180, 0.70, LACIVERT, 'yuvarlak-kare'));
+// Maskelenebilir simgede güvenli alan ortadaki %80; içerik %60'ta tutuluyor.
+yaz(path.join(PUBLIC, 'icon-512-maskable.png'), await ciz(sayfa, 512, 0.60, LACIVERT, 'kare'));
 
-// Yoğunluk eşleşmezse kullanılan yedek.
-await renderSized(splashSvg(480, 800), 480, 800, path.join(RES, 'drawable', 'splash.png'));
-
-// Play Store listesi için 512×512 görsel.
-await render(squareSvg(512), 512, path.join(ROOT, 'android/play-store-icon.png'));
-
-await browser.close();
-console.log('Android ikonları üretildi.');
+await tarayici.close();
+console.log('make-icons: Android simgeleri, açılış logosu ve PWA simgeleri üretildi.');

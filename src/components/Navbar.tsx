@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { BRAND } from '../config/brand';
+import logo from '../assets/brand/anlora-realms-logo.png';
 
 /**
  * Uygulamadaki tüm görünümler.
@@ -111,9 +112,23 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setActiveTab('today')}
               className="flex items-center gap-2.5 cursor-pointer group select-none"
             >
-              <div className="w-8 h-8 rounded-xl bg-[var(--primary)] flex items-center justify-center text-[var(--surface)] shadow-2xs group-hover:bg-[var(--primary-hover)] transition-colors">
-                <BookOpen className="w-4 h-4 stroke-[2.4]" />
-              </div>
+              {/*
+                Anlora Realms logosu.
+
+                Kutu içine alınmıyor: logonun kendi zemini şeffaf ve kendi
+                altın çerçevesi zaten var; arkasına renkli bir kare koymak
+                çerçeve üstüne çerçeve olurdu. `object-contain` oranı korur —
+                logo hiçbir ekranda kırpılmaz, gerilmez.
+              */}
+              <img
+                src={logo}
+                alt=""
+                aria-hidden="true"
+                width={38}
+                height={38}
+                decoding="async"
+                className="w-[38px] h-[38px] object-contain shrink-0"
+              />
               {/*
                 Ad ve slogan üst üste. Slogan ana sayfada ayrı bir satır
                 kaplıyordu; oradan alınıp buraya konuldu, çünkü marka sesi

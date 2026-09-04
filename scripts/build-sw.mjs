@@ -42,7 +42,7 @@ for (const m of html.matchAll(/(?:src|href)="(\/[^"]+)"/g)) {
 }
 
 // Kabuk: manifest ve simgeler index.html'de olmasa da gerekli.
-for (const yol of ['/manifest.webmanifest', '/icon.svg', '/icon-192.png', '/icon-512.png']) {
+for (const yol of ['/manifest.webmanifest', '/icon-192.png', '/icon-512.png', '/icon-180.png']) {
   if (fs.existsSync(path.join(distDir, yol))) referanslar.add(yol);
 }
 

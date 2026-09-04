@@ -31,7 +31,7 @@ const VERSION = 'anlora-v1';
 const SHELL_CACHE = `${VERSION}-shell`;
 const ASSET_CACHE = `${VERSION}-assets`;
 
-const SHELL_URLS = ['/', '/index.html', '/manifest.webmanifest', '/icon.svg'];
+const SHELL_URLS = ['/', '/index.html', '/manifest.webmanifest', '/icon-192.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil(

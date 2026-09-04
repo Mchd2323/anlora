@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Anlora marka moru. Uyarlanabilir ikonun zemin katmanı; ön katmandaki
-         açık renkli "A" işareti bu zeminin üstünde durur. -->
+    <!-- Uyarlanabilir uygulama simgesinin zemin katmanı: Realms kuzey
+         laciverti. Ön katmandaki Anlora logosu bu zeminin üstünde durur. -->
     <color name="ic_launcher_background">#15283D</color>
+
+    <!-- Açılış ekranının zemini; uygulamanın parşömen zeminiyle aynı, böylece
+         açılıştan arayüze geçerken renk sıçraması olmuyor. -->
+    <color name="splash_background">#F2EBDD</color>
 </resources>

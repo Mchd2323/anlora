@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Açılış ekranı.
+
+  NEDEN KATMANLI ÇİZİM, NEDEN DÜZ BİR PNG DEĞİL. Önceki hâlde her yoğunluk
+  için tam ekran bir splash.png vardı ve bu dosya pencere zemini olarak
+  veriliyordu; Android bir pencere zeminini ekranı DOLDURACAK biçimde esnetir.
+  Bitmap'in en-boy oranı telefonunkiyle tutmadığında logo yatay ya da dikey
+  olarak geriliyordu — üstelik her cihazda başka türlü.
+
+  Katmanlı çizimde zemin düz bir renk, logo ise `gravity="center"` ile KENDİ
+  boyutunda çiziliyor: hiç ölçeklenmiyor, dolayısıyla hiç bozulmuyor ve her
+  ekranda tam 112 dp duruyor.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/splash_background"/>
+    <item>
+        <bitmap
+            android:src="@drawable/splash_logo"
+            android:gravity="center"/>
+    </item>
+</layer-list>
