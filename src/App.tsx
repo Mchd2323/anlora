@@ -649,7 +649,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setDictionaryRetry(n => n + 1)}
-                className="px-4 py-2 bg-[var(--primary)] text-[var(--surface)] text-xs font-bold rounded-xl cursor-pointer hover:opacity-90"
+                className="px-4 py-2 bg-[var(--primary)] text-[var(--on-primary)] text-xs font-bold rounded-xl cursor-pointer hover:opacity-90"
               >
                 Yeniden dene
               </button>

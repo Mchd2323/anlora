@@ -276,7 +276,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
         <div className="flex justify-center gap-2">
           <button
             onClick={() => setFilterMode('ALL')}
-            className="dugme-birincil px-4 py-2 bg-[var(--primary)] text-[var(--surface)] text-xs font-semibold rounded-xl cursor-pointer hover:bg-[var(--primary-hover)]"
+            className="dugme-birincil px-4 py-2 bg-[var(--primary)] text-[var(--on-primary)] text-xs font-semibold rounded-xl cursor-pointer hover:bg-[var(--primary-hover)]"
           >
             Tüm Kelimeleri Göster ({words.length})
           </button>
@@ -454,7 +454,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
           </div>
           <div
             aria-hidden="true"
-            className="deck-hint absolute right-3 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5 px-3 py-2 rounded-full bg-[var(--primary)] text-[var(--surface)] text-[11px] font-bold shadow-[var(--elev-4)]"
+            className="deck-hint absolute right-3 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5 px-3 py-2 rounded-full bg-[var(--primary)] text-[var(--on-primary)] text-[11px] font-bold shadow-[var(--elev-4)]"
             style={{
               opacity: swipe.offsetX < -12 && hasNext ? swipe.progress : 0,
               transform: `translateY(-50%) scale(${0.85 + swipe.progress * 0.15})`
@@ -649,13 +649,13 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                     {currentCard.word}
                   </h2>
                   {formatPhonetic(currentCard.phonetic) && (
-                    <span className="text-xs sm:text-sm font-mono text-[var(--neutral-500)]">
+                    <span className="text-xs sm:text-sm font-mono text-[var(--text-secondary)]">
                       {formatPhonetic(currentCard.phonetic)}
                     </span>
                   )}
 
                   {!isMeaningRevealed && (
-                    <span className="mt-5 text-[11px] font-semibold text-[var(--neutral-500)] group-hover:text-[var(--primary)] transition-colors tracking-wide">
+                    <span className="mt-5 text-[11px] font-semibold text-[var(--text-secondary)] group-hover:text-[var(--primary)] transition-colors tracking-wide">
                       Anlamı için dokun
                     </span>
                   )}
@@ -723,7 +723,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                                       e.stopPropagation();
                                       speakText(ex.en);
                                     }}
-                                    className="p-1 -mt-0.5 text-[var(--neutral-400)] hover:text-[var(--primary)] rounded transition-colors shrink-0 cursor-pointer"
+                                    className="p-1 -mt-0.5 text-[var(--text-secondary)] hover:text-[var(--primary)] rounded transition-colors shrink-0 cursor-pointer"
                                     title="Cümleyi dinle"
                                     aria-label="Cümleyi dinle"
                                   >
@@ -769,7 +769,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
           <ChevronLeft className="w-5 h-5" />
         </button>
 
-        <p className="text-[11px] text-[var(--neutral-500)] text-center min-w-[150px]">
+        <p className="text-[11px] text-[var(--text-secondary)] text-center min-w-[150px]">
           <span className="sm:hidden">Geçmek için kartı kaydır</span>
           <span className="hidden sm:inline">
             Kartı sürükle ya da{' '}
@@ -786,7 +786,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
         <button
           onClick={goNext}
           disabled={!hasNext}
-          className="dugme-birincil w-11 h-11 flex items-center justify-center bg-[var(--primary)] text-[var(--surface)] rounded-full shadow-[var(--elev-2)] transition-all cursor-pointer hover:bg-[var(--primary-hover)] active:scale-95 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-[var(--primary)]"
+          className="dugme-birincil w-11 h-11 flex items-center justify-center bg-[var(--primary)] text-[var(--on-primary)] rounded-full shadow-[var(--elev-2)] transition-all cursor-pointer hover:bg-[var(--primary-hover)] active:scale-95 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-[var(--primary)]"
           aria-label="Sonraki kelime"
         >
           <ChevronRight className="w-5 h-5" />

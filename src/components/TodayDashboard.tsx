@@ -421,7 +421,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           <div className="shrink-0 flex items-center gap-2">
             <button
               onClick={handleCreateSetClick}
-              className="dugme-birincil px-4 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-[var(--surface)] text-xs font-semibold rounded-xl transition-all flex items-center gap-2 shadow-xs cursor-pointer"
+              className="dugme-birincil px-4 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-[var(--on-primary)] text-xs font-semibold rounded-xl transition-all flex items-center gap-2 shadow-xs cursor-pointer"
             >
               <RealmsIcon name="add" size={20} />
               <span>+ Kelime Seti Oluştur</span>
@@ -476,7 +476,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
                         <span className="text-[var(--learned)] inline-flex items-center gap-1">
                           <Check className="w-3 h-3 stroke-[3]" aria-hidden="true" />{learned} Öğrendim
                         </span>
-                        <span className="text-[var(--learning)] inline-flex items-center gap-1">
+                        <span className="text-[var(--learning-text)] inline-flex items-center gap-1">
                           <RealmsIcon name="repeat" size={18} className="stroke-[3]" aria-hidden="true" />{learning} Tekrar Et
                         </span>
                       </div>
@@ -513,7 +513,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
             <div className="pt-1">
               <button
                 onClick={handleCreateSetClick}
-                className="dugme-birincil px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                className="dugme-birincil px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--on-primary)] text-xs font-semibold rounded-xl transition-all inline-flex items-center gap-1.5 cursor-pointer"
               >
                 <RealmsIcon name="add" size={18} />
                 <span>İlk Setimi Oluştur</span>
@@ -679,7 +679,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           */}
           {streakDays > 0 && (
             <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--learning-soft)] border border-[var(--learning-border)] self-start">
-              <Flame className="w-4 h-4 text-[var(--learning)] shrink-0" />
+              <Flame className="w-4 h-4 text-[var(--learning-text)] shrink-0" />
               <div className="leading-tight">
                 <div className="text-xs font-bold text-[var(--learning-text)]">
                   {streakDays} gündür aralıksız
@@ -725,7 +725,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           <button
             onClick={() => onStartStudy()}
             disabled={plannedTotal === 0}
-            className="dugme-birincil w-full mt-4 py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 text-[var(--surface)] text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="dugme-birincil w-full mt-4 py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 text-[var(--on-primary)] text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <RealmsIcon name="play" size={20} />
             <span>

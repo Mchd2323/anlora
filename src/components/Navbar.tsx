@@ -182,7 +182,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onClick={() => setActiveTab('profile')}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--surface-soft)] hover:bg-[var(--primary-soft)] text-[var(--text-primary)] hover:text-[var(--primary)] text-xs font-semibold border border-[var(--border)] transition-colors cursor-pointer"
                 >
-                  <div className="w-5 h-5 rounded-lg bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center text-[10px] font-bold">
+                  <div className="w-5 h-5 rounded-lg bg-[var(--primary)] text-[var(--on-primary)] flex items-center justify-center text-[10px] font-bold">
                     {profile.email ? profile.email[0].toUpperCase() : 'U'}
                   </div>
                   <span className="hidden sm:inline max-w-[130px] truncate font-medium">

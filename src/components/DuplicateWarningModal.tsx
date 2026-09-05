@@ -56,7 +56,7 @@ export const DuplicateWarningModal: React.FC<DuplicateWarningModalProps> = ({
         {/* Header */}
         <div className="bg-[var(--surface)] border-b border-[var(--border-light)] p-5 flex items-start justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-[var(--learning-soft)] text-[var(--learning)] rounded-xl">
+            <div className="p-2 bg-[var(--learning-soft)] text-[var(--learning-text)] rounded-xl">
               <AlertCircle className="w-4 h-4" />
             </div>
             <div>
@@ -171,7 +171,7 @@ export const DuplicateWarningModal: React.FC<DuplicateWarningModalProps> = ({
             {duplicateInfo.type === 'INFLECTED_FORM' && duplicateInfo.lemmaSuggestion && onUseBaseForm && (
               <button
                 onClick={() => onUseBaseForm(duplicateInfo.lemmaSuggestion!.baseForm)}
-                className="dugme-birincil w-full py-2 px-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                className="dugme-birincil w-full py-2 px-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--on-primary)] text-xs font-semibold rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <RealmsIcon name="book" size={18} />
                 <span>Kök Biçimini ("{duplicateInfo.lemmaSuggestion.baseForm}") Ekle</span>
@@ -181,7 +181,7 @@ export const DuplicateWarningModal: React.FC<DuplicateWarningModalProps> = ({
             {(duplicateInfo.type === 'EXACT_IN_OTHER_COLLECTION' || duplicateInfo.type === 'EXACT_IN_OXFORD') && onAddExistingToCollection && (
               <button
                 onClick={onAddExistingToCollection}
-                className="dugme-birincil w-full py-2 px-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                className="dugme-birincil w-full py-2 px-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--on-primary)] text-xs font-semibold rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Link className="w-3.5 h-3.5" />
                 <span>Mevcut Kartı Bu Sete Bağla</span>

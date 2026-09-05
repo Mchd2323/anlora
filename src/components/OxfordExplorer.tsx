@@ -666,7 +666,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
               className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg font-semibold transition-colors cursor-pointer border ${
                 statusFilter === 'LEARNING'
                   ? 'bg-[var(--learning)] text-[var(--surface)] border-[var(--learning)]'
-                  : 'text-[var(--learning)] border-transparent hover:bg-[var(--learning-soft-hover)]'
+                  : 'text-[var(--learning-text)] border-transparent hover:bg-[var(--learning-soft-hover)]'
               }`}
             >
               <RealmsIcon name="repeat" size={18} className="stroke-[3]" aria-hidden="true" />
@@ -753,7 +753,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
               Şimdi çalışmaya başla ({filteredWords.length} kelime)
             </p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-[var(--primary)] text-[var(--on-primary)] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
             <RealmsIcon name="play" size={20} className="fill-current ml-0.5" />
           </div>
         </button>

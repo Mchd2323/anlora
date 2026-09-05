@@ -87,6 +87,16 @@
     --ivory: #FBF7EF;
 
     /*
+     * KOYU DOLGU ÜZERİNDEKİ METİN VE İKONLAR.
+     *
+     * Lacivert dolgulu bir düğmenin yazısı hiçbir zaman koyu olmamalı. Bu
+     * belirteç olmadan her düğme kendi açık rengini seçiyordu ve bir yerde
+     * unutulunca koyu üstüne koyu kalıyordu — ölçüldü: "Kalıp" ve "Deyim"
+     * düğmelerinde kontrast 1,00, yani yazı tamamen görünmezdi.
+     */
+    --on-primary: #FBF7EF;
+
+    /*
      * MÜREKKEP. Ana metin artık nötr gri değil, gece laciverti — paketin
      * paletinde laciverdin ilk görevi bu.
      */
@@ -510,6 +520,11 @@
   .dugme-birincil {
     background-image: linear-gradient(180deg, var(--dugme-ust) 0%, var(--primary) 100%);
     border: 1px solid var(--gold-ornament);
+    /*
+     * Metin ve ikonlar daima açık. Sınıf koyu bir dolgu boyadığı için rengi
+     * burada zorunlu kılmak, bir bileşende unutulsa bile okunmayı garantiliyor.
+     */
+    color: var(--on-primary);
     box-shadow:
       inset 0 1px 0 rgb(255 255 255 / 0.10),
       0 4px 9px var(--dugme-golge);
@@ -804,6 +819,8 @@
   --kose-opaklik: 0.85;
   --ivory: #F2EBDD;
   --arma-alan: #15283D;
+    /* Koyu temada --primary ACIK bir renk; ustundeki yazi koyu murekkep olmali. */
+    --on-primary: #142433;
 }
 }
 
@@ -856,6 +873,8 @@
   --kose-opaklik: 0.85;
   --ivory: #F2EBDD;
   --arma-alan: #15283D;
+    /* Koyu temada --primary ACIK bir renk; ustundeki yazi koyu murekkep olmali. */
+    --on-primary: #142433;
 }
 }
 
@@ -1192,46 +1211,8 @@ textarea:focus-visible,
 }
 
 
-/* --- KOYU: Orman — yeşile çalan koyu ----------------------------------- */
-:root[data-theme="orman"] {
-  /* Anlora Realms · Koru — Koyu — kuzeyin ormanı */
-  color-scheme: dark;
-  --bg: #0E1614;
-  --surface: #152220;
-  --surface-soft: #1C2C29;
-  --surface-subtle: #111C1A;
-  --border: #283B37;
-  --border-light: #20302D;
-  --primary: #7FB79A;
-  --primary-hover: #95C7AC;
-  --primary-soft: #152A22;
-  --primary-soft-hover: #1A3329;
-  --primary-border: #2C4A3B;
-  --primary-tint: #132420;
-  --text-primary: #E6E9DF;
-  --text-secondary: #B0BDB6;
-  --text-muted: #95A39C;
-}
 
 
-/* --- KOYU: Kömür — sıcak amber marka rengi ----------------------------- */
-:root[data-theme="komur"] {
-  --bg: #16130F;
-  --surface: #1F1B16;
-  --surface-soft: #29231C;
-  --surface-subtle: #1A1712;
-  --border: #383026;
-  --border-light: #2C261E;
-  --primary: #D9A24E;
-  --primary-hover: #E8B565;
-  --primary-soft: #2A2116;
-  --primary-soft-hover: #372B1D;
-  --primary-border: #4C3D26;
-  --primary-tint: #221B12;
-  --text-primary: #F0EAE0;
-  --text-secondary: #ADA292;
-  --text-muted: #918878;
-}
 
 /* --- KOYU: Gece — lacivert-indigo -------------------------------------
    Gece, Orman (yeşil) ve Kömür (amber) ile aynı nötr koyu zemini
@@ -1239,7 +1220,9 @@ textarea:focus-visible,
    Artık kendi karakteri var: soğuk lacivert bir zemin ve indigo vurgu.
    Bu blok ortak koyu tanımlardan SONRA geldiği için onların üstüne yazar.
    ---------------------------------------------------------------------- */
-:root[data-theme="dark"] {
+:root[data-theme="dark"],
+:root[data-theme="orman"],
+:root[data-theme="komur"] {
   /*
    * ANLORA REALMS — GECE.
    *
@@ -1338,5 +1321,57 @@ textarea:focus-visible,
   --kose-opaklik: 0.85;
   --ivory: #F2EBDD;
   --arma-alan: #15283D;
+  /* Koyu temada --primary ACIK bir renk (olculdu); ustundeki yazi bu yuzden
+     koyu murekkep olmali. Paketin onerdigi acik #F2EBDD burada 1.77 olcuyor. */
+  --on-primary: #142433;
+}
+
+
+/* Orman ve Kömür yukarıdaki tam koyu paletin ÜSTÜNE yazıyor: kendi zemin ve
+   vurgu renklerini alıyor, anlamsal renkleri (CEFR rozetleri, öğrenildi,
+   tekrar) ise koyu paletten miras alıyor. Önceden bu iki tema açık paletin
+   anlamsal renklerini koyu zeminde kullanıyordu; ölçümde 1,67'ye kadar inen
+   13 ve 15 başarısız çift çıkmıştı. */
+/* --- KOYU: Orman — yeşile çalan koyu ----------------------------------- */
+:root[data-theme="orman"] {
+  /* Anlora Realms · Koru — Koyu — kuzeyin ormanı */
+  color-scheme: dark;
+  --bg: #0E1614;
+  --surface: #152220;
+  --surface-soft: #1C2C29;
+  --surface-subtle: #111C1A;
+  --border: #283B37;
+  --border-light: #20302D;
+  --primary: #7FB79A;
+  --on-primary: #152220;
+  --primary-hover: #95C7AC;
+  --primary-soft: #152A22;
+  --primary-soft-hover: #1A3329;
+  --primary-border: #2C4A3B;
+  --primary-tint: #132420;
+  --text-primary: #E6E9DF;
+  --text-secondary: #B0BDB6;
+  --text-muted: #95A39C;
+}
+/* --- KOYU: Kömür — sıcak amber marka rengi ----------------------------- */
+:root[data-theme="komur"] {
+  --bg: #16130F;
+  --surface: #1F1B16;
+  --surface-soft: #29231C;
+  --surface-subtle: #1A1712;
+  --border: #383026;
+  --border-light: #2C261E;
+  --primary: #D9A24E;
+  --on-primary: #1F1B16;
+  --primary-hover: #E8B565;
+  --primary-soft: #2A2116;
+  --primary-soft-hover: #372B1D;
+  --primary-border: #4C3D26;
+  --primary-tint: #221B12;
+  --text-primary: #F0EAE0;
+  --text-secondary: #ADA292;
+  /* #918878, --surface-soft (#29231C) uzerinde 4,44 olcuyordu; 4,5 esigi icin
+     bir tik acildi (yeni olcum 4,87). */
+  --text-muted: #998F7E;
 }
 

@@ -181,7 +181,7 @@ export const IntroCarousel: React.FC<{ slides: IntroSlide[] }> = ({ slides }) =>
                     className={`w-5 h-5 rounded-lg text-[11px] font-black flex items-center justify-center shrink-0 ${
                       s.gorsel
                         ? 'bg-[#E9D7A8] text-[#15283D]'
-                        : 'bg-[var(--primary)] text-[var(--surface)]'
+                        : 'bg-[var(--primary)] text-[var(--on-primary)]'
                     }`}
                   >
                     {s.index}

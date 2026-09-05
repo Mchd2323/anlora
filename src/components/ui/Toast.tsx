@@ -59,7 +59,7 @@ const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void
           bg: 'bg-[var(--surface)]',
           border: 'border-[var(--learning-border)]',
           text: 'text-[var(--text-primary)]',
-          icon: <RealmsIcon name="repeat" size={20} className="text-[var(--learning)]" />
+          icon: <RealmsIcon name="repeat" size={20} className="text-[var(--learning-text)]" />
         };
       case 'favorite':
         return {

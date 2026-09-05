@@ -447,7 +447,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           ) : hesapAcilabilir ? (
             <button
               onClick={onOpenAuthModal}
-              className="dugme-birincil px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-[var(--surface)] text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+              className="dugme-birincil px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-[var(--on-primary)] text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <LogIn className="w-3.5 h-3.5" />
               <span>Giriş Yap / Ücretsiz Hesap Aç</span>
@@ -468,7 +468,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       {!profile.isLoggedIn && hesapAcilabilir !== null && (
         <div className="p-5 rounded-2xl bg-[var(--learning-soft)]/60 border border-[var(--learning-border)] text-[var(--learning-text)] space-y-2">
           <div className="font-bold text-xs flex items-center gap-1.5 text-[var(--learning-text)]">
-            <Shield className="w-4 h-4 text-[var(--learning)]" />
+            <Shield className="w-4 h-4 text-[var(--learning-text)]" />
             <span>
               {hesapAcilabilir
                 ? "Anlora'yı misafir olarak kullanıyorsun"
@@ -521,14 +521,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             onClick={() => onOpenOxfordStatus?.('LEARNING')}
             className="p-4 bg-[var(--learning-soft)] rounded-xl border border-[var(--learning-border)] text-center transition-colors hover:bg-[var(--learning-soft-strong)] cursor-pointer"
           >
-            <RealmsIcon name="repeat" size={22} className="text-[var(--learning)] mx-auto mb-1" />
+            <RealmsIcon name="repeat" size={22} className="text-[var(--learning-text)] mx-auto mb-1" />
             <div className="text-2xl font-bold text-[var(--learning-text)]">
               {learningSummary.learningCount}
             </div>
             <div className="text-[10px] font-bold text-[var(--learning-text)]  mt-0.5">
               Öğreniyorum
             </div>
-            <div className="text-[9px] text-[var(--learning)] mt-1 font-semibold">Listeyi aç →</div>
+            <div className="text-[9px] text-[var(--learning-text)] mt-1 font-semibold">Listeyi aç →</div>
           </button>
 
           <button
@@ -727,7 +727,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     <span className="text-[11px] flex-1 min-w-0 text-right tabular-nums">
                       <span className="text-[var(--learned)] font-semibold">{d.learned} öğrendim</span>
                       <span className="text-[var(--text-muted)]"> · </span>
-                      <span className="text-[var(--learning)] font-semibold">{d.learning} tekrar</span>
+                      <span className="text-[var(--learning-text)] font-semibold">{d.learning} tekrar</span>
                       <span className="text-[var(--text-muted)]"> · </span>
                       <span className="text-[var(--text-muted)] font-semibold">
                         {d.total - d.learned - d.learning} kalan
@@ -755,14 +755,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     key={d.lvl}
                     className="px-3.5 py-2.5 flex items-center gap-2.5 bg-[var(--bg)]"
                   >
-                    <MessageSquareQuote className="w-4 h-4 shrink-0 text-[var(--learning)]" />
+                    <MessageSquareQuote className="w-4 h-4 shrink-0 text-[var(--learning-text)]" />
                     <span className="text-[11px] text-[var(--text-secondary)] shrink-0">
                       {d.lvl} Seviyesi:
                     </span>
                     <span className="text-[11px] flex-1 min-w-0 text-right tabular-nums">
                       <span className="text-[var(--learned)] font-semibold">{d.learned} öğrendim</span>
                       <span className="text-[var(--text-muted)]"> · </span>
-                      <span className="text-[var(--learning)] font-semibold">{d.learning} tekrar</span>
+                      <span className="text-[var(--learning-text)] font-semibold">{d.learning} tekrar</span>
                       <span className="text-[var(--text-muted)]"> · </span>
                       <span className="text-[var(--text-muted)] font-semibold">
                         {d.total - d.learned - d.learning} kalan

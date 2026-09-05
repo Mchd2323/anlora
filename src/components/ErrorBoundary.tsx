@@ -67,7 +67,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
           <button
             onClick={this.handleReload}
-            className="dugme-birincil w-full py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
+            className="dugme-birincil w-full py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--on-primary)] font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
           >
             <RealmsIcon name="repeat" size={20} />
             <span>Sayfayı yenile</span>

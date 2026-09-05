@@ -1335,7 +1335,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
              * eşitlenmek istendiğinde profil ekranından yapılabilir.
              */
             onClick={() => setShowCreateModal(true)}
-            className="dugme-birincil px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-1.5 active:scale-[0.98] cursor-pointer"
+            className="dugme-birincil px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--on-primary)] text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-1.5 active:scale-[0.98] cursor-pointer"
           >
             <RealmsIcon name="add" size={20} />
             <span>Yeni Kelime Seti</span>
@@ -1414,7 +1414,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                           {deck.name}
                         </h4>
                         {deck.isPinned && (
-                          <Pin className="w-3 h-3 text-[var(--learning)] fill-current shrink-0" />
+                          <Pin className="w-3 h-3 text-[var(--learning-text)] fill-current shrink-0" />
                         )}
                       </div>
                       {deck.description && (
@@ -1553,7 +1553,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       <span className="text-[var(--learned)] inline-flex items-center gap-1">
                           <Check className="w-3 h-3 stroke-[3]" aria-hidden="true" />{learned} Öğrendim
                         </span>
-                      <span className="text-[var(--learning)] inline-flex items-center gap-1">
+                      <span className="text-[var(--learning-text)] inline-flex items-center gap-1">
                           <RealmsIcon name="repeat" size={18} className="stroke-[3]" aria-hidden="true" />{learning} Tekrar Et
                         </span>
                     </div>
@@ -1696,7 +1696,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       resetAddWordModal();
                       setShowAddWordModal(true);
                     }}
-                    className="dugme-birincil px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl shadow-xs transition-colors flex items-center gap-1.5 active:scale-[0.98] cursor-pointer"
+                    className="dugme-birincil px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--on-primary)] text-xs font-semibold rounded-xl shadow-xs transition-colors flex items-center gap-1.5 active:scale-[0.98] cursor-pointer"
                   >
                     <RealmsIcon name="add" size={18} />
                     <span>Kelime Ekle</span>
@@ -1792,7 +1792,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     Şimdi çalışmaya başla ({activeDeckWords.length} kelime)
                   </p>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-[var(--primary)] text-[var(--on-primary)] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
                   <RealmsIcon name="play" size={20} className="fill-current ml-0.5" />
                 </div>
               </button>
@@ -1829,9 +1829,9 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       type="button"
                       onClick={() => setTurSuzgeci(s2.id)}
                       aria-pressed={turSuzgeci === s2.id}
-                      className={`dugme-birincil px-2.5 py-1.5 rounded-lg text-[11px] font-semibold border transition-colors cursor-pointer ${
+                      className={`px-2.5 py-1.5 rounded-lg text-[11px] font-semibold border transition-colors cursor-pointer ${
                         turSuzgeci === s2.id
-                          ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--surface)]'
+                          ? 'dugme-birincil bg-[var(--primary)] border-[var(--primary)] text-[var(--on-primary)]'
                           : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-soft)]'
                       }`}
                     >
@@ -1963,7 +1963,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       resetAddWordModal();
                       setShowAddWordModal(true);
                     }}
-                    className="dugme-birincil px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl inline-flex items-center gap-1.5 cursor-pointer"
+                    className="dugme-birincil px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--on-primary)] text-xs font-semibold rounded-xl inline-flex items-center gap-1.5 cursor-pointer"
                   >
                     <RealmsIcon name="add" size={18} />
                     <span>İlk Kelimemi Ekle</span>
@@ -2066,7 +2066,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="dugme-birincil px-4 py-2 bg-[var(--primary)] text-[var(--surface)] text-xs font-semibold rounded-xl hover:bg-[var(--primary-hover)] cursor-pointer"
+                  className="dugme-birincil px-4 py-2 bg-[var(--primary)] text-[var(--on-primary)] text-xs font-semibold rounded-xl hover:bg-[var(--primary-hover)] cursor-pointer"
                 >
                   Oluştur
                 </button>
@@ -2148,7 +2148,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="dugme-birincil px-4 py-2 bg-[var(--primary)] text-[var(--surface)] text-xs font-semibold rounded-xl hover:bg-[var(--primary-hover)] cursor-pointer"
+                  className="dugme-birincil px-4 py-2 bg-[var(--primary)] text-[var(--on-primary)] text-xs font-semibold rounded-xl hover:bg-[var(--primary-hover)] cursor-pointer"
                 >
                   Kaydet
                 </button>
@@ -2278,7 +2278,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     }`}
                   >
                     <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-[var(--primary)] text-[var(--surface)] flex items-center justify-center shrink-0">
+                      <div className="w-9 h-9 rounded-xl bg-[var(--primary)] text-[var(--on-primary)] flex items-center justify-center shrink-0">
                         <Sparkles className="w-4 h-4" />
                       </div>
                       <div className="space-y-0.5">
@@ -2386,16 +2386,16 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                           type="button"
                           onClick={() => setManualEntryType(secenek.id)}
                           aria-pressed={secili}
-                          className={`dugme-birincil px-2 py-2 rounded-xl border text-center transition-all cursor-pointer ${
+                          className={`px-2 py-2 rounded-xl border text-center transition-all cursor-pointer ${
                             secili
-                              ? 'bg-[var(--primary)] border-[var(--primary)] text-[var(--surface)]'
+                              ? 'dugme-birincil bg-[var(--primary)] border-[var(--primary)] text-[var(--on-primary)]'
                               : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-soft)]'
                           }`}
                         >
                           <span className="block text-[11px] font-bold leading-none">{secenek.label}</span>
                           <span
                             className={`block text-[9px] mt-1 leading-none ${
-                              secili ? 'text-[var(--surface)]/75' : 'text-[var(--text-muted)]'
+                              secili ? 'text-[var(--on-primary)]/90' : 'text-[var(--text-muted)]'
                             }`}
                           >
                             {secenek.ornek}
@@ -2547,7 +2547,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   </button>
                   <button
                     type="submit"
-                    className="dugme-birincil px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
+                    className="dugme-birincil px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--on-primary)] text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
                   >
                     <Check className="w-4 h-4" />
                     <span>Kartı Kaydet</span>
@@ -2671,7 +2671,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   <button
                     type="button"
                     onClick={handleSaveAiCard}
-                    className="dugme-birincil px-5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
+                    className="dugme-birincil px-5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--on-primary)] text-xs font-semibold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
                   >
                     <Check className="w-4 h-4" />
                     <span>Kaydet</span>
@@ -2922,7 +2922,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 type="button"
                 onClick={mergeInto}
                 disabled={!mergeSource}
-                className="dugme-birincil px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                className="dugme-birincil px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--on-primary)] text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Katıp seti sil
               </button>
@@ -2980,7 +2980,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 type="button"
                 onClick={importDeckCsv}
                 disabled={!importText.trim()}
-                className="dugme-birincil px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                className="dugme-birincil px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--on-primary)] text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Ekle
               </button>

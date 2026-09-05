@@ -498,7 +498,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
             <button
               type="button"
               onClick={() => void openTtsInstall()}
-              className="dugme-birincil px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] text-xs font-semibold rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="dugme-birincil px-3.5 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--on-primary)] text-xs font-semibold rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer"
             >
               <RealmsIcon name="download" size={18} />
               <span>İngilizce Ses Paketini Yükle</span>

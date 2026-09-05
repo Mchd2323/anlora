@@ -258,7 +258,7 @@ export const AdminMessages: React.FC = () => {
               Önizleme
             </p>
             <div className="rounded-lg bg-[var(--surface)] border border-[var(--border)] p-2.5 flex gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-[var(--primary)] text-[var(--surface)] text-[11px] font-bold flex items-center justify-center shrink-0">
+              <div className="w-7 h-7 rounded-lg bg-[var(--primary)] text-[var(--on-primary)] text-[11px] font-bold flex items-center justify-center shrink-0">
                 A
               </div>
               <div className="min-w-0">

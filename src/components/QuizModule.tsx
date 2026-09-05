@@ -640,7 +640,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
               }
               startQuiz();
             }}
-            className="dugme-birincil w-full py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-[var(--surface)] font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="dugme-birincil w-full py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-[var(--on-primary)] font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <Sparkles className="w-4 h-4 text-[var(--learning-soft)]" />
             {/* Havuz yetersizken soru sayısı yazmak olmayan bir sınavı vaat eder. */}
@@ -745,7 +745,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                 {!isAnswered && (
                   <button
                     type="submit"
-                    className="dugme-birincil w-full py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+                    className="dugme-birincil w-full py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--on-primary)] font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
                   >
                     Cevabı Kontrol Et
                   </button>
@@ -836,7 +836,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
               <button
                 ref={sonrakiSoruRef}
                 onClick={handleNextQuestion}
-                className="dugme-birincil px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
+                className="dugme-birincil px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--on-primary)] font-semibold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
               >
                 <span>
                   {currentQuestionIndex < questions.length - 1 ? 'Sonraki Soru' : 'Sınavı Bitir'}
@@ -1021,7 +1021,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
           <div className="flex flex-wrap items-center justify-center gap-2.5 pt-3 border-t border-[var(--border-light)]">
             <button
               onClick={startQuiz}
-              className="dugme-birincil px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+              className="dugme-birincil px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--on-primary)] font-semibold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
             >
               <RealmsIcon name="repeat" size={18} />
               <span>Yeniden Sına</span>

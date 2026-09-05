@@ -54,7 +54,7 @@ export const Button: React.FC<{
   className?: string;
 }> = ({ children, onClick, type = 'button', tone = 'quiet', disabled, className = '' }) => {
   const tones: Record<string, string> = {
-    primary: 'bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--surface)]',
+    primary: 'bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--on-primary)]',
     teal: 'bg-[var(--teal)] hover:bg-[var(--teal-hover)] text-[var(--surface)]',
     quiet: 'bg-[var(--surface-soft)] hover:bg-[var(--border)] text-[var(--text-primary)]',
     danger: 'bg-[var(--danger-soft)] hover:bg-[var(--danger-soft-hover)] text-[var(--danger)]'
