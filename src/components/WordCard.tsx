@@ -128,8 +128,10 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
 
   const kart = (
     <div
-      className={`group relative bg-[var(--surface)] rounded-2xl border transition-all duration-200 flex flex-col justify-between ${
-        tamEkran ? 'w-full max-w-[560px] max-h-full overflow-y-auto' : 'hover:-translate-y-0.5'
+      className={`kart-govdesi group relative bg-[var(--surface)] rounded-2xl border transition-all duration-200 flex flex-col justify-between ${
+        tamEkran
+          ? 'kart-tam-ekran w-full max-w-[560px] max-h-full overflow-y-auto'
+          : 'hover:-translate-y-0.5'
       } ${
         currentStatus === 'learned'
           ? 'border-[var(--learned-border)] shadow-[0_2px_12px_-2px_rgba(79,128,106,0.08)]'

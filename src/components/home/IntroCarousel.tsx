@@ -133,7 +133,22 @@ export const IntroCarousel: React.FC<{ slides: IntroSlide[] }> = ({ slides }) =>
           className="flex transition-transform duration-500 ease-out"
           style={{ transform: `translateX(-${aktif * 100}%)` }}
         >
-          {slides.map(s => (
+          {slides.map((s, i) => {
+            /*
+             * MEVCUT VE KOMŞU SLAYT HAZIR, GERİSİ TEMBEL.
+             *
+             * Üç slaytın üçü de rayda duruyor (yatay öteleme ile geçiliyor),
+             * ama görseli hemen indirmesi gereken yalnızca ekrandaki ve ona
+             * komşu olanlar. Sıradaki slayt hazır olmazsa geçiş sırasında
+             * boş bir kutu görünürdü; uzaktakini indirmek ise bedava değil,
+             * her sahne 1672x941.
+             */
+            const uzaklik = Math.min(
+              Math.abs(i - aktif),
+              slides.length - Math.abs(i - aktif)
+            );
+            const hazirla = s.oncelikli || uzaklik <= 1;
+            return (
             <div key={s.index} className="w-full shrink-0 px-0.5">
               <div className="relative rounded-xl border border-[rgba(183,149,82,.85)] overflow-hidden min-h-[132px] flex">
                 {s.gorsel && (
@@ -146,8 +161,8 @@ export const IntroCarousel: React.FC<{ slides: IntroSlide[] }> = ({ slides }) =>
                     <img
                       src={s.gorsel}
                       alt={s.gorselAlt || ''}
-                      loading={s.oncelikli ? 'eager' : 'lazy'}
-                      fetchPriority={s.oncelikli ? 'high' : 'low'}
+                      loading={hazirla ? 'eager' : 'lazy'}
+                      fetchPriority={s.oncelikli ? 'high' : hazirla ? 'auto' : 'low'}
                       decoding="async"
                       className="absolute inset-0 w-full h-full object-cover"
                       style={{ objectPosition: '70% center' }}
@@ -204,7 +219,8 @@ export const IntroCarousel: React.FC<{ slides: IntroSlide[] }> = ({ slides }) =>
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

@@ -710,6 +710,33 @@
   padding-top: 50px;
 }
 
+/*
+   LİSTE KARTLARI — EKRAN DIŞINDAKİLERİ ÇİZME.
+
+   Oxford listesi 60 kartlık sayfalar hâlinde açılıyor. Ölçüm (Chromium,
+   CPU 6 kat yavaşlatılmış, 20 tekerlek adımı): kaydırma sırasında 20 uzun
+   görev, toplam 1909 ms, en uzunu 121 ms. Profil bunun %84'ünün JavaScript
+   değil tarayıcının kendi stil/yerleşim/boyama işi olduğunu gösterdi;
+   gölge, gren, köşe süsü, motif şeridi ve backdrop-filter tek tek
+   kapatıldığında hiçbiri ölçülebilir fark yaratmadı. Kartların tamamı
+   gizlendiğinde ise toplam 129 ms'ye düşüyor — yani bedel, ekranda
+   görünmeyen kartların da her karede yeniden çizilmesi.
+
+   `content-visibility: auto` tam bunu çözüyor: görünüm alanının dışındaki
+   kartın içeriği hiç çizilmiyor. `contain-intrinsic-size: auto 260px`
+   tarayıcıya kartın son bilinen boyutunu hatırlatıyor, böylece kaydırma
+   çubuğu zıplamıyor.
+
+   Ölçülen sonuç: 1909 -> 1506 ms toplam, en uzun kare 121 -> 86 ms.
+   Görünüm, dokunma hedefleri ve işlevler değişmedi.
+
+   TAM EKRANDA UYGULANMIYOR: orada kart zaten ekranın tamamı ve tek kart.
+*/
+.kart-govdesi:not(.kart-tam-ekran) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 260px;
+}
+
 /* Süs, içeriği olmayan dar panellerde orantısız boşluk bırakmasın. */
 .parsomen-panel.dolgu-serbest {
   padding-top: revert-layer;
