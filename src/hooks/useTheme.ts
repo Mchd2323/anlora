@@ -30,8 +30,20 @@ import { ON_AYAR_KIMLIKLERI, onAyarModu, RealmsOnAyarId } from '../theme/realmsP
  * oynamak düzeni yerinden oynatırdı.
  */
 
-/** Kökte 'system' için hiçbir şey yazılmaz. */
-export type TemaTercihi = 'system' | RealmsOnAyarId;
+/**
+ * Görünüm tercihi.
+ *
+ * 'system' | 'light' | 'dark' ÜÇÜ DE ONAYLI TABAN GÖRÜNÜMDÜR — aralarındaki
+ * tek fark telefonun ayarını izleyip izlemedikleri. Kökte 'system' hiçbir
+ * şey yazmaz, 'light'/'dark' yalnızca `data-theme` yazar; ikisi de
+ * `data-realm-preset` yazmaz, yani ek tema katmanı hiç devreye girmez.
+ *
+ * NEDEN ÜÇÜ DE DURUYOR. Bir ara yalnızca 'system' bırakılmıştı; o hâlde
+ * telefonu koyu olan bir kullanıcı onaylı AÇIK görünümü hiçbir şekilde
+ * seçemiyordu, üstelik daha önce açıkça "Koyu" demiş kullanıcı da onaylı
+ * Gece yerine ek temalardan birine düşüyordu. İkisi de tercih kaybı.
+ */
+export type TemaTercihi = 'system' | 'light' | 'dark' | RealmsOnAyarId;
 
 /**
  * Eski tema kayıtlarının karşılığı.
@@ -48,33 +60,33 @@ export type TemaTercihi = 'system' | RealmsOnAyarId;
  * kullanıcının ASIL NİYETİNİ korumaya çalışıyor: açık bir görünüm seçmiş olan
  * açık kalsın, koyu seçmiş olan koyu kalsın. "Sistem" diyen sistemde kalır.
  *
- * Açık niyet -> Kadim Harita: dört ek açık tema içinde parşömene en yakın olan
- * bu (sepya zemin, altın vurgu). Koyu niyet -> Buz Nöbeti: onaylı Gece
- * temasının lacivert-buz karakterine en yakın olan bu.
+ * Eşleme ek temalara DEĞİL, onaylı tabanın kendisine gidiyor: "Açık" demiş
+ * kullanıcı onaylı parşömeni, "Koyu" demiş kullanıcı onaylı Gece'yi alıyor.
+ * Ek temalardan birine yönlendirmek görünümü sessizce değiştirmek olurdu.
  */
 const ESKI_TEMA_KARSILIGI: Record<string, TemaTercihi> = {
   system: 'system',
-  light: 'light-ancient-map',
-  deniz: 'light-ancient-map',
-  kum: 'light-ancient-map',
-  gul: 'light-ancient-map',
-  sis: 'light-ancient-map',
-  lavanta: 'light-ancient-map',
-  dark: 'dark-frost-watch',
-  orman: 'dark-frost-watch',
-  komur: 'dark-frost-watch'
+  light: 'light',
+  deniz: 'light',
+  kum: 'light',
+  gul: 'light',
+  sis: 'light',
+  lavanta: 'light',
+  dark: 'dark',
+  orman: 'dark',
+  komur: 'dark'
 };
 
 /** Ayarlardan geçerli tema tercihini çözer; eski alanlar da hesaba katılır. */
 export function cozTemayi(settings: UserSettings): TemaTercihi {
   const secili = settings.themePreset;
-  if (secili === 'system') return 'system';
+  if (secili === 'system' || secili === 'light' || secili === 'dark') return secili;
   if (secili && ON_AYAR_KIMLIKLERI.includes(secili as RealmsOnAyarId)) {
     return secili as RealmsOnAyarId;
   }
   // İkinci model: mod açıkça seçilmişse niyet ondan okunur.
-  if (settings.themeMode === 'light') return ESKI_TEMA_KARSILIGI.light;
-  if (settings.themeMode === 'dark') return ESKI_TEMA_KARSILIGI.dark;
+  if (settings.themeMode === 'light') return 'light';
+  if (settings.themeMode === 'dark') return 'dark';
   if (settings.themeMode === 'system') return 'system';
   // İlk model: tek listeli eski ön ayar.
   const eski = settings.theme;
@@ -88,20 +100,38 @@ export function useTheme(settings: UserSettings): void {
 
   useEffect(() => {
     const root = document.documentElement;
+    root.removeAttribute('data-realm-preset');
+
     if (tema === 'system') {
       root.removeAttribute('data-theme');
-      root.removeAttribute('data-realm-preset');
-      return;
+    } else if (tema === 'light' || tema === 'dark') {
+      // Onaylı taban görünüm, sabitlenmiş hâli: ek tema katmanı devreye girmez.
+      root.setAttribute('data-theme', tema);
+    } else {
+      const mod = onAyarModu(tema);
+      if (!mod) {
+        // Tanınmayan bir kimlik kökte yarım bir tema bırakmasın.
+        root.removeAttribute('data-theme');
+      } else {
+        root.setAttribute('data-theme', mod);
+        root.setAttribute('data-realm-preset', tema);
+      }
     }
-    const mod = onAyarModu(tema);
-    // Tanınmayan bir kimlik kökte yarım bir tema bırakmasın.
-    if (!mod) {
-      root.removeAttribute('data-theme');
-      root.removeAttribute('data-realm-preset');
-      return;
+
+    /*
+     * SİSTEM ÇUBUĞU DA TEMAYA UYSUN.
+     *
+     * `theme-color` index.html'de sabit parşömendi. Koyu bir tema seçen
+     * kullanıcının ekranının tepesinde parlak bir şerit kalıyordu — Android
+     * ve tarayıcı bu meta değerini adres/durum çubuğu için kullanıyor.
+     * Değer artık temanın kendi sayfa renginden okunuyor: hesap yok, CSS'in
+     * çözdüğü değerin ta kendisi.
+     */
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      const sayfa = getComputedStyle(root).getPropertyValue('--bg').trim();
+      if (sayfa) meta.setAttribute('content', sayfa);
     }
-    root.setAttribute('data-theme', mod);
-    root.setAttribute('data-realm-preset', tema);
   }, [tema]);
 
   useEffect(() => {

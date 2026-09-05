@@ -247,7 +247,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
                   value={word}
                   onChange={e => setWord(e.target.value)}
                   placeholder="Örn: wharf"
-                  className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-white focus:outline-none focus:border-[var(--primary)] text-[var(--text-primary)]"
+                  className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] text-[var(--text-primary)]"
                 />
               </div>
             )}
@@ -261,7 +261,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
                 onChange={e => setMessage(e.target.value)}
                 rows={4}
                 placeholder="Ne oldu, ne bekliyordun?"
-                className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-white focus:outline-none focus:border-[var(--primary)] text-[var(--text-primary)]"
+                className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] text-[var(--text-primary)]"
               />
             </div>
 
@@ -277,7 +277,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
                 value={replyTo}
                 onChange={e => setReplyTo(e.target.value)}
                 placeholder="ornek@eposta.com"
-                className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-white focus:outline-none focus:border-[var(--primary)] text-[var(--text-primary)]"
+                className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] text-[var(--text-primary)]"
               />
             </div>
 

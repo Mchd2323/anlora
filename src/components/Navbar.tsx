@@ -216,14 +216,21 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               {/*
-                Aktif sekme lacivert YAZIYLA ve üstündeki ince ALTIN çizgiyle
-                belirginleşiyor; referansta olduğu gibi büyük renkli bir dolgu
-                yok. Çizgi düğmenin en üstünde, ikonun üzerinde durmuyor.
+                Aktif sekme YAZIYLA ve üstündeki ince çizgiyle belirginleşiyor;
+                referansta olduğu gibi büyük renkli bir dolgu yok. Çizgi
+                düğmenin en üstünde, ikonun üzerinde durmuyor.
+
+                ÇİZGİ TEMANIN VURGUSU, SABİT ALTIN DEĞİL. Değer önce
+                `--gold-ornament` idi ve hiçbir temada ezilmiyordu; ölçtüm:
+                dört açık ek temada çubuk zemininin üstünde 2,51-2,66, yani
+                metin dışı arayüz için istenen 3:1'in altında. Vurgu rengi
+                her temada zaten bu eşiği geçiyor ve "aktif nav göstergesi
+                aynı tema belirteçlerini kullansın" kuralını da karşılıyor.
               */}
               <span
                 aria-hidden="true"
                 className={`h-[2px] w-7 rounded-full mb-1 transition-colors ${
-                  isActive ? 'bg-[var(--gold-ornament)]' : 'bg-transparent'
+                  isActive ? 'bg-[var(--primary)]' : 'bg-transparent'
                 }`}
               />
               <div className="relative">

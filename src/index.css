@@ -1312,6 +1312,48 @@ textarea:focus-visible,
 
 
 /* ==========================================================================
+   Pasif (disabled) denetimler
+   ==========================================================================
+   ÖLÇÜLEN SORUN. Uygulamada 25 yerde `disabled:opacity-35..60` vardı; opaklık
+   dolguyu da yazıyı da birlikte soldurup sayfa zeminine bindiriyor, yani
+   ikisinin BİRBİRİNE göre kontrastı düşüyor. Ölçtüm (birincil düğme, sayfa
+   üstünde):
+
+     Sistem açık  opacity-35 -> 2,13   ·  Sistem koyu  opacity-35 -> 2,07
+     Ejderha Köz  opacity-35 -> 1,95   ·  Kızıl Gece   opacity-35 -> 1,76
+
+   Sorun yeni temalarla gelmedi, onaylı Sistem temasında da vardı; opaklığı
+   %60'a çekmek bile yetmiyor (Kızıl Gece'de 2,89).
+
+   ÇÖZÜM: pasif denetim solmuyor, KENDİ GÖRÜNÜMÜNE geçiyor — sakin bir iç
+   yüzey, sönük ama okunur yazı ve normal kenarlık. Değerler zaten ölçülmüş
+   belirteçler: `--text-muted` üstünde `--surface-soft` her dokuz temada
+   4,7'nin üstünde. Ek belirteç gerekmedi.
+
+   Kural KATMANSIZ yazıldı: Tailwind'in `disabled:opacity-*` yardımcıları ve
+   `.dugme-birincil`in degradesi katmanlı, katmansız kural ikisini de yener.
+   Böylece 25 çağrı yerine dokunmadan hepsi düzeliyor.
+   -------------------------------------------------------------------------- */
+button:disabled,
+select:disabled,
+[aria-disabled='true'] {
+  opacity: 1;
+  background-image: none;
+  background-color: var(--surface-soft);
+  color: var(--text-muted);
+  border-color: var(--border);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* Pasif denetimin içindeki ikon da aynı sönük mürekkebi kullansın; aksi hâlde
+   yazı sönerken ikon parlak kalıyor ve düğme yarı etkinmiş gibi duruyor. */
+button:disabled svg,
+[aria-disabled='true'] svg {
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
    Ek temalar ve set renkleri
    ==========================================================================
    "Sistem" bu dosyada YOK: o, yukarıdaki onaylı açık/koyu görünümün kendisi

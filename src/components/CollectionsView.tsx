@@ -2945,7 +2945,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               rows={8}
               aria-label="CSV içeriği"
               placeholder={'kelime;anlamlar\nthrive;gelişmek'}
-              className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-white focus:outline-none focus:border-[var(--primary)] font-mono text-[var(--text-primary)]"
+              className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] font-mono text-[var(--text-primary)]"
             />
 
             <div className="flex justify-end gap-2">

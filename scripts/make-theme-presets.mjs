@@ -97,6 +97,9 @@ const veri = await p.evaluate(({ KAYNAK, SET_RENKLERI, METIN_ESIGI, KENAR_ESIGI 
   const L = ([r,g,bb]) => 0.2126*lin(r)+0.7152*lin(g)+0.0722*lin(bb);
   const cr = (a,bb) => { const [m,n] = [L(rgb(a)), L(rgb(bb))].sort((u,v)=>v-u); return +((m+0.05)/(n+0.05)).toFixed(2); };
   const karis = (a, bb, yuzde) => hex(`color-mix(in srgb, ${a} ${yuzde}%, ${bb})`);
+  // Üretilen CSS'te color-mix KULLANILMIYOR (eski WebView riski); karışım
+  // burada, üretim anında çözülüyor ve çıktıya düz hex/rgb yazılıyor.
+  const rgba = (renk, alfa) => { const [r, g, bb] = rgb(renk); return `rgb(${r} ${g} ${bb} / ${alfa})`; };
   const acikligiKaydir = (renk, delta) => hex(`oklch(from ${renk} calc(l ${delta >= 0 ? '+' : '-'} ${Math.abs(delta)}) c h)`);
 
   const isle = (t, koyuMu) => {
@@ -132,13 +135,40 @@ const veri = await p.evaluate(({ KAYNAK, SET_RENKLERI, METIN_ESIGI, KENAR_ESIGI 
        */
       '--dugme-ust': acikligiKaydir(accent, koyuMu ? +0.03 : -0.03),
       '--dugme-kenar': karis(accent, buttonText, 78),
-      '--dugme-golge': koyuMu ? 'rgb(0 0 0 / 0.35)' : `color-mix(in srgb, ${text} 16%, transparent)`,
+      /*
+       * DÜZ rgb(), color-mix DEĞİL. Gölge `.dugme-birincil`in TEK bir
+       * box-shadow bildiriminin içinde, iç parlamayla birlikte duruyor;
+       * değer geçersiz çözülürse bildirimin tamamı düşer ve düğme iç
+       * parlamasını da kaybeder. color-mix Chrome 111+ istiyor, uygulamanın
+       * minSdk'si 23 — eski WebView'lerde bu risk gerçek.
+       */
+      '--dugme-golge': koyuMu ? 'rgb(0 0 0 / 0.35)' : rgba(text, 0.16),
       /*
        * Kart motifinin glifi. Taban temada sabit buz mavisiydi; ek temada o
        * renk tema dışında kalıyor. Vurgunun yumuşatılmışı hem aynı aileden
        * hem de glifin dekoratif kalmasını sağlayacak kadar sakin.
        */
       '--motif-glif': karis(accent, panel, koyuMu ? 70 : 60),
+      /*
+       * BAŞLIK ÇUBUĞU VE ALT MENÜ. Bu iki belirteç ezilmezse taban değeri
+       * geçerli kalıyor: kuzey laciverti. Bordo "Kızıl Gece"nin ya da kahve
+       * "Ejderha Köz"ün ekranında altta ve üstte mavi birer şerit kalıyordu —
+       * paketin "rastgele yeni lacivert doldurma ekleme" kuralının tam
+       * ihlali. Değerler artık temanın kendi panelinden geliyor; alfa taban
+       * temayla aynı (0,96 / 0,97), çünkü ikisi de içeriğin üstünde duruyor.
+       */
+      '--cubuk-zemin': rgba(panel, 0.96),
+      '--menu-zemin': rgba(panel, 0.97),
+      /*
+       * ARMA PLAKASININ ZEMİNİ. Taban değer koyu tarafta lacivert (#15283D);
+       * plaka her temada kendi rengine gelsin diye ezilmesi gerekiyor:
+       * bordo "Kızıl Gece"nin başlığında lacivert bir plaka tema dışı
+       * duruyor. Koyu temada plakanın zemini sayfanın kendi rengi, açık
+       * temada metnin rengi (parşömenin üstünde koyu bir plaka).
+       * Ölçülen şey plakanın panele farkı değil — altının plaka üstündeki
+       * kontrastı (aşağıda `armaAltini`).
+       */
+      '--arma-alan': koyuMu ? page : text,
       // Kenarlık oranları, taban temanın kendi kenarlık gücüne (1,91) göre
       // ölçülerek seçildi; koyu panelde aynı güce daha az karışımla ulaşılıyor.
       '--border': karis(accent, panel, koyuMu ? 42 : 62),
@@ -157,7 +187,18 @@ const veri = await p.evaluate(({ KAYNAK, SET_RENKLERI, METIN_ESIGI, KENAR_ESIGI 
       // Degradenin ÜST durağı da ölçülüyor: taban koyu temada bu nokta
       // gözden kaçmış ve 1,71 ölçüyordu.
       dugmeUstDurak: cr(buttonText, belirtecler['--dugme-ust']),
-      kenarlik: Math.min(...yuzeyler.map(y => cr(belirtecler['--border'], y)))
+      kenarlik: Math.min(...yuzeyler.map(y => cr(belirtecler['--border'], y))),
+      /*
+       * ARMA PLAKASI — ÖLÇÜM PANELE KARŞI DEĞİL, ALTINA KARŞI.
+       *
+       * Plakanın zemini panelden ayrışmak zorunda değil: onaylı taban koyu
+       * temada bile bu fark 1,05 (arma-alan #15283D / panel #142433). Plaka
+       * altın kenarından ve içindeki armadan okunuyor. Ölçülmesi gereken şey
+       * bu yüzden altının plaka zemini üstündeki kontrastı — tabanda 5,30.
+       */
+      armaAltini: cr('#B79552', belirtecler['--arma-alan']),
+      // Alt menü ve başlık çubuğunun üstündeki yazı.
+      cubukYazisi: cr(text, panel)
     };
     return { ...t, koyuMu, belirtecler, olcum };
   };
@@ -192,6 +233,8 @@ for (const t of hepsi) {
   if (o.dugmeYazisi < METIN_ESIGI) dusuk.push(`${t.name}: düğme yazısı ${t.buttonText} / ${t.buttonBg} = ${o.dugmeYazisi}`);
   if (o.dugmeUstDurak < METIN_ESIGI) dusuk.push(`${t.name}: düğme degradesinin üst durağı = ${o.dugmeUstDurak}`);
   if (o.kenarlik < KENAR_ESIGI) dusuk.push(`${t.name}: kenarlık ${o.kenarlik} < taban temanın 1,91 seviyesi`);
+  if (o.armaAltini < 3.0) dusuk.push(`${t.name}: arma plakasının altını ${o.armaAltini} < 3`);
+  if (o.cubukYazisi < METIN_ESIGI) dusuk.push(`${t.name}: çubuk/menü yazısı ${o.cubukYazisi}`);
 }
 for (const r of veri.setler) {
   if (r.acikEnDusuk < 3.0) dusuk.push(`set ${r.ad}: açık ${r.acik} en düşük ${r.acikEnDusuk} < 3`);
@@ -341,7 +384,7 @@ fs.writeFileSync(path.join(KOK, 'src/theme/setPalette.ts'), setTs, 'utf8');
 console.log('src/styles/realms-presets.css, src/theme/realmsPresets.ts ve src/theme/setPalette.ts üretildi');
 for (const t of hepsi) {
   const o = t.olcum;
-  console.log(`  ${t.name.padEnd(16)} ${t.koyuMu ? 'koyu' : 'açık'}  metin ${o.metinEnDusuk}  ikincil ${o.ikincilEnDusuk}  vurgu ${o.vurguEnDusuk}  düğme ${o.dugmeYazisi}/${o.dugmeUstDurak}  kenar ${o.kenarlik}`);
+  console.log(`  ${t.name.padEnd(16)} ${t.koyuMu ? 'koyu' : 'açık'}  metin ${o.metinEnDusuk}  ikincil ${o.ikincilEnDusuk}  vurgu ${o.vurguEnDusuk}  düğme ${o.dugmeYazisi}/${o.dugmeUstDurak}  kenar ${o.kenarlik}  arma-altın ${o.armaAltini}`);
 }
 console.log('  --- set renkleri (dokuz temanın tüm yüzeylerinde en düşük) ---');
 for (const r of veri.setler) {

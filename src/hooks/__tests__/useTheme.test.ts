@@ -30,10 +30,11 @@ describe('görünüm tercihi', () => {
     }
   });
 
-  it('ikinci modelin modu niyetine göre eşlenir', () => {
-    // Açık seçmiş kullanıcı açık kalır, koyu seçmiş koyu kalır.
-    expect(onAyarModu(cozTemayi(ayar({ themeMode: 'light' })) as string)).toBe('light');
-    expect(onAyarModu(cozTemayi(ayar({ themeMode: 'dark' })) as string)).toBe('dark');
+  it('ikinci modelin modu ONAYLI TABANA eşlenir, ek temaya değil', () => {
+    // "Açık" demiş kullanıcı onaylı parşömeni, "Koyu" demiş onaylı Gece'yi
+    // almalı. Ek temalardan birine yönlendirmek görünümü sessizce değiştirir.
+    expect(cozTemayi(ayar({ themeMode: 'light' }))).toBe('light');
+    expect(cozTemayi(ayar({ themeMode: 'dark' }))).toBe('dark');
     expect(cozTemayi(ayar({ themeMode: 'system' }))).toBe('system');
   });
 
@@ -42,14 +43,22 @@ describe('görünüm tercihi', () => {
     expect(cozTemayi(ayar({ themeMode: 'system', themeFamily: 'kizil-kale' }))).toBe('system');
   });
 
-  it('ilk modelin sekiz ön ayarı da niyetine göre eşlenir', () => {
+  it('ilk modelin sekiz ön ayarı da onaylı tabana eşlenir', () => {
     for (const eski of ['deniz', 'kum', 'gul', 'sis', 'lavanta', 'light'] as const) {
-      expect(onAyarModu(cozTemayi(ayar({ theme: eski })) as string)).toBe('light');
+      expect(cozTemayi(ayar({ theme: eski }))).toBe('light');
     }
     for (const eski of ['dark', 'orman', 'komur'] as const) {
-      expect(onAyarModu(cozTemayi(ayar({ theme: eski })) as string)).toBe('dark');
+      expect(cozTemayi(ayar({ theme: eski }))).toBe('dark');
     }
     expect(cozTemayi(ayar({ theme: 'system' }))).toBe('system');
+  });
+
+  it('onaylı tabanın üç hâli ek tema katmanını hiç devreye sokmuyor', () => {
+    // Bu üçü için `onAyarModu` null döner: ek tema kimliği değiller.
+    for (const t of ['system', 'light', 'dark'] as const) {
+      expect(cozTemayi(ayar({ themePreset: t }))).toBe(t);
+      if (t !== 'system') expect(onAyarModu(t)).toBeNull();
+    }
   });
 
   it('yeni alan varsa eski alanlar artık okunmuyor', () => {

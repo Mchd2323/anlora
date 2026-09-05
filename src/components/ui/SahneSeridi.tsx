@@ -7,9 +7,14 @@ import buzKalesi from '../../assets/themes/realms/realms-ice-fortress.webp';
  * Realms sahne şeridi: bir kartın tepesinde duran kompakt görsel.
  *
  * DÖRT SAHNE, SABİT DAĞILIM. Her alanın kendi sahnesi var ve o alan nerede
- * geçiyorsa aynı sahne kullanılıyor: setler kütüphane, Oxford buz kalesi,
- * sınav ejderha, günlük plan kuzgun-harita. Sahne böylece bir süs değil, o
- * bölümün işareti oluyor.
+ * geçiyorsa aynı sahne kullanılıyor: setler EJDERHA, sınav KÜTÜPHANE, Oxford
+ * buz kalesi, günlük plan kuzgun-harita. Sahne böylece bir süs değil, o
+ * bölümün işareti oluyor. (Ejderha ile kütüphane bir turda yer değiştirdi;
+ * eşleşmenin kaynağı son paketin zorunlu listesi.)
+ *
+ * ANA SAYFA MANŞETİ BU DÖRDÜNÜ KULLANMIYOR. Karuselin kendi üç görseli var
+ * (src/assets/themes/realms/carousel/); bu yüzden aynı sahne bir ekranda iki
+ * kez görünmüyor.
  *
  * KART BAŞINA BİR ŞERİT. Aynı sahne aynı ekranda iki kez çıkmasın diye her
  * sayfada yalnızca tek bir üst görsel var.

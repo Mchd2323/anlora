@@ -121,10 +121,19 @@ for (const [ad, kat] of Object.entries(YOGUNLUK)) {
       await ciz(sayfa, Math.round(48 * kat), 0.62, ZEMIN, 'yuvarlak-kare'));
   yaz(path.join(RES, `mipmap-${ad}/ic_launcher_round.png`),
       await ciz(sayfa, Math.round(48 * kat), 0.58, ZEMIN, 'daire'));
-  // Açılış ekranı logosu: 112 dp, katmanlı çizimde ortalanacak (bkz.
-  // drawable/splash.xml — orada `gravity="center"` ile ölçeklenmeden çizilir).
-  yaz(path.join(RES, `drawable-${ad}/splash_logo.png`),
-      await ciz(sayfa, Math.round(112 * kat), 1, null, 'kare'));
+  /*
+   * AÇILIŞ EKRANI LOGOSU BURADA ÜRETİLMİYOR — ÖLÇÜLEN REGRESYON.
+   *
+   * Bu betik bir süre her yoğunluğun splash_logo.png dosyasını da yazıyordu:
+   * 112 dp'lik çıplak logo. Ama o dosyanın sahibi make-splash.mjs ve oradaki
+   * çizim yalnızca logo değil, altında "Anlora" yazısı, altın ayraç ve
+   * "Words are power." satırı olan 220x210 dp'lik marka bloğu. İki betik aynı
+   * dosyaya yazınca sonuncusu kazanıyordu: simgeler yeniden üretildiğinde
+   * açılış ekranı sessizce marka yazısını kaybediyordu (mdpi 220x210 -> 112x112,
+   * xxxhdpi 880x840 -> 448x448; diskte doğrulandı).
+   *
+   * Açılış ekranı için: node scripts/android/make-splash.mjs
+   */
 }
 
 // PWA ve tarayıcı simgeleri.

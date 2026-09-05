@@ -59,6 +59,25 @@ const STUDY_MODES: { value: UserSettings['preferredStudyMode']; label: string; h
  * rengi vaat edemiyor.
  */
 
+/*
+ * Onaylı taban görünümün üç hâli. Renkler CSS'teki değerlerin ta kendisi:
+ * açık parşömen #F2E8D8 zemin + #15283D vurgu, kuzey gecesi #0D1925 zemin +
+ * #8FB8D4 vurgu. "Sistem" ikisini birden gösteriyor, çünkü seçenek zaten
+ * "telefonun ayarına göre bu ikisinden biri" demek.
+ */
+const TABAN_SECENEKLER = [
+  {
+    id: 'system' as const,
+    ad: 'Sistem',
+    yarimlar: [
+      { zemin: '#F2E8D8', vurgu: '#15283D' },
+      { zemin: '#0D1925', vurgu: '#8FB8D4' }
+    ]
+  },
+  { id: 'light' as const, ad: 'Açık', yarimlar: [{ zemin: '#F2E8D8', vurgu: '#15283D' }] },
+  { id: 'dark' as const, ad: 'Koyu', yarimlar: [{ zemin: '#0D1925', vurgu: '#8FB8D4' }] }
+];
+
 /**
  * Tek bir ek tema kutucuğu.
  *
@@ -378,46 +397,60 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
             <label className="block text-[10px] font-bold  tracking-wider text-[var(--text-muted)] mb-1.5">
               Görünüm
             </label>
-            <button
-              type="button"
-              onClick={() => update('themePreset', 'system')}
-              aria-pressed={aktifTema === 'system'}
-              className={`w-full p-2.5 rounded-xl border transition-all cursor-pointer flex items-center gap-3 text-left ${
-                aktifTema === 'system'
-                  ? 'bg-[var(--primary-soft)] border-[var(--primary)] ring-2 ring-[var(--primary)]/30'
-                  : 'bg-[var(--bg)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
-              }`}
-            >
-              {/*
-                Sistem tek kutucukta İKİ yarım gösteriyor: solda onaylı açık
-                görünüm, sağda onaylı koyu. Seçenek zaten "telefonun ayarına
-                göre bu ikisinden biri" demek; tek renk göstermek yanıltıcı
-                olurdu.
-              */}
-              <span
-                className="flex h-8 w-16 shrink-0 rounded-lg overflow-hidden border border-[var(--border-light)]"
-                aria-hidden="true"
-              >
-                <span className="flex-1 flex items-center justify-center" style={{ background: '#F2E8D8' }}>
-                  <span className="w-3 h-3 rounded-full" style={{ background: '#15283D' }} />
-                </span>
-                <span className="flex-1 flex items-center justify-center" style={{ background: '#0D1925' }}>
-                  <span className="w-3 h-3 rounded-full" style={{ background: '#8FB8D4' }} />
-                </span>
-              </span>
-              <span className="min-w-0">
-                <span
-                  className={`block text-xs font-bold ${
-                    aktifTema === 'system' ? 'text-[var(--primary)]' : 'text-[var(--text-primary)]'
-                  }`}
-                >
-                  Sistem
-                </span>
-                <span className="block text-[11px] text-[var(--text-muted)] leading-tight">
-                  Telefonun ayarını izler; açıkken parşömen, koyuyken gece.
-                </span>
-              </span>
-            </button>
+            {/*
+              ÜÇÜ DE AYNI ONAYLI GÖRÜNÜM. Aralarındaki tek fark telefonun
+              ayarını izleyip izlemedikleri: "Sistem" izliyor, "Açık" ve
+              "Koyu" sabitliyor. Üçü de ek tema katmanını hiç devreye
+              sokmuyor.
+
+              Bir ara yalnızca "Sistem" bırakılmıştı; o hâlde telefonu koyu
+              olan biri onaylı AÇIK görünümü hiçbir şekilde seçemiyordu.
+            */}
+            <div className="grid grid-cols-3 gap-1.5" role="group" aria-label="Anlora Realms görünümü">
+              {TABAN_SECENEKLER.map(t => {
+                const secili = aktifTema === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => update('themePreset', t.id)}
+                    aria-pressed={secili}
+                    aria-label={`${t.ad} görünümü`}
+                    className={`p-2 rounded-xl border transition-all cursor-pointer text-left ${
+                      secili
+                        ? 'bg-[var(--primary-soft)] border-[var(--primary)] ring-2 ring-[var(--primary)]/30'
+                        : 'bg-[var(--bg)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
+                    }`}
+                  >
+                    <span
+                      className="flex h-7 rounded-lg overflow-hidden border border-[var(--border-light)]"
+                      aria-hidden="true"
+                    >
+                      {t.yarimlar.map((y, i) => (
+                        <span
+                          key={i}
+                          className="flex-1 flex items-center justify-center"
+                          style={{ background: y.zemin }}
+                        >
+                          <span className="w-3 h-3 rounded-full" style={{ background: y.vurgu }} />
+                        </span>
+                      ))}
+                    </span>
+                    <span
+                      className={`block text-[10px] font-semibold leading-tight mt-1.5 ${
+                        secili ? 'text-[var(--primary)]' : 'text-[var(--text-primary)]'
+                      }`}
+                    >
+                      {t.ad}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-[11px] text-[var(--text-muted)] mt-1.5">
+              Anlora Realms'in kendi görünümü. "Sistem" telefonun ayarını izler;
+              diğer ikisi sabit kalır.
+            </p>
           </div>
 
           <div>

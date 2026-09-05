@@ -19,11 +19,6 @@ import { BRAND } from '../config/brand';
 import { useRemoteApi } from '../hooks/useRemoteApi';
 import { IntroCarousel } from './home/IntroCarousel';
 import { HomeHeroArt } from './HomeHeroArt';
-/*
- * Anlora Realms sahneleri. SVG olarak duruyorlar: pakete gömülü, çevrimdışı,
- * her ekran yoğunluğunda keskin ve dördü toplam 15 KB — aynı sahnelerin
- * yeterli çözünürlükte raster kopyaları yüzlerce KB tutardı.
- */
 import mansetGeyik from '../assets/themes/realms/carousel/carousel-stag-grove.webp';
 import mansetKule from '../assets/themes/realms/carousel/carousel-storm-watchtower.webp';
 import mansetSalon from '../assets/themes/realms/carousel/carousel-oath-chamber.webp';
