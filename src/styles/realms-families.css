@@ -341,3 +341,47 @@
   }
 }
 
+/* --------------------------------------------------------------------------
+   SET RENKLERİ
+
+   Kelime setinin rengi artık hex olarak değil paletteId olarak saklanıyor
+   (`collection.color = 'buz-kalesi'`). Aşağıdaki belirteçler o kimliğin
+   açık ve koyu karşılığını tutuyor, yani set rengi tema değişince kendiliğinden
+   doğru tarafa geçiyor — bileşende hesap yok, JavaScript'te renk yok.
+
+   Bu belirteçler SEÇİLİ AİLEDEN BAĞIMSIZ: kullanıcı temasını değiştirince
+   setlerinin rengi değişmemeli, yalnızca açık/koyu karşılığına geçmeli.
+   -------------------------------------------------------------------------- */
+:root,
+:root[data-theme='light'] {
+  --set-tacli-parsomen: #765A26;
+  --set-buz-kalesi: #2F6078;
+  --set-kuzgun-haritasi: #15283D;
+  --set-ejderha-koz: #8B3E20;
+  --set-kizil-kale: #7E2C2A;
+  --set-orman-nobeti: #355B4A;
+  --set-demir-gece: #3F4E5A;
+  --set-fildisi-altin: #6D5428;
+}
+:root[data-theme='dark'] {
+  --set-tacli-parsomen: #D4B56D;
+  --set-buz-kalesi: #9FC9DE;
+  --set-kuzgun-haritasi: #A8BED1;
+  --set-ejderha-koz: #E28F61;
+  --set-kizil-kale: #D9786D;
+  --set-orman-nobeti: #8BC6A1;
+  --set-demir-gece: #C1CDD4;
+  --set-fildisi-altin: #FBF7EF;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --set-tacli-parsomen: #D4B56D;
+    --set-buz-kalesi: #9FC9DE;
+    --set-kuzgun-haritasi: #A8BED1;
+    --set-ejderha-koz: #E28F61;
+    --set-kizil-kale: #D9786D;
+    --set-orman-nobeti: #8BC6A1;
+    --set-demir-gece: #C1CDD4;
+    --set-fildisi-altin: #FBF7EF;
+  }
+}

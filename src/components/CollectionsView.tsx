@@ -12,6 +12,7 @@ import { StudyFlashcard } from './study/StudyFlashcard';
 import { Layers, Search, Sparkles, BookOpen, GraduationCap, Tv, Briefcase, Plane, Merge, MoveRight, X, Pin, Trash2, Edit2, Copy, FileText, Check, CheckCircle2, Loader2, AlertCircle, GitMerge, ArrowUp, ArrowDown } from 'lucide-react';
 import { getPhraseCard } from '../services/phraseRepository';
 import { DeckOptionFields, DeckOptionValues } from './collections/DeckOptionFields';
+import { SET_RENKLERI, setPaletteId, setRengi } from '../theme/setColors';
 import { BatchWordModal } from './BatchWordModal';
 import { TextMinerModal } from './TextMinerModal';
 import { useModalA11y } from '../hooks/useModalA11y';
@@ -66,35 +67,6 @@ interface CollectionsViewProps {
 }
 
 /**
- * Set rengi seçenekleri.
- *
- * Altı renk yeter: daha fazlası seti tanınır kılmaz, yalnızca seçimi
- * zorlaştırır. Değerler uygulamanın kendi jetonlarından geliyor, rastgele
- * seçilmiş tonlar değil.
- */
-/*
- * Setlerin arma renkleri.
- *
- * KİMLİKLER DEĞİŞMİYOR. Renk, sette `color: 'amber'` gibi saklanıyor; kimliği
- * değiştirmek kullanıcının kurduğu bütün setlerin rengini varsayılana
- * düşürürdü. Bu yüzden yalnızca ad ve renk değeri Realms paletine taşındı —
- * her biri kendi renk ailesinde kaldı (mor→kuzey lacivert, petrol→buz,
- * yeşil→koru, kehribar→altın, gül→ejderha, gri→demir), yani kimsenin seti
- * tanınmaz hâle gelmiyor.
- *
- * Değerler ölçülerek seçildi: üstündeki beyaz simgeyle kontrast oranı en
- * düşük olan altın bile 4,98 — WCAG'ın 4,5 eşiğinin üstünde.
- */
-const DECK_COLORS: { id: string; label: string; hex: string }[] = [
-  { id: 'indigo', label: 'Kuzey', hex: '#1B3A57' },
-  { id: 'teal', label: 'Buz', hex: '#3A6982' },
-  { id: 'emerald', label: 'Koru', hex: '#355B4A' },
-  { id: 'amber', label: 'Altın', hex: '#8A6B2B' },
-  { id: 'rose', label: 'Ejderha', hex: '#9E3F38' },
-  { id: 'slate', label: 'Demir', hex: '#5A6272' }
-];
-
-/**
  * CEFR seviyeleri, kolaydan zora.
  *
  * Hem "Seviyeye göre" sıralaması hem de CSV içe aktarması aynı listeye
@@ -112,9 +84,7 @@ const DECK_ICONS: { id: string; label: string; Icon: React.ElementType }[] = [
   { id: 'Plane', label: 'Seyahat', Icon: Plane }
 ];
 
-export function deckColorHex(color?: string): string {
-  return DECK_COLORS.find(item => item.id === color)?.hex || DECK_COLORS[0].hex;
-}
+
 
 export function DeckIcon({ name, className }: { name?: string; className?: string }) {
   const entry = DECK_ICONS.find(item => item.id === name) || DECK_ICONS[0];
@@ -1413,7 +1383,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       */}
                       <span
                         className="hanedan-kapak w-8 h-8 rounded-xl flex items-center justify-center text-white shrink-0 mt-0.5"
-                        style={{ '--hanedan': deckColorHex(deck.color) } as React.CSSProperties}
+                        style={{ '--hanedan': setRengi(deck.color) } as React.CSSProperties}
                         aria-hidden="true"
                       >
                         <DeckIcon name={deck.iconName} className="w-4 h-4" />
@@ -2062,7 +2032,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               <DeckOptionFields
                 deger={newDeckOptions}
                 degistir={setNewDeckOptions}
-                renkler={DECK_COLORS}
+                renkler={SET_RENKLERI}
                 simgeler={DECK_ICONS}
               />
 
@@ -2144,7 +2114,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               <DeckOptionFields
                 deger={editingDeck}
                 degistir={yeniDeger => setEditingDeck({ ...editingDeck, ...yeniDeger })}
-                renkler={DECK_COLORS}
+                renkler={SET_RENKLERI}
                 simgeler={DECK_ICONS}
               />
 
@@ -2735,7 +2705,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   >
                     <span
                       className="hanedan-kapak w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0"
-                      style={{ '--hanedan': deckColorHex(deck.color) } as React.CSSProperties}
+                      style={{ '--hanedan': setRengi(deck.color) } as React.CSSProperties}
                     >
                       <DeckIcon name={deck.iconName} className="w-3.5 h-3.5" />
                     </span>

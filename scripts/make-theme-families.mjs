@@ -195,6 +195,31 @@ ${koyuGovde(a).split('\n').map(s => '  ' + s).join('\n')}
 `;
 }
 
+css += `/* --------------------------------------------------------------------------
+   SET RENKLERİ
+
+   Kelime setinin rengi artık hex olarak değil paletteId olarak saklanıyor
+   (\`collection.color = 'buz-kalesi'\`). Aşağıdaki belirteçler o kimliğin
+   açık ve koyu karşılığını tutuyor, yani set rengi tema değişince kendiliğinden
+   doğru tarafa geçiyor — bileşende hesap yok, JavaScript'te renk yok.
+
+   Bu belirteçler SEÇİLİ AİLEDEN BAĞIMSIZ: kullanıcı temasını değiştirince
+   setlerinin rengi değişmemeli, yalnızca açık/koyu karşılığına geçmeli.
+   -------------------------------------------------------------------------- */
+:root,
+:root[data-theme='light'] {
+${veri.map(a => `  --set-${a.id}: ${a.acik.vurgu};`).join('\n')}
+}
+:root[data-theme='dark'] {
+${veri.map(a => `  --set-${a.id}: ${a.koyu.vurgu};`).join('\n')}
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+${veri.map(a => `    --set-${a.id}: ${a.koyu.vurgu};`).join('\n')}
+  }
+}
+`;
+
 fs.writeFileSync(path.join(KOK, 'src/styles/realms-families.css'), css, 'utf8');
 
 /* ---------- TypeScript ---------- */
