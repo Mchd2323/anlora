@@ -1,5 +1,14 @@
 import React from 'react';
-import logo from '../../assets/brand/anlora-realms-logo.png';
+/*
+ * KÜÇÜK TÜREVİ KULLANILIYOR. Kaynak PNG 512x512 ve 194 KB; bu bileşen logoyu
+ * 22x25 CSS pikselinde çiziyor, yani üç kat yoğunlukta bile 66x75 piksel
+ * yetiyor. Ölçüldü: büyük dosya açılışta inen 470 KB'nin en büyük tek
+ * kalemiydi ve isteği React'in bağlandığı ana denk geliyordu. 256 pikselli
+ * WebP türevi 20 KB. Büyük PNG duruyor; uygulama simgesini ve açılış
+ * görselini üreten betikler onu diskten okuyor.
+ * Türevi üretmek için: node scripts/make-logo-webp.mjs
+ */
+import logo from '../../assets/brand/anlora-realms-logo-256.webp';
 import kalkan from '../../assets/themes/realms/ornaments/crest-plaque.svg';
 
 /**
