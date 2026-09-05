@@ -484,7 +484,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <div className="pt-0.5">
               <button
                 onClick={onOpenAuthModal}
-                className="px-3.5 py-1.5 bg-[var(--learning)] hover:bg-[var(--learning-hover)] text-[var(--surface)] font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+                className="px-3.5 py-1.5 bg-[var(--learning-fill)] hover:bg-[var(--learning)] text-[var(--on-learning)] font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
               >
                 Hesap Oluştur
               </button>
@@ -671,7 +671,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                       `?subject=${encodeURIComponent(konu)}` +
                       `&body=${encodeURIComponent(kelimeler.join('\n'))}`;
                   }}
-                  className="px-3.5 py-2 bg-[var(--learning)] hover:opacity-90 text-[var(--surface)] text-[11px] font-bold rounded-lg cursor-pointer inline-flex items-center gap-1.5"
+                  className="px-3.5 py-2 bg-[var(--learning-fill)] hover:opacity-90 text-[var(--on-learning)] text-[11px] font-bold rounded-lg cursor-pointer inline-flex items-center gap-1.5"
                 >
                   <Send className="w-3.5 h-3.5" />
                   Kelimeleri gönder

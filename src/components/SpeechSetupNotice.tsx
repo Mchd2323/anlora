@@ -77,7 +77,7 @@ export const SpeechSetupNotice: React.FC<{ className?: string }> = ({ className 
                 );
               }
             }}
-            className="px-3 py-2 bg-[var(--learning)] hover:opacity-90 disabled:opacity-60 text-[var(--surface)] text-[11px] font-bold rounded-lg cursor-pointer inline-flex items-center gap-1.5"
+            className="px-3 py-2 bg-[var(--learning-fill)] hover:opacity-90 disabled:opacity-60 text-[var(--on-learning)] text-[11px] font-bold rounded-lg cursor-pointer inline-flex items-center gap-1.5"
           >
             <RealmsIcon name="download" size={18} aria-hidden="true" />
             {aciliyor ? 'Açılıyor…' : 'Ses paketini kur'}

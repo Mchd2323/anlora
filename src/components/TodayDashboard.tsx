@@ -238,7 +238,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
                 <button
                   type="button"
                   onClick={onOpenAuthModal}
-                  className="px-3 py-1.5 bg-[var(--learning)] hover:opacity-90 text-[var(--surface)] text-[11px] font-bold rounded-lg cursor-pointer"
+                  className="px-3 py-1.5 bg-[var(--learning-fill)] hover:opacity-90 text-[var(--on-learning)] text-[11px] font-bold rounded-lg cursor-pointer"
                 >
                   Hesap aç
                 </button>
@@ -246,7 +246,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigateToTab?.('profile')}
-                  className="px-3 py-1.5 bg-[var(--learning)] hover:opacity-90 text-[var(--surface)] text-[11px] font-bold rounded-lg cursor-pointer"
+                  className="px-3 py-1.5 bg-[var(--learning-fill)] hover:opacity-90 text-[var(--on-learning)] text-[11px] font-bold rounded-lg cursor-pointer"
                 >
                   Yedek al
                 </button>

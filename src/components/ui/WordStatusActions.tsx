@@ -64,7 +64,7 @@ export const WordStatusActions: React.FC<WordStatusActionsProps> = ({
         aria-pressed={isReview}
         className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl font-semibold transition-all duration-150 border cursor-pointer select-none active:scale-[0.98] ${btnPadding} ${
           isReview
-            ? 'bg-[var(--learning)] text-[var(--surface)] border-[var(--learning)] font-bold shadow-md ring-2 ring-[var(--learning)]/30 scale-[1.02]'
+            ? 'bg-[var(--learning-fill)] text-[var(--on-learning)] border-[var(--learning)] font-bold shadow-md ring-2 ring-[var(--learning)]/30 scale-[1.02]'
             : 'bg-[var(--bg)] hover:bg-[var(--learning-soft)]/70 text-[var(--text-secondary)] hover:text-[var(--learning-text)] border-[var(--border)]'
         }`}
         title="Tekrar Et listesine ekle / çıkar"

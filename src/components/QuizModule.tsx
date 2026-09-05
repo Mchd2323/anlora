@@ -8,7 +8,7 @@ import {
   QuizSessionSummary,
   ResponseQuality
 } from '../types';
-import { Sparkles, CheckCircle2, XCircle, ArrowRight, Award, Check, CheckSquare, Square } from 'lucide-react';
+import { Sparkles, CheckCircle2, XCircle, ArrowRight, Check, CheckSquare, Square } from 'lucide-react';
 import { speakText } from '../utils/speech';
 import {
   QuizQuestion,
@@ -23,6 +23,7 @@ import { LearningStatusControl } from './ui/LearningStatusControl';
 import { BRAND } from '../config/brand';
 import { OxfordGroupKey } from '../types/oxford';
 import { RealmsIcon } from './ui/RealmsIcon';
+import { RealmsFigure } from './ui/RealmsFigure';
 
 /** Sınav kaynağı olarak seçilebilen Oxford grupları. */
 /*
@@ -535,7 +536,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                   onClick={() => setStatusFilter('LEARNING')}
                   className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all border cursor-pointer ${
                     statusFilter === 'LEARNING'
-                      ? 'bg-[var(--learning)] text-[var(--surface)] border-[var(--learning)]'
+                      ? 'bg-[var(--learning-fill)] text-[var(--on-learning)] border-[var(--learning)]'
                       : 'bg-[var(--bg)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
                   }`}
                 >
@@ -852,9 +853,12 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
       {quizState === 'FINISHED' && (
         <div className="parsomen-panel bg-[var(--surface)] p-6 sm:p-8 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
           <div className="text-center space-y-1.5">
-            <div className="w-12 h-12 rounded-xl bg-[var(--learned-soft)] text-[var(--learned)] flex items-center justify-center mx-auto">
-              <Award className="w-6 h-6" />
-            </div>
+            {/*
+              KURT. Yalnızca sınav bittikten sonraki sonuç kartında, hemen
+              altındaki doğru/yanlış/başarı üçlüsünün yanında duran tek
+              dekoratif figür. Sınav sorularında görünmüyor.
+            */}
+            <RealmsFigure figur="kurt" yukseklik={88} className="mx-auto" />
             {cevaplananSayisi > 0 && score / cevaplananSayisi >= 0.7 ? (
               <div className="space-y-1">
                 <div className="text-base font-bold text-[var(--primary)]">

@@ -95,6 +95,15 @@
      * düğmelerinde kontrast 1,00, yani yazı tamamen görünmezdi.
      */
     --on-primary: #FBF7EF;
+    /*
+     * TEKRAR DÜĞMESİNİN DOLGUSU. --learning (#B66038) düz bir düğme zemini
+     * olarak kullanıldığında üstündeki en açık mürekkep bile 4,16 ölçüyor;
+     * yani hiçbir yazı rengi 4,5 eşiğini geçemiyor. Düz dolgular bu yüzden
+     * paletteki bir tık koyu --learning-strong değerini kullanıyor (4,85).
+     * Rozetler, ilerleme çubukları ve kenarlıklar --learning'te kaldı.
+     */
+    --learning-fill: #A05C28;
+    --on-learning: #FBF7EF;
 
     /*
      * MÜREKKEP. Ana metin artık nötr gri değil, gece laciverti — paketin
@@ -821,6 +830,8 @@
   --arma-alan: #15283D;
     /* Koyu temada --primary ACIK bir renk; ustundeki yazi koyu murekkep olmali. */
     --on-primary: #142433;
+    --learning-fill: #D9954F;
+    --on-learning: #142433;
 }
 }
 
@@ -875,6 +886,8 @@
   --arma-alan: #15283D;
     /* Koyu temada --primary ACIK bir renk; ustundeki yazi koyu murekkep olmali. */
     --on-primary: #142433;
+    --learning-fill: #D9954F;
+    --on-learning: #142433;
 }
 }
 
@@ -1324,6 +1337,8 @@ textarea:focus-visible,
   /* Koyu temada --primary ACIK bir renk (olculdu); ustundeki yazi bu yuzden
      koyu murekkep olmali. Paketin onerdigi acik #F2EBDD burada 1.77 olcuyor. */
   --on-primary: #142433;
+  --learning-fill: #D9954F;
+  --on-learning: #142433;
 }
 
 

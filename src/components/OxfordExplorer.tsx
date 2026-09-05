@@ -665,7 +665,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
               onClick={() => setStatusFilter(statusFilter === 'LEARNING' ? 'ALL' : 'LEARNING')}
               className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg font-semibold transition-colors cursor-pointer border ${
                 statusFilter === 'LEARNING'
-                  ? 'bg-[var(--learning)] text-[var(--surface)] border-[var(--learning)]'
+                  ? 'bg-[var(--learning-fill)] text-[var(--on-learning)] border-[var(--learning)]'
                   : 'text-[var(--learning-text)] border-transparent hover:bg-[var(--learning-soft-hover)]'
               }`}
             >

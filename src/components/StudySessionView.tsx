@@ -8,7 +8,7 @@ import {
   UserSettings,
   StudySessionSummary
 } from '../types';
-import { Brain, Check, CheckCircle2, XCircle, ArrowRight, Zap, Flame, Award } from 'lucide-react';
+import { Check, CheckCircle2, XCircle, ArrowRight, Zap, Flame, Award } from 'lucide-react';
 import { sample } from '../utils/random';
 import { PronounceButtons } from './ui/PronounceButtons';
 import { speakText } from '../utils/speech';
@@ -20,6 +20,7 @@ import { CEFRBadge } from './ui/CEFRBadge';
 import { shouldShowCefr } from '../types/oxford';
 import { readJSON, writeJSON } from '../utils/safeStorage';
 import { RealmsIcon } from './ui/RealmsIcon';
+import { RealmsFigure } from './ui/RealmsFigure';
 
 /** Son seçilen çalışma modu; oturum bunu hatırlar. */
 const SON_MOD_ANAHTARI = 'anlora.sonCalismaModu.v1';
@@ -369,9 +370,13 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
       <div className="max-w-[760px] mx-auto space-y-6 pb-safe-nav animate-fadeIn">
         <div className="parsomen-panel bg-[var(--surface)] rounded-2xl p-6 sm:p-8 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
           <div className="text-center space-y-1.5">
-            <div className="w-10 h-10 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center mx-auto">
-              <Brain className="w-5 h-5" />
-            </div>
+            {/*
+              KARGA. Çalışma oturumunun başlangıç ekranında tek dekoratif
+              figür. Genel amaçlı beyin ikonunun yerini alıyor; başlığın
+              üstünde ortalanmış, hiçbir metnin ya da düğmenin üstüne
+              binmiyor ve oturum boyunca bir daha görünmüyor.
+            */}
+            <RealmsFigure figur="karga" yukseklik={64} className="mx-auto" />
             <h2 className="baslik-yazit text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
               Kartları Çalış
             </h2>
