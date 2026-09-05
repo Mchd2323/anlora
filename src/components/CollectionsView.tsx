@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback, useId, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useId, useRef, startTransition } from 'react';
 import {
   Collection,
   CollectionMembership,
@@ -503,6 +503,71 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
       return { ...card, sourceContext: baglam, sourceName: kaynak };
     });
   }, [filteredWords, memberships, activeDeck]);
+
+  /*
+   * LİSTE PENCERESİ — kartlar parça parça basılıyor.
+   *
+   * ÖLÇÜLEN SORUN. Set açıkken filtrelenmiş listenin TAMAMI tek seferde DOM'a
+   * basılıyordu. 75 kelimelik bir sette bu 5.892 düğüm ve 26.564 piksellik bir
+   * sayfa demek; Setlerim sekmesine geçerken ekranın oturması 278 ms sürüyordu
+   * (en kötü örnek 446 ms), `UpdateLayoutTree` 565,3 ms / 93 olay, 54 kare
+   * düşüyordu. Zayıf telefonda (CPU 8x) kaydırmanın darboğazı da buydu: gövde
+   * dokusunu ve kart gölgelerini tamamen kapatmak bile kare sayılarını
+   * düzeltmiyordu, çünkü mesele boyama değil DOM boyutuydu.
+   *
+   * ÇÖZÜM. Önce bir pencere kadar kart basılıyor; listenin sonuna yaklaşıldıkça
+   * pencere büyüyor. Ekranda YENİ BİR ÖĞE YOK — "Daha fazla göster" gibi bir
+   * düğme eklenmedi, çünkü kullanıcının gördüğü akış değişmemeli. Gözlemci
+   * görünüm alanının 600 piksel öncesinde tetikleniyor, yani sonraki kartlar
+   * kullanıcı oraya varmadan hazır oluyor.
+   *
+   * `IntersectionObserver` yoksa (çok eski bir WebView) pencere açılmıyor ve
+   * liste eskisi gibi bütün olarak basılıyor: davranış bozulmuyor, yalnızca
+   * kazanç olmuyor.
+   */
+  const LISTE_PENCERESI = 24;
+  const [pencereBoyu, setPencereBoyu] = useState(LISTE_PENCERESI);
+  const listeSonuRef = useRef<HTMLDivElement | null>(null);
+
+  // Set, süzgeç, arama ya da sıralama değişince pencere başa dönmeli; yoksa
+  // yeni listede eskisinin uzunluğu kalır.
+  useEffect(() => {
+    setPencereBoyu(
+      typeof IntersectionObserver === 'undefined' ? gorunenKartlar.length : LISTE_PENCERESI
+    );
+  }, [gorunenKartlar]);
+
+  const pencereKartlari = useMemo(
+    () => gorunenKartlar.slice(0, pencereBoyu),
+    [gorunenKartlar, pencereBoyu]
+  );
+
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') return;
+    if (pencereBoyu >= gorunenKartlar.length) return;
+    const nokta = listeSonuRef.current;
+    if (!nokta) return;
+    const gozlemci = new IntersectionObserver(
+      girisler => {
+        if (!girisler.some(g => g.isIntersecting)) return;
+        /*
+         * `startTransition`: pencere büyümesi ACİL DEĞİL. Parmak kaydırırken
+         * yeni kartların render'ı öncelikli işe girerse kaydırma bir kare
+         * kaybediyor — ölçüldü, kısa bir süpürmede 16,7 ms üstü kare sayısı
+         * 27'den 39'a çıkmıştı. Düşük öncelikli güncelleme, React'in bu işi
+         * kaydırma karelerinin arasına yaymasını sağlıyor.
+         */
+        startTransition(() => {
+          setPencereBoyu(n => Math.min(n + LISTE_PENCERESI, gorunenKartlar.length));
+        });
+      },
+      // Görünüm alanının 1200 piksel öncesi: kartlar kullanıcı oraya varmadan
+      // çok önce hazır oluyor, böylece büyüme kaydırmanın ortasına denk gelmiyor.
+      { rootMargin: '1200px 0px' }
+    );
+    gozlemci.observe(nokta);
+    return () => gozlemci.disconnect();
+  }, [pencereBoyu, gorunenKartlar.length]);
 
   /** Sette hiç kalıp/deyim yoksa süzgeci çizmenin anlamı yok. */
   const setteKalipVar = useMemo(
@@ -1880,8 +1945,9 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
             {/* Words Grid or Empty State */}
             {filteredWords.length > 0 ? (
+              <>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {gorunenKartlar.map((card) => {
+                {pencereKartlari.map((card) => {
                   const state = learningStates[card.id];
                   const isSelected = selectedIds.has(card.id);
 
@@ -1927,6 +1993,10 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   );
                 })}
               </div>
+              {pencereKartlari.length < gorunenKartlar.length && (
+                <div ref={listeSonuRef} aria-hidden="true" className="h-px" />
+              )}
+              </>
             ) : (
               /* Empty Set View */
               <div className="parsomen-panel bg-[var(--surface)] p-10 rounded-2xl border border-[var(--border)] text-center space-y-3 shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
