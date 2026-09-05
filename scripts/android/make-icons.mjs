@@ -31,8 +31,19 @@ const PUBLIC = path.join(ROOT, 'public');
 const KAYNAK = path.join(ROOT, 'src/assets/brand/anlora-realms-logo.png');
 const EXE = process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium';
 
-/** Realms kuzey laciverti — simge zemini. */
-const LACIVERT = '#15283D';
+/**
+ * Simge zemini — PARŞÖMEN, LACİVERT DEĞİL.
+ *
+ * ÖLÇÜLDÜ: logonun görünür piksellerinin %57,9'u koyu (ortalama parlaklık
+ * 93/255), çünkü arma ve kitap kuzey laciverti. Zemin de lacivert olunca
+ * (eski değer #15283D) arma zemine karışıyor ve Android'in güvenlik/izin
+ * ekranlarındaki küçük kutuda uygulama tanınmıyordu. Parşömen zeminde aynı
+ * arma ve altın çizgiler net duruyor.
+ *
+ * Değeri `values/ic_launcher_background.xml` ile AYNI olmalı: uyarlanabilir
+ * simgenin zemini oradan, eski (API < 26) simgelerin zemini buradan geliyor.
+ */
+const ZEMIN = '#F8F1E4';
 /** Realms parşömeni — açılış ekranı zemini. */
 const PARSOMEN = '#F2EBDD';
 
@@ -107,9 +118,9 @@ for (const [ad, kat] of Object.entries(YOGUNLUK)) {
       await ciz(sayfa, Math.round(108 * kat), 0.58, null, 'kare'));
   // Eski (API < 26) simgeler: zemin katmanı yok, kendi zeminlerini taşırlar.
   yaz(path.join(RES, `mipmap-${ad}/ic_launcher.png`),
-      await ciz(sayfa, Math.round(48 * kat), 0.62, LACIVERT, 'yuvarlak-kare'));
+      await ciz(sayfa, Math.round(48 * kat), 0.62, ZEMIN, 'yuvarlak-kare'));
   yaz(path.join(RES, `mipmap-${ad}/ic_launcher_round.png`),
-      await ciz(sayfa, Math.round(48 * kat), 0.58, LACIVERT, 'daire'));
+      await ciz(sayfa, Math.round(48 * kat), 0.58, ZEMIN, 'daire'));
   // Açılış ekranı logosu: 112 dp, katmanlı çizimde ortalanacak (bkz.
   // drawable/splash.xml — orada `gravity="center"` ile ölçeklenmeden çizilir).
   yaz(path.join(RES, `drawable-${ad}/splash_logo.png`),
@@ -118,11 +129,11 @@ for (const [ad, kat] of Object.entries(YOGUNLUK)) {
 
 // PWA ve tarayıcı simgeleri.
 for (const boy of [192, 512]) {
-  yaz(path.join(PUBLIC, `icon-${boy}.png`), await ciz(sayfa, boy, 0.70, LACIVERT, 'yuvarlak-kare'));
+  yaz(path.join(PUBLIC, `icon-${boy}.png`), await ciz(sayfa, boy, 0.70, ZEMIN, 'yuvarlak-kare'));
 }
-yaz(path.join(PUBLIC, 'icon-180.png'), await ciz(sayfa, 180, 0.70, LACIVERT, 'yuvarlak-kare'));
+yaz(path.join(PUBLIC, 'icon-180.png'), await ciz(sayfa, 180, 0.70, ZEMIN, 'yuvarlak-kare'));
 // Maskelenebilir simgede güvenli alan ortadaki %80; içerik %60'ta tutuluyor.
-yaz(path.join(PUBLIC, 'icon-512-maskable.png'), await ciz(sayfa, 512, 0.60, LACIVERT, 'kare'));
+yaz(path.join(PUBLIC, 'icon-512-maskable.png'), await ciz(sayfa, 512, 0.60, ZEMIN, 'kare'));
 
 await tarayici.close();
 console.log('make-icons: Android simgeleri, açılış logosu ve PWA simgeleri üretildi.');

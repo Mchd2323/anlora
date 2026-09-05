@@ -382,13 +382,14 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
       {/*
         1. Sınav Kurulum Ekranı.
 
-        SAHNE ŞERİDİ: EJDERHA. Sayfanın tek üst görseli. Sahne artık alanın
-        işareti — sınav nerede geçerse ejderha orada — ve yalnızca kurulum
+        SAHNE ŞERİDİ: KÜTÜPHANE. Sayfanın tek üst görseli. Sahne alanın
+        işareti — sınav nerede geçerse kütüphane orada — ve yalnızca kurulum
         ekranında duruyor: sorularda da, sonuç kartında da görünmüyor.
+        (Ejderha artık setlerin işareti; ikisi yer değiştirdi.)
       */}
       {quizState === 'IDLE' && (
         <div className="gorsel-panel bg-[var(--surface)] rounded-2xl border border-[var(--border)] overflow-hidden">
-          <SahneSeridi sahne="ejderha" oncelikli />
+          <SahneSeridi sahne="kitaplik" oncelikli />
           <div className="p-6 sm:p-8 space-y-6">
           <div className="text-center space-y-1.5">
             <div className="w-10 h-10 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center mx-auto">

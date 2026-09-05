@@ -528,7 +528,13 @@
    */
   .dugme-birincil {
     background-image: linear-gradient(180deg, var(--dugme-ust) 0%, var(--primary) 100%);
-    border: 1px solid var(--gold-ornament);
+    /*
+     * Kenarlık bir BELİRTEÇ, sabit altın değil. Tabanda (Sistem) yine altın:
+     * `--dugme-kenar` varsayılanı `--gold-ornament`. Ek temalar kendi
+     * vurgularından türeyen bir kenarlık veriyor, çünkü yeşil ya da kızıl bir
+     * düğmenin çevresindeki altın çizgi o temaya ait değil.
+     */
+    border: 1px solid var(--dugme-kenar, var(--gold-ornament));
     /*
      * Metin ve ikonlar daima açık. Sınıf koyu bir dolgu boyadığı için rengi
      * burada zorunlu kılmak, bir bileşende unutulsa bile okunmayı garantiliyor.
@@ -632,7 +638,19 @@
   gap: 10px;
   min-height: 28px;
   overflow: hidden;
-  color: #7faac2;
+  /*
+   * GLİFİN RENGİ BİR BELİRTEÇ, SABİT HEX DEĞİL.
+   *
+   * Buradaki değer #7faac2 olarak sabit yazılıydı. Taban temada bu, paletin
+   * kendi buz mavisiydi ve doğru duruyordu; ama ek temalar geldiğinde motif
+   * glifi tema dışında kalıyordu — sepya "Kadim Harita" panelinin üstünde
+   * buz mavisi bir glif (ölçüldü: 2,28 kontrast, ve renk ailesi hiç tutmuyor).
+   *
+   * `--motif-glif` varsayılanı aynı buz mavisi olduğu için TABAN TEMA HİÇ
+   * DEĞİŞMİYOR; ek temalar bu belirteci kendi vurgularıyla geçersiz kılıyor.
+   * Glif dekoratif ve `aria-hidden`; amaç okunabilirlik değil, tema bütünlüğü.
+   */
+  color: var(--motif-glif, #7faac2);
 }
 
 .realm-card-motif::after {
@@ -847,7 +865,20 @@
   --line-inner: rgba(127, 170, 194, 0.20);
   --cubuk-zemin: rgb(20 36 51 / 0.96);
   --menu-zemin: rgb(20 36 51 / 0.97);
-  --dugme-ust: #2A4A66;
+  /*
+   * ÖLÇÜLEN HATA: bu değer #2A4A66 idi.
+   *
+   * Birincil düğmenin dolgusu bir degrade: üstte --dugme-ust, altta
+   * --primary. Koyu temada --primary AÇIK bir renk (#8FB8D4) olduğu için
+   * yazı koyu (--on-primary #142433). Ama üst durak lacivert kalmıştı;
+   * düğmenin üst yarısında koyu yazı koyu zeminin üstüne düşüyor ve
+   * kontrast 1,71 ölçüyordu — okunmuyordu.
+   *
+   * Yeni değer --primary'nin bir tık açığı (OKLCH'te +0,03 açıklık):
+   * degradenin hafif üst parlaması duruyor, kontrast 8,35'e çıkıyor.
+   * Değişen tek şey bu durak; temanın geri kalanına dokunulmadı.
+   */
+  --dugme-ust: #98C2DE;
   --panel-isik: rgb(255 255 255 / 0.05);
   --dugme-golge: rgb(0 0 0 / 0.35);
   --kose-opaklik: 0.85;
@@ -880,7 +911,20 @@
   --line-inner: rgba(127, 170, 194, 0.20);
   --cubuk-zemin: rgb(20 36 51 / 0.96);
   --menu-zemin: rgb(20 36 51 / 0.97);
-  --dugme-ust: #2A4A66;
+  /*
+   * ÖLÇÜLEN HATA: bu değer #2A4A66 idi.
+   *
+   * Birincil düğmenin dolgusu bir degrade: üstte --dugme-ust, altta
+   * --primary. Koyu temada --primary AÇIK bir renk (#8FB8D4) olduğu için
+   * yazı koyu (--on-primary #142433). Ama üst durak lacivert kalmıştı;
+   * düğmenin üst yarısında koyu yazı koyu zeminin üstüne düşüyor ve
+   * kontrast 1,71 ölçüyordu — okunmuyordu.
+   *
+   * Yeni değer --primary'nin bir tık açığı (OKLCH'te +0,03 açıklık):
+   * degradenin hafif üst parlaması duruyor, kontrast 8,35'e çıkıyor.
+   * Değişen tek şey bu durak; temanın geri kalanına dokunulmadı.
+   */
+  --dugme-ust: #98C2DE;
   --panel-isik: rgb(255 255 255 / 0.05);
   --dugme-golge: rgb(0 0 0 / 0.35);
   --kose-opaklik: 0.85;
@@ -1239,7 +1283,20 @@ textarea:focus-visible,
   --line-inner: rgba(127, 170, 194, 0.20);
   --cubuk-zemin: rgb(20 36 51 / 0.96);
   --menu-zemin: rgb(20 36 51 / 0.97);
-  --dugme-ust: #2A4A66;
+  /*
+   * ÖLÇÜLEN HATA: bu değer #2A4A66 idi.
+   *
+   * Birincil düğmenin dolgusu bir degrade: üstte --dugme-ust, altta
+   * --primary. Koyu temada --primary AÇIK bir renk (#8FB8D4) olduğu için
+   * yazı koyu (--on-primary #142433). Ama üst durak lacivert kalmıştı;
+   * düğmenin üst yarısında koyu yazı koyu zeminin üstüne düşüyor ve
+   * kontrast 1,71 ölçüyordu — okunmuyordu.
+   *
+   * Yeni değer --primary'nin bir tık açığı (OKLCH'te +0,03 açıklık):
+   * degradenin hafif üst parlaması duruyor, kontrast 8,35'e çıkıyor.
+   * Değişen tek şey bu durak; temanın geri kalanına dokunulmadı.
+   */
+  --dugme-ust: #98C2DE;
   --panel-isik: rgb(255 255 255 / 0.05);
   --dugme-golge: rgb(0 0 0 / 0.35);
   --kose-opaklik: 0.85;
@@ -1255,10 +1312,14 @@ textarea:focus-visible,
 
 
 /* ==========================================================================
-   Realms tema aileleri
+   Ek temalar ve set renkleri
    ==========================================================================
-   Sekiz aile yalnızca VURGU belirteçlerini değiştiriyor; sayfa, panel, iç
-   kart ve metin renkleri her ailede aynı kalıyor. Dosya üretilmiştir
-   (scripts/make-theme-families.mjs) ve en sonda duruyor ki temel değerlerin
-   üstüne yazsın. */
-@import './styles/realms-families.css';
+   "Sistem" bu dosyada YOK: o, yukarıdaki onaylı açık/koyu görünümün kendisi
+   ve işletim sistemini izliyor. Aşağıdaki dosya yalnızca EK sekiz temayı
+   (dört açık, dört koyu) ve kelime seti vurgu renklerini taşıyor.
+
+   Ek bir tema seçildiğinde köke iki öznitelik yazılıyor: `data-theme` taban
+   anlamsal paleti (CEFR, öğrendim, tekrar…) getiriyor, `data-realm-preset`
+   ise zemin, panel, metin ve vurguyu değiştiriyor. Dosya üretilmiştir
+   (scripts/make-theme-presets.mjs) ve en sonda duruyor. */
+@import './styles/realms-presets.css';

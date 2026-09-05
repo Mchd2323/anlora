@@ -1271,13 +1271,13 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     <div className="space-y-6 pb-safe-nav max-w-[1180px] mx-auto animate-fadeIn">
       {/* Top Banner: Kelime Setlerim */}
       {/*
-        Sayfanın tek üst görseli: kütüphane sahnesi. Ana Sayfa'daki "Kelime
-        Setlerim" kutusuyla aynı sahne, çünkü sahne artık o bölümün işareti.
-        Köşe filigranı fotoğrafın üstünde okunmadığı için panel
-        `gorsel-panel`.
+        Sayfanın tek üst görseli: EJDERHA sahnesi. Ana Sayfa'daki "Kelime
+        Setlerim" kutusuyla aynı sahne, çünkü sahne o bölümün işareti — set
+        nerede geçerse ejderha orada. Köşe filigranı fotoğrafın üstünde
+        okunmadığı için panel `gorsel-panel`.
       */}
       <div className="gorsel-panel bg-[var(--surface)] rounded-2xl border border-[var(--border)] overflow-hidden">
-        <SahneSeridi sahne="kitaplik" oncelikli />
+        <SahneSeridi sahne="ejderha" oncelikli />
         <div className="p-6 sm:p-7 flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
         <div className="space-y-1">
           <div className="flex items-center gap-2">

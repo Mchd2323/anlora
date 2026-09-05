@@ -24,9 +24,9 @@ import { HomeHeroArt } from './HomeHeroArt';
  * her ekran yoğunluğunda keskin ve dördü toplam 15 KB — aynı sahnelerin
  * yeterli çözünürlükte raster kopyaları yüzlerce KB tutardı.
  */
-import sahneKitaplik from '../assets/themes/realms/realms-library.webp';
-import sahneKuzgun from '../assets/themes/realms/realms-raven-map.webp';
-import sahneEjderha from '../assets/themes/realms/realms-dragon.webp';
+import mansetGeyik from '../assets/themes/realms/carousel/carousel-stag-grove.webp';
+import mansetKule from '../assets/themes/realms/carousel/carousel-storm-watchtower.webp';
+import mansetSalon from '../assets/themes/realms/carousel/carousel-oath-chamber.webp';
 import { SahneSeridi } from './ui/SahneSeridi';
 import { RealmsIcon } from './ui/RealmsIcon';
 
@@ -304,8 +304,8 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
               index: 1,
               oncelikli: true,
               title: 'Kendi setlerin',
-              gorsel: sahneKitaplik,
-              gorselAlt: 'Mum ışığında, rafları kitap dolu eski bir kütüphane; masada açık kitaplar',
+              gorsel: mansetGeyik,
+              gorselAlt: 'Kızıl sonbahar korusunda dikilitaşların arasında duran siyah geyik',
               body: (
                 <>
                   Okurken, izlerken not ettiğin kelimeleri yükle; kendi setini kur ve her
@@ -317,8 +317,8 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
             {
               index: 2,
               title: 'Oxford kelime listesi',
-              gorsel: sahneKuzgun,
-              gorselAlt: 'Mum ışığında eski bir haritanın başında duran kuzgun',
+              gorsel: mansetKule,
+              gorselAlt: 'Fırtınalı kıyıda sancağı dalgalanan gözetleme kulesi',
               body: (
                 <>
                   Oxford Üniversitesi'nin{' '}
@@ -332,8 +332,8 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
             {
               index: 3,
               title: 'Kendini sına',
-              gorsel: sahneEjderha,
-              gorselAlt: 'Gün batımında bir kalenin üzerinde süzülen ejderha',
+              gorsel: mansetSalon,
+              gorselAlt: 'Boş yemin salonunda tören koltuğu ve yanan mangal',
               body: (
                 <>
                   İstediğin kaynaktan, istediğin sınav türünde ve soru sayısında kendini test et;
@@ -386,22 +386,22 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
       */}
       {/* 1. KELİME SETLERİM */}
       {/*
-        BURAYA KÜTÜPHANE ŞERİDİ KONMADI — ÖLÇÜLDÜ.
+        EJDERHA ŞERİDİ — ARTIK ÇAKIŞMA YOK.
 
-        Paketin önerdiği dağılım bu kutuya kütüphane sahnesini veriyor, ama
-        paketin kendi kuralı "aynı sahne aynı viewport içinde iki kez
-        görünmesin" diyor. Ekranda ölçtüm: karuselin birinci slaytı
-        (kütüphane) 360x780'de y 199-346 arasında, bu kutunun şeridi ise
-        y 485-581 arasında kalıyor; 480x1000'de 204-334 ve 435-531. İkisi de
-        aynı viewport'un içinde, yani kullanıcı kütüphaneyi tek ekranda iki
-        kez görüyor.
+        Bir önceki turda buraya şerit konmamıştı: önerilen kütüphane sahnesi
+        karuselin birinci slaytıyla aynı viewport'a düşüyordu (ölçüldü:
+        360x780'de y 199-346 ve 485-581). Manşet karuseli artık dört sahneyi
+        değil, kendine ait üç özgün görseli gösteriyor; sahnelerden hiçbiri
+        karuselde yok. Çakışma ortadan kalktığı için paketin zorunlu
+        eşleşmesi uygulanabiliyor: bu kutu ejderha sahnesini alıyor.
 
-        Kural bir buyruk, dağılım ise paketin kendi deyişiyle bir "öneri".
-        Bu yüzden kutu eski hâlinde bırakıldı. Ana Sayfa'nın diğer iki şeridi
-        (Oxford 5000 -> buz kalesi, Günlük Plan -> kuzgun harita) duruyor;
-        onlar karuseldeki eşleriyle aynı viewport'a düşmüyor.
+        Panel bu yüzden `parsomen-panel` değil `gorsel-panel`: altın köşe
+        filigranı fotoğrafın üstünde süs gibi değil, karışmış bir çizgi gibi
+        okunuyor.
       */}
-      <div className="parsomen-panel bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
+      <div className="gorsel-panel bg-[var(--surface)] rounded-2xl border border-[var(--border)] overflow-hidden">
+        <SahneSeridi sahne="ejderha" />
+        <div className="p-6 sm:p-7 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="space-y-2 max-w-xl">
             <div className="flex items-center gap-2">
@@ -537,6 +537,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
             </div>
           </div>
         )}
+        </div>
       </div>
 
       {/* 2. OXFORD 5000 */}

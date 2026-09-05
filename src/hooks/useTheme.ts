@@ -1,79 +1,108 @@
 import { useEffect } from 'react';
 import { UserSettings } from '../types';
-import { AILE_KIMLIKLERI, VARSAYILAN_AILE, RealmsAileId } from '../theme/realmsFamilies';
+import { ON_AYAR_KIMLIKLERI, onAyarModu, RealmsOnAyarId } from '../theme/realmsPresets';
 
 /**
  * Tema ve yazı büyüklüğü tercihini belgeye uygular.
  *
- * İKİ AYRI SEÇİM. Tema artık tek bir listeden seçilmiyor:
+ * DOKUZ SEÇENEK, TEK LİSTE. Görünüm tek bir tercihten ibaret:
  *
- *   - MOD (`themeMode`): Sistem / Açık / Koyu. 'system' hiçbir işaret
- *     koymaz; ayrımı yalnızca `prefers-color-scheme` yapar. İşaret koymak
- *     "sistemi izle" seçeneğini bozardı, çünkü telefon ayarı sonradan
- *     değişse bile sayfa donmuş kalırdı.
- *   - AİLE (`themeFamily`): sekiz Realms ailesinden biri, kökte
- *     `data-family` olarak durur. Aile yalnızca vurgu belirteçlerini
- *     değiştirir; sayfa, panel, iç kart ve metin renkleri sabittir. Bu
- *     yüzden aile ile mod birbirinden bağımsız: "Sistem + Kızıl Kale"
- *     seçilmişse, telefon koyuya geçince kızılın koyu karşılığı uygulanır.
+ *   'system'  — bugünkü onaylı Anlora Realms görünümü. Kökte HİÇBİR öznitelik
+ *               durmaz; açık mı koyu mu olduğuna telefonun kendi ayarı karar
+ *               verir. Taban seçenek budur ve hiç değişmedi.
+ *   sekiz ek  — dört açık, dört koyu; her biri bağımsız bir görünüm.
+ *
+ * Ek bir tema seçildiğinde köke İKİ öznitelik yazılıyor:
+ *
+ *   data-theme="light" | "dark"
+ *       Ölçülmüş TABAN anlamsal paleti getirir: CEFR rozetleri, "öğrendim",
+ *       "tekrar et", tehlike, set renkleri… Bunlar ek temada yeniden icat
+ *       edilmiyor, çünkü hepsi zaten ölçülmüş durumda.
+ *   data-realm-preset="<kimlik>"
+ *       Ek temanın kendi zemin, panel, iç kart, metin ve vurgu değerleri.
+ *
+ * "Sistem"de ikisi de yazılmaz; bu yüzden `prefers-color-scheme` yine tek
+ * karar verici olur ve telefon ayarı sonradan değişince uygulama da değişir.
+ * İşaret koymak "sistemi izle" seçeneğini bozardı: sayfa donmuş kalırdı.
  *
  * YAZI BÜYÜKLÜĞÜ. Kök `font-size` ölçeklenir. Arayüzün tamamı `rem` tabanlı
  * olduğu için tek değer her yeri birlikte büyütür; tek tek bileşenlerle
  * oynamak düzeni yerinden oynatırdı.
  */
 
+/** Kökte 'system' için hiçbir şey yazılmaz. */
+export type TemaTercihi = 'system' | RealmsOnAyarId;
+
 /**
- * Kaldırılan tek listeli temaların yeni iki alana karşılığı.
+ * Eski tema kayıtlarının karşılığı.
  *
- * Bu değerler kullanıcıların ayarlarında KAYITLI. Eşleme olmadan kökte
- * tanımsız bir `data-theme` kalır ve hiçbir tema değişkeni uygulanmaz —
- * ekran bozuk görünür. Kayıt silinmiyor: `settings.theme` olduğu yerde
- * duruyor, yalnızca ilk okumada moda çevriliyor.
+ * Uygulamada sırayla üç model yaşadı ve her birinin değerleri kullanıcıların
+ * ayarlarında KAYITLI:
  *
- * Renk kimlikleri artık aile olarak değil MOD olarak karşılanıyor, çünkü
- * eski sekiz ön ayarın hiçbiri yeni sekiz ailenin renk tanımına birebir
- * denk düşmüyor; kullanıcının gerçekten seçtiği şey açık mı koyu mu
- * olduğuydu. Aile varsayılanda kalıyor ve varsayılan aile bugünkü onaylı
- * temanın kendisi, yani kimsenin ekranı geçişte değişmiyor.
+ *   1. Tek listeli sekiz ön ayar   -> `theme`      ('deniz', 'komur', …)
+ *   2. Mod + sekiz tema ailesi     -> `themeMode`  ('light' | 'dark' | 'system')
+ *                                     `themeFamily` ('kizil-kale', …)
+ *   3. Bugünkü dokuz seçenek       -> `themePreset`
+ *
+ * Hiçbir alan silinmiyor; yalnızca ilk okumada karşılığı hesaplanıyor. Eşleme
+ * kullanıcının ASIL NİYETİNİ korumaya çalışıyor: açık bir görünüm seçmiş olan
+ * açık kalsın, koyu seçmiş olan koyu kalsın. "Sistem" diyen sistemde kalır.
+ *
+ * Açık niyet -> Kadim Harita: dört ek açık tema içinde parşömene en yakın olan
+ * bu (sepya zemin, altın vurgu). Koyu niyet -> Buz Nöbeti: onaylı Gece
+ * temasının lacivert-buz karakterine en yakın olan bu.
  */
-const ESKI_TEMA_MODU: Record<string, 'system' | 'light' | 'dark'> = {
+const ESKI_TEMA_KARSILIGI: Record<string, TemaTercihi> = {
   system: 'system',
-  light: 'light',
-  deniz: 'light',
-  kum: 'light',
-  gul: 'light',
-  sis: 'light',
-  lavanta: 'light',
-  dark: 'dark',
-  orman: 'dark',
-  komur: 'dark'
+  light: 'light-ancient-map',
+  deniz: 'light-ancient-map',
+  kum: 'light-ancient-map',
+  gul: 'light-ancient-map',
+  sis: 'light-ancient-map',
+  lavanta: 'light-ancient-map',
+  dark: 'dark-frost-watch',
+  orman: 'dark-frost-watch',
+  komur: 'dark-frost-watch'
 };
 
-/** Ayarlardan geçerli modu çözer; eski `theme` alanı da hesaba katılır. */
-export function cozModu(settings: UserSettings): 'system' | 'light' | 'dark' {
-  if (settings.themeMode) return settings.themeMode;
+/** Ayarlardan geçerli tema tercihini çözer; eski alanlar da hesaba katılır. */
+export function cozTemayi(settings: UserSettings): TemaTercihi {
+  const secili = settings.themePreset;
+  if (secili === 'system') return 'system';
+  if (secili && ON_AYAR_KIMLIKLERI.includes(secili as RealmsOnAyarId)) {
+    return secili as RealmsOnAyarId;
+  }
+  // İkinci model: mod açıkça seçilmişse niyet ondan okunur.
+  if (settings.themeMode === 'light') return ESKI_TEMA_KARSILIGI.light;
+  if (settings.themeMode === 'dark') return ESKI_TEMA_KARSILIGI.dark;
+  if (settings.themeMode === 'system') return 'system';
+  // İlk model: tek listeli eski ön ayar.
   const eski = settings.theme;
-  if (eski && ESKI_TEMA_MODU[eski]) return ESKI_TEMA_MODU[eski];
+  if (eski && ESKI_TEMA_KARSILIGI[eski]) return ESKI_TEMA_KARSILIGI[eski];
   return 'system';
 }
 
-/** Ayarlardan geçerli aileyi çözer; tanınmayan değer varsayılana düşer. */
-export function cozAileyi(settings: UserSettings): RealmsAileId {
-  const secili = settings.themeFamily as RealmsAileId | undefined;
-  return secili && AILE_KIMLIKLERI.includes(secili) ? secili : VARSAYILAN_AILE;
-}
-
 export function useTheme(settings: UserSettings): void {
-  const mod = cozModu(settings);
-  const aile = cozAileyi(settings);
+  const tema = cozTemayi(settings);
   const scale = settings.fontScale || 1;
 
   useEffect(() => {
     const root = document.documentElement;
-    if (mod === 'system') root.removeAttribute('data-theme');
-    else root.setAttribute('data-theme', mod);
-    root.setAttribute('data-family', aile);
-  }, [mod, aile]);
+    if (tema === 'system') {
+      root.removeAttribute('data-theme');
+      root.removeAttribute('data-realm-preset');
+      return;
+    }
+    const mod = onAyarModu(tema);
+    // Tanınmayan bir kimlik kökte yarım bir tema bırakmasın.
+    if (!mod) {
+      root.removeAttribute('data-theme');
+      root.removeAttribute('data-realm-preset');
+      return;
+    }
+    root.setAttribute('data-theme', mod);
+    root.setAttribute('data-realm-preset', tema);
+  }, [tema]);
 
   useEffect(() => {
     const root = document.documentElement;

@@ -150,7 +150,25 @@ export const IntroCarousel: React.FC<{ slides: IntroSlide[] }> = ({ slides }) =>
             const hazirla = s.oncelikli || uzaklik <= 1;
             return (
             <div key={s.index} className="w-full shrink-0 px-0.5">
-              <div className="relative rounded-xl border border-[rgba(183,149,82,.85)] overflow-hidden min-h-[132px] flex">
+              {/*
+                `h-full` VE YÜKSELTİLMİŞ `min-h` — ÖLÇÜLDÜ.
+
+                Ray, en uzun slaytın yüksekliğini alıyor; kartlar ise içerik
+                kadar uzuyordu. Kısa slaytın altında bu yüzden boş ray kalıyordu:
+                360x780'de kart 149 piksel, ray 185 — arada 36 piksel hiçbir şey.
+                Kullanıcının "görsel ile noktalar arasındaki gereksiz boşluk"
+                dediği şey buydu.
+
+                `h-full` o boşluğu görsele veriyor: kart rayı dolduruyor, görsel
+                147'den 183 piksele çıkıyor ve ALTTAKİ HİÇBİR ŞEY YERİNDEN
+                OYNAMIYOR — çünkü alan zaten oradaydı.
+
+                `min-h` 132'den 146'ya çıktı: 480x1000'de üç slayt da aynı boyda
+                olduğu için orada kazanılacak boşluk yoktu, görsel ancak bu
+                değerle büyüyor. Aşağı kayma noktaların boşluğundan geri alınıyor
+                (bkz. nokta satırındaki `-mb`).
+              */}
+              <div className="relative rounded-xl border border-[rgba(183,149,82,.85)] overflow-hidden min-h-[146px] h-full flex">
                 {s.gorsel && (
                   <>
                     {/*
@@ -227,7 +245,13 @@ export const IntroCarousel: React.FC<{ slides: IntroSlide[] }> = ({ slides }) =>
       {slides.length > 1 && (
         // Noktalar arasındaki boşluk artık düğmelerin kendi 24 piksellik
         // hedeflerinden geliyor; ek bir gap hedefleri gereksizce ayırırdı.
-        <div className="flex items-center justify-center mt-2.5">
+        //
+        // BOŞLUK KISILDI. Düğmenin basılabilir kutusu 44 piksel kalıyor
+        // (dokunma hedefi), ama görünen çubuk o kutunun ortasında duruyor ve
+        // altında da üstünde de kullanılmayan pay var. Üstteki pay `mt-2.5`ten
+        // `mt-1`e indi, alttaki pay `-mb-1.5` ile geri alındı: toplam 12
+        // piksel. Dokunma hedefinin kendisi küçülmedi.
+        <div className="flex items-center justify-center mt-1 -mb-1.5">
           {slides.map((s, i) => (
             <button
               key={s.index}

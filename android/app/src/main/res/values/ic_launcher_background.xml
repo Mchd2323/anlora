@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Uyarlanabilir uygulama simgesinin zemin katmanı: Realms kuzey
-         laciverti. Ön katmandaki Anlora logosu bu zeminin üstünde durur. -->
-    <color name="ic_launcher_background">#15283D</color>
+    <!-- Uyarlanabilir uygulama simgesinin zemin katmanı: Realms parşömeni.
+         ÖLÇÜLEREK DEĞİŞTİ. Zemin daha önce kuzey laciverti (#15283D) idi ve
+         logonun kendisi de ağırlıklı olarak lacivert: görünür piksellerin
+         %57,9'u koyu, ortalama parlaklık 93/255. Lacivert kutunun içinde
+         lacivert arma eriyip gidiyordu; Android'in güvenlik/izin ekranlarında
+         uygulamanın hangisi olduğu anlaşılmıyordu. Parşömen zeminde arma ve
+         altın çizgiler okunur kalıyor. Logonun kendisine dokunulmadı:
+         kırpma, yeniden renklendirme ya da filtre yok. -->
+    <color name="ic_launcher_background">#F8F1E4</color>
 
     <!-- Açılış ekranının zemini; uygulamanın parşömen zeminiyle aynı, böylece
          açılıştan arayüze geçerken renk sıçraması olmuyor. -->

@@ -1,0 +1,329 @@
+/* ÜRETİLMİŞ DOSYA — elle düzenleme.
+   Kaynak: scripts/make-theme-presets.mjs  +  src/theme/theme-presets.json
+   Yeniden üretmek için: node scripts/make-theme-presets.mjs
+
+   EK TEMALAR. "Sistem" bu dosyada YOK ve olmamalı: o, bugünkü onaylı Anlora
+   Realms açık/koyu görünümüdür, işletim sistemini izler ve kökte hiçbir
+   öznitelik taşımaz.
+
+   Ek bir tema seçildiğinde uygulama köke İKİ öznitelik yazıyor:
+     data-theme="light" | "dark"   -> ölçülmüş taban anlamsal palet (CEFR
+                                      rozetleri, öğrendim, tekrar, tehlike…)
+     data-realm-preset="<kimlik>"  -> bu dosyadaki zemin/panel/metin/vurgu
+
+   Böylece ek tema yalnızca görünen yüzeyleri değiştiriyor; anlamsal renkler
+   zaten ölçülmüş olan taban paletten geliyor ve yeniden icat edilmiyor.
+
+   Seçici özgüllüğü: :root[data-theme][data-realm-preset] (0,3,0) taban
+   :root[data-theme] (0,2,0) bloğunu geçer, bu yüzden bu dosya taban
+   tanımlardan SONRA yüklenmek zorunda değil — ama yine de sonda duruyor.
+*/
+
+/* Buz Kristali (light-frost-crystal)
+   metin #173445 en düşük 10.63 · ikincil #516672 en düşük 4.91
+   vurgu #2F6078 en düşük 5.59 · düğme yazısı #F2EBDD üstü 5.78
+   düğme degradesinin üst durağı #26586F üstü 6.54 */
+:root[data-theme='light'][data-realm-preset='light-frost-crystal'] {
+  --bg: #E7F0F2;
+  --surface: #F5F9F9;
+  --surface-soft: #DCEBED;
+  --surface-subtle: #DCEBED;
+  --text-primary: #173445;
+  --text-secondary: #516672;
+  --text-muted: #516672;
+  --primary: #2F6078;
+  --primary-hover: #23556C;
+  --primary-deep: #1A4C64;
+  --primary-soft: #E3E5E1;
+  --primary-soft-hover: #D6DCDA;
+  --primary-soft-strong: #CED6D5;
+  --primary-border: #C0CBCC;
+  --primary-border-strong: #ADBEC2;
+  --primary-tint: #E9E9E4;
+  --on-primary: #F2EBDD;
+  --dugme-ust: #26586F;
+  --dugme-kenar: #5A7F8E;
+  --dugme-golge: color-mix(in srgb, #173445 16%, transparent);
+  --motif-glif: #7E9DAC;
+  --border: #7A9AA9;
+  --border-light: #AABFC8;
+  --line-inner: #CDD6D9;
+  --ivory: #F2EBDD;
+}
+
+/* Kızıl Şafak (light-crimson-dawn)
+   metin #451D22 en düşük 10.58 · ikincil #6A5557 en düşük 5.03
+   vurgu #7E2C2A en düşük 6.73 · düğme yazısı #F7EDE6 üstü 7.98
+   düğme degradesinin üst durağı #742322 üstü 9.08 */
+:root[data-theme='light'][data-realm-preset='light-crimson-dawn'] {
+  --bg: #F3E3DE;
+  --surface: #FCF5F1;
+  --surface-soft: #EDD8D2;
+  --surface-subtle: #EDD8D2;
+  --text-primary: #451D22;
+  --text-secondary: #6A5557;
+  --text-muted: #6A5557;
+  --primary: #7E2C2A;
+  --primary-hover: #712020;
+  --primary-deep: #681718;
+  --primary-soft: #ECDFD7;
+  --primary-soft-hover: #E5D2CC;
+  --primary-soft-strong: #E0CAC4;
+  --primary-border: #D7BCB6;
+  --primary-border-strong: #CCAAA4;
+  --primary-tint: #F0E5DD;
+  --on-primary: #F7EDE6;
+  --dugme-ust: #742322;
+  --dugme-kenar: #995653;
+  --dugme-golge: color-mix(in srgb, #451D22 16%, transparent);
+  --motif-glif: #B07C7A;
+  --border: #AE7876;
+  --border-light: #CCA9A5;
+  --line-inner: #DBCECC;
+  --ivory: #F7EDE6;
+}
+
+/* Kadim Harita (light-ancient-map)
+   metin #3B2C1B en düşük 9.62 · ikincil #665B4D en düşük 4.74
+   vurgu #6D5428 en düşük 5.1 · düğme yazısı #FBF7EF üstü 6.66
+   düğme degradesinin üst durağı #644C1F üstü 7.57 */
+:root[data-theme='light'][data-realm-preset='light-ancient-map'] {
+  --bg: #EFE7D6;
+  --surface: #FAF4E8;
+  --surface-soft: #E6D9BE;
+  --surface-subtle: #E6D9BE;
+  --text-primary: #3B2C1B;
+  --text-secondary: #665B4D;
+  --text-muted: #665B4D;
+  --primary: #6D5428;
+  --primary-hover: #61491C;
+  --primary-deep: #594113;
+  --primary-soft: #EAE3D7;
+  --primary-soft-hover: #E1DACB;
+  --primary-soft-strong: #DCD3C3;
+  --primary-border: #D2C8B5;
+  --primary-border-strong: #C5B9A3;
+  --primary-tint: #EEE8DD;
+  --on-primary: #FBF7EF;
+  --dugme-ust: #644C1F;
+  --dugme-kenar: #8C7854;
+  --dugme-golge: color-mix(in srgb, #3B2C1B 16%, transparent);
+  --motif-glif: #A59475;
+  --border: #A39171;
+  --border-light: #C4B79F;
+  --line-inner: #D8D0C3;
+  --ivory: #FBF7EF;
+}
+
+/* Orman Yemini (light-grove-oath)
+   metin #1F3D32 en düşük 9.36 · ikincil #52665D en düşük 4.85
+   vurgu #2D5A45 en düşük 6.23 · düğme yazısı #F0F5EE üstü 7.14
+   düğme degradesinin üst durağı #24523D üstü 8.09 */
+:root[data-theme='light'][data-realm-preset='light-grove-oath'] {
+  --bg: #E5EEE6;
+  --surface: #F5F9F3;
+  --surface-soft: #DAE8DE;
+  --surface-subtle: #DAE8DE;
+  --text-primary: #1F3D32;
+  --text-secondary: #52665D;
+  --text-muted: #52665D;
+  --primary: #2D5A45;
+  --primary-hover: #224F3A;
+  --primary-deep: #194733;
+  --primary-soft: #E2E4DB;
+  --primary-soft-hover: #D6DBD0;
+  --primary-soft-strong: #CED4CA;
+  --primary-border: #BFC9BE;
+  --primary-border-strong: #ADBBAE;
+  --primary-tint: #E8E9E0;
+  --on-primary: #F0F5EE;
+  --dugme-ust: #24523D;
+  --dugme-kenar: #587C6A;
+  --dugme-golge: color-mix(in srgb, #1F3D32 16%, transparent);
+  --motif-glif: #7D9A8B;
+  --border: #799687;
+  --border-light: #A9BDB1;
+  --line-inner: #CED7D0;
+  --ivory: #F0F5EE;
+}
+
+/* Kızıl Gece (dark-crimson-night)
+   metin #F3E6DA en düşük 12.91 · ikincil #C8B5B6 en düşük 8.09
+   vurgu #D9786D en düşük 5.17 · düğme yazısı #261117 üstü 5.84
+   düğme degradesinin üst durağı #E38176 üstü 6.53 */
+:root[data-theme='dark'][data-realm-preset='dark-crimson-night'] {
+  --bg: #1B1118;
+  --surface: #2A171F;
+  --surface-soft: #361A22;
+  --surface-subtle: #361A22;
+  --text-primary: #F3E6DA;
+  --text-secondary: #C8B5B6;
+  --text-muted: #C8B5B6;
+  --primary: #D9786D;
+  --primary-hover: #EA877C;
+  --primary-deep: #FC978B;
+  --primary-soft: #321D22;
+  --primary-soft-hover: #3D2427;
+  --primary-soft-strong: #45282B;
+  --primary-border: #522F31;
+  --primary-border-strong: #633838;
+  --primary-tint: #2C1A20;
+  --on-primary: #261117;
+  --dugme-ust: #E38176;
+  --dugme-kenar: #B2615A;
+  --dugme-golge: rgb(0 0 0 / 0.35);
+  --motif-glif: #A55B56;
+  --border: #744040;
+  --border-light: #573033;
+  --line-inner: #4E3C41;
+  --ivory: #261117;
+}
+
+/* Buz Nöbeti (dark-frost-watch)
+   metin #F0F6F8 en düşük 13.53 · ikincil #B9CBD4 en düşük 8.83
+   vurgu #9FC9DE en düşük 8.36 · düğme yazısı #0B1827 üstü 10.12
+   düğme degradesinin üst durağı #A8D3E8 üstü 11.2 */
+:root[data-theme='dark'][data-realm-preset='dark-frost-watch'] {
+  --bg: #0B1827;
+  --surface: #142A3A;
+  --surface-soft: #102333;
+  --surface-subtle: #102333;
+  --text-primary: #F0F6F8;
+  --text-secondary: #B9CBD4;
+  --text-muted: #B9CBD4;
+  --primary: #9FC9DE;
+  --primary-hover: #AFD9EF;
+  --primary-deep: #BFEAFF;
+  --primary-soft: #1D2D3D;
+  --primary-soft-hover: #263848;
+  --primary-soft-strong: #2C3F4F;
+  --primary-border: #364B5C;
+  --primary-border-strong: #435B6D;
+  --primary-tint: #182837;
+  --on-primary: #0B1827;
+  --dugme-ust: #A8D3E8;
+  --dugme-kenar: #7EA2B6;
+  --dugme-golge: rgb(0 0 0 / 0.35);
+  --motif-glif: #7599AD;
+  --border: #4E6D7F;
+  --border-light: #385365;
+  --line-inner: #3C4F5C;
+  --ivory: #0B1827;
+}
+
+/* Ejderha Köz (dark-dragon-ember)
+   metin #F4E7D8 en düşük 13.15 · ikincil #CBB9A9 en düşük 8.41
+   vurgu #E28F61 en düşük 6.35 · düğme yazısı #24150E üstü 7.01
+   düğme degradesinin üst durağı #EC986A üstü 7.8 */
+:root[data-theme='dark'][data-realm-preset='dark-dragon-ember'] {
+  --bg: #1B1512;
+  --surface: #2B1F1A;
+  --surface-soft: #241914;
+  --surface-subtle: #241914;
+  --text-primary: #F4E7D8;
+  --text-secondary: #CBB9A9;
+  --text-muted: #CBB9A9;
+  --primary: #E28F61;
+  --primary-hover: #F39F70;
+  --primary-deep: #FFAF80;
+  --primary-soft: #33241B;
+  --primary-soft-hover: #3F2B20;
+  --primary-soft-strong: #473023;
+  --primary-border: #553829;
+  --primary-border-strong: #674330;
+  --primary-tint: #2D2019;
+  --on-primary: #24150E;
+  --dugme-ust: #EC986A;
+  --dugme-kenar: #B8744F;
+  --dugme-golge: rgb(0 0 0 / 0.35);
+  --motif-glif: #AB6D4C;
+  --border: #784E38;
+  --border-light: #5B3C2C;
+  --line-inner: #4F433C;
+  --ivory: #24150E;
+}
+
+/* Demir Orman (dark-iron-grove)
+   metin #E7F1E7 en düşük 12.22 · ikincil #B6CDBE en düşük 8.4
+   vurgu #8BC6A1 en düşük 7.2 · düğme yazısı #0D2017 üstü 8.65
+   düğme degradesinin üst durağı #94D0AA üstü 9.6 */
+:root[data-theme='dark'][data-realm-preset='dark-iron-grove'] {
+  --bg: #0E1C18;
+  --surface: #153027;
+  --surface-soft: #11251E;
+  --surface-subtle: #11251E;
+  --text-primary: #E7F1E7;
+  --text-secondary: #B6CDBE;
+  --text-muted: #B6CDBE;
+  --primary: #8BC6A1;
+  --primary-hover: #9BD6B1;
+  --primary-deep: #ABE7C1;
+  --primary-soft: #1D3028;
+  --primary-soft-hover: #253B31;
+  --primary-soft-strong: #2A4136;
+  --primary-border: #324D40;
+  --primary-border-strong: #3E5D4C;
+  --primary-tint: #192B24;
+  --on-primary: #0D2017;
+  --dugme-ust: #94D0AA;
+  --dugme-kenar: #6FA183;
+  --dugme-golge: rgb(0 0 0 / 0.35);
+  --motif-glif: #68997C;
+  --border: #476F5A;
+  --border-light: #345747;
+  --line-inner: #3B534A;
+  --ivory: #0D2017;
+}
+
+/* --------------------------------------------------------------------------
+   KELİME SETİ VURGU RENKLERİ
+
+   Sette hex değil kimlik saklanıyor (`collection.color = 'buz-kalesi'`);
+   renk buradan geliyor. Belirteçler SEÇİLİ TEMADAN BAĞIMSIZ, yalnızca
+   açık/koyu tarafa göre değişiyor: kullanıcı temasını değiştirince setinin
+   rengi değişmemeli, sadece okunur karşılığına geçmeli.
+
+   Ek temalar köke `data-theme` de yazdığı için aşağıdaki seçiciler
+   onlarda da doğru tarafı veriyor.
+   Taçlı Parşömen: açık #765A26 (en düşük 4.61) · koyu #D4B56D (en düşük 7.16)
+   Buz Kalesi: açık #2F6078 (en düşük 4.9) · koyu #9FC9DE (en düşük 8.01)
+   Kuzgun Haritası: açık #15283D (en düşük 10.72) · koyu #A8BED1 (en düşük 7.38)
+   Ejderha Köz: açık #8B3E20 (en düşük 5.35) · koyu #E28F61 (en düşük 5.62)
+   Kızıl Kale: açık #7E2C2A (en düşük 6.59) · koyu #D9786D (en düşük 4.62)
+   Orman Nöbeti: açık #355B4A (en düşük 5.47) · koyu #8BC6A1 (en düşük 7.2)
+   Demir Gece: açık #3F4E5A (en düşük 6.14) · koyu #C1CDD4 (en düşük 8.73)
+   Fildişi Altın: açık #6D5428 (en düşük 5.1) · koyu #FBF7EF (en düşük 13.24)
+   -------------------------------------------------------------------------- */
+:root,
+:root[data-theme='light'] {
+  --set-tacli-parsomen: #765A26;
+  --set-buz-kalesi: #2F6078;
+  --set-kuzgun-haritasi: #15283D;
+  --set-ejderha-koz: #8B3E20;
+  --set-kizil-kale: #7E2C2A;
+  --set-orman-nobeti: #355B4A;
+  --set-demir-gece: #3F4E5A;
+  --set-fildisi-altin: #6D5428;
+}
+:root[data-theme='dark'] {
+  --set-tacli-parsomen: #D4B56D;
+  --set-buz-kalesi: #9FC9DE;
+  --set-kuzgun-haritasi: #A8BED1;
+  --set-ejderha-koz: #E28F61;
+  --set-kizil-kale: #D9786D;
+  --set-orman-nobeti: #8BC6A1;
+  --set-demir-gece: #C1CDD4;
+  --set-fildisi-altin: #FBF7EF;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --set-tacli-parsomen: #D4B56D;
+    --set-buz-kalesi: #9FC9DE;
+    --set-kuzgun-haritasi: #A8BED1;
+    --set-ejderha-koz: #E28F61;
+    --set-kizil-kale: #D9786D;
+    --set-orman-nobeti: #8BC6A1;
+    --set-demir-gece: #C1CDD4;
+    --set-fildisi-altin: #FBF7EF;
+  }
+}

@@ -12,8 +12,8 @@ import {
   buildStamp,
   type EngineProbe
 } from '../utils/speech';
-import { REALMS_AILELERI } from '../theme/realmsFamilies';
-import { cozModu, cozAileyi } from '../hooks/useTheme';
+import { ACIK_ON_AYARLAR, KOYU_ON_AYARLAR, RealmsOnAyari } from '../theme/realmsPresets';
+import { cozTemayi } from '../hooks/useTheme';
 
 interface SettingsPanelProps {
   settings: UserSettings;
@@ -44,27 +44,70 @@ const STUDY_MODES: { value: UserSettings['preferredStudyMode']; label: string; h
  * renkte gösterirdi. Değerler `index.css` içindeki karşılıklarıyla aynı.
  */
 /*
- * Tema seçimi iki parçaya bölündü.
+ * GÖRÜNÜM: BİR TABAN, SEKİZ EK.
  *
- * ESKİ SEKİZ ÖN AYAR (Sistem, Buz, Parşömen, Şafak, Sis, Gece, Koru, Kor)
- * kaldırıldı. Onlar hem modu hem rengi tek bir listede karıştırıyordu:
- * "Koru"yu seçen kullanıcı aynı anda koyu moda da geçmiş oluyordu ve
- * telefonunun ayarını izleyemiyordu.
+ * "Sistem" bugünkü onaylı Anlora Realms görünümüdür: işletim sistemi açıkken
+ * parşömen, koyuyken kuzey gecesi. Taban seçenek odur ve hiç değişmedi.
  *
- * Artık üstte MOD (Sistem / Açık / Koyu), altında AİLE (sekiz Realms
- * teması) var. Aile yalnızca vurgu rengini değiştiriyor; sayfa, panel, iç
- * kart ve metin renkleri her ailede aynı. "Sistem" seçiliyken telefon
- * koyuya geçtiğinde seçili ailenin koyu karşılığı uygulanıyor.
+ * Ek sekiz tema onun YERİNE geçmiyor, yanına ekleniyor — ve birbirinden
+ * bağımsızlar: "Buz Kristali"nin koyu karşılığı yok, "Kızıl Gece"nin açık
+ * karşılığı yok. Bu yüzden ekranda açık/koyu çiftler gibi değil, iki ayrı
+ * liste hâlinde duruyorlar.
  *
- * Renk örnekleri üretilmiş `realmsFamilies.ts` dosyasından geliyor: aynı
- * değerler CSS'te de kullanılıyor, yani örnek kare kullanıcıya seçmediği
- * bir rengi vaat edemiyor.
+ * Önizleme renkleri üretilmiş `realmsPresets.ts` dosyasından geliyor: aynı
+ * değerler CSS'te de kullanılıyor, yani örnek kare kullanıcıya seçmediği bir
+ * rengi vaat edemiyor.
  */
-const MOD_SECENEKLERI = [
-  { id: 'system' as const, ad: 'Sistem', ipucu: 'Telefonun ayarını izler' },
-  { id: 'light' as const, ad: 'Açık', ipucu: 'Her zaman açık parşömen' },
-  { id: 'dark' as const, ad: 'Koyu', ipucu: 'Her zaman kuzey gecesi' }
-];
+
+/**
+ * Tek bir ek tema kutucuğu.
+ *
+ * ÖNİZLEME GERÇEK DEĞERLERDEN. Sol yarım temanın sayfa zemini, sağ yarım
+ * paneli; ortadaki daire vurgu rengi, yanındaki çubuk ise metin rengi. Dört
+ * değer de CSS'e giden değerlerin ta kendisi, bu yüzden kutucuk kullanıcıya
+ * seçmediği bir görünümü vaat edemiyor.
+ */
+const TemaKutusu: React.FC<{ tema: RealmsOnAyari; secili: boolean; sec: () => void }> = ({
+  tema,
+  secili,
+  sec
+}) => (
+  <button
+    type="button"
+    onClick={sec}
+    aria-pressed={secili}
+    aria-label={`${tema.ad} teması`}
+    className={`p-2 rounded-xl border transition-all cursor-pointer text-left ${
+      secili
+        ? 'bg-[var(--primary-soft)] border-[var(--primary)] ring-2 ring-[var(--primary)]/30'
+        : 'bg-[var(--bg)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
+    }`}
+  >
+    <span
+      className="flex h-7 rounded-lg overflow-hidden border border-[var(--border-light)]"
+      aria-hidden="true"
+    >
+      <span className="w-1/3" style={{ background: tema.onizleme.zemin }} />
+      <span
+        className="flex-1 flex items-center justify-center gap-1.5"
+        style={{ background: tema.onizleme.panel }}
+      >
+        <span className="w-3 h-3 rounded-full" style={{ background: tema.onizleme.vurgu }} />
+        <span
+          className="w-4 h-1 rounded-full"
+          style={{ background: tema.onizleme.yazi }}
+        />
+      </span>
+    </span>
+    <span
+      className={`block text-[10px] font-semibold leading-tight mt-1.5 ${
+        secili ? 'text-[var(--primary)]' : 'text-[var(--text-primary)]'
+      }`}
+    >
+      {tema.ad}
+    </span>
+  </button>
+);
 
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange }) => {
   /*
@@ -72,13 +115,12 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
    * kalkınca yazılır; sebebi aşağıdaki çubuğun başındaki açıklamada.
    */
   /*
-   * Seçili mod ve aile AYARLARDAN ÇÖZÜLÜYOR, doğrudan okunmuyor: eski tek
-   * listeli `theme` değeri kayıtlı olan kullanıcıda `themeMode` henüz boş
-   * olabilir. Çözücüler o durumda eski değeri karşılığına çeviriyor, yani
-   * kullanıcı ayarı hiç açmadan da doğru düğme seçili görünüyor.
+   * Seçili tema AYARLARDAN ÇÖZÜLÜYOR, doğrudan okunmuyor: uygulamada sırayla
+   * üç tema modeli yaşadı ve eski değerler hâlâ kayıtlı olabilir. Çözücü
+   * onları karşılığına çeviriyor, yani kullanıcı ayarı hiç açmadan da doğru
+   * kutucuk seçili görünüyor.
    */
-  const aktifMod = cozModu(settings);
-  const aktifAile = cozAileyi(settings);
+  const aktifTema = cozTemayi(settings);
 
   const [yaziOlcegi, setYaziOlcegi] = useState(settings.fontScale || 1);
 
@@ -331,93 +373,87 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
           </p>
         </div>
 
-        <div>
-          <label className="block text-[10px] font-bold  tracking-wider text-[var(--text-muted)] mb-1.5">
-            Görünüm
-          </label>
-          <div className="grid grid-cols-3 gap-1.5" role="group" aria-label="Açık/koyu modu">
-            {MOD_SECENEKLERI.map(mod => {
-              const secili = aktifMod === mod.id;
-              return (
-                <button
-                  key={mod.id}
-                  type="button"
-                  onClick={() => update('themeMode', mod.id)}
-                  aria-pressed={secili}
-                  title={mod.ipucu}
-                  className={`px-2 py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                    secili
-                      ? 'dugme-birincil bg-[var(--primary)] border-[var(--primary)] text-[var(--on-primary)]'
-                      : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-soft)]'
+        <div className="space-y-4">
+          <div>
+            <label className="block text-[10px] font-bold  tracking-wider text-[var(--text-muted)] mb-1.5">
+              Görünüm
+            </label>
+            <button
+              type="button"
+              onClick={() => update('themePreset', 'system')}
+              aria-pressed={aktifTema === 'system'}
+              className={`w-full p-2.5 rounded-xl border transition-all cursor-pointer flex items-center gap-3 text-left ${
+                aktifTema === 'system'
+                  ? 'bg-[var(--primary-soft)] border-[var(--primary)] ring-2 ring-[var(--primary)]/30'
+                  : 'bg-[var(--bg)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
+              }`}
+            >
+              {/*
+                Sistem tek kutucukta İKİ yarım gösteriyor: solda onaylı açık
+                görünüm, sağda onaylı koyu. Seçenek zaten "telefonun ayarına
+                göre bu ikisinden biri" demek; tek renk göstermek yanıltıcı
+                olurdu.
+              */}
+              <span
+                className="flex h-8 w-16 shrink-0 rounded-lg overflow-hidden border border-[var(--border-light)]"
+                aria-hidden="true"
+              >
+                <span className="flex-1 flex items-center justify-center" style={{ background: '#F2E8D8' }}>
+                  <span className="w-3 h-3 rounded-full" style={{ background: '#15283D' }} />
+                </span>
+                <span className="flex-1 flex items-center justify-center" style={{ background: '#0D1925' }}>
+                  <span className="w-3 h-3 rounded-full" style={{ background: '#8FB8D4' }} />
+                </span>
+              </span>
+              <span className="min-w-0">
+                <span
+                  className={`block text-xs font-bold ${
+                    aktifTema === 'system' ? 'text-[var(--primary)]' : 'text-[var(--text-primary)]'
                   }`}
                 >
-                  {mod.ad}
-                </button>
-              );
-            })}
+                  Sistem
+                </span>
+                <span className="block text-[11px] text-[var(--text-muted)] leading-tight">
+                  Telefonun ayarını izler; açıkken parşömen, koyuyken gece.
+                </span>
+              </span>
+            </button>
           </div>
-          <p className="text-[11px] text-[var(--text-muted)] mt-1">
-            {aktifMod === 'system'
-              ? 'Telefonun açık/koyu ayarı ne diyorsa o. Aşağıdaki tema ailesi her iki durumda da geçerli.'
-              : 'Telefonun ayarından bağımsız olarak sabit kalır.'}
-          </p>
-        </div>
 
-        <div>
-          <label className="block text-[10px] font-bold  tracking-wider text-[var(--text-muted)] mb-1.5">
-            Realms Tema Ailesi
-          </label>
-          <div className="grid grid-cols-2 gap-2" role="group" aria-label="Realms tema ailesi">
-            {REALMS_AILELERI.map(aile => {
-              const secili = aktifAile === aile.id;
-              return (
-                <button
-                  key={aile.id}
-                  type="button"
-                  onClick={() => update('themeFamily', aile.id)}
-                  aria-pressed={secili}
-                  aria-label={`${aile.ad} tema ailesi`}
-                  className={`p-2 rounded-xl border transition-all cursor-pointer text-left ${
-                    secili
-                      ? 'bg-[var(--primary-soft)] border-[var(--primary)] ring-2 ring-[var(--primary)]/30'
-                      : 'bg-[var(--bg)] border-[var(--border)] hover:bg-[var(--surface-soft)]'
-                  }`}
-                >
-                  {/*
-                    ÖNİZLEME İKİ YARIM. Sol yarım ailenin açık, sağ yarım koyu
-                    karşılığı; ortadaki daire o temadaki vurgu rengi. Böylece
-                    "Sistem" seçiliyken bile kullanıcı iki durumu birden
-                    görüyor ve seçtiği şeyin ne olduğunu tahmin etmiyor.
-                  */}
-                  <span className="flex h-7 rounded-lg overflow-hidden border border-[var(--border-light)]" aria-hidden="true">
-                    <span
-                      className="flex-1 flex items-center justify-center"
-                      style={{ background: aile.acik.zemin }}
-                    >
-                      <span className="w-3 h-3 rounded-full" style={{ background: aile.acik.vurgu }} />
-                    </span>
-                    <span
-                      className="flex-1 flex items-center justify-center"
-                      style={{ background: aile.koyu.zemin }}
-                    >
-                      <span className="w-3 h-3 rounded-full" style={{ background: aile.koyu.vurgu }} />
-                    </span>
-                  </span>
-                  <span
-                    className={`block text-[10px] font-semibold leading-tight mt-1.5 ${
-                      secili ? 'text-[var(--primary)]' : 'text-[var(--text-primary)]'
-                    }`}
-                  >
-                    {aile.ad}
-                  </span>
-                </button>
-              );
-            })}
+          <div>
+            <label className="block text-[10px] font-bold  tracking-wider text-[var(--text-muted)] mb-1.5">
+              Açık Temalar
+            </label>
+            <div className="grid grid-cols-2 gap-2" role="group" aria-label="Açık temalar">
+              {ACIK_ON_AYARLAR.map(t => (
+                <TemaKutusu
+                  key={t.id}
+                  tema={t}
+                  secili={aktifTema === t.id}
+                  sec={() => update('themePreset', t.id)}
+                />
+              ))}
+            </div>
           </div>
-          <p className="text-[11px] text-[var(--text-muted)] mt-1">
-            Aile yalnızca vurgu rengini değiştirir; sayfa, panel ve yazı renkleri
-            her ailede aynı kalır.
-          </p>
+
+          <div>
+            <label className="block text-[10px] font-bold  tracking-wider text-[var(--text-muted)] mb-1.5">
+              Koyu Temalar
+            </label>
+            <div className="grid grid-cols-2 gap-2" role="group" aria-label="Koyu temalar">
+              {KOYU_ON_AYARLAR.map(t => (
+                <TemaKutusu
+                  key={t.id}
+                  tema={t}
+                  secili={aktifTema === t.id}
+                  sec={() => update('themePreset', t.id)}
+                />
+              ))}
+            </div>
+            <p className="text-[11px] text-[var(--text-muted)] mt-1.5">
+              Tema yalnızca renkleri değiştirir; ekranların düzeni ve sırası aynı kalır.
+            </p>
+          </div>
         </div>
 
         <div>

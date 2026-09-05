@@ -1,0 +1,117 @@
+{
+  "keepExisting": {
+    "name": "Sistem – mevcut Anlora Açık/Koyu",
+    "note": "Mevcut Anlora Realms açık ve koyu görünümü değişmeyecek."
+  },
+  "light": [
+    {
+      "id": "light-frost-crystal",
+      "name": "Buz Kristali",
+      "page": "#E7F0F2",
+      "panel": "#F5F9F9",
+      "inner": "#DCEBED",
+      "text": "#173445",
+      "secondary": "#516672",
+      "accent": "#2F6078",
+      "buttonBg": "#2F6078",
+      "buttonText": "#F2EBDD"
+    },
+    {
+      "id": "light-crimson-dawn",
+      "name": "Kızıl Şafak",
+      "page": "#F3E3DE",
+      "panel": "#FCF5F1",
+      "inner": "#EDD8D2",
+      "text": "#451D22",
+      "secondary": "#6A5557",
+      "accent": "#7E2C2A",
+      "buttonBg": "#7E2C2A",
+      "buttonText": "#F7EDE6"
+    },
+    {
+      "id": "light-ancient-map",
+      "name": "Kadim Harita",
+      "page": "#EFE7D6",
+      "panel": "#FAF4E8",
+      "inner": "#E6D9BE",
+      "text": "#3B2C1B",
+      "secondary": "#665B4D",
+      "accent": "#6D5428",
+      "buttonBg": "#6D5428",
+      "buttonText": "#FBF7EF"
+    },
+    {
+      "id": "light-grove-oath",
+      "name": "Orman Yemini",
+      "page": "#E5EEE6",
+      "panel": "#F5F9F3",
+      "inner": "#DAE8DE",
+      "text": "#1F3D32",
+      "secondary": "#52665D",
+      "accent": "#2D5A45",
+      "buttonBg": "#2D5A45",
+      "buttonText": "#F0F5EE"
+    }
+  ],
+  "dark": [
+    {
+      "id": "dark-crimson-night",
+      "name": "Kızıl Gece",
+      "page": "#1B1118",
+      "panel": "#2A171F",
+      "inner": "#361A22",
+      "text": "#F3E6DA",
+      "secondary": "#C8B5B6",
+      "accent": "#D9786D",
+      "buttonBg": "#D9786D",
+      "buttonText": "#261117"
+    },
+    {
+      "id": "dark-frost-watch",
+      "name": "Buz Nöbeti",
+      "page": "#0B1827",
+      "panel": "#142A3A",
+      "inner": "#102333",
+      "text": "#F0F6F8",
+      "secondary": "#B9CBD4",
+      "accent": "#9FC9DE",
+      "buttonBg": "#9FC9DE",
+      "buttonText": "#0B1827"
+    },
+    {
+      "id": "dark-dragon-ember",
+      "name": "Ejderha Köz",
+      "page": "#1B1512",
+      "panel": "#2B1F1A",
+      "inner": "#241914",
+      "text": "#F4E7D8",
+      "secondary": "#CBB9A9",
+      "accent": "#E28F61",
+      "buttonBg": "#E28F61",
+      "buttonText": "#24150E"
+    },
+    {
+      "id": "dark-iron-grove",
+      "name": "Demir Orman",
+      "page": "#0E1C18",
+      "panel": "#153027",
+      "inner": "#11251E",
+      "text": "#E7F1E7",
+      "secondary": "#B6CDBE",
+      "accent": "#8BC6A1",
+      "buttonBg": "#8BC6A1",
+      "buttonText": "#0D2017"
+    }
+  ],
+  "contrastCheck": {
+    "lightWorstSurface": "#F5F9F9 / #FCF5F1 / #FAF4E8 / #F5F9F3",
+    "darkWorstSurface": "#2A171F / #142A3A / #2B1F1A / #153027",
+    "minimumRequired": "4.5:1 for text and icons; 3:1 for non-text swatches",
+    "measuredMinimums": {
+      "lightTextOrAccent": "5.67:1",
+      "lightButtonText": "5.78:1",
+      "darkTextOrAccent": "5.53:1",
+      "darkButtonText": "5.84:1"
+    }
+  }
+}

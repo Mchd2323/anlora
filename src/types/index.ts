@@ -279,10 +279,17 @@ export interface UserSettings {
    */
   themeMode?: 'system' | 'light' | 'dark';
   /**
-   * Seçili Realms tema ailesi. Yalnızca vurgu belirteçlerini değiştirir;
-   * sayfa, panel, iç kart ve metin renkleri her ailede aynıdır.
+   * ESKİ ALAN — YALNIZCA GEÇMİŞ KAYITLAR İÇİN. Sekiz "tema ailesi" modeli
+   * kaldırıldı; değer okunuyor ama artık yazılmıyor.
    */
   themeFamily?: string;
+  /**
+   * Görünüm tercihi: 'system' ya da sekiz ek temadan birinin kimliği.
+   *
+   * 'system' bugünkü onaylı Anlora Realms görünümüdür ve işletim sistemini
+   * izler. Ek temalar onun yerine geçmez, ayrı seçeneklerdir.
+   */
+  themePreset?: string;
   /**
    * Yazı büyüklüğü çarpanı (1 = varsayılan).
    *
