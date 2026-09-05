@@ -464,7 +464,11 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
         aria-roledescription="kart destesi"
         aria-label="Sağa veya sola kaydırarak kartlar arasında geçiş yapın"
       >
-        <div className="relative w-full">
+        <div
+          className={`deck-deste relative w-full${
+            swipe.isDragging ? ' deck-deste--suruklenirken' : ''
+          }`}
+        >
           {/* Arkadaki iki katman: destenin derinliği */}
           {hasNext && (
             <>
