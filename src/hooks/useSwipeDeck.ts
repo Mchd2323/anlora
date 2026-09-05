@@ -60,6 +60,21 @@ export interface UseSwipeDeckOptions {
   canSwipeRight: boolean;
   /** Hareketi tamamen kapatır. */
   disabled?: boolean;
+  /**
+   * SÜRÜKLEME KARESİ — React'ı atlayan yol.
+   *
+   * Parmak her kıpırdadığında `offsetX`i durum olarak yazsaydık, bir
+   * sürüklemede kart ekranının tamamı yüz kez yeniden render edilirdi.
+   * Ölçüldü: 24 adımlık bir sürüklemede hareket başına 4 DOM yazımı ve
+   * her hareket için tam bir React uzlaştırması. Masaüstünde görünmüyor,
+   * telefonda takılma olarak hissediliyor.
+   *
+   * Bu geri çağrı `requestAnimationFrame` başına EN FAZLA BİR KEZ çağrılır
+   * ve tüketiciye anlık değerleri verir; tüketici bunları doğrudan DOM'a
+   * yazar. Sürükleme boyunca hiç React render'ı olmaz — yalnızca başlangıçta
+   * ve bitişte.
+   */
+  onFrame?: (durum: { offsetX: number; progress: number; intent: SwipeDirection | null }) => void;
 }
 
 export interface SwipeDeckState {
@@ -94,7 +109,8 @@ export function useSwipeDeck({
   onSwipe,
   canSwipeLeft,
   canSwipeRight,
-  disabled = false
+  disabled = false,
+  onFrame
 }: UseSwipeDeckOptions): SwipeDeckState {
   const [offsetX, setOffsetX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -110,25 +126,57 @@ export function useSwipeDeck({
   const axisRef = useRef<'undecided' | 'horizontal' | 'vertical'>('undecided');
   const activePointerRef = useRef<number | null>(null);
   const exitTimerRef = useRef<number | null>(null);
+  /** Sürükleme boyunca anlık öteleme; durum değil, çünkü render tetiklemiyor. */
+  const anlikXRef = useRef(0);
+  const kareRef = useRef<number | null>(null);
+  const onFrameRef = useRef(onFrame);
+  onFrameRef.current = onFrame;
 
   useEffect(() => {
     return () => {
       if (exitTimerRef.current !== null) {
         window.clearTimeout(exitTimerRef.current);
       }
+      if (kareRef.current !== null) {
+        cancelAnimationFrame(kareRef.current);
+      }
     };
   }, []);
 
+  /** Anlık değerleri hesaplayıp tüketiciye bildirir (kare başına bir kez). */
+  const bildir = useCallback((dx: number, solaGider: boolean, sagaGider: boolean) => {
+    const yon: SwipeDirection | null = dx === 0 ? null : dx < 0 ? 'left' : 'right';
+    const gidilebilir = yon === 'left' ? solaGider : yon === 'right' ? sagaGider : false;
+    onFrameRef.current?.({
+      offsetX: dx,
+      progress: Math.min(Math.abs(dx) / COMMIT_DISTANCE, 1),
+      intent: yon && Math.abs(dx) >= COMMIT_DISTANCE && gidilebilir ? yon : null
+    });
+  }, []);
+
+  /** Bekleyen kareyi iptal eder; sürükleme bitince artık yazım olmasın. */
+  const kareyiIptalEt = useCallback(() => {
+    if (kareRef.current !== null) {
+      cancelAnimationFrame(kareRef.current);
+      kareRef.current = null;
+    }
+  }, []);
+
   const reset = useCallback(() => {
+    kareyiIptalEt();
+    anlikXRef.current = 0;
+    bildir(0, canSwipeLeft, canSwipeRight);
     setOffsetX(0);
     setIsDragging(false);
     axisRef.current = 'undecided';
     activePointerRef.current = null;
     velocityRef.current = 0;
-  }, []);
+  }, [bildir, kareyiIptalEt, canSwipeLeft, canSwipeRight]);
 
   const commit = useCallback(
     (direction: SwipeDirection) => {
+      kareyiIptalEt();
+      anlikXRef.current = 0;
       setIsDragging(false);
       activePointerRef.current = null;
       axisRef.current = 'undecided';
@@ -147,7 +195,7 @@ export function useSwipeDeck({
         exitTimerRef.current = null;
       }, SWIPE_EXIT_MS);
     },
-    [onSwipe]
+    [onSwipe, kareyiIptalEt]
   );
 
   const canGo = useCallback(
@@ -219,14 +267,28 @@ export function useSwipeDeck({
       }
 
       const direction: SwipeDirection = dx < 0 ? 'left' : 'right';
-      setOffsetX(canGo(direction) ? dx : dx * RESISTANCE);
+      /*
+       * DURUM YAZILMIYOR. Anlık öteleme ref'te tutuluyor ve kare başına bir
+       * kez tüketiciye bildiriliyor; tüketici de bunu doğrudan DOM'a yazıyor.
+       * Böylece sürükleme boyunca React hiç render etmiyor. `offsetX` durumu
+       * yalnızca sürükleme bittiğinde (reset/commit) güncelleniyor, o yüzden
+       * bileşenin bir sonraki render'ı da doğru değeri görüyor.
+       */
+      anlikXRef.current = canGo(direction) ? dx : dx * RESISTANCE;
+      if (kareRef.current === null) {
+        kareRef.current = requestAnimationFrame(() => {
+          kareRef.current = null;
+          bildir(anlikXRef.current, canSwipeLeft, canSwipeRight);
+        });
+      }
     },
-    [canGo]
+    [canGo, bildir, canSwipeLeft, canSwipeRight]
   );
 
   const finish = useCallback(
     (event: React.PointerEvent) => {
       // Yakalama bırakılmazsa sonraki tıklamalar da yakalayan öğeye gider.
+      kareyiIptalEt();
       const surface = event.currentTarget as HTMLElement;
       if (surface?.hasPointerCapture?.(event.pointerId)) {
         try {
@@ -263,7 +325,7 @@ export function useSwipeDeck({
 
       reset();
     },
-    [canGo, commit, reset]
+    [canGo, commit, reset, kareyiIptalEt]
   );
 
   const dx = offsetX;

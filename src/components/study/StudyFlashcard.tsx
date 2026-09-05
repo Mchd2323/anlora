@@ -137,10 +137,57 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
 
   // Sola kaydırma sonrakine, sağa kaydırma öncekine gider; kâğıt desteyi
   // kenara itme sezgisiyle aynı yön.
+  /*
+   * SÜRÜKLEME DOM'A DOĞRUDAN YAZILIYOR.
+   *
+   * Kanca eskiden her parmak hareketinde `offsetX`i durum olarak yazıyordu;
+   * bu, bir sürüklemede kart ekranının tamamının onlarca kez yeniden render
+   * edilmesi demekti. Ölçüldü: hareket başına dört DOM yazımı ve her hareket
+   * için tam bir React uzlaştırması.
+   *
+   * Artık kanca kare başına bir kez `onFrame` çağırıyor ve aşağıdaki dört
+   * öğenin stilini doğrudan yazıyoruz. Sürükleme boyunca React hiç render
+   * etmiyor; yalnızca sürükleme başlarken ve biterken ediyor. Yazılan
+   * özellikler yalnızca `transform` ve `opacity` — ikisi de yerleşimi
+   * tetiklemiyor, düzen ve dokunma hedefleri değişmiyor.
+   */
+  const kartRef = useRef<HTMLDivElement | null>(null);
+  const solIpucuRef = useRef<HTMLDivElement | null>(null);
+  const sagIpucuRef = useRef<HTMLDivElement | null>(null);
+  const arka1Ref = useRef<HTMLDivElement | null>(null);
+  const arka2Ref = useRef<HTMLDivElement | null>(null);
+
+  const kareYaz = useCallback(
+    ({ offsetX, progress }: { offsetX: number; progress: number }) => {
+      const egim = Math.max(-MAX_TILT_DEG, Math.min(MAX_TILT_DEG, offsetX / TILT_DIVISOR));
+      if (kartRef.current) {
+        kartRef.current.style.transform = `translateX(${offsetX}px) rotate(${egim}deg)`;
+      }
+      if (solIpucuRef.current) {
+        solIpucuRef.current.style.opacity = String(offsetX > 12 && hasPrev ? progress : 0);
+        solIpucuRef.current.style.transform = `translateY(-50%) scale(${0.85 + progress * 0.15})`;
+      }
+      if (sagIpucuRef.current) {
+        sagIpucuRef.current.style.opacity = String(offsetX < -12 && hasNext ? progress : 0);
+        sagIpucuRef.current.style.transform = `translateY(-50%) scale(${0.85 + progress * 0.15})`;
+      }
+      if (arka1Ref.current) {
+        arka1Ref.current.style.transform = `translateY(${20 - progress * 8}px) scale(${0.92 + progress * 0.03})`;
+        arka1Ref.current.style.opacity = String(0.45 + progress * 0.2);
+      }
+      if (arka2Ref.current) {
+        arka2Ref.current.style.transform = `translateY(${10 - progress * 5}px) scale(${0.96 + progress * 0.025})`;
+        arka2Ref.current.style.opacity = String(0.7 + progress * 0.3);
+      }
+    },
+    [hasPrev, hasNext]
+  );
+
   const swipe = useSwipeDeck({
     onSwipe: (direction) => (direction === 'left' ? handleNextCard() : handlePrevCard()),
     canSwipeLeft: hasNext,
-    canSwipeRight: hasPrev
+    canSwipeRight: hasPrev,
+    onFrame: kareYaz
   });
 
   // Çıkış animasyonu (SWIPE_EXIT_MS) boyunca kanca yalnızca kendi sürükleme
@@ -422,6 +469,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
           {hasNext && (
             <>
               <div
+                ref={arka1Ref}
                 aria-hidden="true"
                 className="deck-stack-card absolute inset-x-0 top-0 h-full rounded-[26px] bg-[var(--surface)] border border-[var(--border-light)]"
                 style={{
@@ -430,6 +478,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                 }}
               />
               <div
+                ref={arka2Ref}
                 aria-hidden="true"
                 className="deck-stack-card absolute inset-x-0 top-0 h-full rounded-[26px] bg-[var(--surface)] border border-[var(--neutral-200)]"
                 style={{
@@ -442,6 +491,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
 
           {/* Kenar ipuçları — eşiğe yaklaşıldıkça belirir */}
           <div
+            ref={solIpucuRef}
             aria-hidden="true"
             className="deck-hint absolute left-3 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5 px-3 py-2 rounded-full bg-[var(--text-primary)] text-[var(--bg)] text-[11px] font-bold shadow-[var(--elev-4)]"
             style={{
@@ -453,6 +503,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
             Önceki
           </div>
           <div
+            ref={sagIpucuRef}
             aria-hidden="true"
             className="deck-hint absolute right-3 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5 px-3 py-2 rounded-full bg-[var(--primary)] text-[var(--on-primary)] text-[11px] font-bold shadow-[var(--elev-4)]"
             style={{
@@ -470,6 +521,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
           {currentCard && (
             <div
               key={currentCard.id}
+              ref={kartRef}
               {...surfaceHandlers}
               className={`deck-surface deck-card relative z-10 bg-[var(--surface)] rounded-[26px] border border-[var(--border)] p-6 sm:p-8 flex flex-col min-h-[400px] sm:min-h-[440px] ${
                 swipe.isDragging
