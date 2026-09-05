@@ -9,6 +9,7 @@ import { getUserWordStatus } from '../utils/storageV2';
 import { aramaAnahtari } from '../utils/aramaAnahtari';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { RealmsIcon } from './ui/RealmsIcon';
+import { SahneSeridi } from './ui/SahneSeridi';
 
 /**
  * Oxford 5000 gezgini.
@@ -462,12 +463,15 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
         hem anlaşılır hem kapsayıcı. Açıklama ise asıl soruyu cevaplıyor:
         bunlar kim tarafından, neye göre seçilmiş kelimeler.
 
-        SAHNE ŞERİDİ KALDIRILDI. Buradaki kuzgun-harita şeridi ana sayfanın
-        ikinci tanıtım kartındakiyle aynı sahneydi; kullanıcı Ana Sayfa'dan
-        Oxford'a geçtiğinde aynı görseli arka arkaya iki kez görüyordu.
-        Referanstaki sayfa başlangıcı da doğrudan başlıkla açılıyor.
+        SAHNE ŞERİDİ: BUZ KALESİ. Burada önce kuzgun-harita vardı ve o, ana
+        sayfanın ikinci tanıtım kartındaki sahneyle aynıydı — kullanıcı Ana
+        Sayfa'dan Oxford'a geçtiğinde aynı görseli arka arkaya iki kez
+        görüyordu. Artık sahne alanın kendi işareti: Oxford nerede geçerse
+        buz kalesi orada. Sayfanın tek üst görseli bu.
       */}
-      <div className="parsomen-panel bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)]">
+      <div className="gorsel-panel bg-[var(--surface)] rounded-2xl border border-[var(--border)] overflow-hidden">
+        <SahneSeridi sahne="buzKalesi" oncelikli />
+        <div className="p-6">
         <div className="flex items-center gap-2">
           <h2 className="baslik-yazit text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
             Oxford Kelime Listesi
@@ -479,6 +483,7 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
           belirlediği kelime ve kalıplar. Kendi seviyeni seçip kelime dağarcığını oradan
           geliştirebilirsin — toplam {levelCounts.ALL.toLocaleString('tr-TR')} kayıt.
         </p>
+        </div>
       </div>
 
       {/* Filtreler */}

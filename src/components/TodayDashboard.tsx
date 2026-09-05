@@ -27,7 +27,7 @@ import { HomeHeroArt } from './HomeHeroArt';
 import sahneKitaplik from '../assets/themes/realms/realms-library.webp';
 import sahneKuzgun from '../assets/themes/realms/realms-raven-map.webp';
 import sahneEjderha from '../assets/themes/realms/realms-dragon.webp';
-import sahneBuzKalesi from '../assets/themes/realms/realms-ice-fortress.webp';
+import { SahneSeridi } from './ui/SahneSeridi';
 import { RealmsIcon } from './ui/RealmsIcon';
 
 interface TodayDashboardProps {
@@ -385,6 +385,22 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
         ise en altta — plan bir özet, bir başlangıç noktası değil.
       */}
       {/* 1. KELİME SETLERİM */}
+      {/*
+        BURAYA KÜTÜPHANE ŞERİDİ KONMADI — ÖLÇÜLDÜ.
+
+        Paketin önerdiği dağılım bu kutuya kütüphane sahnesini veriyor, ama
+        paketin kendi kuralı "aynı sahne aynı viewport içinde iki kez
+        görünmesin" diyor. Ekranda ölçtüm: karuselin birinci slaytı
+        (kütüphane) 360x780'de y 199-346 arasında, bu kutunun şeridi ise
+        y 485-581 arasında kalıyor; 480x1000'de 204-334 ve 435-531. İkisi de
+        aynı viewport'un içinde, yani kullanıcı kütüphaneyi tek ekranda iki
+        kez görüyor.
+
+        Kural bir buyruk, dağılım ise paketin kendi deyişiyle bir "öneri".
+        Bu yüzden kutu eski hâlinde bırakıldı. Ana Sayfa'nın diğer iki şeridi
+        (Oxford 5000 -> buz kalesi, Günlük Plan -> kuzgun harita) duruyor;
+        onlar karuseldeki eşleriyle aynı viewport'a düşmüyor.
+      */}
       <div className="parsomen-panel bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="space-y-2 max-w-xl">
@@ -536,14 +552,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           seviye kartları ve düğmeler aynı sırada; sahne yalnızca üstte, metnin
           arkasına girmeyen ayrı bir katman olarak duruyor.
         */}
-        <img
-          src={sahneBuzKalesi}
-          alt="Kar altında buzdan kale"
-          loading="lazy"
-          decoding="async"
-          className="w-full h-[96px] object-cover"
-          style={{ objectPosition: '70% center' }}
-        />
+        <SahneSeridi sahne="buzKalesi" />
         <div className="p-6 sm:p-7 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="space-y-1.5">
@@ -657,7 +666,13 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
         kalan kullanıcı çoğu gün hiçbir şey çalışmaz. Bu kararı vermek
         uygulamanın işidir; alternatifler duruyor ama öne çıkmıyor.
       */}
-      <div className="parsomen-panel bg-[var(--surface)] rounded-2xl p-5 sm:p-6 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)]">
+      {/*
+        Kuzgun-harita şeridi. Günlük plan kutusu da içeriğini koruyarak
+        `gorsel-panel` oldu; şerit tepede, metnin arkasına girmiyor.
+      */}
+      <div className="gorsel-panel bg-[var(--surface)] rounded-2xl border border-[var(--border)] overflow-hidden">
+        <SahneSeridi sahne="kuzgunHarita" />
+        <div className="p-5 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center shrink-0">
@@ -765,6 +780,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           >
             kendini sına
           </button>
+        </div>
         </div>
       </div>
 

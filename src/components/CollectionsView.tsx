@@ -31,6 +31,7 @@ import { apiFetch } from '../utils/authClient';
 import { formatPhonetic } from '../utils/phonetic';
 import { reportMissingWord } from '../services/usageReporter';
 import { RealmsIcon } from './ui/RealmsIcon';
+import { SahneSeridi } from './ui/SahneSeridi';
 import {
   hasExtendedWord,
   getExtendedCard,
@@ -1299,7 +1300,15 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   return (
     <div className="space-y-6 pb-safe-nav max-w-[1180px] mx-auto animate-fadeIn">
       {/* Top Banner: Kelime Setlerim */}
-      <div className="parsomen-panel bg-[var(--surface)] p-6 sm:p-7 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+      {/*
+        Sayfanın tek üst görseli: kütüphane sahnesi. Ana Sayfa'daki "Kelime
+        Setlerim" kutusuyla aynı sahne, çünkü sahne artık o bölümün işareti.
+        Köşe filigranı fotoğrafın üstünde okunmadığı için panel
+        `gorsel-panel`.
+      */}
+      <div className="gorsel-panel bg-[var(--surface)] rounded-2xl border border-[var(--border)] overflow-hidden">
+        <SahneSeridi sahne="kitaplik" oncelikli />
+        <div className="p-6 sm:p-7 flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <h2 className="baslik-yazit text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
@@ -1340,6 +1349,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
             <RealmsIcon name="add" size={20} />
             <span>Yeni Kelime Seti</span>
           </button>
+        </div>
         </div>
       </div>
 

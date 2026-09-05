@@ -22,6 +22,7 @@ import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { RealmsIcon } from './ui/RealmsIcon';
+import { RealmsFigure } from './ui/RealmsFigure';
 
 interface ProfileViewProps {
   profile: UserProfile;
@@ -435,7 +436,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           </div>
         </div>
 
-        <div>
+        {/*
+          KARGA. Profil sayfasının tek görseli. Buraya tam genişlikte bir
+          sahne fotoğrafı konmuyor: profil bir tanıtım sayfası değil, hesap
+          ve ayar sayfası. Şeffaf karga 48 dp'de, giriş/çıkış düğmesinin
+          yanında duruyor; dar ekranda satır alta kayınca düğmeyle birlikte
+          iniyor, hiçbir şeyin üstüne binmiyor.
+        */}
+        <div className="flex items-center gap-3 shrink-0 w-full sm:w-auto justify-end">
+          <RealmsFigure figur="karga" yukseklik={48} />
           {profile.isLoggedIn ? (
             <button
               onClick={onLogout}

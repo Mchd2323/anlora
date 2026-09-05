@@ -24,6 +24,7 @@ import { BRAND } from '../config/brand';
 import { OxfordGroupKey } from '../types/oxford';
 import { RealmsIcon } from './ui/RealmsIcon';
 import { RealmsFigure } from './ui/RealmsFigure';
+import { SahneSeridi } from './ui/SahneSeridi';
 
 /** Sınav kaynağı olarak seçilebilen Oxford grupları. */
 /*
@@ -381,12 +382,14 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
       {/*
         1. Sınav Kurulum Ekranı.
 
-        SAHNE ŞERİDİ KALDIRILDI. Buradaki ejderha şeridi ana sayfanın üçüncü
-        tanıtım kartındakiyle aynı sahneydi; Ana Sayfa'dan Sınav'a geçen
-        kullanıcı aynı görseli arka arkaya iki kez görüyordu.
+        SAHNE ŞERİDİ: EJDERHA. Sayfanın tek üst görseli. Sahne artık alanın
+        işareti — sınav nerede geçerse ejderha orada — ve yalnızca kurulum
+        ekranında duruyor: sorularda da, sonuç kartında da görünmüyor.
       */}
       {quizState === 'IDLE' && (
-        <div className="parsomen-panel bg-[var(--surface)] p-6 sm:p-8 rounded-2xl border border-[var(--border)] space-y-6">
+        <div className="gorsel-panel bg-[var(--surface)] rounded-2xl border border-[var(--border)] overflow-hidden">
+          <SahneSeridi sahne="ejderha" oncelikli />
+          <div className="p-6 sm:p-8 space-y-6">
           <div className="text-center space-y-1.5">
             <div className="w-10 h-10 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center mx-auto">
               <RealmsIcon name="exam" size={22} />
@@ -651,6 +654,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                 : `Sınavı Başlat (${Math.min(questionCount, currentPool.length)} Soru)`}
             </span>
           </button>
+          </div>
         </div>
       )}
 
