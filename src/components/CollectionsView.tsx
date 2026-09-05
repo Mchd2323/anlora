@@ -2405,7 +2405,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                           <span className="block text-[11px] font-bold leading-none">{secenek.label}</span>
                           <span
                             className={`block text-[9px] mt-1 leading-none ${
-                              secili ? 'text-[var(--on-primary)]/90' : 'text-[var(--text-muted)]'
+                              secili ? 'text-[var(--on-primary)]' : 'text-[var(--text-muted)]'
                             }`}
                           >
                             {secenek.ornek}

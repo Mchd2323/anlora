@@ -650,9 +650,7 @@
   mask-image: linear-gradient(90deg, #000 0%, #000 62%, transparent 100%);
 }
 
-:root[data-theme='dark'] .realm-card-motif::after,
-:root[data-theme='orman'] .realm-card-motif::after,
-:root[data-theme='komur'] .realm-card-motif::after {
+:root[data-theme='dark'] .realm-card-motif::after {
   background-image:
     linear-gradient(90deg, rgba(127, 170, 194, 0.18), rgba(183, 149, 82, 0.32), rgba(13, 25, 37, 0)),
     var(--motif-image);
@@ -862,34 +860,11 @@
 }
 }
 
-:root[data-theme="dark"],
-:root[data-theme="orman"],
-:root[data-theme="komur"] {
-  /* Anlora Realms · Kor — Koyu — sıcak kor ve kıvılcım */
-  color-scheme: dark;
-  --bg: #16110C;
-  --surface: #1F1811;
-  --surface-soft: #2A2117;
-  --surface-subtle: #1A140E;
-  --border: #3A2E20;
-  --border-light: #2E241A;
-  --primary: #D9954F;
-  --primary-hover: #E5A967;
-  --primary-soft: #2A1D11;
-  --primary-soft-hover: #332417;
-  --primary-border: #4C361F;
-  --primary-tint: #241A10;
-  --text-primary: #EFE5D4;
-  --text-secondary: #BFB19A;
-  --text-muted: #A69880;
-}
 
 
 /* Tarayıcının kendi arayüzü (kaydırma çubuğu, form denetimleri) de temayı
    izlesin; aksi hâlde koyu sayfanın kenarında parlak bir çubuk kalır. */
-:root[data-theme="dark"],
-:root[data-theme="orman"],
-:root[data-theme="komur"] { color-scheme: dark; }
+:root[data-theme="dark"] { color-scheme: dark; }
 :root[data-theme="light"] { color-scheme: light; }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) { color-scheme: dark;
@@ -1154,101 +1129,12 @@ textarea:focus-visible,
    alır.
    ========================================================================== */
 
-/* --- AÇIK: Deniz — soğuk beyaz, turkuaz marka rengi --------------------- */
-:root[data-theme="deniz"] {
-  /* Anlora Realms · Buz — Açık — kuzeyin soğuk parşömeni */
-  color-scheme: light;
-  --bg: #EEF2F2;
-  --surface: #F9FBFB;
-  --surface-soft: #E1E9EA;
-  --surface-subtle: #F4F7F7;
-  --border: #CBD8DA;
-  --border-light: #DEE7E8;
-  --primary: #1E4152;
-  --primary-hover: #16323F;
-  --primary-soft: #E0EBEF;
-  --primary-soft-hover: #D0E0E6;
-  --primary-border: #B2CBD3;
-  --primary-tint: #EDF4F5;
-  --text-primary: #1D2528;
-  --text-secondary: #44525A;
-  --text-muted: #52616A;
-}
 
 
-/* --- YUMUŞAK: Gül — sıcak pembe ---------------------------------------- */
-:root[data-theme="gul"] {
-  /* Anlora Realms · Şafak — Yumuşak — kor ve sabah kızıllığı */
-  color-scheme: light;
-  --bg: #F7EDE7;
-  --surface: #FCF7F3;
-  --surface-soft: #EEDFD5;
-  --surface-subtle: #F9F2ED;
-  --border: #DDC7B9;
-  --border-light: #EADACE;
-  --primary: #8E362F;
-  --primary-hover: #752A24;
-  --primary-soft: #F7E5E1;
-  --primary-soft-hover: #F0D5CF;
-  --primary-border: #E0BEB7;
-  --primary-tint: #FAEFEB;
-  --text-primary: #2A1F1C;
-  --text-secondary: #584741;
-  --text-muted: #61504A;
-}
 
 
-/* --- AÇIK: Kum — sıcak kum beji, kiremit vurgu -------------------------
-   'Kağıt' temasının yerine geldi. Kağıt, temel temanın (`:root`) birebir
-   aynısıydı; yani listede iki ayrı seçenek gibi görünüp aynı ekranı veriyordu.
-   Kum gerçekten farklı bir his veriyor: daha sıcak bir zemin, kiremit
-   tonunda bir marka rengi.
-   ---------------------------------------------------------------------- */
-:root[data-theme="kum"] {
-  /* Anlora Realms · Parşömen — Açık — sıcak parşömen */
-  color-scheme: light;
-  --bg: #F2EBDD;
-  --surface: #FBF7EF;
-  --surface-soft: #EBE1CD;
-  --surface-subtle: #F6F0E2;
-  --border: #D9CCB0;
-  --border-light: #E7DCC4;
-  --primary: #7A4B1E;
-  --primary-hover: #653D18;
-  --primary-soft: #F5E9D9;
-  --primary-soft-hover: #EEDDC6;
-  --primary-border: #DEC49F;
-  --primary-tint: #F8F1E5;
-  --text-primary: #241E16;
-  --text-secondary: #544737;
-  --text-muted: #5D5040;
-}
 
 
-/* --- AÇIK: Sis — soğuk gri-mavi, sakin ---------------------------------
-   'Lavanta' temasının yerine geldi. Sis, ekranda hiçbir rengin öne
-   çıkmadığı, uzun çalışmada yormayan bir zemin sunuyor; leylak tonu
-   yerine nötr bir sakinlik.
-   ---------------------------------------------------------------------- */
-:root[data-theme="sis"] {
-  /* Anlora Realms · Sis — Yumuşak — sakin gri-mavi */
-  color-scheme: light;
-  --bg: #F0F2F4;
-  --surface: #FAFBFC;
-  --surface-soft: #E3E7EB;
-  --surface-subtle: #F5F7F8;
-  --border: #CDD4DB;
-  --border-light: #DFE4E9;
-  --primary: #2C445C;
-  --primary-hover: #213548;
-  --primary-soft: #E4EAF0;
-  --primary-soft-hover: #D5DEE7;
-  --primary-border: #B8C6D4;
-  --primary-tint: #EFF3F6;
-  --text-primary: #1F242A;
-  --text-secondary: #48515B;
-  --text-muted: #555E68;
-}
 
 
 
@@ -1260,9 +1146,7 @@ textarea:focus-visible,
    Artık kendi karakteri var: soğuk lacivert bir zemin ve indigo vurgu.
    Bu blok ortak koyu tanımlardan SONRA geldiği için onların üstüne yazar.
    ---------------------------------------------------------------------- */
-:root[data-theme="dark"],
-:root[data-theme="orman"],
-:root[data-theme="komur"] {
+:root[data-theme="dark"] {
   /*
    * ANLORA REALMS — GECE.
    *
@@ -1369,51 +1253,12 @@ textarea:focus-visible,
 }
 
 
-/* Orman ve Kömür yukarıdaki tam koyu paletin ÜSTÜNE yazıyor: kendi zemin ve
-   vurgu renklerini alıyor, anlamsal renkleri (CEFR rozetleri, öğrenildi,
-   tekrar) ise koyu paletten miras alıyor. Önceden bu iki tema açık paletin
-   anlamsal renklerini koyu zeminde kullanıyordu; ölçümde 1,67'ye kadar inen
-   13 ve 15 başarısız çift çıkmıştı. */
-/* --- KOYU: Orman — yeşile çalan koyu ----------------------------------- */
-:root[data-theme="orman"] {
-  /* Anlora Realms · Koru — Koyu — kuzeyin ormanı */
-  color-scheme: dark;
-  --bg: #0E1614;
-  --surface: #152220;
-  --surface-soft: #1C2C29;
-  --surface-subtle: #111C1A;
-  --border: #283B37;
-  --border-light: #20302D;
-  --primary: #7FB79A;
-  --on-primary: #152220;
-  --primary-hover: #95C7AC;
-  --primary-soft: #152A22;
-  --primary-soft-hover: #1A3329;
-  --primary-border: #2C4A3B;
-  --primary-tint: #132420;
-  --text-primary: #E6E9DF;
-  --text-secondary: #B0BDB6;
-  --text-muted: #95A39C;
-}
-/* --- KOYU: Kömür — sıcak amber marka rengi ----------------------------- */
-:root[data-theme="komur"] {
-  --bg: #16130F;
-  --surface: #1F1B16;
-  --surface-soft: #29231C;
-  --surface-subtle: #1A1712;
-  --border: #383026;
-  --border-light: #2C261E;
-  --primary: #D9A24E;
-  --on-primary: #1F1B16;
-  --primary-hover: #E8B565;
-  --primary-soft: #2A2116;
-  --primary-soft-hover: #372B1D;
-  --primary-border: #4C3D26;
-  --primary-tint: #221B12;
-  --text-primary: #F0EAE0;
-  --text-secondary: #ADA292;
-  /* #918878, --surface-soft (#29231C) uzerinde 4,44 olcuyordu; 4,5 esigi icin
-     bir tik acildi (yeni olcum 4,87). */
-  --text-muted: #998F7E;
-}
 
+/* ==========================================================================
+   Realms tema aileleri
+   ==========================================================================
+   Sekiz aile yalnızca VURGU belirteçlerini değiştiriyor; sayfa, panel, iç
+   kart ve metin renkleri her ailede aynı kalıyor. Dosya üretilmiştir
+   (scripts/make-theme-families.mjs) ve en sonda duruyor ki temel değerlerin
+   üstüne yazsın. */
+@import './styles/realms-families.css';

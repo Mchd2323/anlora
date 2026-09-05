@@ -1,0 +1,343 @@
+/* ÜRETİLMİŞ DOSYA — elle düzenleme.
+   Kaynak: scripts/make-theme-families.mjs
+   Yeniden üretmek için: node scripts/make-theme-families.mjs
+
+   Sekiz Realms tema ailesinin vurgu renkleri. Sayfa, panel, iç kart ve metin
+   renkleri BURADA YOK: onlar fix paketinin sabitlediği yüzey değerleri ve her
+   ailede aynı kalıyor. Aile yalnızca vurguyu değiştiriyor.
+
+   Her değer tarayıcıda ölçüldü; vurgu renginin sabit yüzeylerin üstündeki en
+   düşük kontrastı 5.0:1 eşiğinin altına düşmüyor.
+
+   Varsayılan aile "Kuzgun Haritası": açık vurgusu bugünkü
+   onaylı temanın vurgusunun kendisi olduğu için temel :root ve koyu blok
+   olduğu gibi geçerli kalıyor, onun için kural üretilmiyor.
+*/
+
+/* Taçlı Parşömen — kaynak renk #B79552
+   açık #765A26  kontrast 5.73 / 5.31 / 5.16 / 5.39  üzeri #FBF7EF (6.03)
+   koyu #D4B56D  kontrast 7.99 / 8.99 / 8.66  üzeri #142433 (7.99) */
+:root[data-theme='light'][data-family='tacli-parsomen'] {
+  --primary: #765A26;
+  --primary-hover: #6A4F19;
+  --primary-deep: #62470F;
+  --primary-border-strong: #D3C8B3;
+  --on-primary: #FBF7EF;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme])[data-family='tacli-parsomen'] {
+    --primary: #765A26;
+    --primary-hover: #6A4F19;
+    --primary-deep: #62470F;
+    --primary-border-strong: #D3C8B3;
+    --on-primary: #FBF7EF;
+  }
+}
+:root[data-theme='dark'][data-family='tacli-parsomen'] {
+  --primary: #D4B56D;
+  --primary-hover: #E4C57D;
+  --primary-deep: #F5D58D;
+  --primary-soft: #252C2E;
+  --primary-soft-hover: #313532;
+  --primary-soft-strong: #393B35;
+  --primary-border: #47463A;
+  --primary-border-strong: #595440;
+  --primary-tint: #1F272B;
+  --on-primary: #142433;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme])[data-family='tacli-parsomen'] {
+    --primary: #D4B56D;
+    --primary-hover: #E4C57D;
+    --primary-deep: #F5D58D;
+    --primary-soft: #252C2E;
+    --primary-soft-hover: #313532;
+    --primary-soft-strong: #393B35;
+    --primary-border: #47463A;
+    --primary-border-strong: #595440;
+    --primary-tint: #1F272B;
+    --on-primary: #142433;
+  }
+}
+
+/* Buz Kalesi — kaynak renk #7FAAC2
+   açık #2F6078  kontrast 6.1 / 5.65 / 5.49 / 5.74  üzeri #FBF7EF (6.41)
+   koyu #9FC9DE  kontrast 8.94 / 10.05 / 9.68  üzeri #142433 (8.94) */
+:root[data-theme='light'][data-family='buz-kalesi'] {
+  --primary: #2F6078;
+  --primary-hover: #23556C;
+  --primary-deep: #1A4C64;
+  --primary-border-strong: #BECACB;
+  --on-primary: #FBF7EF;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme])[data-family='buz-kalesi'] {
+    --primary: #2F6078;
+    --primary-hover: #23556C;
+    --primary-deep: #1A4C64;
+    --primary-border-strong: #BECACB;
+    --on-primary: #FBF7EF;
+  }
+}
+:root[data-theme='dark'][data-family='buz-kalesi'] {
+  --primary: #9FC9DE;
+  --primary-hover: #AFD9EF;
+  --primary-deep: #BFEAFF;
+  --primary-soft: #1F2E3B;
+  --primary-soft-hover: #273946;
+  --primary-soft-strong: #2D404E;
+  --primary-border: #374C5B;
+  --primary-border-strong: #445C6B;
+  --primary-tint: #1A2936;
+  --on-primary: #142433;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme])[data-family='buz-kalesi'] {
+    --primary: #9FC9DE;
+    --primary-hover: #AFD9EF;
+    --primary-deep: #BFEAFF;
+    --primary-soft: #1F2E3B;
+    --primary-soft-hover: #273946;
+    --primary-soft-strong: #2D404E;
+    --primary-border: #374C5B;
+    --primary-border-strong: #445C6B;
+    --primary-tint: #1A2936;
+    --on-primary: #142433;
+  }
+}
+
+/* Kuzgun Haritası — kaynak renk #15283D
+   açık #15283D  kontrast 13.33 / 12.34 / 11.99 / 12.53  üzeri #FBF7EF (14.01)
+   koyu #A8BED1  kontrast 8.23 / 9.26 / 8.92  üzeri #142433 (8.23) */
+/* Varsayılan aile: temel :root ve koyu blok olduğu gibi geçerli. */
+
+/* Ejderha Köz — kaynak renk #B66038
+   açık #8B3E20  kontrast 6.66 / 6.17 / 5.99 / 6.26  üzeri #FBF7EF (7)
+   koyu #E28F61  kontrast 6.27 / 7.05 / 6.79  üzeri #142433 (6.27) */
+:root[data-theme='light'][data-family='ejderha-koz'] {
+  --primary: #8B3E20;
+  --primary-hover: #7E3213;
+  --primary-deep: #752A08;
+  --primary-border-strong: #D9C0B1;
+  --on-primary: #FBF7EF;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme])[data-family='ejderha-koz'] {
+    --primary: #8B3E20;
+    --primary-hover: #7E3213;
+    --primary-deep: #752A08;
+    --primary-border-strong: #D9C0B1;
+    --on-primary: #FBF7EF;
+  }
+}
+:root[data-theme='dark'][data-family='ejderha-koz'] {
+  --primary: #E28F61;
+  --primary-hover: #F39F70;
+  --primary-deep: #FFAF80;
+  --primary-soft: #27272C;
+  --primary-soft-hover: #332E30;
+  --primary-soft-strong: #3C3332;
+  --primary-border: #4B3B36;
+  --primary-border-strong: #5E463C;
+  --primary-tint: #20242A;
+  --on-primary: #142433;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme])[data-family='ejderha-koz'] {
+    --primary: #E28F61;
+    --primary-hover: #F39F70;
+    --primary-deep: #FFAF80;
+    --primary-soft: #27272C;
+    --primary-soft-hover: #332E30;
+    --primary-soft-strong: #3C3332;
+    --primary-border: #4B3B36;
+    --primary-border-strong: #5E463C;
+    --primary-tint: #20242A;
+    --on-primary: #142433;
+  }
+}
+
+/* Kızıl Kale — kaynak renk #9E3F38
+   açık #7E2C2A  kontrast 8.2 / 7.59 / 7.37 / 7.71  üzeri #FBF7EF (8.62)
+   koyu #D9786D  kontrast 5.16 / 5.8 / 5.58  üzeri #142433 (5.16) */
+:root[data-theme='light'][data-family='kizil-kale'] {
+  --primary: #7E2C2A;
+  --primary-hover: #712020;
+  --primary-deep: #681718;
+  --primary-border-strong: #D6BAB4;
+  --on-primary: #FBF7EF;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme])[data-family='kizil-kale'] {
+    --primary: #7E2C2A;
+    --primary-hover: #712020;
+    --primary-deep: #681718;
+    --primary-border-strong: #D6BAB4;
+    --on-primary: #FBF7EF;
+  }
+}
+:root[data-theme='dark'][data-family='kizil-kale'] {
+  --primary: #D9786D;
+  --primary-hover: #EA877C;
+  --primary-deep: #FC978B;
+  --primary-soft: #25242E;
+  --primary-soft-hover: #322A32;
+  --primary-soft-strong: #3A2E35;
+  --primary-border: #48353A;
+  --primary-border-strong: #5B3D40;
+  --primary-tint: #1F222B;
+  --on-primary: #142433;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme])[data-family='kizil-kale'] {
+    --primary: #D9786D;
+    --primary-hover: #EA877C;
+    --primary-deep: #FC978B;
+    --primary-soft: #25242E;
+    --primary-soft-hover: #322A32;
+    --primary-soft-strong: #3A2E35;
+    --primary-border: #48353A;
+    --primary-border-strong: #5B3D40;
+    --primary-tint: #1F222B;
+    --on-primary: #142433;
+  }
+}
+
+/* Orman Nöbeti — kaynak renk #355B4A
+   açık #355B4A  kontrast 6.81 / 6.3 / 6.12 / 6.4  üzeri #FBF7EF (7.15)
+   koyu #8BC6A1  kontrast 8.04 / 9.04 / 8.7  üzeri #142433 (8.04) */
+:root[data-theme='light'][data-family='orman-nobeti'] {
+  --primary: #355B4A;
+  --primary-hover: #2A503F;
+  --primary-deep: #224838;
+  --primary-border-strong: #C0C8BE;
+  --on-primary: #FBF7EF;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme])[data-family='orman-nobeti'] {
+    --primary: #355B4A;
+    --primary-hover: #2A503F;
+    --primary-deep: #224838;
+    --primary-border-strong: #C0C8BE;
+    --on-primary: #FBF7EF;
+  }
+}
+:root[data-theme='dark'][data-family='orman-nobeti'] {
+  --primary: #8BC6A1;
+  --primary-hover: #9BD6B1;
+  --primary-deep: #ABE7C1;
+  --primary-soft: #1C2E34;
+  --primary-soft-hover: #24383B;
+  --primary-soft-strong: #293F40;
+  --primary-border: #324B49;
+  --primary-border-strong: #3D5B54;
+  --primary-tint: #182930;
+  --on-primary: #142433;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme])[data-family='orman-nobeti'] {
+    --primary: #8BC6A1;
+    --primary-hover: #9BD6B1;
+    --primary-deep: #ABE7C1;
+    --primary-soft: #1C2E34;
+    --primary-soft-hover: #24383B;
+    --primary-soft-strong: #293F40;
+    --primary-border: #324B49;
+    --primary-border-strong: #3D5B54;
+    --primary-tint: #182930;
+    --on-primary: #142433;
+  }
+}
+
+/* Demir Gece — kaynak renk #F2EBDD
+   açık #3F4E5A  kontrast 7.63 / 7.07 / 6.87 / 7.18  üzeri #FBF7EF (8.03)
+   koyu #C1CDD4  kontrast 9.74 / 10.95 / 10.55  üzeri #142433 (9.74) */
+:root[data-theme='light'][data-family='demir-gece'] {
+  --primary: #3F4E5A;
+  --primary-hover: #35434F;
+  --primary-deep: #2D3B47;
+  --primary-border-strong: #C3C4C2;
+  --on-primary: #FBF7EF;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme])[data-family='demir-gece'] {
+    --primary: #3F4E5A;
+    --primary-hover: #35434F;
+    --primary-deep: #2D3B47;
+    --primary-border-strong: #C3C4C2;
+    --on-primary: #FBF7EF;
+  }
+}
+:root[data-theme='dark'][data-family='demir-gece'] {
+  --primary: #C1CDD4;
+  --primary-hover: #D1DDE4;
+  --primary-deep: #E1EEF5;
+  --primary-soft: #232F3A;
+  --primary-soft-hover: #2D3945;
+  --primary-soft-strong: #35414C;
+  --primary-border: #414D58;
+  --primary-border-strong: #515D68;
+  --primary-tint: #1D2935;
+  --on-primary: #142433;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme])[data-family='demir-gece'] {
+    --primary: #C1CDD4;
+    --primary-hover: #D1DDE4;
+    --primary-deep: #E1EEF5;
+    --primary-soft: #232F3A;
+    --primary-soft-hover: #2D3945;
+    --primary-soft-strong: #35414C;
+    --primary-border: #414D58;
+    --primary-border-strong: #515D68;
+    --primary-tint: #1D2935;
+    --on-primary: #142433;
+  }
+}
+
+/* Fildişi Altın — kaynak renk #FBF7EF
+   açık #6D5428  kontrast 6.34 / 5.87 / 5.7 / 5.96  üzeri #FBF7EF (6.66)
+   koyu #FBF7EF  kontrast 14.78 / 16.61 / 16  üzeri #142433 (14.78) */
+:root[data-theme='light'][data-family='fildisi-altin'] {
+  --primary: #6D5428;
+  --primary-hover: #61491C;
+  --primary-deep: #594113;
+  --primary-border-strong: #D0C6B3;
+  --on-primary: #FBF7EF;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme])[data-family='fildisi-altin'] {
+    --primary: #6D5428;
+    --primary-hover: #61491C;
+    --primary-deep: #594113;
+    --primary-border-strong: #D0C6B3;
+    --on-primary: #FBF7EF;
+  }
+}
+:root[data-theme='dark'][data-family='fildisi-altin'] {
+  --primary: #FBF7EF;
+  --primary-hover: #FFFFF7;
+  --primary-deep: #FFFFF7;
+  --primary-soft: #2A343D;
+  --primary-soft-hover: #384149;
+  --primary-soft-strong: #414A51;
+  --primary-border: #525960;
+  --primary-border-strong: #676D72;
+  --primary-tint: #222D37;
+  --on-primary: #142433;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme])[data-family='fildisi-altin'] {
+    --primary: #FBF7EF;
+    --primary-hover: #FFFFF7;
+    --primary-deep: #FFFFF7;
+    --primary-soft: #2A343D;
+    --primary-soft-hover: #384149;
+    --primary-soft-strong: #414A51;
+    --primary-border: #525960;
+    --primary-border-strong: #676D72;
+    --primary-tint: #222D37;
+    --on-primary: #142433;
+  }
+}
+

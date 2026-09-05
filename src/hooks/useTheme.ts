@@ -1,43 +1,79 @@
 import { useEffect } from 'react';
 import { UserSettings } from '../types';
+import { AILE_KIMLIKLERI, VARSAYILAN_AILE, RealmsAileId } from '../theme/realmsFamilies';
 
 /**
  * Tema ve yazı büyüklüğü tercihini belgeye uygular.
  *
- * TEMA. Üç durum vardır, iki değil:
- *   - 'light' / 'dark': kökte `data-theme` durur, sistem ayarını geçersiz kılar.
- *   - 'system': hiçbir işaret konmaz; ayrımı yalnızca `prefers-color-scheme`
- *     yapar. İşaret koymak "sistemi izle" seçeneğini bozar, çünkü sistem
- *     sonradan değişse bile sayfa donmuş kalırdı.
+ * İKİ AYRI SEÇİM. Tema artık tek bir listeden seçilmiyor:
+ *
+ *   - MOD (`themeMode`): Sistem / Açık / Koyu. 'system' hiçbir işaret
+ *     koymaz; ayrımı yalnızca `prefers-color-scheme` yapar. İşaret koymak
+ *     "sistemi izle" seçeneğini bozardı, çünkü telefon ayarı sonradan
+ *     değişse bile sayfa donmuş kalırdı.
+ *   - AİLE (`themeFamily`): sekiz Realms ailesinden biri, kökte
+ *     `data-family` olarak durur. Aile yalnızca vurgu belirteçlerini
+ *     değiştirir; sayfa, panel, iç kart ve metin renkleri sabittir. Bu
+ *     yüzden aile ile mod birbirinden bağımsız: "Sistem + Kızıl Kale"
+ *     seçilmişse, telefon koyuya geçince kızılın koyu karşılığı uygulanır.
  *
  * YAZI BÜYÜKLÜĞÜ. Kök `font-size` ölçeklenir. Arayüzün tamamı `rem` tabanlı
  * olduğu için tek değer her yeri birlikte büyütür; tek tek bileşenlerle
  * oynamak düzeni yerinden oynatırdı.
  */
+
 /**
- * Kaldırılan temaların karşılığı.
+ * Kaldırılan tek listeli temaların yeni iki alana karşılığı.
  *
- * 'light' temel temanın birebir aynısıydı, 'lavanta' ise yerini 'sis'e
- * bıraktı. Bu değerler bazı kullanıcıların ayarlarında KAYITLI: eşleme
- * olmadan kökte tanımsız bir `data-theme` kalır ve hiçbir tema değişkeni
- * uygulanmaz — ekran bozuk görünür. Kullanıcının kaydı silinmiyor, yalnızca
- * en yakın karşılığa yönlendiriliyor.
+ * Bu değerler kullanıcıların ayarlarında KAYITLI. Eşleme olmadan kökte
+ * tanımsız bir `data-theme` kalır ve hiçbir tema değişkeni uygulanmaz —
+ * ekran bozuk görünür. Kayıt silinmiyor: `settings.theme` olduğu yerde
+ * duruyor, yalnızca ilk okumada moda çevriliyor.
+ *
+ * Renk kimlikleri artık aile olarak değil MOD olarak karşılanıyor, çünkü
+ * eski sekiz ön ayarın hiçbiri yeni sekiz ailenin renk tanımına birebir
+ * denk düşmüyor; kullanıcının gerçekten seçtiği şey açık mı koyu mu
+ * olduğuydu. Aile varsayılanda kalıyor ve varsayılan aile bugünkü onaylı
+ * temanın kendisi, yani kimsenin ekranı geçişte değişmiyor.
  */
-const ESKI_TEMA_KARSILIGI: Record<string, string> = {
-  light: 'system',
-  lavanta: 'sis'
+const ESKI_TEMA_MODU: Record<string, 'system' | 'light' | 'dark'> = {
+  system: 'system',
+  light: 'light',
+  deniz: 'light',
+  kum: 'light',
+  gul: 'light',
+  sis: 'light',
+  lavanta: 'light',
+  dark: 'dark',
+  orman: 'dark',
+  komur: 'dark'
 };
 
+/** Ayarlardan geçerli modu çözer; eski `theme` alanı da hesaba katılır. */
+export function cozModu(settings: UserSettings): 'system' | 'light' | 'dark' {
+  if (settings.themeMode) return settings.themeMode;
+  const eski = settings.theme;
+  if (eski && ESKI_TEMA_MODU[eski]) return ESKI_TEMA_MODU[eski];
+  return 'system';
+}
+
+/** Ayarlardan geçerli aileyi çözer; tanınmayan değer varsayılana düşer. */
+export function cozAileyi(settings: UserSettings): RealmsAileId {
+  const secili = settings.themeFamily as RealmsAileId | undefined;
+  return secili && AILE_KIMLIKLERI.includes(secili) ? secili : VARSAYILAN_AILE;
+}
+
 export function useTheme(settings: UserSettings): void {
-  const kayitli = settings.theme || 'system';
-  const theme = ESKI_TEMA_KARSILIGI[kayitli] || kayitli;
+  const mod = cozModu(settings);
+  const aile = cozAileyi(settings);
   const scale = settings.fontScale || 1;
 
   useEffect(() => {
     const root = document.documentElement;
-    if (theme === 'system') root.removeAttribute('data-theme');
-    else root.setAttribute('data-theme', theme);
-  }, [theme]);
+    if (mod === 'system') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mod);
+    root.setAttribute('data-family', aile);
+  }, [mod, aile]);
 
   useEffect(() => {
     const root = document.documentElement;

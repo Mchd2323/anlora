@@ -264,20 +264,25 @@ export interface UserSettings {
    * sistem ayarı geçersiz kalır.
    */
   /**
-   * Renk teması.
+   * ESKİ TEMA KİMLİĞİ — YALNIZCA GEÇMİŞ KAYITLAR İÇİN.
    *
-   * 'system': hiçbir işaret konmaz, ayrımı telefonun ayarı yapar.
-   * Diğerleri kökte `data-theme` olarak durur ve sistemi geçersiz kılar.
-   * 'light'/'dark' ilk sürümden kalan kimliklerdir; kayıtlı ayarları
-   * bozmamak için adları korundu.
+   * Tema seçimi artık iki ayrı şeye bölündü: `themeMode` (Sistem / Açık /
+   * Koyu) ve `themeFamily` (sekiz Realms ailesinden biri). Bu alan hâlâ
+   * okunuyor çünkü kullanıcıların ayarlarında KAYITLI; ilk açılışta yeni iki
+   * alana çevriliyor ve değeri silinmiyor. Yeni kod buraya yazmıyor.
    */
-  /*
-   * 'light' ve 'lavanta' kaldırıldı: 'light' temel temanın birebir aynısıydı
-   * (listede iki ayrı seçenek gibi görünüp aynı ekranı veriyordu), 'lavanta'
-   * ise yerini daha ayırt edici 'sis'e bıraktı. Eski değeri kayıtlı olan
-   * kullanıcılar için geçiş aşağıda ele alınıyor.
+  theme?: 'system' | 'deniz' | 'kum' | 'gul' | 'sis' | 'dark' | 'orman' | 'komur' | 'light' | 'lavanta';
+  /**
+   * Açık/koyu modu. 'system' hiçbir işaret koymaz; ayrımı yalnızca
+   * `prefers-color-scheme` yapar, böylece telefon ayarı sonradan değişince
+   * uygulama da değişir.
    */
-  theme?: 'system' | 'deniz' | 'kum' | 'gul' | 'sis' | 'dark' | 'orman' | 'komur';
+  themeMode?: 'system' | 'light' | 'dark';
+  /**
+   * Seçili Realms tema ailesi. Yalnızca vurgu belirteçlerini değiştirir;
+   * sayfa, panel, iç kart ve metin renkleri her ailede aynıdır.
+   */
+  themeFamily?: string;
   /**
    * Yazı büyüklüğü çarpanı (1 = varsayılan).
    *
