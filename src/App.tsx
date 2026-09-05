@@ -58,8 +58,10 @@ import {
   getUserProfileV2,
   saveUserProfileV2,
   setUserWordStatus,
-  setUserWordStatuses
+  setUserWordStatuses,
+  V2_KEYS
 } from './utils/storageV2';
+import { readRaw } from './utils/safeStorage';
 import { apiFetch, logout } from './utils/authClient';
 import { runOxfordIdMigrationIfNeeded } from './utils/oxfordIdMigration';
 import { OxfordGroupKey } from './types/oxford';
@@ -168,6 +170,23 @@ export default function App() {
    */
   const [oxfordWords, setOxfordWords] = useState<WordCard[]>([]);
   const [oxfordExtraWords, setOxfordExtraWords] = useState<WordCard[]>([]);
+  /*
+   * İKİ AYRI HAZIRLIK — ÖLÇÜLMÜŞ BİR SEBEPLE AYRILDI.
+   *
+   * Eskiden tek bayrak vardı ve uygulamanın BÜTÜN içerik alanı sözlük
+   * yüklenene kadar dönen çarkla kapalı kalıyordu. Ölçüldü (CPU 4x, 600
+   * kelime): alt menü 486 ms'de boyanıyor, içerik 1049 ms'de geliyordu —
+   * arada 563 ms boyunca kendi setini açmak isteyen kullanıcı da 3,15 MB'lik
+   * Oxford sözlüğünü bekliyordu. Sözlüğün açılışa net maliyeti çalışma
+   * zamanı A/B ile 188 ms ölçüldü (parça boş modülle değiştirildi).
+   *
+   * `veriHazir`  : kullanıcının kendi verisi okundu — setler, üyelikler,
+   *                öğrenme durumları, favoriler, ayarlar. Sözlüğe muhtaç
+   *                değil; kabuk boyanır boyanmaz hazır olur.
+   * `sozlukHazir`: Oxford sözlüğü belleğe alındı. Yalnızca Oxford'a muhtaç
+   *                yerler bunu bekler ve orada iskelet gösterilir.
+   */
+  const [veriHazir, setVeriHazir] = useState(false);
   const [isDictionaryReady, setIsDictionaryReady] = useState(false);
   /*
    * Sözlük yüklenemedi mi? Bu iki durum, açılış ekranındaki "dönen çark"ın
@@ -250,32 +269,53 @@ export default function App() {
   const [cardToAddToCollection, setCardToAddToCollection] = useState<WordCard | null>(null);
   const [editingCard, setEditingCard] = useState<WordCard | null>(null);
 
+  /*
+   * SÖZLÜĞÜ YÜKLEYEN TEK GİRİŞ.
+   *
+   * `loadOxfordCore()` kendi içinde tekilleştiriyor (aynı anda iki çağrı tek
+   * yüklemeye düşüyor, yüklenmişse hemen dönüyor), bu yüzden buradan kaç kez
+   * çağrıldığının önemi yok. Sözlük bir kez belleğe alınınca oturum boyunca
+   * orada kalıyor; paketteki parça da servis çalışanının ön-önbelleğinde
+   * olduğu için ikinci açılışta ağ gerekmiyor, çevrimdışı da çalışıyor.
+   */
+  const sozlugüYukle = useCallback(() => {
+    loadOxfordCore()
+      .then(() => {
+        setOxfordWords(getOxford3000Words());
+        setOxfordExtraWords(getOxford5000ExtraWords());
+        setIsDictionaryReady(true);
+        setDictionaryError(false);
+      })
+      .catch(() => setDictionaryError(true));
+  }, []);
+
   // Initialize and Migrate V1 data on startup
   useEffect(() => {
     let cancelled = false;
     setDictionaryError(false);
 
     /*
-     * Göç adımları sözlüğe muhtaçtır (eski kayıtlar Oxford kimlikleriyle
-     * eşleştiriliyor), bu yüzden kullanıcı verisi de sözlük yüklendikten
-     * SONRA okunur. Aksi hâlde göç çalışmadan okunan koleksiyonlar bir
-     * sonraki yazmada eski kimliklerle geri yazılırdı.
+     * KULLANICI VERİSİ ARTIK SÖZLÜĞÜ BEKLEMİYOR.
+     *
+     * Tek istisna V1'den V2'ye göç: o adım eski kayıtları Oxford kartlarıyla
+     * eşleştirdiği için sözlüğe muhtaç. Ama göç yalnızca BİR KEZ çalışır ve
+     * bittiğinde `lexiflow_v2_migration_done` bayrağı yazılır. Dolayısıyla
+     * bayrağı önce okuyoruz: yazılıysa (yani her normal açılışta) sözlüğe hiç
+     * ihtiyaç yok, kullanıcının verisi doğrudan okunuyor.
+     *
+     * Oxford kimlik göçü (`runOxfordIdMigrationIfNeeded`) sözlüğe muhtaç
+     * DEĞİL — statik bir eşleme dosyası kullanıyor (`oxfordIdMigration.json`)
+     * — bu yüzden her koşulda burada, diğer okumalardan önce çalışıyor.
      */
-    loadOxfordCore().then(() => {
+    const gocGerekli = readRaw(V2_KEYS.MIGRATION_COMPLETED) !== 'true';
+
+    const kullaniciVerisiniOku = () => {
       if (cancelled) return;
 
-      const core = getOxford3000Words();
-      const extra = getOxford5000ExtraWords();
-
-      runV1toV2MigrationIfNeeded(core);
-    // Oxford verisi resmî kaynaklardan yeniden üretildiğinde kayıt kimlikleri
-    // kararlı bir şemaya geçti. Kullanıcının "Öğrendim", "Tekrar Et", favori
-    // ve çalışma geçmişi bu kimliklere bağlı olduğu için göç V2'den HEMEN
-    // SONRA, diğer okumalardan önce çalışmalıdır.
+      // Kullanıcının "Öğrendim", "Tekrar Et", favori ve çalışma geçmişi
+      // kararlı Oxford kimliklerine bağlı; bu göç diğer okumalardan önce
+      // çalışmalı.
       runOxfordIdMigrationIfNeeded();
-
-      setOxfordWords(core);
-      setOxfordExtraWords(extra);
 
       setCollections(getCollectionsV2());
       setMemberships(getMembershipsV2());
@@ -287,7 +327,7 @@ export default function App() {
       setProfile(getUserProfileV2());
       setUnlockedBadges(checkAndUnlockBadgesV2());
 
-      setIsDictionaryReady(true);
+      setVeriHazir(true);
 
       /*
        * Genel Dağarcık dizini (~50 KB) arka planda yüklenir. Kullanıcı yeni
@@ -303,21 +343,107 @@ export default function App() {
        * sayacı bunu kullanıyor; kim olduğu gönderilmiyor.
        */
       reportAppOpened();
-    }).catch(() => {
+    };
+
+    if (gocGerekli) {
       /*
-       * Sözlük yüklenemedi. Eskiden bu red hiç yakalanmıyordu: kullanıcı
-       * dönen çarkı ve "bu yalnızca birkaç saniye sürer" yazısını sonsuza
-       * kadar görüyordu — hata da yoktu, çıkış da. Artık durum açıkça
-       * söyleniyor ve yeniden deneme yolu var.
+       * İLK AÇILIŞ YA DA ESKİ SÜRÜMDEN GELEN CİHAZ. Göç Oxford kartlarına
+       * muhtaç olduğu için burada sözlük bekleniyor — ömürde bir kez.
        */
-      if (!cancelled) setDictionaryError(true);
-    });
+      loadOxfordCore()
+        .then(() => {
+          if (cancelled) return;
+          const core = getOxford3000Words();
+          runV1toV2MigrationIfNeeded(core);
+          setOxfordWords(core);
+          setOxfordExtraWords(getOxford5000ExtraWords());
+          setIsDictionaryReady(true);
+          kullaniciVerisiniOku();
+        })
+        .catch(() => {
+          /*
+           * Sözlük yüklenemedi. Eskiden bu red hiç yakalanmıyordu: kullanıcı
+           * dönen çarkı ve "bu yalnızca birkaç saniye sürer" yazısını sonsuza
+           * kadar görüyordu — hata da yoktu, çıkış da. Artık durum açıkça
+           * söyleniyor ve yeniden deneme yolu var.
+           */
+          if (!cancelled) setDictionaryError(true);
+        });
+    } else {
+      kullaniciVerisiniOku();
+      /*
+       * Sözlük boşta yükleniyor: kabuk boyandıktan ve ilk dokunuşlar
+       * karşılandıktan SONRA. Ana Sayfa'daki Oxford seviye sayıları bunu
+       * bekliyor, ama hiçbir sekme onun yüzünden kilitlenmiyor.
+       * `requestIdleCallback` yoksa kısa bir zamanlayıcı aynı işi görür.
+       */
+      const bosta = (window as unknown as {
+        requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number;
+      }).requestIdleCallback;
+      if (typeof bosta === 'function') {
+        bosta(() => { if (!cancelled) sozlugüYukle(); }, { timeout: 2000 });
+      } else {
+        const z = window.setTimeout(() => { if (!cancelled) sozlugüYukle(); }, 300);
+        return () => { cancelled = true; window.clearTimeout(z); };
+      }
+    }
 
     return () => {
       cancelled = true;
     };
     // `dictionaryRetry` artınca açılış baştan denenir.
-  }, [dictionaryRetry]);
+  }, [dictionaryRetry, sozlugüYukle]);
+
+  /*
+   * Sözlüğe muhtaç bir ekran açıldığında yükleme beklemeye alınmaz.
+   * Boştaki yükleme çoktan başlamış olsa bile bu çağrı zararsız: aynı söze
+   * düşer.
+   */
+  useEffect(() => {
+    if (isDictionaryReady) return;
+    if (activeTab === 'oxford' || activeTab === 'quiz' || activeTab === 'study') {
+      sozlugüYukle();
+    }
+  }, [activeTab, isDictionaryReady, sozlugüYukle]);
+
+  /*
+   * KAYDIRMA DURUMU — gölgeler yalnızca parmak hareket ederken sadeleşsin.
+   *
+   * Ölçüldü: kart gölgeleri uzun listede kaydırmanın en pahalı iki kaleminden
+   * biri (Setlerim'de 16,7 ms üstü kare 130 -> 77). Gölgeyi kalıcı olarak
+   * kaldırmak görsel bir gerileme olurdu; bunun yerine kaydırma sürerken
+   * `html.kaydiriyor` sınıfı tek katmanlı ucuz bir gölge veriyor ve 120 ms
+   * sessizlikten sonra sınıf kalkıyor. Duran ekran birebir aynı kalıyor.
+   *
+   * Dinleyici edilgen (passive): kaydırmayı hiçbir koşulda geciktirmiyor.
+   * Sınıf yalnızca DEĞİŞTİĞİNDE yazılıyor, her kaydırma olayında değil.
+   */
+  useEffect(() => {
+    const kok = document.documentElement;
+    let acik = false;
+    let zamanlayici = 0;
+
+    const durdu = () => {
+      acik = false;
+      kok.classList.remove('kaydiriyor');
+    };
+
+    const kaydirildi = () => {
+      if (!acik) {
+        acik = true;
+        kok.classList.add('kaydiriyor');
+      }
+      window.clearTimeout(zamanlayici);
+      zamanlayici = window.setTimeout(durdu, 120);
+    };
+
+    window.addEventListener('scroll', kaydirildi, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', kaydirildi);
+      window.clearTimeout(zamanlayici);
+      durdu();
+    };
+  }, []);
 
   // Combined list of Oxford 3000 words + User Custom Cards
   // Oxford 3000 + Oxford 5000 Ek (B2 Ek, C1) + kullanıcının kendi kartları.
@@ -631,7 +757,7 @@ export default function App() {
           listeler göstermek "kelime yok" gibi okunurdu; ne olduğunu yazmak
           hem dürüst hem de bekleyişi anlaşılır kılıyor.
         */}
-        {!isDictionaryReady ? (
+        {!veriHazir ? (
           dictionaryError ? (
             /*
              * Yükleme başarısız. Burada dönen çarkı göstermeye devam etmek
@@ -674,6 +800,7 @@ export default function App() {
             customWords={customWords}
             oxfordWords={oxfordWords}
             extraWords={oxfordExtraWords}
+            sozlukHazir={isDictionaryReady}
             learningStates={learningStates}
             settings={settings}
             stats={stats}
@@ -766,7 +893,58 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'oxford' && (
+        {activeTab === 'oxford' && !isDictionaryReady && (
+          /*
+           * Sözlük yalnızca BU ekranda bekleniyor. Diğer sekmeler açılışta
+           * onu hiç beklemiyor; burada da iskelet gösteriliyor, boş liste
+           * değil — boş liste "Oxford'da kelime yok" gibi okunurdu.
+           */
+          <div className="space-y-4 animate-fadeIn" aria-busy="true" aria-live="polite">
+            {dictionaryError ? (
+              <div className="parsomen-panel bg-[var(--surface)] rounded-2xl border border-[var(--border)] p-8 text-center space-y-4">
+                <div className="space-y-1.5 max-w-xs mx-auto">
+                  <p className="text-sm font-bold text-[var(--text-primary)]">Sözlük yüklenemedi</p>
+                  <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                    Oxford kelime verisi açılamadı. Uygulamanın geri kalanı
+                    çalışmaya devam ediyor.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setDictionaryError(false); sozlugüYukle(); }}
+                  className="dugme-birincil px-4 py-2 bg-[var(--primary)] text-[var(--on-primary)] text-xs font-bold rounded-xl cursor-pointer"
+                >
+                  Yeniden dene
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="parsomen-panel bg-[var(--surface)] rounded-2xl border border-[var(--border)] p-6 space-y-3">
+                  <div className="h-5 w-40 rounded-lg bg-[var(--surface-soft)] animate-pulse" />
+                  <div className="h-3 w-full rounded bg-[var(--surface-soft)] animate-pulse" />
+                  <div className="h-3 w-2/3 rounded bg-[var(--surface-soft)] animate-pulse" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[0, 1, 2, 3].map(i => (
+                    <div
+                      key={i}
+                      className="bg-[var(--surface)] rounded-2xl border border-[var(--border)] p-5 space-y-3"
+                    >
+                      <div className="h-4 w-28 rounded bg-[var(--surface-soft)] animate-pulse" />
+                      <div className="h-3 w-20 rounded bg-[var(--surface-soft)] animate-pulse" />
+                      <div className="h-3 w-full rounded bg-[var(--surface-soft)] animate-pulse" />
+                    </div>
+                  ))}
+                </div>
+                <p className="text-center text-xs text-[var(--text-secondary)]">
+                  Oxford sözlüğü hazırlanıyor…
+                </p>
+              </>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'oxford' && isDictionaryReady && (
           <OxfordExplorer
             words={oxfordWords}
             extraWords={oxfordExtraWords}

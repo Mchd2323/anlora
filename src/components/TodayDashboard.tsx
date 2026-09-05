@@ -32,6 +32,15 @@ interface TodayDashboardProps {
   oxfordWords: WordCard[];
   /** Oxford 5000 Ek (B2 Ek, C1). Seviye kartlarında ayrı sayılır. */
   extraWords?: WordCard[];
+  /**
+   * Oxford sözlüğü belleğe alındı mı?
+   *
+   * Sözlük artık açılışta yüklenmiyor; kabuk boyandıktan sonra boşta geliyor.
+   * O kısa aralıkta seviye sayılarını "0 Kelime" diye yazmak yanlış olurdu —
+   * kullanıcı listeyi boş sanar. Sayı yerine "…" yazılıyor; yerleşim aynı
+   * kaldığı için sözlük gelince kayma olmuyor.
+   */
+  sozlukHazir?: boolean;
   customWords?: WordCard[];
   learningStates?: Record<string, LearningState>;
   settings?: UserSettings;
@@ -65,6 +74,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
   collections,
   memberships,
   oxfordWords,
+  sozlukHazir = true,
   extraWords = [],
   customWords = [],
   learningStates = {},
@@ -630,7 +640,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
                 <div className="mt-3">
                   <div className="text-xs font-bold text-[var(--text-primary)]">{lvl.title}</div>
                   <div className="text-[11px] text-[var(--text-secondary)] mt-0.5">
-                    {lvl.stats.total} Kelime
+                    {sozlukHazir ? lvl.stats.total : '…'} Kelime
                   </div>
                 </div>
 
@@ -729,7 +739,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
               Seni bekleyen kelime
             </div>
             <p className="text-[10px] text-[var(--text-muted)] mt-1 leading-snug">
-              Oxford 5000 listesinden {oxfordToplam.toLocaleString('tr-TR')} kelime
+              Oxford 5000 listesinden {sozlukHazir ? oxfordToplam.toLocaleString('tr-TR') : '…'} kelime
               {customWords.length > 0 && <> ve kendi setlerinden {customWords.length.toLocaleString('tr-TR')} kelime</>}
               {' '}içinden henüz hiç bakmadıkların.
             </p>

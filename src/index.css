@@ -397,27 +397,40 @@
   }
 
   /*
-   * PARŞÖMEN DOKUSU — master paketinin dosyaları.
+   * PARŞÖMEN DOKUSU — GÖVDEDEN KALDIRILDI, ÇÜNKÜ EKRANA HİÇ ULAŞMIYORDU.
    *
-   * Doku artık elle yazılmış bir gürültü değil; paketteki iki SVG:
-   * `parchment-grain.svg` 240 piksellik bir kâğıt greni olarak DÖŞENİYOR,
-   * `parchment-stains.svg` ise yalnızca sayfa zemininde, dikeyde tekrar eden
-   * geniş lekelenmeyi veriyor. İkisi de `multiply` ile karışıyor, yani
-   * parşömeni sararTMIYOR, yalnızca dokusunu getiriyor.
+   * Burada `body` üzerinde iki SVG dokusu vardı (`parchment-grain.svg` 240
+   * piksellik döşeme + `parchment-stains.svg`, ikisi de `multiply` ile
+   * karışıyordu). Uygulamanın kök kabı (`App.tsx`) `min-h-screen
+   * bg-[var(--bg)]` taşıyor: sayfanın tamamını kaplayan MAT bir zemin. Gövde
+   * dokusu bu matın ALTINDA kalıyordu.
    *
-   * Dosyalar bir kilobaytın altında olduğu için Vite bunları CSS'in içine
-   * veri adresi olarak gömüyor: ayrıca indirilecek bir istek yok, çevrimdışı
-   * açılışta da kendiliğinden hazır.
+   * ÖLÇÜLDÜ. Aynı ekranın dokulu ve dokusuz hâli piksel piksel
+   * karşılaştırıldı (412x915, DSF 2, tam sayfa):
+   *   Setlerim       4.695.152 pikselin 0'ı farklı
+   *   Oxford         2.035.280 pikselin 215'i farklı, en büyük kanal farkı 2
+   *   Ana Sayfa      %6,18 farklı — ama hiçbir şey değiştirmeden alınan iki
+   *                  çekim de BİREBİR aynı farkı veriyor: fark manşet
+   *                  karuselinin kendiliğinden ilerlemesinden geliyor, dokudan
+   *                  değil.
+   *   Koyu tema      Ana Sayfa ile aynı (yine karusel).
+   * Yani doku hiçbir ekranda görünmüyordu.
+   *
+   * BEDELİ İSE GERÇEKTİ. Kart sürüklenirken doku, kartın altındaki karolarda
+   * yeniden rasterleşiyordu: 10 kaydırmada 344 boyama çağrısı, kaydırma başına
+   * 186,3 ms rasterleştirme. Oxford listesinde kaydırırken 16,7 ms'yi aşan
+   * kare sayısının %41'i buydu. Görünmeyen bir süs için ödenen bedel.
+   *
+   * DOKU GERÇEKTEN GÖRÜNSÜN İSTENİRSE tek satırlık iş değil: kök kabın mat
+   * zemininin kaldırılması ya da dokunun onun ÜSTÜNDE sabit bir katmana
+   * konması gerekir. İkisi de uygulamanın her ekranının görünümünü
+   * değiştirir, yani ayrı bir tasarım kararıdır.
+   *
+   * Panellerdeki parşömen greni (`.parsomen-panel::after`) BU DEĞİL ve
+   * duruyor: o katman kök kabın üstünde, gerçekten görünüyor.
    */
   body {
     background-color: var(--bg);
-    background-image:
-      url('./assets/themes/realms/textures/parchment-grain.svg'),
-      url('./assets/themes/realms/textures/parchment-stains.svg');
-    background-repeat: repeat, repeat-y;
-    background-size: 240px 240px, 100% auto;
-    background-blend-mode: multiply, multiply;
-    background-attachment: scroll;
   }
 
   /*
@@ -1097,6 +1110,44 @@
 .deck-stack-card {
   transition: transform var(--dur-slow) var(--ease-out), opacity var(--dur-slow) var(--ease-out);
   will-change: transform, opacity;
+}
+
+/*
+ * KAYDIRIRKEN GÖLGE SADELEŞTİRME.
+ *
+ * ÖLÇÜLDÜ. Kart gölgeleri uzun listede kaydırmanın en pahalı iki kaleminden
+ * biri: `box-shadow: none` ezmesiyle Setlerim'de 16,7 ms'yi aşan kare sayısı
+ * 130'dan 77'ye (-%41), Oxford listesinde 135'ten 83'e (-%39) iniyor.
+ *
+ * Gölgeler KALDIRILMIYOR. Yalnızca parmak kaydırırken, tek katmanlı ve küçük
+ * yarıçaplı bir gölgeye iniyorlar; kaydırma durur durmaz (120 ms sessizlik)
+ * sınıf kalkıyor ve özgün gölgeler geri geliyor. Yani DURAN EKRAN BİREBİR
+ * AYNI — kullanıcının incelediği, ekran görüntüsü aldığı hâl değişmiyor.
+ *
+ * Sınıfı `App.tsx` içindeki edilgen (passive) kaydırma dinleyicisi yazıyor.
+ * Kural katman DIŞINDA: kart gölgeleri Tailwind'in `shadow-[...]` yardımcı
+ * sınıflarıyla veriliyor ve katmansız kural onları yener.
+ */
+html.kaydiriyor .kart-govdesi,
+html.kaydiriyor .parsomen-panel,
+html.kaydiriyor .gorsel-panel {
+  box-shadow: 0 1px 2px rgba(30, 36, 48, 0.05);
+}
+
+/*
+ * GÖLGE GEÇİŞLE DEĞİŞMESİN.
+ *
+ * Kart `transition-all duration-200` taşıyor. Yukarıdaki sınıf gelip
+ * gidince gölge 200 ms boyunca ARA DEĞERLERDEN geçiyordu; ölçümde bu
+ * yakalandı (kaydırma anında gölge yarı yolda: `0 1,96px 11,79px`). Yani
+ * kazanmak istediğimiz boyama, geçiş yüzünden geri geliyordu.
+ *
+ * Gölge geçiş listesinden çıkarıldı: değişim iki yönde de anında oluyor.
+ * Gölgelerin alfası %5-8; anında değişmeleri gözle fark edilmiyor. Kartın
+ * öteki geçişleri (imleç üstündeyken yükselme, kenarlık rengi) duruyor.
+ */
+.kart-govdesi {
+  transition-property: transform, border-color, background-color, color;
 }
 
 /*
