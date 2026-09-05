@@ -509,6 +509,46 @@
   }
 
   /*
+   * KÖŞE FİLİGRANI — GÖRSEL ŞERİDİ TAŞIYAN PANEL İÇİN.
+   *
+   * `.parsomen-panel` köşe süsünü de parşömen grenini de birlikte veriyor ve
+   * üstüne 50 piksellik güvenli boşluk koyuyor. Şerit taşıyan bir kutuda bu
+   * üçü birden istenmiyor: gren fotoğrafın rengini bozar, ek dolgu da şeridi
+   * aşağı iter. Bu sınıf YALNIZCA dört köşe filigranını veriyor; ölçüler
+   * `.parsomen-panel::before` ile birebir aynı — 34x34 piksel, kenardan 8
+   * piksel içeride, opaklık `--kose-opaklik`.
+   *
+   * `z-index: 2` KASITLI. Şerit görseli normal akışta duran bir <img>;
+   * filigran onun ÜSTÜNDE çizilmeli, yoksa üstteki iki köşe fotoğrafın
+   * altında kalır ve görünmez.
+   */
+  .kose-susu {
+    position: relative;
+  }
+
+  .kose-susu::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    border-radius: inherit;
+    opacity: var(--kose-opaklik);
+    background-image:
+      url('./assets/themes/realms/ornaments/corner-tl.svg'),
+      url('./assets/themes/realms/ornaments/corner-tr.svg'),
+      url('./assets/themes/realms/ornaments/corner-br.svg'),
+      url('./assets/themes/realms/ornaments/corner-bl.svg');
+    background-position:
+      8px 8px,
+      calc(100% - 8px) 8px,
+      calc(100% - 8px) calc(100% - 8px),
+      8px calc(100% - 8px);
+    background-size: 34px 34px;
+    background-repeat: no-repeat;
+  }
+
+  /*
    * SÜSLÜ AYRAÇ. Paketteki `ornate-divider.svg`; ekranda en fazla iki tane
    * bulunmalı, bu yüzden yalnızca ana bölümlerin arasında kullanılıyor.
    */

@@ -282,7 +282,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           <div className="flex-1 min-w-0 order-1">
             <h2 className="text-lg sm:text-xl font-black text-[var(--text-primary)] leading-tight">
               Kendi kelimelerini biriktir,
-              <br className="hidden sm:block" /> seviyeni kendin gör.
+              <br className="hidden sm:block" /> seviyeni gör.
             </h2>
             {branding.homeIntro && (
               <p className="text-xs text-[var(--text-secondary)] mt-2 leading-relaxed">
@@ -390,11 +390,15 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
         karuselde yok. Çakışma ortadan kalktığı için paketin zorunlu
         eşleşmesi uygulanabiliyor: bu kutu ejderha sahnesini alıyor.
 
-        Panel bu yüzden `parsomen-panel` değil `gorsel-panel`: altın köşe
-        filigranı fotoğrafın üstünde süs gibi değil, karışmış bir çizgi gibi
-        okunuyor.
+        KÖŞE FİLİGRANLARI DURUYOR. Şerit gelince bir ara kaldırılmışlardı;
+        kullanıcı geri istedi. `kose-susu` dört filigranı `.parsomen-panel`
+        ile birebir aynı ölçüde veriyor (34x34, kenardan 8 piksel içeride,
+        opaklık --kose-opaklik) ve `z-index: 2` ile ŞERİDİN ÜSTÜNE çiziyor,
+        yani banner üstteki iki köşeyi örtemiyor. Parşömen greni ve
+        `.parsomen-panel`in 50 piksellik üst dolgusu bilinçli olarak yok:
+        gren fotoğrafın rengini bozar, dolgu da şeridi aşağı iterdi.
       */}
-      <div className="gorsel-panel bg-[var(--surface)] rounded-2xl border border-[var(--border)] overflow-hidden">
+      <div className="gorsel-panel kose-susu bg-[var(--surface)] rounded-2xl border border-[var(--border)] overflow-hidden">
         <SahneSeridi sahne="ejderha" />
         <div className="p-6 sm:p-7 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
