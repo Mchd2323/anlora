@@ -1100,36 +1100,28 @@
 }
 
 /*
- * Kenar ipuçları ("← Önceki" / "Sonraki →") eşiğe yaklaşıldıkça belirir.
- *
- * `will-change` BURADA ÖLÇÜLMÜŞ BİR SEBEPLE VAR. İpucunun `transform` ve
- * `opacity` değerleri sürükleme boyunca her karede yazılıyor. Kendi bileşik
- * katmanı olmadığı için bu yazımlar kök katmanı geçersiz kılıyordu ve
- * arkasındaki parşömen dokusu yeniden rasterleşiyordu: 10 kaydırmada dokunun
- * 344 kez boyandığı, kaydırma başına 186 ms rasterleştirme yapıldığı ölçüldü.
- * İpuçlarını kendi katmanlarına almak, hareketi kök katmandan ayırıyor.
+ * KENAR İPUÇLARI KALDIRILDI. Kartın iki yanında beliren "← Önceki" /
+ * "Sonraki →" baloncukları vardı; `.deck-hint` sınıfı onlara aitti. Kart
+ * zaten parmakla kaydırılıyor ve altta aynı işi yapan iki ok düğmesi
+ * duruyor, bu yüzden baloncuklar kaldırıldı. Ölçüm de aynı yöne çıkmıştı:
+ * kendi bileşik katmanları olmadığı için her sürükleme karesinde
+ * arkalarındaki parşömen dokusunu yeniden boyatıyorlardı.
  */
-.deck-hint {
-  transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
-  pointer-events: none;
-  will-change: opacity, transform;
-}
 
 /*
  * SÜRÜKLEME SIRASINDA GEÇİŞ YOK.
  *
- * Arka kartların ve ipuçlarının `transform`/`opacity` değerleri sürükleme
- * boyunca kare başına bir kez DOM'a yazılıyor — yani değer zaten parmağı
- * takip ediyor. Üstlerindeki CSS geçişi bu yüzden bir şeyi yumuşatmıyor,
- * yalnızca her karede yeniden başlayıp iptal oluyor: kaydırma başına 143
- * geçiş olayı ve 68,1 ms stil yeniden hesabı ölçüldü. Geçiş kapatılınca
- * ana iş parçacığının kare üretimi 237,8 ms'den 173,8 ms'ye indi.
+ * Arka kartların `transform`/`opacity` değerleri sürükleme boyunca kare
+ * başına bir kez DOM'a yazılıyor — yani değer zaten parmağı takip ediyor.
+ * Üstlerindeki CSS geçişi bu yüzden bir şeyi yumuşatmıyor, yalnızca her
+ * karede yeniden başlayıp iptal oluyor: kaydırma başına 143 geçiş olayı ve
+ * 68,1 ms stil yeniden hesabı ölçüldü. Geçiş kapatılınca ana iş
+ * parçacığının kare üretimi 237,8 ms'den 173,8 ms'ye indi.
  *
  * Görüntü değişmiyor: değerler yine aynı, yalnızca araya interpolasyon
  * girmiyor. Parmak bırakıldığında sınıf kalkıyor ve yay geçişi geri geliyor.
  */
-.deck-deste--suruklenirken .deck-stack-card,
-.deck-deste--suruklenirken .deck-hint {
+.deck-deste--suruklenirken .deck-stack-card {
   transition: none;
 }
 
@@ -1156,7 +1148,6 @@
 @media (prefers-reduced-motion: reduce) {
   .deck-card,
   .deck-stack-card,
-  .deck-hint,
   .card-flip-inner {
     transition-duration: 1ms !important;
   }

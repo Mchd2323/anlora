@@ -145,15 +145,14 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
    * edilmesi demekti. Ölçüldü: hareket başına dört DOM yazımı ve her hareket
    * için tam bir React uzlaştırması.
    *
-   * Artık kanca kare başına bir kez `onFrame` çağırıyor ve aşağıdaki dört
-   * öğenin stilini doğrudan yazıyoruz. Sürükleme boyunca React hiç render
-   * etmiyor; yalnızca sürükleme başlarken ve biterken ediyor. Yazılan
-   * özellikler yalnızca `transform` ve `opacity` — ikisi de yerleşimi
-   * tetiklemiyor, düzen ve dokunma hedefleri değişmiyor.
+   * Artık kanca kare başına bir kez `onFrame` çağırıyor ve aşağıdaki üç
+   * öğenin stilini doğrudan yazıyoruz: kart yüzeyi ve iki arka katman.
+   * Sürükleme boyunca React hiç render etmiyor; yalnızca sürükleme
+   * başlarken ve biterken ediyor. Yazılan özellikler yalnızca `transform`
+   * ve `opacity` — ikisi de yerleşimi tetiklemiyor, düzen ve dokunma
+   * hedefleri değişmiyor.
    */
   const kartRef = useRef<HTMLDivElement | null>(null);
-  const solIpucuRef = useRef<HTMLDivElement | null>(null);
-  const sagIpucuRef = useRef<HTMLDivElement | null>(null);
   const arka1Ref = useRef<HTMLDivElement | null>(null);
   const arka2Ref = useRef<HTMLDivElement | null>(null);
 
@@ -162,14 +161,6 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
       const egim = Math.max(-MAX_TILT_DEG, Math.min(MAX_TILT_DEG, offsetX / TILT_DIVISOR));
       if (kartRef.current) {
         kartRef.current.style.transform = `translateX(${offsetX}px) rotate(${egim}deg)`;
-      }
-      if (solIpucuRef.current) {
-        solIpucuRef.current.style.opacity = String(offsetX > 12 && hasPrev ? progress : 0);
-        solIpucuRef.current.style.transform = `translateY(-50%) scale(${0.85 + progress * 0.15})`;
-      }
-      if (sagIpucuRef.current) {
-        sagIpucuRef.current.style.opacity = String(offsetX < -12 && hasNext ? progress : 0);
-        sagIpucuRef.current.style.transform = `translateY(-50%) scale(${0.85 + progress * 0.15})`;
       }
       if (arka1Ref.current) {
         arka1Ref.current.style.transform = `translateY(${20 - progress * 8}px) scale(${0.92 + progress * 0.03})`;
@@ -180,7 +171,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
         arka2Ref.current.style.opacity = String(0.7 + progress * 0.3);
       }
     },
-    [hasPrev, hasNext]
+    []
   );
 
   const swipe = useSwipeDeck({
@@ -493,31 +484,16 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
             </>
           )}
 
-          {/* Kenar ipuçları — eşiğe yaklaşıldıkça belirir */}
-          <div
-            ref={solIpucuRef}
-            aria-hidden="true"
-            className="deck-hint absolute left-3 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5 px-3 py-2 rounded-full bg-[var(--text-primary)] text-[var(--bg)] text-[11px] font-bold shadow-[var(--elev-4)]"
-            style={{
-              opacity: swipe.offsetX > 12 && hasPrev ? swipe.progress : 0,
-              transform: `translateY(-50%) scale(${0.85 + swipe.progress * 0.15})`
-            }}
-          >
-            <ChevronLeft className="w-3.5 h-3.5" />
-            Önceki
-          </div>
-          <div
-            ref={sagIpucuRef}
-            aria-hidden="true"
-            className="deck-hint absolute right-3 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5 px-3 py-2 rounded-full bg-[var(--primary)] text-[var(--on-primary)] text-[11px] font-bold shadow-[var(--elev-4)]"
-            style={{
-              opacity: swipe.offsetX < -12 && hasNext ? swipe.progress : 0,
-              transform: `translateY(-50%) scale(${0.85 + swipe.progress * 0.15})`
-            }}
-          >
-            Sonraki
-            <ChevronRight className="w-3.5 h-3.5" />
-          </div>
+          {/*
+            KENAR İPUÇLARI KALDIRILDI. Kartın iki yanında beliren "← Önceki" /
+            "Sonraki →" baloncukları vardı; gereksizdi, çünkü kart zaten
+            parmakla kaydırılıyor ve altta aynı işi yapan iki ok düğmesi
+            duruyor. Ölçüm de aynı yöne çıktı: kendi bileşik katmanları
+            olmadığı için her sürükleme karesinde arkalarındaki parşömen
+            dokusunu yeniden boyatıyorlardı — 10 kaydırmada dokunun 344 kez
+            boyandığı, kaydırma başına 186 ms rasterleştirme yapıldığı
+            ölçülmüştü.
+          */}
 
           {/* Üstteki kart — parmağı takip eden yüzey.
               `key` kart kimliği: kart değişince öğe yeniden bağlanır, böylece
