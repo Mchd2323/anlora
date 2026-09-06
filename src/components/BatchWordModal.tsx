@@ -38,6 +38,21 @@ interface AnalyzedToken {
   status: 'EXACT_IN_COLLECTION' | 'EXACT_IN_OTHER_COLLECTION' | 'EXACT_IN_OXFORD' | 'NEW';
   matchedCard?: WordCard;
   selected: boolean;
+  /**
+   * Kullanıcının bu ekranda doldurduğu kart bilgisi.
+   *
+   * Sözlükte olmayan kelimeler eskiden BOŞ kart olarak ekleniyordu ve
+   * "anlamını sen yazacaksın" deniyordu. Ama kullanıcının o kartı bulması
+   * için setteki yüzlerce kartın arasında aşağı inmesi gerekiyordu; pratikte
+   * boş kartlar öylece kalıyordu. Artık kelime eklenmeden ÖNCE, bu ekranda
+   * doldurulabiliyor.
+   */
+  elleDolduruldu?: {
+    turkishMeaning: string;
+    partOfSpeech: string;
+    phonetic: string;
+    examples: { en: string; tr: string }[];
+  };
 }
 
 export const BatchWordModal: React.FC<BatchWordModalProps> = ({
@@ -60,6 +75,54 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
   const yapayZekaVar = useRemoteApi() === true;
 
   const modalRef = useModalA11y(isOpen, onClose);
+
+  /*
+   * KART DOLDURMA EKRANI.
+   *
+   * `doldurulanIndex` null degilse liste yerine tek bir kartin formu
+   * gosteriliyor. Ayri bir pencere acmak yerine ayni pencerede bir adim
+   * kullanildi: kullanici toplu ekleme akisindan hic cikmiyor, "Kaydet"
+   * dedigi anda listeye geri donuyor ve kaldigi yerden devam ediyor.
+   */
+  const [doldurulanIndex, setDoldurulanIndex] = useState<number | null>(null);
+  const [formAnlam, setFormAnlam] = useState('');
+  const [formTur, setFormTur] = useState('');
+  const [formTelaffuz, setFormTelaffuz] = useState('');
+  const [formOrnekler, setFormOrnekler] = useState<{ en: string; tr: string }[]>([
+    { en: '', tr: '' }
+  ]);
+
+  const doldurmayiAc = (idx: number) => {
+    const mevcut = analyzedList[idx]?.elleDolduruldu;
+    setFormAnlam(mevcut?.turkishMeaning || '');
+    setFormTur(mevcut?.partOfSpeech || '');
+    setFormTelaffuz(mevcut?.phonetic || '');
+    setFormOrnekler(
+      mevcut?.examples?.length ? mevcut.examples.map(e => ({ ...e })) : [{ en: '', tr: '' }]
+    );
+    setDoldurulanIndex(idx);
+  };
+
+  const doldurmayiKaydet = () => {
+    if (doldurulanIndex === null) return;
+    const guncel = [...analyzedList];
+    guncel[doldurulanIndex] = {
+      ...guncel[doldurulanIndex],
+      // Anlam bos birakildiysa kayit yapilmaz: bos bir "dolduruldu" isareti
+      // kullaniciyi yanlis yonlendirirdi.
+      elleDolduruldu: formAnlam.trim()
+        ? {
+            turkishMeaning: formAnlam,
+            partOfSpeech: formTur,
+            phonetic: formTelaffuz,
+            examples: formOrnekler
+          }
+        : undefined,
+      selected: true
+    };
+    setAnalyzedList(guncel);
+    setDoldurulanIndex(null);
+  };
 
   const [rawInput, setRawInput] = useState('');
   const [analyzedList, setAnalyzedList] = useState<AnalyzedToken[]>([]);
@@ -146,6 +209,25 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
       if (item.matchedCard) {
         onLinkWordToCollection(item.matchedCard.id, targetCollection.id);
         linkedCount++;
+      } else if (item.elleDolduruldu) {
+        /*
+         * Kullanıcı kartı bu ekranda doldurdu. Yapay zekâya sormanın anlamı
+         * yok: elde kullanıcının kendi yazdığı, doğruluğundan emin olduğu bir
+         * içerik var ve onu bir öneriyle değiştirmek veri kaybı olurdu.
+         */
+        const el = item.elleDolduruldu;
+        const yeniKart: WordCard = {
+          id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          word: item.normalized,
+          partOfSpeech: el.partOfSpeech.trim(),
+          turkishMeaning: el.turkishMeaning.trim(),
+          phonetic: el.phonetic.trim() || undefined,
+          examples: el.examples.filter(ex => ex.en.trim() || ex.tr.trim()),
+          isCustom: true,
+          dateAdded: new Date().toISOString().slice(0, 10)
+        };
+        onAddCustomWord(yeniKart, targetCollection.id);
+        addedCount++;
       } else {
         try {
           if (!yapayZekaVar) throw new Error('yapay-zeka-yok');
@@ -259,7 +341,131 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
         </div>
 
         <div className="p-5 space-y-3.5 max-h-[75vh] overflow-y-auto">
-          {step === 'input' ? (
+          {/*
+            KART DOLDURMA ADIMI.
+
+            Liste yerine tek bir kartın formu gösteriliyor; kaydedince listeye
+            dönülüyor. Ayrı bir pencere açmak yerine aynı pencerede bir adım
+            kullanıldı: kullanıcı toplu ekleme akışından hiç çıkmıyor.
+          */}
+          {doldurulanIndex !== null ? (
+            <div className="space-y-3.5">
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <div className="text-[11px] font-bold text-[var(--text-muted)] tracking-wider">
+                    Kart doldur
+                  </div>
+                  <div className="text-sm font-bold text-[var(--text-primary)]">
+                    {analyzedList[doldurulanIndex]?.normalized}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setDoldurulanIndex(null)}
+                  className="px-3 py-1.5 text-[11px] font-bold rounded-lg border border-[var(--border)] text-[var(--text-secondary)] cursor-pointer"
+                >
+                  Vazgeç
+                </button>
+              </div>
+
+              <div>
+                <label htmlFor="anlora-toplu-anlam" className="block text-xs font-bold text-[var(--text-secondary)] mb-1">
+                  Türkçe Anlamı <span className="text-[var(--danger)]">*</span>
+                </label>
+                <input
+                  id="anlora-toplu-anlam"
+                  type="text"
+                  value={formAnlam}
+                  onChange={e => setFormAnlam(e.target.value)}
+                  placeholder="Örn: isteksiz, gönülsüz"
+                  className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] text-[var(--text-primary)]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label htmlFor="anlora-toplu-tur" className="block text-xs font-bold text-[var(--text-secondary)] mb-1">
+                    Kelime Türü <span className="font-semibold normal-case text-[var(--text-muted)]">(isteğe bağlı)</span>
+                  </label>
+                  <input
+                    id="anlora-toplu-tur"
+                    type="text"
+                    value={formTur}
+                    onChange={e => setFormTur(e.target.value)}
+                    placeholder="Örn: n., v., adj."
+                    className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] text-[var(--text-primary)]"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="anlora-toplu-telaffuz" className="block text-xs font-bold text-[var(--text-secondary)] mb-1">
+                    Telaffuz <span className="font-semibold normal-case text-[var(--text-muted)]">(isteğe bağlı)</span>
+                  </label>
+                  <input
+                    id="anlora-toplu-telaffuz"
+                    type="text"
+                    value={formTelaffuz}
+                    onChange={e => setFormTelaffuz(e.target.value)}
+                    placeholder="Örn: /ˈæp.əl/"
+                    className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] text-[var(--text-primary)]"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-[var(--text-secondary)]">
+                    Örnek Cümleler <span className="font-semibold normal-case text-[var(--text-muted)]">(isteğe bağlı)</span>
+                  </span>
+                  {formOrnekler.length < 3 && (
+                    <button
+                      type="button"
+                      onClick={() => setFormOrnekler(l => [...l, { en: '', tr: '' }])}
+                      className="text-[11px] font-semibold text-[var(--primary)] cursor-pointer"
+                    >
+                      + Bir örnek daha
+                    </button>
+                  )}
+                </div>
+                {formOrnekler.map((ornek, i) => (
+                  <div key={i} className="p-2.5 bg-[var(--bg)] rounded-xl border border-[var(--border)] space-y-1.5">
+                    <input
+                      type="text"
+                      value={ornek.en}
+                      onChange={e => {
+                        const l = [...formOrnekler];
+                        l[i] = { ...l[i], en: e.target.value };
+                        setFormOrnekler(l);
+                      }}
+                      placeholder="İngilizce cümle"
+                      className="w-full px-2.5 py-1.5 text-xs bg-[var(--surface)] border border-[var(--border)] rounded-lg focus:outline-none text-[var(--text-primary)]"
+                    />
+                    <input
+                      type="text"
+                      value={ornek.tr}
+                      onChange={e => {
+                        const l = [...formOrnekler];
+                        l[i] = { ...l[i], tr: e.target.value };
+                        setFormOrnekler(l);
+                      }}
+                      placeholder="Türkçe karşılığı"
+                      className="w-full px-2.5 py-1.5 text-xs bg-[var(--surface)] border border-[var(--border)] rounded-lg focus:outline-none text-[var(--text-primary)]"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={doldurmayiKaydet}
+                  disabled={!formAnlam.trim()}
+                  className="dugme-birincil px-4 py-2 bg-[var(--primary)] text-[var(--on-primary)] text-xs font-bold rounded-xl cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  Kaydet ve listeye dön
+                </button>
+              </div>
+            </div>
+          ) : step === 'input' ? (
             <div className="space-y-3.5">
               <div>
                 <label className="block text-xs font-bold text-[var(--text-secondary)]  mb-1">
@@ -369,15 +575,38 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
                         Rozet gerçeği söylüyor: yapay zekâ bu kurulumda kapalıysa
                         kart boş eklenir, "AI kartı" demek yanlış olur.
                       */}
-                      {item.status === 'NEW' &&
+                      {item.status === 'NEW' && item.elleDolduruldu && (
+                        <button
+                          type="button"
+                          onClick={() => doldurmayiAc(idx)}
+                          className="text-[10px] font-bold bg-[var(--learned-soft)] text-[var(--learned-text)] px-2 py-1 rounded-md border border-[var(--learned-border)] cursor-pointer"
+                        >
+                          ✓ Dolduruldu · düzenle
+                        </button>
+                      )}
+                      {item.status === 'NEW' && !item.elleDolduruldu &&
                         (yapayZekaVar ? (
                           <span className="text-[10px] font-bold bg-[var(--learned-soft)] text-[var(--learned-text)] px-2 py-0.5 rounded-md border border-[var(--learned-border)]">
                             Yeni AI Kartı
                           </span>
                         ) : (
-                          <span className="text-[10px] font-bold bg-[var(--bg)] text-[var(--text-secondary)] px-2 py-0.5 rounded-md border border-[var(--border)]">
-                            Boş kart · anlamı sen yazacaksın
-                          </span>
+                          /*
+                            ARTIK BOŞ KART BIRAKILMIYOR.
+
+                            Eskiden burada yalnızca "anlamı sen yazacaksın"
+                            yazan bir rozet vardı; kullanıcının o kartı sonradan
+                            bulması için setteki yüzlerce kartın arasında aşağı
+                            inmesi gerekiyordu ve pratikte kartlar boş kalıyordu.
+                            Düğme, kelime EKLENMEDEN ÖNCE aynı pencerede kartı
+                            doldurmayı öneriyor.
+                          */
+                          <button
+                            type="button"
+                            onClick={() => doldurmayiAc(idx)}
+                            className="text-[10px] font-bold bg-[var(--primary-soft)] text-[var(--primary)] px-2 py-1 rounded-md border border-[var(--primary-border)] cursor-pointer"
+                          >
+                            Kartı doldurmak için dokun
+                          </button>
                         ))}
                       {item.status === 'EXACT_IN_OXFORD' && (
                         <span className="text-[10px] font-bold bg-[var(--primary-soft)] text-[var(--primary)] px-2 py-0.5 rounded-md border border-[var(--primary-border)]">
