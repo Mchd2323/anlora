@@ -266,6 +266,27 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
     const distractorPool = [...allWords, ...extraWords, ...customCards];
     const generatedQuestions = generateQuiz(currentPool, distractorPool, quizMode, questionCount);
 
+    /*
+     * SORU ÜRETİLEMEDİYSE SINAVA GİRME.
+     *
+     * `generateQuiz` en fazla `questionCount` kadar soru döndürür; sayı sıfır
+     * ya da eksi olursa boş dizi gelir. O boş diziyle ACTIVE ekranına geçmek,
+     * `questions[0]` tanımsız olduğu için İÇERİK ALANINI TAMAMEN BOŞ bırakıyor
+     * — "Çık" düğmesi bile çizilmiyor ve kullanıcının tek çıkışı alt menüden
+     * başka bir sekmeye geçmek oluyor. Ölçüm sırasında bu durum ekran
+     * görüntüsüyle görüldü.
+     *
+     * Bugün arayüzden buraya düşmek MÜMKÜN DEĞİL: soru sayısı açılır menüsünün
+     * en küçük seçeneği 2 ve havuz alt sınırı ayrıca denetleniyor. Koruma yine
+     * de duruyor, çünkü bedeli üç satır ve karşılığı bütün bir çıkmaz ekran
+     * sınıfının ortadan kalkması.
+     */
+    if (generatedQuestions.length === 0) {
+      setQuizState('IDLE');
+      setSetupError('Seçtiğin ayarlarla soru üretilemedi. Soru sayısını ya da kelime kaynağını değiştirip tekrar dene.');
+      return;
+    }
+
     setQuestions(generatedQuestions);
     setCurrentQuestionIndex(0);
     setScore(0);
