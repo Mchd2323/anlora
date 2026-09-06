@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { WordCard, Level, ExampleSentence } from '../types';
 import { X, Save, Edit3, Trash2 } from 'lucide-react';
 import { useModalA11y } from '../hooks/useModalA11y';
@@ -10,6 +10,15 @@ interface EditCardModalProps {
   onClose: () => void;
   onSave: (updatedCard: WordCard) => void;
   onDelete?: (id: string) => void;
+  /**
+   * Sözlükte kelime arar (Oxford çekirdeği + kullanıcının kendi kartları).
+   *
+   * Kullanıcı düzenleme sırasında kelimeyi Oxford'da var olan bir kelimeyle
+   * DEĞİŞTİRDİĞİNDE, kartı sıfırdan doldurmak zorunda kalıyordu: sözlükteki
+   * anlam, tür, telaffuz ve örnek cümleler kendiliğinden gelmiyordu. Ekleme
+   * ekranı bunu zaten yapıyor; iki ekran aynı davranmalı.
+   */
+  sozlukteAra?: (kelime: string) => WordCard | null;
 }
 
 export const EditCardModal: React.FC<EditCardModalProps> = ({
@@ -18,6 +27,7 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
   onClose,
   onSave,
   onDelete,
+  sozlukteAra,
 }) => {
   const modalRef = useModalA11y(isOpen, onClose);
 
@@ -36,7 +46,19 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
    * kendi kelimesinin ölçülmüş bir CEFR seviyesi yoktur; boş kalabilmeli.
    */
   const [level, setLevel] = useState<Level | ''>(card.level || '');
-  const [customNote, setCustomNote] = useState(card.customNote || '');
+  /*
+   * BAĞLAM ALANI — EKLEME EKRANIYLA AYNI ALAN.
+   *
+   * Burada `customNote` düzenleniyordu. Kart ise `sourceContext`i gösteriyor
+   * (`WordCard.tsx`); yani düzenleme ekranındaki "Kaynak / Not" kutusuna
+   * yazılan hiçbir şey kartta GÖRÜNMÜYORDU. Ekleme ekranındaki "Bağlam ya da
+   * Not" kutusu `sourceContext`e yazıyor ve kartta tırnak içinde çıkıyor.
+   * İki ekran aynı alanı düzenlemeli.
+   *
+   * Eski kayıtlar kaybolmuyor: `sourceContext` boş ama `customNote` doluysa
+   * kutu onunla açılıyor ve kaydederken `sourceContext`e taşınıyor.
+   */
+  const [baglam, setBaglam] = useState(card.sourceContext || card.customNote || '');
   const [examples, setExamples] = useState<ExampleSentence[]>(
     card.examples && card.examples.length > 0
       ? card.examples.map(ex => ({ ...ex }))
@@ -56,6 +78,53 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
    * kullanıcı hata ekranına çarpıyordu. Hook sayısı her render'da aynı
    * kalmalı; koşullu olan yalnızca çıktı olabilir.
    */
+  /*
+   * SÖZLÜKTE ARAMA — kelime değiştirilince bilgiler kendiliğinden gelsin.
+   *
+   * 350 ms bekleniyor: her harfte aramak gereksiz iş. Kartın KENDİ kelimesi
+   * aranmaz; yalnızca kullanıcı başka bir kelime yazdığında sonuç gösterilir.
+   */
+  const [sozlukKarti, setSozlukKarti] = useState<WordCard | null>(null);
+  const ilkKelime = useMemo(() => card.word.trim().toLowerCase(), [card.word]);
+
+  useEffect(() => {
+    if (!isOpen || !sozlukteAra) { setSozlukKarti(null); return; }
+    const aranan = word.trim().toLowerCase();
+    if (aranan.length < 2 || aranan === ilkKelime) { setSozlukKarti(null); return; }
+    const z = window.setTimeout(() => {
+      const bulunan = sozlukteAra(aranan);
+      setSozlukKarti(bulunan && bulunan.id !== card.id ? bulunan : null);
+    }, 350);
+    return () => window.clearTimeout(z);
+  }, [word, isOpen, sozlukteAra, ilkKelime, card.id]);
+
+  /** Sözlükteki kaydı forma yazar. */
+  const sozluktenDoldur = (kaynak: WordCard) => {
+    setWord(kaynak.word);
+    setTurkishMeaning(kaynak.turkishMeaning || '');
+    setPartOfSpeech(kaynak.partOfSpeech || '');
+    setPhonetic(kaynak.phonetic || '');
+    if (kaynak.level) setLevel(kaynak.level);
+    if (kaynak.entryType) setEntryType(kaynak.entryType);
+    const ornekler = (kaynak.examples || []).filter(ex => ex.en?.trim() || ex.tr?.trim());
+    if (ornekler.length) setExamples(ornekler.map(ex => ({ ...ex })));
+    setSozlukKarti(null);
+  };
+
+  /*
+   * Alanlar boşsa beklemeye gerek yok: sözlükte bulunan kayıt doğrudan
+   * yazılıyor. Kullanıcının yazdığı bir şey varsa ÜSTÜNE YAZILMAZ; onun
+   * yerine aşağıdaki kutu çıkar ve kararı kullanıcı verir.
+   */
+  useEffect(() => {
+    if (!sozlukKarti) return;
+    const bosMu = !turkishMeaning.trim() && !phonetic.trim() &&
+      examples.every(ex => !ex.en.trim() && !ex.tr.trim());
+    if (bosMu) sozluktenDoldur(sozlukKarti);
+    // sozluktenDoldur her render'da yeniden kuruluyor; bağımlılığa alınmıyor.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sozlukKarti]);
+
   if (!isOpen) return null;
 
   const handleExampleChange = (index: number, field: 'en' | 'tr', value: string) => {
@@ -91,7 +160,14 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
       phonetic: phonetic.trim() || undefined,
       // Boş seçim seviyeyi HİÇ yazmaz; uydurulmuş bir değer kalmasın.
       level: level || undefined,
-      customNote: customNote.trim() || undefined,
+      sourceContext: baglam.trim() || undefined,
+      /*
+       * Eski `customNote` alanı, içeriği bağlama taşındıysa temizleniyor;
+       * aynı metnin iki yerde durması ileride hangisinin doğru olduğunu
+       * belirsiz bırakırdı. Kullanıcı bir şey kaybetmiyor: taşınan değer
+       * kartta artık GÖRÜNÜR hâle geliyor.
+       */
+      customNote: undefined,
       examples: examples.filter(ex => ex.en.trim() || ex.tr.trim()),
     };
 
@@ -139,13 +215,41 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
               <label className="block text-xs font-bold text-[var(--text-secondary)]  mb-1">
                 İngilizce Kelime <span className="text-[var(--danger)]">*</span>
               </label>
+              {/*
+                KÜÇÜK HARFE ÇEVRİLİYOR. Sözlükteki 5.323 kaydın tamamı küçük
+                harfli (ölçüldü: büyük harf içeren kayıt yok). Kullanıcı
+                klavyenin otomatik büyütmesiyle "Abondon" yazdığında kart
+                sözlükten ayrı düşüyor ve aynı kelime iki farklı yazımla
+                birikiyordu. Kutuya yazılan anında küçültülüyor.
+              */}
               <input
                 type="text"
                 value={word}
-                onChange={(e) => setWord(e.target.value)}
+                onChange={(e) => setWord(e.target.value.toLowerCase())}
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 required
                 className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] font-bold text-[var(--text-primary)]"
               />
+              {sozlukKarti && (
+                <button
+                  type="button"
+                  onClick={() => sozluktenDoldur(sozlukKarti)}
+                  className="mt-2 w-full p-3 rounded-xl border border-[var(--primary-border)] bg-[var(--primary-soft)] text-left cursor-pointer hover:bg-[var(--primary-soft-strong)]"
+                >
+                  <div className="text-[11px] font-bold text-[var(--text-muted)] tracking-wider">
+                    Bu kelime sözlükte var
+                  </div>
+                  <div className="text-xs font-bold text-[var(--text-primary)] mt-0.5">
+                    {sozlukKarti.word}
+                    {sozlukKarti.turkishMeaning ? ` — ${sozlukKarti.turkishMeaning}` : ''}
+                  </div>
+                  <div className="text-[11px] text-[var(--text-secondary)] mt-0.5">
+                    Anlamı, türü, telaffuzu ve örnek cümleleri getirmek için dokun.
+                  </div>
+                </button>
+              )}
             </div>
 
             <div>
@@ -239,17 +343,23 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
             />
           </div>
 
-          {/* Custom Note */}
+          {/*
+            BAĞLAM — ekleme ekranındaki kutunun aynısı: aynı başlık, aynı
+            ipucu metni, aynı iki satırlık alan ve aynı alana (`sourceContext`)
+            yazıyor. Kartta tırnak içinde görünen metin budur.
+          */}
           <div>
-            <label className="block text-xs font-bold text-[var(--text-secondary)]  mb-1">
-              Kaynak / Not
+            <label htmlFor="anlora-duzenle-baglam" className="block text-xs font-bold text-[var(--text-secondary)]  mb-1">
+              Bağlam ya da Not{' '}
+              <span className="font-semibold normal-case text-[var(--text-muted)]">(isteğe bağlı)</span>
             </label>
-            <input
-              type="text"
-              value={customNote}
-              onChange={(e) => setCustomNote(e.target.value)}
-              placeholder="Örn: Dizi repliği, Kitap notu..."
-              className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none focus:border-[var(--primary)] text-[var(--text-primary)]"
+            <textarea
+              id="anlora-duzenle-baglam"
+              value={baglam}
+              onChange={(e) => setBaglam(e.target.value)}
+              placeholder="Kelimeyi gördüğün cümle ya da kendi notun..."
+              rows={2}
+              className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none italic text-[var(--text-primary)]"
             />
           </div>
 

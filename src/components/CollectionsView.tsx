@@ -2254,7 +2254,17 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     id={`${alanId}-ingilizce`}
                     type="text"
                     value={wordInput}
-                    onChange={(e) => setWordInput(e.target.value)}
+                    /*
+                      KÜÇÜK HARFE ÇEVRİLİYOR. Sözlükteki 5.323 kaydın tamamı
+                      küçük harfli (ölçüldü: büyük harf içeren kayıt yok).
+                      Android klavyesi cümle başındaki harfi kendiliğinden
+                      büyütüyor; kullanıcı "Abondon" yazdığında kart sözlükten
+                      ayrı düşüyor, aynı kelime iki farklı yazımla birikiyordu.
+                    */
+                    onChange={(e) => setWordInput(e.target.value.toLowerCase())}
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
                     placeholder="Örn: reluctant, achieve, scrutinize..."
                     required
                     autoFocus
@@ -3074,8 +3084,22 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
         }}
       />
 
-      {/* MODAL: BATCH WORD ADD */}
+      {/*
+        MODAL: BATCH WORD ADD
+
+        `key` HER AÇILIŞTA DEĞİŞİYOR — bilerek. Bu pencere kapanınca DOM'dan
+        kalkmıyor, yalnızca `null` döndürüyor; durumu (yapıştırılan liste,
+        ayıklanan kelimeler, seçimler) olduğu gibi duruyordu. Kullanıcı toplu
+        ekleme yapıp kapattıktan sonra yeniden açtığında BOŞ bir sayfa değil,
+        bir önceki turun kelimelerini görüyordu.
+
+        Anahtar değişince React bileşeni söküp yeniden kuruyor, yani her açılış
+        temiz bir sayfayla başlıyor. Durumu tek tek sıfırlamak yerine bu yol
+        seçildi: yeni bir alan eklendiğinde sıfırlama listesine yazmayı unutmak
+        aynı hatayı sessizce geri getirirdi.
+      */}
       <BatchWordModal
+        key={showBatchModal ? 'toplu-acik' : 'toplu-kapali'}
         isOpen={showBatchModal}
         onClose={() => setShowBatchModal(false)}
         targetCollection={activeDeck}
@@ -3090,8 +3114,17 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
         }}
       />
 
-      {/* MODAL: TEXT MINER */}
+      {/*
+        MODAL: TEXT MINER
+
+        Aynı sebep, aynı çözüm (bkz. yukarıdaki toplu ekleme penceresi).
+        Burada iz daha da görünürdü: kullanıcı "Vazgeç" dese bile bir sonraki
+        açılışta önceki metin İngilizce kutusunda duruyor, ayıklanmış kelime
+        listesi de ekranda kalıyordu; devam etmek için önce elle silmek
+        gerekiyordu.
+      */}
       <TextMinerModal
+        key={showMinerModal ? 'madenci-acik' : 'madenci-kapali'}
         isOpen={showMinerModal}
         onClose={() => setShowMinerModal(false)}
         collections={collections}

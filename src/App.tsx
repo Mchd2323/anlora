@@ -62,6 +62,7 @@ import {
   V2_KEYS
 } from './utils/storageV2';
 import { readRaw } from './utils/safeStorage';
+import { aramaAnahtari } from './utils/aramaAnahtari';
 import { apiFetch, logout } from './utils/authClient';
 import { runOxfordIdMigrationIfNeeded } from './utils/oxfordIdMigration';
 import { OxfordGroupKey } from './types/oxford';
@@ -462,6 +463,28 @@ export default function App() {
   const oxfordPool = useMemo(
     () => [...oxfordWords, ...oxfordExtraWords],
     [oxfordWords, oxfordExtraWords]
+  );
+
+  /*
+   * SÖZLÜK ARAMASI — düzenleme ekranı için.
+   *
+   * Kart düzenlenirken kelime Oxford'da var olan bir kelimeyle değiştirilince
+   * anlam, tür, telaffuz ve örnek cümleler kendiliğinden gelmeliydi; gelmiyordu.
+   * Dizin bir kez kuruluyor: 5.323 kayıtta her tuş için doğrusal tarama
+   * yapmanın anlamı yok.
+   */
+  const sozlukDizini = useMemo(() => {
+    const map = new Map<string, WordCard>();
+    for (const kart of [...oxfordPool, ...customWords]) {
+      const anahtar = aramaAnahtari(kart.word);
+      if (!map.has(anahtar)) map.set(anahtar, kart);
+    }
+    return map;
+  }, [oxfordPool, customWords]);
+
+  const sozlukteAra = useCallback(
+    (kelime: string) => sozlukDizini.get(aramaAnahtari(kelime)) || null,
+    [sozlukDizini]
   );
 
   const favoriteWordsList = useMemo(() => {
@@ -1076,6 +1099,7 @@ export default function App() {
           onClose={() => setEditingCard(null)}
           onSave={handleUpdateCustomWord}
           onDelete={handleDeleteCustomWord}
+          sozlukteAra={sozlukteAra}
         />
       )}
 
