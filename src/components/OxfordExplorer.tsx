@@ -692,28 +692,15 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
           </div>
         </div>
 
-        {/* Arama, tür ve durum */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
-          <div className="relative">
-            <RealmsIcon name="search" size={20} className="text-[var(--text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Kelime ya da kalıp ara..."
-              className="w-full pl-9 pr-8 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:outline-none focus:bg-[var(--surface)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] font-medium text-[var(--text-primary)] transition-colors"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                aria-label="Aramayı temizle"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
+        {/*
+          TÜR VE DURUM SÜZGEÇLERİ.
 
+          Arama kutusu buradaydı ve üç kutu yan yana bilgi kartının altını
+          kalabalık gösteriyordu. Arama artık "Kartlarla Çalış" kutusunun
+          ALTINA taşındı: sayfanın üstü seviye ve ilerleme bilgisine, altı da
+          listeyle uğraşmaya ayrıldı.
+        */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
           <select
             value={partOfSpeechFilter}
             onChange={e => setPartOfSpeechFilter(e.target.value)}
@@ -763,6 +750,35 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
           </div>
         </button>
       )}
+
+      {/*
+        ARAMA — "Kartlarla Çalış"ın hemen altında.
+
+        Buraya taşındı çünkü aramanın işlevi listeyle ilgili: yazınca liste
+        kendiliğinden açılıyor. Sayfanın üstündeki bilgi kartının altında,
+        iki süzgecin yanında dururken üç kutuluk bir sıra oluşturuyor ve
+        ekranı dağınık gösteriyordu.
+      */}
+      <div className="relative">
+        <RealmsIcon name="search" size={20} className="text-[var(--text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          placeholder="Kelime ya da kalıp ara..."
+          aria-label="Kelime ya da kalıp ara"
+          className="w-full pl-9 pr-8 py-2.5 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:outline-none focus:bg-[var(--surface)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] font-medium text-[var(--text-primary)] transition-colors"
+        />
+        {searchQuery && (
+          <button
+            onClick={() => setSearchQuery('')}
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+            aria-label="Aramayı temizle"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
 
       {/* Kelime listesi — açıp kapanabilir */}
       {filteredWords.length > 0 && (

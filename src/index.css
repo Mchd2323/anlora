@@ -683,14 +683,30 @@
    Şerit yüksekliği 6 piksel ve sağa doğru maskeyle kayboluyor.
 */
 .realm-card-motif {
-  --motif-image: none;
-  position: relative;
-  display: grid;
-  grid-template-columns: 24px 1fr;
+  /*
+   * KART BAŞLIĞI — HANEDAN ÇİZGİSİ.
+   *
+   * Burada kartın üstünde koyudan açığa giden gri bir şerit vardı: 6 piksel
+   * yüksekliğinde, sağa doğru silinen, altında motif dokusu taşıyan bir
+   * bant. İki sorunu vardı. Görsel olarak kartı ayırt etmiyordu — altı
+   * motifin hepsi aynı gri bandın altında kaybolduğu için kullanıcı hangi
+   * kartın hangi motife sahip olduğunu ayırt edemiyordu. İkincisi bandın
+   * silinen ucu kartın sağına kadar uzanıyor, tam ekran düğmesi de o soluk
+   * kısmın üstüne düşüyordu.
+   *
+   * Yerine gelen şey daha az ve daha kesin: motif glifi ve yanında KISA bir
+   * antik altın saç çizgisi, ucunda küçük bir baklava. Arma çizgisi mantığı;
+   * kartı bir belge gibi mühürlüyor. Sabit 56 piksel olduğu için kartın
+   * sağındaki düğmelere hiç yaklaşmıyor.
+   *
+   * Bedeli de düştü: bant iki katmanlı bir arka plan görseliydi (gradyan +
+   * webp doku, `background-blend-mode` ile karıştırılıyordu) ve her kart için
+   * yeniden boyanıyordu. Yeni çizgi tek renk, görselsiz.
+   */
+  display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 28px;
-  overflow: hidden;
+  gap: 8px;
+  min-height: 24px;
   /*
    * GLİFİN RENGİ BİR BELİRTEÇ, SABİT HEX DEĞİL.
    *
@@ -706,56 +722,29 @@
   color: var(--motif-glif, #7faac2);
 }
 
-.realm-card-motif::after {
+/* Kısa altın saç çizgisi. Uzunluğu sabit: kartın sağındaki düğmelere
+   yaklaşmasın diye. */
+.realm-card-rule {
+  position: relative;
+  display: block;
+  width: 56px;
+  height: 1px;
+  background: var(--gold-ornament);
+  opacity: 0.5;
+  flex: none;
+}
+
+/* Çizginin ucundaki baklava — armanın mührü. */
+.realm-card-rule::after {
   content: '';
-  height: 6px;
-  border-radius: 999px;
-  background-image:
-    linear-gradient(90deg, rgba(21, 40, 61, 0.12), rgba(21, 40, 61, 0.44), rgba(21, 40, 61, 0)),
-    var(--motif-image);
-  background-position: center;
-  background-size: 100% 100%, cover;
-  background-blend-mode: normal, multiply;
-  opacity: 0.34;
-  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 62%, transparent 100%);
-  mask-image: linear-gradient(90deg, #000 0%, #000 62%, transparent 100%);
-}
-
-:root[data-theme='dark'] .realm-card-motif::after {
-  background-image:
-    linear-gradient(90deg, rgba(127, 170, 194, 0.18), rgba(183, 149, 82, 0.32), rgba(13, 25, 37, 0)),
-    var(--motif-image);
-  background-blend-mode: screen, soft-light;
-  opacity: 0.42;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) .realm-card-motif::after {
-    background-image:
-      linear-gradient(90deg, rgba(127, 170, 194, 0.18), rgba(183, 149, 82, 0.32), rgba(13, 25, 37, 0)),
-      var(--motif-image);
-    background-blend-mode: screen, soft-light;
-    opacity: 0.42;
-  }
-}
-
-.realm-card-motif[data-motif='frost-crystal'] {
-  --motif-image: url('/assets/themes/realms/motifs/frost-crystal.webp');
-}
-.realm-card-motif[data-motif='dragon-scale'] {
-  --motif-image: url('/assets/themes/realms/motifs/dragon-scale.webp');
-}
-.realm-card-motif[data-motif='raven-feather'] {
-  --motif-image: url('/assets/themes/realms/motifs/raven-feather.webp');
-}
-.realm-card-motif[data-motif='ancient-map'] {
-  --motif-image: url('/assets/themes/realms/motifs/ancient-map.webp');
-}
-.realm-card-motif[data-motif='forged-iron'] {
-  --motif-image: url('/assets/themes/realms/motifs/forged-iron.webp');
-}
-.realm-card-motif[data-motif='ember-spark'] {
-  --motif-image: url('/assets/themes/realms/motifs/ember-spark.webp');
+  position: absolute;
+  right: -3px;
+  top: -2px;
+  width: 5px;
+  height: 5px;
+  transform: rotate(45deg);
+  background: var(--gold-ornament);
+  opacity: 0.9;
 }
 
 /* ==========================================================================

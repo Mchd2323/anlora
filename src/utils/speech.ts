@@ -489,9 +489,27 @@ export async function stopSpeech(): Promise<void> {
   }
 }
 
+/** Sessiz ısıtma yalnızca bir kez yapılır. */
+let isitildi = false;
+
 /**
- * Açılışta çağrılır. Artık bekleyecek bir ses listesi yok (tarayıcı motoru
- * kaldırıldı); dil listesini erkenden ısıtmak ilk basışı hızlandırıyor.
+ * Açılışta çağrılır ve İLK BASIŞTAKİ BEKLEMEYİ ORTADAN KALDIRIR.
+ *
+ * ÖLÇÜLEN SORUN. Kart üzerindeki ses düğmesine ilk basışta birkaç saniye
+ * bekleniyor, sonraki her basışta ses anında geliyordu. Sebebi dil listesi
+ * değil: Android'de metin okuma motoru AYRI BİR SİSTEM SERVİSİ ve uygulama
+ * ona ilk `speak` çağrısında bağlanıyor. Bağlanma, ses paketinin açılması ve
+ * motorun kurulması hep o ilk çağrının içinde oluyor — kullanıcı bunu
+ * "düğme geç çalışıyor" diye görüyor.
+ *
+ * ÇÖZÜM. Açılışta duyulmayan bir okuma yapılıyor: `volume: 0` ve tek boşluk.
+ * Motor böylece kullanıcı henüz hiçbir şeye basmadan bağlanmış oluyor;
+ * gerçek basışta yalnızca okuma kalıyor.
+ *
+ * Sessiz denemenin başarısız olması hiçbir şeyi bozmaz — o durumda davranış
+ * eskisiyle aynı kalır, bu yüzden hata yutuluyor ve kullanıcıya bildirim
+ * gösterilmiyor. `stop()` çağrısı, çok kısa da olsa kuyrukta bir şey
+ * kalmasın diye.
  */
 export function warmUpSpeech(): void {
   if (!isNativeShell()) {
@@ -500,8 +518,29 @@ export function warmUpSpeech(): void {
     sesleriHazirla();
     return;
   }
-  if (!pluginHazir()) return;
-  void supportedLanguages().catch(() => undefined);
+  if (!pluginHazir() || isitildi) return;
+  isitildi = true;
+
+  const tts = getNativeTts();
+  if (!tts) return;
+
+  void (async () => {
+    try {
+      const diller = await supportedLanguages();
+      const secilen = bestEnglishTag(diller, 'en-US');
+      await tts.speak({
+        text: ' ',
+        lang: secilen || 'en-US',
+        rate: 0.85,
+        pitch: 1.0,
+        volume: 0,
+        category: 'ambient'
+      });
+      await tts.stop().catch(() => undefined);
+    } catch {
+      // Isıtma başarısızsa davranış eskisiyle aynı: ilk basış motoru kurar.
+    }
+  })();
 }
 
 // --- Tanı ------------------------------------------------------------------

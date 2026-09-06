@@ -298,6 +298,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
     setTopluSonuc('');
     setDogrularIsaretlendi(false);
     setYanlislarIsaretlendi(false);
+    setTekrarSorusuCevaplandi(false);
     setQuizState('ACTIVE');
   };
 
@@ -313,9 +314,6 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
       setScore((prev) => prev + 1);
     }
 
-    if (onRecordStudyResult) {
-      onRecordStudyResult(currentQ.word.id, isCorrect ? 'good' : 'again', 'quiz');
-    }
 
     setUserAnswers((prev) => [
       ...prev,
@@ -338,9 +336,6 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
       setScore((prev) => prev + 1);
     }
 
-    if (onRecordStudyResult) {
-      onRecordStudyResult(currentQ.word.id, isCorrect ? 'good' : 'again', 'quiz');
-    }
 
     setUserAnswers((prev) => [
       ...prev,
@@ -358,6 +353,26 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
    * kullanıcı 60 soru çözüp hiçbirini kazanamıyordu. Artık çıkış yolu da
    * buradan geçiyor.
    */
+  /*
+   * SINAV SONUCU ARTIK SORMADAN İŞARETLEMİYOR.
+   *
+   * Önceden her cevapta `onRecordStudyResult` çağrılıyordu. O çağrı kelimenin
+   * aralıklı tekrar durumunu ilerletiyor, `getUserWordStatus` de durumu
+   * aşamadan türettiği için (LEARNING/RELEARNING/WEAK/REVIEW -> "learning")
+   * kelime kullanıcıya hiç sorulmadan "Tekrar Et / Öğreniyorum" kutusuna
+   * düşüyordu. Sınav bir ÖLÇÜM; neyi tekrar listesine koyacağına kullanıcı
+   * karar vermeli.
+   *
+   * Artık cevaplar yalnızca oturumda tutuluyor. Sonuç ekranında açık bir soru
+   * çıkıyor; kullanıcı "ekle" derse hem durum yazılıyor hem de aralıklı
+   * tekrar motoru cevaplarla besleniyor. "Şimdi değil" derse hiçbir öğrenme
+   * durumu değişmiyor.
+   *
+   * Günlük seri etkilenmiyor: seriyi `recordQuizResultV2` ilerletiyor
+   * (`storageV2.ts`), soru başına çağrı değil.
+   */
+  const [tekrarSorusuCevaplandi, setTekrarSorusuCevaplandi] = useState(false);
+
   const sinaviBitir = (cevaplanan: number) => {
     setQuizState('FINISHED');
     if (!onFinishQuiz || cevaplanan === 0) return;
@@ -958,27 +973,69 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                 </button>
               )}
 
-              {cevaplananSayisi - score > 0 && (
+            </div>
+          )}
+
+          {/*
+            TEKRAR LİSTESİ SORULUYOR, SESSİZCE DOLDURULMUYOR.
+
+            Bilinmeyen kelimeler eskiden kullanıcıya hiç sorulmadan tekrar
+            listesine düşüyordu (bkz. `sinaviBitir` üzerindeki açıklama).
+            Soru burada, sonucun hemen altında ve iki cevabı da açık: ekle ya
+            da ekleme. Cevap verilene kadar hiçbir öğrenme durumu değişmiyor.
+          */}
+          {onSetWordStatus && cevaplananSayisi - score > 0 && !tekrarSorusuCevaplandi && (
+            <div className="p-4 rounded-xl border border-[var(--learning-border)] bg-[var(--learning-soft)] space-y-3">
+              <p className="text-xs font-bold text-[var(--learning-text)] leading-relaxed">
+                Bu sınavda bilemediğin {cevaplananSayisi - score} kelimeyi
+                “Tekrar Et / Öğreniyorum” listendeki diğer kelimelerin yanına
+                ekleyelim mi?
+              </p>
+              <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  disabled={yanlislarIsaretlendi}
                   onClick={() => {
                     const yanlisIdler = userAnswers
                       .filter(a => !a.isCorrect)
                       .map(a => a.question.word.id);
                     if (onSetWordStatuses) onSetWordStatuses(yanlisIdler, 'learning');
                     else yanlisIdler.forEach(id => onSetWordStatus(id, 'learning'));
+                    /*
+                      Aralıklı tekrar motoru ancak burada besleniyor: kullanıcı
+                      "ekle" dediğinde. Sınav sırasında beslemek, kararı ondan
+                      önce vermek olurdu.
+                    */
+                    if (onRecordStudyResult) {
+                      userAnswers.forEach(a =>
+                        onRecordStudyResult(
+                          a.question.word.id,
+                          a.isCorrect ? 'good' : 'again',
+                          'quiz'
+                        )
+                      );
+                    }
+                    setTekrarSorusuCevaplandi(true);
                     setYanlislarIsaretlendi(true);
                     setTopluSonuc(
                       `${cevaplananSayisi - score} kelime tekrar listene eklendi.`
                     );
                   }}
-                  className="flex-1 min-w-[150px] px-3.5 py-2.5 rounded-xl bg-[var(--learning-soft)] hover:bg-[var(--learning-soft-hover)] text-[var(--learning-text)] border border-[var(--learning-border)] text-xs font-bold inline-flex items-center justify-center gap-1.5 cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="flex-1 min-w-[130px] px-3.5 py-2.5 rounded-xl bg-[var(--learning-fill)] text-[var(--on-learning)] text-xs font-bold inline-flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <RealmsIcon name="repeat" size={18} className="stroke-[3]" />
-                  Yanlışları tekrar et ({cevaplananSayisi - score})
+                  Evet, ekle
                 </button>
-              )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTekrarSorusuCevaplandi(true);
+                    setTopluSonuc('Tekrar listen değişmedi.');
+                  }}
+                  className="flex-1 min-w-[130px] px-3.5 py-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-[var(--text-primary)] text-xs font-bold cursor-pointer"
+                >
+                  Şimdi değil
+                </button>
+              </div>
             </div>
           )}
 

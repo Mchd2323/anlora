@@ -18,6 +18,7 @@ import { generateFullV2Backup, restoreFullV2Backup } from '../utils/storageV2';
 import { SettingsPanel } from './SettingsPanel';
 import { apiFetch } from '../utils/authClient';
 import { useRemoteApi } from '../hooks/useRemoteApi';
+import { readJSON, writeJSON } from '../utils/safeStorage';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
@@ -153,6 +154,17 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const importInputRef = React.useRef<HTMLInputElement>(null);
 
   // Compute total status across all words
+  /*
+   * SÖZLÜK ÖNERİSİ OLARAK GÖNDERİLMİŞ KELİMELER.
+   *
+   * Cihazda tutuluyor; sunucu yok. Küçük harfe indirgenmiş yazımlar saklanır
+   * ki "Abondon" ile "abondon" iki ayrı kayıt sayılmasın.
+   */
+  const GONDERILEN_ANAHTARI = 'anlora_sozluk_onerisi_gonderilen';
+  const [gonderilenKelimeler, setGonderilenKelimeler] = useState<string[]>(
+    () => readJSON<string[]>(GONDERILEN_ANAHTARI, [])
+  );
+
   const learningSummary = useMemo(() => {
     let learnedCount = 0;
     let learningCount = 0;
@@ -229,6 +241,18 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       unseenCount,
       oxfordBreakdown,
       sozlukDisiKelimeler,
+      /*
+       * HENÜZ GÖNDERİLMEMİŞ olanlar.
+       *
+       * Kutu, kullanıcı kelimeleri gönderdikten sonra da duruyordu: aynı
+       * listeyle her açılışta yeniden karşılaşmak, isteği bir hatırlatmadan
+       * çıkarıp gürültüye çeviriyor. Gönderilenler cihazda tutuluyor ve kutu
+       * yalnızca YENİ ve daha önce gönderilmemiş bir kelime çıktığında geri
+       * geliyor.
+       */
+      gonderilmemisKelimeler: sozlukDisiKelimeler.filter(
+        k => !gonderilenKelimeler.includes(k.toLowerCase())
+      ),
       setSayisi: collections.length,
       setlerdekiKelime: new Set(memberships.map(m => m.wordId)).size,
       /*
@@ -248,7 +272,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         return { lvl, total: grup.length, learned, learning };
       })
     };
-  }, [customWords, oxfordWords, extraWords, collections, memberships, learningStates, kaliplar]);
+  }, [customWords, oxfordWords, extraWords, collections, memberships, learningStates, kaliplar, gonderilenKelimeler]);
 
   /**
    * Tam yedek indirir.
@@ -643,7 +667,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           göndermez. Düğme yalnızca İngilizce yazımları hazır bir taslağa
           koyuyor — Türkçe anlamlar, setler, hiçbir kişisel veri gitmiyor.
         */}
-        {learningSummary.sozlukDisiKelimeler.length > 0 && (
+        {learningSummary.gonderilmemisKelimeler.length > 0 && (
           <div className="rounded-xl border border-[var(--learning-border)] bg-[var(--learning-soft)] overflow-hidden">
             <button
               type="button"
@@ -661,7 +685,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               <div className="px-4 pb-4 space-y-3 border-t border-[var(--learning-border)] pt-3">
                 <p className="text-[11px] text-[var(--learning-text)] leading-relaxed">
                   Eklediğin{' '}
-                  <b>{learningSummary.sozlukDisiKelimeler.length} kelime</b> ne Oxford
+                  <b>{learningSummary.gonderilmemisKelimeler.length} kelime</b> ne Oxford
                   listesinde ne de Anlora sözlüğünde var. Bize gönderirsen sözlüğe ekleyip
                   herkesin çalışmasını sağlayabiliriz.
                 </p>
@@ -673,12 +697,23 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 <button
                   type="button"
                   onClick={() => {
-                    const kelimeler = learningSummary.sozlukDisiKelimeler;
+                    const kelimeler = learningSummary.gonderilmemisKelimeler;
                     const konu = `Anlora sözlük önerisi (${kelimeler.length} kelime)`;
                     window.location.href =
                       `mailto:${BRAND.contactEmail}` +
                       `?subject=${encodeURIComponent(konu)}` +
                       `&body=${encodeURIComponent(kelimeler.join('\n'))}`;
+                    /*
+                      Gönderilenler işaretleniyor: kutu bir daha aynı listeyle
+                      çıkmasın. Yeni ve sözlükte olmayan bir kelime eklenirse
+                      kutu kendiliğinden geri gelir.
+                    */
+                    const guncel = Array.from(new Set([
+                      ...gonderilenKelimeler,
+                      ...kelimeler.map(k => k.toLowerCase())
+                    ]));
+                    writeJSON(GONDERILEN_ANAHTARI, guncel);
+                    setGonderilenKelimeler(guncel);
                   }}
                   className="px-3.5 py-2 bg-[var(--learning-fill)] hover:opacity-90 text-[var(--on-learning)] text-[11px] font-bold rounded-lg cursor-pointer inline-flex items-center gap-1.5"
                 >
