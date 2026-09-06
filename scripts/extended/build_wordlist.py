@@ -60,7 +60,11 @@ import re
 import sys
 from collections import Counter
 
-TARGET = 5048           # 4.952 Oxford + 5.048 = 10.000
+# Hedef kelime sayısı. Komut satırından ikinci argümanla değiştirilebilir:
+#   python3 scripts/extended/build_wordlist.py /tmp/anlora-src 14677
+# Varsayılan, uygulamayı 20.000 kelimeye taşıyan değer:
+#   5.323 Oxford kaydı + 14.677 = 20.000
+TARGET = int(os.environ.get('ANLORA_TARGET', '14677'))
 BAND_SIZE = 2000        # Uygulama bantları tembel yükler; bkz. src/services
 
 CORE_FILES = [
