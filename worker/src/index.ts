@@ -177,6 +177,23 @@ export default {
       );
     }
 
+    /*
+     * Kök adres bir uç değil, ama adrese tarayıcıdan tıklamak ilk yapılan şey.
+     * Buraya düşen kişiye "Bilinmeyen uç." demek, çalışan bir kurulumu bozuk
+     * gibi gösteriyordu. Ne olduğunu ve nereye bakacağını söylüyoruz.
+     */
+    if (url.pathname === '/' || url.pathname === '') {
+      return jsonYanit(
+        {
+          service: 'anlora-ai-worker',
+          bilgi: 'Anlora AI vekili çalışıyor. Bu adres bir uç değil.',
+          durumUcu: `${url.origin}/api/health`,
+        },
+        200,
+        cors
+      );
+    }
+
     if (!url.pathname.startsWith('/api/ai/')) {
       return jsonYanit({ error: 'Bilinmeyen uç.' }, 404, cors);
     }
