@@ -209,14 +209,6 @@ async function adaylariGetir(apiKey: string): Promise<{ surum: string; adaylar: 
   throw new Error(`Kullanılabilir model bulunamadı (${hatalar.join('; ')})`);
 }
 
-/** Modelin kendisiyle ilgili, sıradakini denemeyi hak eden hata mı? */
-function modelHatasi(durum: number): boolean {
-  // 404: model yok ya da bu anahtara kapalı. 400: istek bu modelde geçersiz.
-  // 403: bu modele erişim yok. Üçü de "başka bir model dene" demek.
-  // 429/5xx ise modelle ilgili değil; sıradakini denemek kotayı boşa harcar.
-  return durum === 404 || durum === 400 || durum === 403;
-}
-
 /**
  * Tek bir modele istek atar.
  *
@@ -263,43 +255,62 @@ async function modeleSor(
  * Çalıştığı görülen model hatırlanır; sonraki istekler doğrudan ona gider ve
  * her seferinde liste çekilmez.
  */
-function geminiKoprusu(apiKey: string): AiGateway {
+/**
+ * Önbelleği boşaltır. Yalnızca testler için: modül düzeyindeki `calisanModel`
+ * testler arasında taşınırsa sıradaki test önceki testin modelini kullanır ve
+ * yedekleme davranışı hiç sınanmamış olur.
+ */
+export function _onbellegiBosalt(): void {
+  calisanModel = null;
+}
+
+export function geminiKoprusu(apiKey: string): AiGateway {
   return {
     async generateJson({ prompt, systemInstruction }) {
+      const denenenler: string[] = [];
+
+      // Daha önce çalıştığı görülen model varsa önce o denenir: her istekte
+      // model listesi çekmek gereksiz gecikme olurdu.
       if (calisanModel) {
         const sonuc = await modeleSor(
           apiKey, calisanModel.surum, calisanModel.model, prompt, systemInstruction
         );
         if (sonuc.durum === 200) return sonuc.metin;
-        // Bir zamanlar çalışan model artık çalışmıyorsa (emeklilik) baştan
-        // aday aranır; önbelleğe takılıp kalınmaz.
-        if (!modelHatasi(sonuc.durum)) {
-          throw new Error(
-            `Gemini ${sonuc.durum} (${calisanModel.surum}/${calisanModel.model}): ${sonuc.detay}`
-          );
-        }
+        denenenler.push(`${calisanModel.model} -> ${sonuc.durum}`);
+        // Dün çalışan model bugün emekliye ayrılmış ya da aşırı yüklü
+        // olabilir. Önbelleğe takılıp kalmak yerine baştan aday aranır.
         calisanModel = null;
       }
 
       const { surum, adaylar } = await adaylariGetir(apiKey);
-      const denenenler: string[] = [];
+      let sonDetay = '';
 
-      // En fazla dört aday: bir anahtarın erişemediği model kümesi genelde
-      // birkaç tanedir, kırk modeli tek tek denemek isteği dakikalarca
-      // uzatırdı.
-      for (const model of adaylar.slice(0, 4)) {
+      /*
+       * HER HATADA SIRADAKİ ADAY DENENİR.
+       *
+       * Önceki sürüm hataları ikiye ayırıyordu: 404/400/403 "sıradakini
+       * dene", ötekiler "hemen bırak". Gerekçesi 429'da kotayı boşa
+       * harcamamaktı. Gerçek dağıtımda bu ayrım yanlış çıktı: Gemini
+       * `gemini-flash-latest` için 503 "high demand" döndürdü ve kod, YÜKLÜ
+       * OLMAYAN bir modeli denemeden pes etti. Yoğunluk modele özgüdür;
+       * sıradakini denemek tam da doğru davranıştır.
+       *
+       * Dört değil beş aday: 503 geçici bir yoğunluk hatası, birkaç model
+       * aynı anda yüklü olabilir.
+       */
+      for (const model of adaylar.slice(0, 5)) {
         const sonuc = await modeleSor(apiKey, surum, model, prompt, systemInstruction);
         if (sonuc.durum === 200) {
           calisanModel = { surum, model };
           return sonuc.metin;
         }
         denenenler.push(`${model} -> ${sonuc.durum}`);
-        if (!modelHatasi(sonuc.durum)) {
-          throw new Error(`Gemini ${sonuc.durum} (${surum}/${model}): ${sonuc.detay}`);
-        }
+        sonDetay = sonuc.detay;
       }
 
-      throw new Error(`Hiçbir model yanıt vermedi (${denenenler.join('; ')})`);
+      throw new Error(
+        `Hiçbir model yanıt vermedi (${denenenler.join('; ')}). Son yanıt: ${sonDetay}`
+      );
     },
   };
 }
