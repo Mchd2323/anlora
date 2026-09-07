@@ -105,6 +105,26 @@ jobs:
           echo "Adres: $ADRES"
           echo "Saglik: $durum"
 
+          # GERÇEK BİR KART ÜRETTİRİLİYOR.
+          #
+          # `/api/health` yalnızca anahtarın TANIMLI olduğunu söyler; Gemini
+          # isteğinin biçimi doğru mu, model erişilebilir mi, dönen JSON
+          # denetimden geçiyor mu — bunların hiçbirini kanıtlamaz. Biçim
+          # hatası ancak kullanıcı APK'da bir kelime aradığında ortaya
+          # çıkardı. Bir çağrı burada yapılıp sonucu bildiriliyor.
+          yanit=$(curl -sS --max-time 90 -X POST "$ADRES/api/ai/generate-word" \
+            -H 'Content-Type: application/json' \
+            -d '{"word":"serendipity"}' || echo '')
+          if printf '%s' "$yanit" | grep -q '"turkishMeaning"'; then
+            AI_SONUC="çalışıyor — örnek kart üretildi"
+            echo "Yapay zeka denemesi: BASARILI"
+          else
+            AI_SONUC="ÇALIŞMIYOR — aşağıdaki yanıta bakın"
+            echo "::warning::Yapay zeka denemesi basarisiz. Worker ayakta ama Gemini cagrisi kart uretemedi."
+            echo "Yapay zeka denemesi: BASARISIZ"
+            echo "Yanit: $yanit"
+          fi
+
           {
             echo "### Anlora AI Worker dağıtıldı"
             echo
@@ -119,6 +139,14 @@ jobs:
             echo '```'
             echo
             echo 'Yanıtta `"ai": true` görüyorsanız Gemini anahtarı yerine oturmuş demektir.'
+            echo
+            echo "**Yapay zekâ denemesi:** $AI_SONUC"
+            if [ "${AI_SONUC#ÇALIŞMIYOR}" != "$AI_SONUC" ]; then
+              echo
+              echo '```'
+              echo "$yanit" | head -c 1500
+              echo '```'
+            fi
             echo
             echo "Sıradaki adım: bu adresi **Settings → Secrets and variables → Actions → Variables** sekmesinde \`API_BASE_URL\` adıyla kaydedin, sonra **Android APK** iş akışını çalıştırın."
           } >> "$GITHUB_STEP_SUMMARY"
