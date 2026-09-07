@@ -28,7 +28,6 @@ import { getUserWordStatus } from '../utils/storageV2';
 import { UserProfile } from '../types';
 import { apiUrl } from '../config/api';
 import { useRemoteApi } from '../hooks/useRemoteApi';
-import { apiFetch } from '../utils/authClient';
 import { formatPhonetic } from '../utils/phonetic';
 import { reportMissingWord } from '../services/usageReporter';
 import { RealmsIcon } from './ui/RealmsIcon';
@@ -62,7 +61,6 @@ interface CollectionsViewProps {
   onStartQuiz: (collectionId?: string) => void;
   onOpenEditModal: (card: WordCard) => void;
   onOpenAddToCollection: (card: WordCard) => void;
-  onOpenAuthModal?: () => void;
   onSetWordStatus?: (id: string, status: 'learned' | 'learning' | 'unseen') => void;
 }
 
@@ -128,24 +126,13 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   onStartQuiz,
   onOpenEditModal,
   onOpenAddToCollection,
-  onOpenAuthModal,
   onSetWordStatus
 }) => {
   /*
-   * Sunucu ulaşılabilir mi? Bu ekranda iki şey buna bağlı: yapay zekâ ile
-   * kart üretimi ve setin bağlantıyla paylaşılması. Sunucusuz kurulumda
-   * ikisi de hiç çizilmez.
+   * Bu ekranda sunucuya bağlı TEK şey kaldı: sözlükte bulunmayan bir kelime
+   * için yapay zekâ ile kart üretmek. Set paylaşımı da buradaydı ama giriş
+   * gerektirdiği için üyelikle birlikte kaldırıldı.
    */
-  /*
-   * İKİ AYRI YETENEK, TEK BAYRAK DEĞİL.
-   *
-   * Bu ekranda sunucuya bağlı iki şey var ve aynı kurulumda ikisi birden
-   * olmayabiliyor: set paylaşımı kalıcı depolama ister (yalnızca tam
-   * sunucu), sözlükte olmayan kelime için kart üretmek ise yapay zekâ
-   * ister (Cloudflare vekilinde de var). Tek bayrakla sorulduğunda vekile
-   * bağlı bir kurulumda çalışmayan bir paylaş düğmesi çiziliyordu.
-   */
-  const paylasimVar = useRemoteApi('sync') === true;
   const yapayZekaVar = useRemoteApi('ai') === true;
 
   /*
@@ -330,13 +317,10 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   const [bulkTarget, setBulkTarget] = useState<'move' | 'copy' | null>(null);
   const [mergeSource, setMergeSource] = useState<string>('');
   const [showMerge, setShowMerge] = useState(false);
-  const [showShare, setShowShare] = useState(false);
   const { showToast } = useToast();
   const [importText, setImportText] = useState('');
   const [showImport, setShowImport] = useState(false);
   const [setNotice, setSetNotice] = useState('');
-  const [isSharing, setIsSharing] = useState(false);
-  const [shareError, setShareError] = useState('');
 
   useEffect(() => {
     setSelectedIds(new Set());
@@ -360,7 +344,6 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
    */
   const editDeckRef = useModalA11y(!!editingDeck, () => setEditingDeck(null));
   const bulkModalRef = useModalA11y(!!bulkTarget && !!activeDeck, () => setBulkTarget(null));
-  const shareModalRef = useModalA11y(showShare && !!activeDeck, () => setShowShare(false));
   const mergeModalRef = useModalA11y(showMerge && !!activeDeck, () => setShowMerge(false));
   const importModalRef = useModalA11y(showImport && !!activeDeck, () => setShowImport(false));
 
@@ -858,64 +841,15 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     setShowMerge(false);
   };
 
-  /**
-   * Seti bağlantıyla paylaşır.
+  /*
+   * BURADA `shareDeck` VE `unshareDeck` VARDI.
    *
-   * GİZLİ VARSAYILAN: bu düğmeye basılmadan sunucuya tek bir kelime bile
-   * gitmez. Paylaşılan içerik bir KOPYADIR; sonradan sete eklediğin kelime
-   * bağlantıya yansımaz, yeniden paylaşman gerekir. Aksi hâlde karşı tarafın
-   * gördüğü şey senin haberin olmadan değişirdi.
+   * İkisi de `/api/sets/share` ucunu çağırıyordu ve o uç sunucuda
+   * `requireAuth` taşıyor: paylaşmak için giriş yapmış olmak gerekiyordu.
+   * Üyelik kaldırıldığı için ikisi de hiçbir koşulda başarılı olamazdı.
+   * Setin dışarı çıkma yolu CSV dışa aktarma olarak duruyor ve o tamamen
+   * çevrimdışı çalışıyor.
    */
-  const shareDeck = async () => {
-    if (!activeDeck) return;
-    setIsSharing(true);
-    setShareError('');
-    try {
-      const payload = {
-        name: activeDeck.name,
-        description: activeDeck.description,
-        previousCode: activeDeck.shareCode,
-        words: activeDeckWords.map(card => ({
-          word: card.word,
-          phonetic: card.phonetic,
-          level: card.level,
-          partOfSpeech: card.partOfSpeech,
-          turkishMeaning: card.turkishMeaning,
-          examples: card.examples
-        }))
-      };
-
-      const result = await apiFetch<{ code: string; wordCount: number }>('/api/sets/share', {
-        method: 'POST',
-        body: JSON.stringify(payload)
-      });
-
-      onUpdateCollection({ ...activeDeck, shareCode: result.code });
-      setSetNotice(`Set paylaşıldı: ${result.wordCount} kelime.`);
-    } catch (err: any) {
-      setShareError(
-        err?.message || 'Paylaşım için giriş yapman ve sunucuya ulaşman gerekiyor.'
-      );
-    } finally {
-      setIsSharing(false);
-    }
-  };
-
-  /** Paylaşımı kaldırır; bağlantı geçersizleşir ve set yeniden gizli olur. */
-  const unshareDeck = async () => {
-    if (!activeDeck?.shareCode) return;
-    setIsSharing(true);
-    setShareError('');
-    try {
-      await apiFetch(`/api/sets/share/${activeDeck.shareCode}`, { method: 'DELETE' });
-      onUpdateCollection({ ...activeDeck, shareCode: undefined });
-      setSetNotice('Paylaşım kaldırıldı. Set yeniden gizli.');
-    } catch (err: any) {
-      setShareError(err?.message || 'Paylaşım kaldırılamadı.');
-    } finally {
-      setIsSharing(false);
-    }
-  };
 
   /**
    * Seti CSV olarak indirir.
@@ -1783,27 +1717,17 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   </button>
 
                   {/*
-                    Set paylaşımı seti sunucuya yükler; sunucusuz kurulumda
-                    böyle bir yer yok, düğme de çizilmez. Dışa aktarma (CSV)
-                    yanı başında duruyor ve tamamen çevrimdışı çalışıyor —
-                    yani kullanıcının seti başkasına ulaştırma yolu kapanmıyor.
+                    SET PAYLAŞIMI KALDIRILDI.
+
+                    Düğme seti sunucuya yüklüyordu ve o uç (`/api/sets/share`)
+                    `requireAuth` istiyor — yani yalnızca giriş yapmış bir
+                    kullanıcı paylaşabiliyordu. Üyelik kalkınca düğme, her
+                    basışta yetki hatası veren bir düğmeye dönüşürdü.
+
+                    Seti başkasına ulaştırma yolu kapanmıyor: yanı başındaki
+                    CSV dışa aktarma tamamen çevrimdışı çalışıyor ve dosyayı
+                    istediğin yere gönderebilirsin.
                   */}
-                  {paylasimVar && (
-                  <button
-                    onClick={() => setShowShare(true)}
-                    title={activeDeck.shareCode ? 'Paylaşım bağlantısı' : 'Bu seti paylaş'}
-                    className={`px-3 py-2 text-xs font-semibold rounded-xl border transition-colors flex items-center gap-1.5 cursor-pointer ${
-                      activeDeck.shareCode
-                        ? 'bg-[var(--teal-soft)] text-[var(--teal)] border-[var(--teal-border)]'
-                        : 'bg-[var(--bg)] hover:bg-[var(--surface-soft)] text-[var(--text-primary)] border-[var(--border)]'
-                    }`}
-                  >
-                    <RealmsIcon name="share" size={18} />
-                    <span className="hidden sm:inline">
-                      {activeDeck.shareCode ? 'Paylaşıldı' : 'Paylaş'}
-                    </span>
-                  </button>
-                  )}
 
                   {collections.length > 1 && (
                     <button
@@ -2810,129 +2734,6 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   </button>
                 ))}
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL: SETİ PAYLAŞ */}
-      {showShare && activeDeck && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="anlora-share-title"
-          ref={shareModalRef}
-          className="fixed inset-0 z-50 flex items-start justify-center p-4 py-8 bg-[var(--text-primary)]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto overscroll-contain">
-          <div className="parsomen-panel bg-[var(--surface)] rounded-2xl max-w-md w-full border border-[var(--border)] shadow-xl p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 id="anlora-share-title" className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
-                <RealmsIcon name="share" size={20} className="text-[var(--teal)]" />
-                Seti paylaş
-              </h3>
-              <button
-                type="button"
-                onClick={() => setShowShare(false)}
-                className="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-lg cursor-pointer"
-                aria-label="Kapat"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {activeDeck.shareCode ? (
-              <>
-                <div className="p-3 rounded-xl bg-[var(--teal-soft)] border border-[var(--teal-border)] text-[11px] text-[var(--teal)] leading-relaxed">
-                  Bu set paylaşımda. Bağlantıyı alan herkes kelimeleri görebilir; kimin
-                  açtığını göremezsin. Paylaşılan içerik <b>o anki kopyadır</b> — sonradan
-                  eklediğin kelimeler için yeniden paylaşman gerekir.
-                </div>
-
-                <div>
-                  <label
-                    htmlFor={`${alanId}-paylasim-bagi`}
-                    className="block text-[10px] font-bold  tracking-wider text-[var(--text-muted)] mb-1"
-                  >
-                    Bağlantı
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      id={`${alanId}-paylasim-bagi`}
-                      type="text"
-                      readOnly
-                      value={`${window.location.origin}/?set=${activeDeck.shareCode}`}
-                      onFocus={e => e.currentTarget.select()}
-                      className="flex-1 px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] font-mono"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        void navigator.clipboard
-                          ?.writeText(`${window.location.origin}/?set=${activeDeck.shareCode}`)
-                          .then(() => setSetNotice('Bağlantı kopyalandı.'))
-                          .catch(() => setShareError('Kopyalanamadı; bağlantıyı elle seçebilirsin.'));
-                      }}
-                      className="px-3 py-2 bg-[var(--surface-soft)] hover:bg-[var(--border)] text-[var(--text-primary)] text-xs font-semibold rounded-xl cursor-pointer"
-                    >
-                      Kopyala
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={() => void shareDeck()}
-                    disabled={isSharing}
-                    className="px-4 py-2 bg-[var(--surface-soft)] hover:bg-[var(--border)] text-[var(--text-primary)] text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-40"
-                  >
-                    Güncel hâliyle yenile
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => void unshareDeck()}
-                    disabled={isSharing}
-                    className="px-4 py-2 bg-[var(--danger-soft)] hover:bg-[var(--danger-soft-hover)] text-[var(--danger)] text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40"
-                  >
-                    Paylaşımı kaldır
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                  Bu set şu an <b className="text-[var(--text-primary)]">gizli</b> ve yalnızca bu cihazda
-                  duruyor. Paylaşırsan kelimeler sunucuya kopyalanır ve bağlantıyı verdiğin
-                  kişiler görebilir. İstediğin an geri alabilirsin.
-                </p>
-                <p className="text-[11px] text-[var(--text-muted)]">
-                  {activeDeckWords.length} kelime paylaşılacak. Paylaşmak için giriş yapmış
-                  olman gerekiyor.
-                </p>
-
-                <div className="flex justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowShare(false)}
-                    className="px-4 py-2 text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-soft)] rounded-xl cursor-pointer"
-                  >
-                    Vazgeç
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => void shareDeck()}
-                    disabled={isSharing || activeDeckWords.length === 0}
-                    className="px-4 py-2 bg-[var(--teal)] hover:bg-[var(--teal-hover)] text-[var(--surface)] text-xs font-bold rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    {isSharing ? 'Paylaşılıyor…' : 'Bağlantı oluştur'}
-                  </button>
-                </div>
-              </>
-            )}
-
-            {shareError && (
-              <div className="p-3 rounded-xl bg-[var(--danger-soft)] border border-[var(--danger-border)] text-[11px] text-[var(--danger)]">
-                {shareError}
-              </div>
-            )}
           </div>
         </div>
       )}

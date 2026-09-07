@@ -1,7 +1,5 @@
 import React from 'react';
-import { useRemoteApi } from '../hooks/useRemoteApi';
-import { User, LogIn, NotebookPen } from 'lucide-react';
-import { UserProfile } from '../types';
+import { User, NotebookPen } from 'lucide-react';
 import { BRAND } from '../config/brand';
 import { ArmaPlaka } from './ui/ArmaPlaka';
 import { RealmsIcon } from './ui/RealmsIcon';
@@ -28,23 +26,12 @@ export type TabType =
 interface NavbarProps {
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
-  profile?: UserProfile;
-  onOpenAuthModal?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
-  setActiveTab,
-  profile,
-  onOpenAuthModal
+  setActiveTab
 }) => {
-  /*
-   * Sunucusuz kurulumda hesap diye bir şey yok; giriş düğmesi hiç çizilmez.
-   * Aynı denetim ProfileView'da da var — ikisi de aynı kancadan okuyor,
-   * yoklama tek sefer yapılıyor.
-   */
-  const hesapAcilabilir = useRemoteApi('accounts');
-
   /*
    * `shortLabel`, alt çubuk içindir. Sekme sayısı altıya çıkınca dar
    * telefonlarda uzun etiketler birbirinin üstüne biniyordu; kısaltma yalnızca
@@ -175,30 +162,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               })}
             </nav>
 
-            {/* Right User Action */}
-            <div className="flex items-center gap-2">
-              {profile?.isLoggedIn ? (
-                <button
-                  onClick={() => setActiveTab('profile')}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--surface-soft)] hover:bg-[var(--primary-soft)] text-[var(--text-primary)] hover:text-[var(--primary)] text-xs font-semibold border border-[var(--border)] transition-colors cursor-pointer"
-                >
-                  <div className="w-5 h-5 rounded-lg bg-[var(--primary)] text-[var(--on-primary)] flex items-center justify-center text-[10px] font-bold">
-                    {profile.email ? profile.email[0].toUpperCase() : 'U'}
-                  </div>
-                  <span className="hidden sm:inline max-w-[130px] truncate font-medium">
-                    {profile.name || profile.email}
-                  </span>
-                </button>
-              ) : hesapAcilabilir ? (
-                <button
-                  onClick={onOpenAuthModal}
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--primary-soft)] hover:bg-[var(--primary-soft-hover)] text-[var(--primary)] border border-[var(--primary-border)] text-xs font-semibold transition-all active:scale-95 cursor-pointer"
-                >
-                  <LogIn className="w-3.5 h-3.5" />
-                  <span>Giriş Yap</span>
-                </button>
-              ) : null}
-            </div>
+            {/*
+              BURADA GİRİŞ DÜĞMESİ VARDI.
+              Üyelik kaldırıldı: Anlora'da hesap yok, uygulama tamamen
+              cihazda çalışıyor. Sağ üst köşe artık boş kalıyor — sekme
+              çubuğunu ortalamak yerine düzeni olduğu gibi bırakıyoruz ki
+              sekmelerin yeri alışılmış konumunda kalsın.
+            */}
           </div>
         </div>
       </header>

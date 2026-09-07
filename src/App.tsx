@@ -7,7 +7,6 @@ import { OxfordExplorer } from './components/OxfordExplorer';
 import { QuizModule } from './components/QuizModule';
 import { FavoritesView } from './components/FavoritesView';
 import { ProfileView } from './components/ProfileView';
-import { AuthModal } from './components/AuthModal';
 import { FeedbackModal, FeedbackKind } from './components/FeedbackModal';
 import { SpeechSetupNotice } from './components/SpeechSetupNotice';
 import { useAppContent } from './hooks/useAppContent';
@@ -204,7 +203,6 @@ export default function App() {
   useTheme(settings);
 
   // Modal States
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   /*
    * Yönetim paneli açık mı?
    *
@@ -692,59 +690,13 @@ export default function App() {
     setSettings(updated);
   };
 
-  const handleLogout = () => {
-    // Sunucudaki oturum jetonunu da geçersiz kıl; yalnızca yerel profili
-    // temizlemek jetonu geçerli bırakırdı.
-    void logout();
-    setIsAdminPanelOpen(false);
-    /*
-     * Çıkışta cihaz kaydı da düşer. Aksi hâlde "yalnızca doğrulanmış
-     * hesaplara" gönderilen bir bildirim, çıkış yapmış kişinin telefonuna
-     * gitmeye devam ederdi.
-     */
-    if (getPushPreferences().enabled) void disablePush();
-    const guestProfile: UserProfile = {
-      email: null,
-      name: 'Misafir Kullanıcı',
-      isLoggedIn: false
-    };
-    saveUserProfileV2(guestProfile);
-    setProfile(guestProfile);
-  };
-
-  const handleUpdateProfile = (newProfile: UserProfile) => {
-    saveUserProfileV2(newProfile);
-    setProfile(newProfile);
-  };
-
-  const handleSyncNow = async () => {
-    if (!profile.email) return;
-    try {
-      const userData = {
-        collections,
-        memberships,
-        learningStates,
-        customWords,
-        favorites,
-        stats,
-        settings,
-        unlockedBadges
-      };
-      // E-posta artık gövdede gönderilmiyor: sunucu kullanıcıyı oturum
-      // jetonundan çözer. Eski uçta e-posta tek kimlikti ve başkasının
-      // adresini yazan herkes onun verisini ezebiliyordu.
-      await apiFetch('/api/sync/save', {
-        method: 'POST',
-        body: JSON.stringify({ userData })
-      });
-      showToast('Tüm verileriniz bulut hesabınıza eşitlendi.', 'learned');
-      const syncedProfile = { ...profile, lastSyncTime: new Date().toLocaleTimeString('tr-TR') };
-      saveUserProfileV2(syncedProfile);
-      setProfile(syncedProfile);
-    } catch (err: any) {
-      showToast(err?.message || 'Bulut eşitleme hatası oluştu.', 'error');
-    }
-  };
+  /*
+   * BURADA ÜÇ İŞLEV VARDI: `handleLogout`, `handleUpdateProfile` ve
+   * `handleSyncNow`. Üçü de üyeliğe aitti — oturum kapatma, hesap
+   * bilgisini yazma ve verinin buluta eşitlenmesi. Üyelik kaldırıldı;
+   * veri yalnızca cihazda duruyor ve Profil'deki JSON yedeği tek
+   * taşıma yolu.
+   */
 
   // Existing collection IDs for modal
   const existingCollectionIdsForCard = useMemo(() => {
@@ -760,8 +712,6 @@ export default function App() {
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        profile={profile}
-        onOpenAuthModal={() => setIsAuthModalOpen(true)}
       />
 
       {/* Main Content Workspace */}
@@ -830,8 +780,7 @@ export default function App() {
             profile={profile}
             branding={appContent.branding}
             announcements={appContent.announcements}
-            onOpenAuthModal={() => setIsAuthModalOpen(true)}
-            onStartStudy={(deckId) => {
+                onStartStudy={(deckId) => {
               setStudySessionInitialDeckId(deckId);
               setActiveTab('study');
             }}
@@ -887,8 +836,7 @@ export default function App() {
             }}
             onOpenEditModal={(card) => setEditingCard(card)}
             onOpenAddToCollection={handleOpenAddToCollection}
-            onOpenAuthModal={() => setIsAuthModalOpen(true)}
-            onSetWordStatus={handleSetWordStatus}
+                onSetWordStatus={handleSetWordStatus}
           />
         )}
 
@@ -1035,10 +983,7 @@ export default function App() {
             collections={collections}
             memberships={memberships}
             favorites={favorites}
-            onOpenAuthModal={() => setIsAuthModalOpen(true)}
-            onLogout={handleLogout}
-            onUpdateProfile={handleUpdateProfile}
-            onNavigateToTab={(tab) => setActiveTab(tab as TabType)}
+                onNavigateToTab={(tab) => setActiveTab(tab as TabType)}
             onSelectLevel={(lvl) => {
               setSelectedLevel(lvl);
               setOxfordStatusFilter('ALL');
@@ -1153,15 +1098,6 @@ export default function App() {
         onClose={() => setFeedbackRequest(null)}
         initialWord={feedbackRequest?.word}
         initialKind={feedbackRequest?.kind}
-      />
-
-      {/* Auth / Cloud Sync Modal */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        profile={profile}
-        onUpdateProfile={handleUpdateProfile}
-        onSyncNow={handleSyncNow}
       />
 
       {/* Clean Minimal Footer */}

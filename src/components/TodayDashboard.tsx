@@ -16,7 +16,6 @@ import { readJSON, writeJSON } from '../utils/safeStorage';
 import { summarizeQueue } from '../utils/srsEngine';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { BRAND } from '../config/brand';
-import { useRemoteApi } from '../hooks/useRemoteApi';
 import { IntroCarousel } from './home/IntroCarousel';
 import { HomeHeroArt } from './HomeHeroArt';
 import mansetGeyik from '../assets/themes/realms/carousel/carousel-stag-grove.webp';
@@ -65,7 +64,6 @@ interface TodayDashboardProps {
   onNavigateToTab: (tab: string) => void;
   onSelectLevel?: (level: Level) => void;
   onOpenCreateSet?: () => void;
-  onOpenAuthModal?: () => void;
   onStartStudy?: (collectionId?: string) => void;
   onOpenTextMiner?: () => void;
 }
@@ -86,7 +84,6 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
   onNavigateToTab,
   onSelectLevel,
   onOpenCreateSet,
-  onOpenAuthModal,
   onStartStudy
 }) => {
   // Bugünün iş yükü: bekleyen tekrarlar ve hiç çalışılmamış kelimeler ayrı
@@ -182,7 +179,6 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
    * her açılışta yeniden çıkan bir uyarı okunmaz hâle gelir.
    */
   /** Hesap/bulut özellikleri bu kurulumda var mı? (null = yoklama sürüyor) */
-  const remoteReady = useRemoteApi('accounts');
 
   const [isNudgeDismissed, setIsNudgeDismissed] = useState(
     () => readJSON<boolean>('anlora.signupNudgeDismissed.v1', false)
@@ -222,8 +218,8 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
         Bu yüzden kutu duruyor, yalnızca doğru şeyi söylüyor ve gerçekten
         çalışan bir yere — yerel yedeğe — götürüyor.
 
-        Sunuculu kurulumda ayrıca hesap teklif edilir; sunucusuzda hiç
-        bahsedilmez, çünkü orada hesap diye bir şey yok.
+        Bir zamanlar burada "Hesap aç" da yazıyordu. Üyelik kaldırıldı;
+        kutu tek bir şey söylüyor ve o şey her zaman doğru.
       */}
       {customWordCount > 0 && !isNudgeDismissed && (
         <div className="bg-[var(--learning-soft)] border border-[var(--learning-border)] rounded-2xl p-4 flex items-start gap-3">
@@ -234,28 +230,16 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
             </p>
             <p className="text-xs text-[var(--learning-text)] mt-0.5 leading-relaxed opacity-90">
               Uygulamayı silersen ya da telefonun kaybolursa bunlar da gider.
-              {remoteReady === true && !profile?.isLoggedIn
-                ? ' Hesap açmak ücretsiz; kelimelerin buluta yedeklenir.'
-                : ' Profilden yedek alıp dosyayı güvenli bir yere koy.'}
+              Profilden yedek alıp dosyayı güvenli bir yere koy.
             </p>
             <div className="flex flex-wrap gap-2 mt-2.5">
-              {remoteReady === true && !profile?.isLoggedIn ? (
-                <button
-                  type="button"
-                  onClick={onOpenAuthModal}
-                  className="px-3 py-1.5 bg-[var(--learning-fill)] hover:opacity-90 text-[var(--on-learning)] text-[11px] font-bold rounded-lg cursor-pointer"
-                >
-                  Hesap aç
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => onNavigateToTab?.('profile')}
-                  className="px-3 py-1.5 bg-[var(--learning-fill)] hover:opacity-90 text-[var(--on-learning)] text-[11px] font-bold rounded-lg cursor-pointer"
-                >
-                  Yedek al
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => onNavigateToTab?.('profile')}
+                className="px-3 py-1.5 bg-[var(--learning-fill)] hover:opacity-90 text-[var(--on-learning)] text-[11px] font-bold rounded-lg cursor-pointer"
+              >
+                Yedek al
+              </button>
               <button
                 type="button"
                 onClick={() => setIsNudgeDismissed(true)}
