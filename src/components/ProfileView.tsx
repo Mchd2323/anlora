@@ -81,7 +81,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
    * arayüzü hiç çizilmez. `null` iken de çizilmez: yoklama biterken düğmenin
    * belirip kaybolması gözle görülür bir zıplama olurdu.
    */
-  const hesapAcilabilir = useRemoteApi();
+  const hesapAcilabilir = useRemoteApi('accounts');
 
   /*
    * Seviye dökümü açık mı? KAPALI başlar.

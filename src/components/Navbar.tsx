@@ -43,7 +43,7 @@ export const Navbar: React.FC<NavbarProps> = ({
    * Aynı denetim ProfileView'da da var — ikisi de aynı kancadan okuyor,
    * yoklama tek sefer yapılıyor.
    */
-  const hesapAcilabilir = useRemoteApi();
+  const hesapAcilabilir = useRemoteApi('accounts');
 
   /*
    * `shortLabel`, alt çubuk içindir. Sekme sayısı altıya çıkınca dar

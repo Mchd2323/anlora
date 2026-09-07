@@ -1,0 +1,15 @@
+name = "anlora-ai"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+
+# Gemini anahtarı BURAYA YAZILMAZ. Gizli değer olarak konur:
+#   npx wrangler secret put GEMINI_API_KEY
+# Böylece anahtar depoya da, istemciye de hiç girmez.
+
+[vars]
+# Boş bırakılırsa her kökene izin verilir. APK'nın kökeni `https://localhost`,
+# PWA'nınki kendi alan adıdır; ikisini birden bilmek zorunda kalmamak için
+# varsayılan gevşek bırakıldı. Yalnızca kendi uygulamandan çağrılsın istersen
+# buraya virgülle ayırarak yaz:
+#   ALLOWED_ORIGINS = "https://localhost,https://anlora.example"
+ALLOWED_ORIGINS = ""

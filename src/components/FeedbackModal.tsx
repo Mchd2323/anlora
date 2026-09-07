@@ -58,7 +58,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
    * yoksa e-posta taslağına mı. Kanca koşulsuz çağrılmalı, bu yüzden
    * `isOpen` denetiminden önce duruyor.
    */
-  const sunucuVar = useRemoteApi();
+  const sunucuVar = useRemoteApi('accounts');
 
   // Kart değişince alanlar o karta göre yeniden hazırlanır.
   React.useEffect(() => {

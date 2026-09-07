@@ -22,7 +22,62 @@ const RAW_BASE = (import.meta.env.VITE_API_BASE_URL || '').trim();
 export const API_BASE = RAW_BASE.replace(/\/+$/, '');
 
 /**
- * Sunucuya bağlı özellikler (hesap, bulut yedeği, Anlora AI) kullanılabilir mi?
+ * Kurulumun karşıladığı özellikler.
+ *
+ * NEDEN TEK BOOLE YETMİYOR. Uygulama üç biçimde dağıtılabiliyor:
+ *   1. Sunucusuz — hiçbir uzak özellik yok.
+ *   2. Tam Express sunucusu — hepsi var.
+ *   3. `worker/` altındaki Cloudflare vekili — YALNIZCA yapay zekâ var;
+ *      hesap ve bulut yedeği kalıcı depolama istediği için yok.
+ *
+ * Üçüncü kurulum tek boole ile temsil edilemez: "sunucu var" deyip giriş
+ * düğmesini çizmek, basıldığında hiçbir şey yapmayan bir düğme bırakırdı.
+ */
+export interface ApiCapabilities {
+  /** Anlora AI uçları çağrılabilir mi? */
+  ai: boolean;
+  /** Hesap açma, giriş, e-posta doğrulama var mı? */
+  accounts: boolean;
+  /** Bulut yedeği ve senkronizasyon var mı? */
+  sync: boolean;
+  /** Yönetim paneli uçları var mı? */
+  admin: boolean;
+}
+
+const HICBIRI: ApiCapabilities = { ai: false, accounts: false, sync: false, admin: false };
+
+/**
+ * `capabilities` bildirmeyen bir sunucuya karşı davranış.
+ *
+ * Alanı olmayan sürüm, bu ayrımdan önce dağıtılmış tam Express sunucusudur:
+ * hepsini karşılıyordu. Yokluğu "hiçbiri" saymak, çalışan bir kurulumda
+ * özellikleri sessizce kapatmak olurdu.
+ */
+const HEPSI: ApiCapabilities = { ai: true, accounts: true, sync: true, admin: true };
+
+/**
+ * `/api/health` yanıtını yetenek kümesine çevirir.
+ *
+ * Saf işlev olarak ayrı duruyor ki ağ kurmadan sınanabilsin: buradaki asıl
+ * karar, alanı BİLDİRMEYEN bir sunucunun hepsini karşıladığını varsaymak.
+ */
+export function parseCapabilities(data: unknown): ApiCapabilities {
+  const bildirilen = (data as { capabilities?: unknown })?.capabilities;
+  if (!bildirilen || typeof bildirilen !== 'object') return HEPSI;
+
+  const alan = bildirilen as Record<string, unknown>;
+  return {
+    ai: alan.ai !== false,
+    accounts: alan.accounts !== false,
+    sync: alan.sync !== false,
+    admin: alan.admin !== false
+  };
+}
+
+let remoteProbe: Promise<ApiCapabilities> | null = null;
+
+/**
+ * Kurulum hangi uzak özellikleri karşılıyor?
  *
  * VARSAYIM DEĞİL, ÖLÇÜM.
  *
@@ -32,12 +87,11 @@ export const API_BASE = RAW_BASE.replace(/\/+$/, '');
  * `vite preview`). O durumda varsayım kullanıcıyı hiç açamayacağı bir giriş
  * kapısının arkasında bırakıyordu.
  *
- * Artık sunucuya gerçekten soruluyor. Sonuç önbelleklenir: her ekran için
- * yeniden yoklamak gereksiz gecikme olurdu.
+ * Artık sunucuya gerçekten soruluyor ve yanıtı hangi özellikleri karşıladığını
+ * bildiriyor. Sonuç önbelleklenir: her ekran için yeniden yoklamak gereksiz
+ * gecikme olurdu.
  */
-let remoteProbe: Promise<boolean> | null = null;
-
-export async function hasRemoteApi(): Promise<boolean> {
+export async function getApiCapabilities(): Promise<ApiCapabilities> {
   if (remoteProbe) return remoteProbe;
 
   remoteProbe = (async () => {
@@ -55,21 +109,34 @@ export async function hasRemoteApi(): Promise<boolean> {
       });
       clearTimeout(timer);
 
-      if (!response.ok) return false;
+      if (!response.ok) return HICBIRI;
 
       // Sunucu yoksa statik barındırma ya da Capacitor kendi index.html'ini
       // 200 ile döndürür; JSON denetimi bu ikisini ayırır.
       const contentType = response.headers.get('content-type') || '';
-      if (!contentType.includes('application/json')) return false;
+      if (!contentType.includes('application/json')) return HICBIRI;
 
       const data = await response.json();
-      return data?.ok !== undefined;
+      if (data?.ok === undefined) return HICBIRI;
+
+      return parseCapabilities(data);
     } catch {
-      return false;
+      return HICBIRI;
     }
   })();
 
   return remoteProbe;
+}
+
+/**
+ * Uzak API'de herhangi bir özellik var mı?
+ *
+ * Yeni kodda `getApiCapabilities` ile ilgilenilen özelliğe bakmak doğrusu;
+ * bu yardımcı, ayrım olmadan da anlamlı olan yerler için duruyor.
+ */
+export async function hasRemoteApi(): Promise<boolean> {
+  const yetenekler = await getApiCapabilities();
+  return yetenekler.ai || yetenekler.accounts || yetenekler.sync;
 }
 
 /**

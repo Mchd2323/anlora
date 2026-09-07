@@ -72,7 +72,7 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
    * için boşuna istek çıkarmamak, doğrudan elle doldurulacak karta geçmek
    * için bakılıyor.
    */
-  const yapayZekaVar = useRemoteApi() === true;
+  const yapayZekaVar = useRemoteApi('ai') === true;
 
   const modalRef = useModalA11y(isOpen, onClose);
 

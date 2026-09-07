@@ -18,7 +18,7 @@ Anlora, İngilizce kelime öğrenmek için tasarlanmış bir web uygulamasıdır
 - **Özel kart oluşturma** — tekil kart ekleme, toplu ekleme ve metin madenciliği (bir metni yapıştır, bilinmeyen kelimeleri kart olarak çıkar) ile lemmatizasyon ve tekrar (duplicate) tespiti.
 - **Sınav modülü** — çoktan seçmeli, boşluk doldurma ve yazarak hatırlama modları; hatalı kelimeler ayrı takip edilir.
 - **İstatistikler ve rozetler** — günlük seri, çalışma özeti, kazanılan rozetler.
-- **Anlora AI** — Gemini destekli kart üretimi, anlam doğrulama ve örnek cümle zenginleştirme (sunucu tarafında çalışır, API anahtarı tarayıcıya sızmaz).
+- **Anlora AI** — Gemini destekli kart üretimi, anlam doğrulama ve örnek cümle zenginleştirme. API anahtarı hiçbir zaman istemciye gitmez. İki biçimde çalıştırılabilir: tam Express sunucusuyla ya da bakım gerektirmeyen bir [Cloudflare Worker](worker/README.md) vekiliyle.
 - **Telaffuz** — Web Speech API ile kelime seslendirme.
 - Arayüz tamamen Türkçedir.
 
@@ -72,6 +72,9 @@ src/
   types/          Paylaşılan TypeScript tipleri
   config/         Marka metinleri
 public/           PWA manifesti, ikonlar, servis çalışanı
+shared/ai/        İstemler ve üretilen kartın denetimi — sunucu ile Worker
+                  aynı dosyaları kullanır, iki kopya tutulmaz
+worker/           Cloudflare Worker: sunucu kurmadan yalnızca Anlora AI
 server.ts         Express sunucusu: AI uçları, kimlik doğrulama, senkronizasyon, özel kartlar
 scripts/oxford/   Oxford veri boru hattı: ayrıştırma, birleştirme, denetim,
                   doğrulama, telaffuz doldurma, içerik zenginleştirme
@@ -201,7 +204,28 @@ APK'da arayüzün kökeni `https://localhost`'tur, yani göreli `/api/...` yolla
 VITE_API_BASE_URL="https://alan-adiniz.com" npm run android:sync
 ```
 
-Adres verilmezse uygulama çevrimdışı kipte derlenir: çalışma akışının tamamı çalışır, yalnızca sunucuya bağlı üç özellik kapalı kalır (bkz. `src/config/api.ts`).
+Adres verilmezse uygulama çevrimdışı kipte derlenir: çalışma akışının tamamı çalışır, yalnızca sunucuya bağlı özellikler kapalı kalır (bkz. `src/config/api.ts`).
+
+#### Sunucu kurmadan yalnızca yapay zekâ
+
+Hesap ve bulut yedeği istemiyorsan, uygulamanın çalışması için sunucu zaten gerekmiyor — 20.000 kelimelik sözlük pakete gömülü. Geriye tek bir iş kalıyor: sözlükte olmayan bir kelime için kart üretmek. Bunun için `worker/` altında bir Cloudflare Worker var: ayakta tutulacak makine yok, ücretsiz katman yetiyor ve Gemini anahtarı Cloudflare'da gizli değer olarak durur.
+
+```bash
+cd worker && npm install && npx wrangler secret put GEMINI_API_KEY && npx wrangler deploy
+VITE_API_BASE_URL="https://anlora-ai.<hesap>.workers.dev" npm run android:sync
+```
+
+Kurulum adımları ve sınırlar: [`worker/README.md`](worker/README.md).
+
+#### Özellikler tek tek sorulur
+
+`/api/health` yanıtı hangi özelliklerin karşılandığını bildirir:
+
+```json
+{ "ok": true, "capabilities": { "ai": true, "accounts": false, "sync": false, "admin": false } }
+```
+
+Arayüz bu bildirime bakar ve yalnızca karşılanan özellikleri çizer. Worker'a bağlı bir kurulumda yapay zekâ çalışır, giriş düğmesi hiç görünmez. Eskiden tek bir "sunucu var mı?" sorusu vardı; bu, hesap ile yapay zekânın hep birlikte geldiğini varsaydığı için Worker kurulumunda basıldığında çalışmayan bir giriş düğmesi bırakırdı. `capabilities` alanını hiç göndermeyen eski bir sunucu hepsini karşılıyor sayılır, yani mevcut kurulumlar etkilenmez.
 
 ### APK üretimi
 

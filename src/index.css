@@ -401,7 +401,9 @@
    *
    * Burada `body` üzerinde iki SVG dokusu vardı (`parchment-grain.svg` 240
    * piksellik döşeme + `parchment-stains.svg`, ikisi de `multiply` ile
-   * karışıyordu). Uygulamanın kök kabı (`App.tsx`) `min-h-screen
+   * karışıyordu). `parchment-stains.svg` bu katmandan başka hiçbir yerde
+   * kullanılmadığı için dosya da silindi; `parchment-grain.svg` duruyor,
+   * onu aşağıdaki panel katmanı kullanıyor. Uygulamanın kök kabı (`App.tsx`) `min-h-screen
    * bg-[var(--bg)]` taşıyor: sayfanın tamamını kaplayan MAT bir zemin. Gövde
    * dokusu bu matın ALTINDA kalıyordu.
    *

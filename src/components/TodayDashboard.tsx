@@ -182,7 +182,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
    * her açılışta yeniden çıkan bir uyarı okunmaz hâle gelir.
    */
   /** Hesap/bulut özellikleri bu kurulumda var mı? (null = yoklama sürüyor) */
-  const remoteReady = useRemoteApi();
+  const remoteReady = useRemoteApi('accounts');
 
   const [isNudgeDismissed, setIsNudgeDismissed] = useState(
     () => readJSON<boolean>('anlora.signupNudgeDismissed.v1', false)

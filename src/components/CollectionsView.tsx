@@ -136,7 +136,17 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
    * kart üretimi ve setin bağlantıyla paylaşılması. Sunucusuz kurulumda
    * ikisi de hiç çizilmez.
    */
-  const sunucuVar = useRemoteApi() === true;
+  /*
+   * İKİ AYRI YETENEK, TEK BAYRAK DEĞİL.
+   *
+   * Bu ekranda sunucuya bağlı iki şey var ve aynı kurulumda ikisi birden
+   * olmayabiliyor: set paylaşımı kalıcı depolama ister (yalnızca tam
+   * sunucu), sözlükte olmayan kelime için kart üretmek ise yapay zekâ
+   * ister (Cloudflare vekilinde de var). Tek bayrakla sorulduğunda vekile
+   * bağlı bir kurulumda çalışmayan bir paylaş düğmesi çiziliyordu.
+   */
+  const paylasimVar = useRemoteApi('sync') === true;
+  const yapayZekaVar = useRemoteApi('ai') === true;
 
   /*
    * FORM ALANLARININ KİMLİK ÖNEKİ.
@@ -1778,7 +1788,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     yanı başında duruyor ve tamamen çevrimdışı çalışıyor —
                     yani kullanıcının seti başkasına ulaştırma yolu kapanmıyor.
                   */}
-                  {sunucuVar && (
+                  {paylasimVar && (
                   <button
                     onClick={() => setShowShare(true)}
                     title={activeDeck.shareCode ? 'Paylaşım bağlantısı' : 'Bu seti paylaş'}
@@ -2310,7 +2320,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   çizilmez; yerine kullanıcıya durumu söyleyen bir satır kalır.
                   Basıldığında hata veren bir düğme, olmayan düğmeden kötüdür.
                 */}
-                {lookup.kind === 'not-found' && !sunucuVar && (
+                {lookup.kind === 'not-found' && !yapayZekaVar && (
                   <div className="pt-3 border-t border-[var(--border-light)] space-y-1">
                     <div className="text-[11px] font-bold text-[var(--text-muted)]  tracking-wider">
                       Bu kelime sözlükte yok
@@ -2322,7 +2332,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   </div>
                 )}
 
-                {lookup.kind === 'not-found' && sunucuVar && (
+                {lookup.kind === 'not-found' && yapayZekaVar && (
                 <div className="pt-3 border-t border-[var(--border-light)] space-y-2">
                   <div className="text-[11px] font-bold text-[var(--text-muted)]  tracking-wider">
                     Bu kelime sözlükte yok
