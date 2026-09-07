@@ -14,7 +14,7 @@
  * gönderilir.
  */
 
-import { apiUrl, hasRemoteApi } from '../config/api';
+import { apiUrl, getApiCapabilities } from '../config/api';
 
 interface WordTally {
   correct: number;
@@ -76,9 +76,12 @@ export async function flushUsage(): Promise<void> {
    * Bu tampon kullanıcının aradığı terimleri ve kelime başına doğru/yanlış
    * sayılarını taşıyor. Sunucusuz kurulumda istek zaten başarısız oluyordu
    * ama tamponlar sınırsız büyümeye devam ediyordu. Yoklama sonucu
-   * `hasRemoteApi` içinde önbelleklendiği için ek ağ maliyeti yok.
+   * `getApiCapabilities` içinde önbelleklendiği için ek ağ maliyeti yok.
+   *
+   * Ölçüt hesap yeteneğidir: `/api/usage` yalnızca tam sunucuda var,
+   * yapay zekâ vekilinde yok.
    */
-  if (!(await hasRemoteApi())) {
+  if (!(await getApiCapabilities()).accounts) {
     openPending = false;
     wordBuffer.clear();
     missBuffer.clear();

@@ -16,7 +16,7 @@
  *    sessizce "yapılamaz" döner ve arayüz bunu dürüstçe gösterir.
  */
 
-import { apiUrl, hasRemoteApi } from '../config/api';
+import { apiUrl, getApiCapabilities } from '../config/api';
 import { getSessionToken } from '../utils/authClient';
 import { readJSON, writeJSON } from '../utils/safeStorage';
 
@@ -65,7 +65,10 @@ export async function isPushAvailable(): Promise<boolean> {
     const { Capacitor } = await import('@capacitor/core');
     if (!Capacitor.isNativePlatform()) return false;
     if (!Capacitor.isPluginAvailable('PushNotifications')) return false;
-    return await hasRemoteApi();
+    // Bildirim cihaz kaydını sunucuda tutmayı gerektirir; yalnızca yapay
+    // zekâyı karşılayan bir vekilde böyle bir uç yok. Ölçüt bu yüzden
+    // "herhangi bir uzak özellik" değil, hesap yeteneğidir.
+    return (await getApiCapabilities()).accounts;
   } catch {
     return false;
   }

@@ -1118,10 +1118,41 @@
  * Sınıfı `App.tsx` içindeki edilgen (passive) kaydırma dinleyicisi yazıyor.
  * Kural katman DIŞINDA: kart gölgeleri Tailwind'in `shadow-[...]` yardımcı
  * sınıflarıyla veriliyor ve katmansız kural onları yener.
+ *
+ * YALNIZCA KARTLAR. Kural bir zamanlar `.parsomen-panel` ve `.gorsel-panel`
+ * için de geçerliydi; ikisi de çıkarıldı ve sebebi görünürlük.
+ *
+ * Kartın duran gölgesi `0 1px 3px rgba(30,36,48,0.03)` — yukarıdaki ezme ile
+ * arasındaki fark gözle ayırt edilmiyor, yani kaydırırken hiçbir şey
+ * değişmiş görünmüyor. Panellerinki `--panel-golge` ve o TEK KATMAN DEĞİL:
+ *   inset 0 0 0 1px var(--line-inner)   <- panelin iç saç çizgisi
+ *   0 1px 0 var(--panel-isik)           <- üst kenardaki ışık
+ *   0 7px 18px …                        <- asıl gölge
+ * Ezme üçünü birden siliyordu. Ölçüldü (koyu Ateş Ocağı teması, gerçek
+ * hesaplanmış değer): panel dururken `rgba(127,170,194,0.2) inset 1px`
+ * taşıyor, kaydırırken bunun yerine `rgba(30,36,48,0.05) 0 1px 2px` kalıyor.
+ * Yani her panel, parmak değdiği anda kendini çevreleyen çizgiyi kaybediyor
+ * ve durduktan 120 ms sonra geri kazanıyor. Kaydırmayı ucuzlatmak için
+ * konmuş bir kural, kaydırmayı GÖRÜNÜR biçimde kirletiyordu — üstelik iç
+ * çizgi her ek temada ayrı tanımlı olduğu için (`--line-inner`, sekiz ön
+ * ayarın sekizinde de) yeni bir tema seçen kullanıcıda en belirgin hâline
+ * geliyordu.
+ *
+ * Panelleri çıkarmanın hız bedeli de yok. Oxford listesinde aşağı-yukarı
+ * kaydırma, 4 kat yavaşlatılmış CPU, dörder koşu:
+ *   kartlar + paneller (eski) : 135-145 uzun kare, en uzun 30/23/39/73 ms,
+ *                               50 ms'yi aşan 2 kare
+ *   yalnızca kartlar   (yeni) : 131-145 uzun kare, en uzun 22/23/37/49 ms,
+ *                               50 ms'yi aşan 0 kare
+ * Uzun kare sayısındaki fark gürültünün içinde; ölçülebilir olan, 50 ms'yi
+ * aşan karelerin kaybolması. Yani bu değişikliğin GEREKÇESİ hız değil
+ * görünürlük — hız yalnızca kötüleşmiyor.
+ *
+ * Kuralı BÜSBÜTÜN kaldırmak ayrı bir seçenekti ve ölçümde en kötüsü çıktı
+ * (145 uzun kare, en uzun 75/31/33/42 ms): kartlardaki özgün ölçüm hâlâ
+ * geçerli, orada kural işini yapıyor.
  */
-html.kaydiriyor .kart-govdesi,
-html.kaydiriyor .parsomen-panel,
-html.kaydiriyor .gorsel-panel {
+html.kaydiriyor .kart-govdesi {
   box-shadow: 0 1px 2px rgba(30, 36, 48, 0.05);
 }
 

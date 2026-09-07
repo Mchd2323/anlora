@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { UserProfile } from '../types';
 import { apiFetch, storeSession, clearSession } from '../utils/authClient';
-import { hasRemoteApi } from '../config/api';
+import { getApiCapabilities } from '../config/api';
 import { useModalA11y } from '../hooks/useModalA11y';
 import { CloudCheck, ShieldCheck, Lock, Mail, X, Loader2, LogOut, MapPin, Globe, CheckCircle2, AlertCircle, KeyRound, Sparkles } from 'lucide-react';
 import { BRAND } from '../config/brand';
@@ -67,8 +67,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   useEffect(() => {
     if (!isOpen) return;
     let cancelled = false;
-    hasRemoteApi().then(ok => {
-      if (!cancelled) setServerAvailable(ok);
+    /*
+     * SORULAN ŞEY "HESAP" YETENEĞİ, "HERHANGİ BİR SUNUCU" DEĞİL.
+     *
+     * Burada `hasRemoteApi()` vardı ve o, uzak özelliklerden HERHANGİ BİRİ
+     * varsa doğru döner. Cloudflare vekilinde (`worker/`) yapay zekâ var
+     * ama hesap uçları yok: form çizilip gönderiliyor, sunucu "Bilinmeyen
+     * uç." diyor ve kullanıcı nedenini anlamıyordu.
+     */
+    getApiCapabilities().then(yetenekler => {
+      if (!cancelled) setServerAvailable(yetenekler.accounts);
     });
     return () => {
       cancelled = true;

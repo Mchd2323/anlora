@@ -128,16 +128,19 @@ export async function getApiCapabilities(): Promise<ApiCapabilities> {
   return remoteProbe;
 }
 
-/**
- * Uzak API'de herhangi bir özellik var mı?
+/*
+ * BURADA BİR `hasRemoteApi()` VARDI VE KALDIRILDI.
  *
- * Yeni kodda `getApiCapabilities` ile ilgilenilen özelliğe bakmak doğrusu;
- * bu yardımcı, ayrım olmadan da anlamlı olan yerler için duruyor.
+ * "Uzak özelliklerden herhangi biri var mı?" diye soruyordu. Sorunun kendisi
+ * yanlıştı: çağıranların hiçbiri "herhangi biri" ile ilgilenmiyor, her biri
+ * BELİRLİ bir yeteneğe bakıyor. Cloudflare vekilinde (yapay zekâ var, hesap
+ * yok) doğru dönüyor ve üç ayrı yerde çalışmayan bir arayüz çiziyordu:
+ * Setlerim ekranını hiç açılamayan bir üyelik kapısının arkasına koyuyor,
+ * giriş formunu gösteriyor ve bildirim ayarını açıyordu.
+ *
+ * Yerine `getApiCapabilities()` ile ilgilenilen alana bakılıyor. İşlevi
+ * geri koymak bu üç hatayı da geri getirir.
  */
-export async function hasRemoteApi(): Promise<boolean> {
-  const yetenekler = await getApiCapabilities();
-  return yetenekler.ai || yetenekler.accounts || yetenekler.sync;
-}
 
 /**
  * Uygulama yerel bir pakete gömülü olarak mı çalışıyor?

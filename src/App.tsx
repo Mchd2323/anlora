@@ -10,8 +10,6 @@ import { ProfileView } from './components/ProfileView';
 import { AuthModal } from './components/AuthModal';
 import { FeedbackModal, FeedbackKind } from './components/FeedbackModal';
 import { SpeechSetupNotice } from './components/SpeechSetupNotice';
-import { SignInGate } from './components/SignInGate';
-import { hasRemoteApi } from './config/api';
 import { useAppContent } from './hooks/useAppContent';
 import { AddToCollectionModal } from './components/AddToCollectionModal';
 import { EditCardModal } from './components/EditCardModal';
@@ -228,25 +226,27 @@ export default function App() {
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
 
   /*
-   * Hesap özellikleri bu kurulumda kullanılabilir mi?
+   * SETLER ÜYELİK İSTEMEZ.
    *
-   * Kelime setleri üyelik ister — ama giriş yapılamayan bir kurulumda kapı
-   * koymak, özelliği hiç kimsenin açamayacağı biçimde kilitlemek olurdu.
-   * Sunucu tanımlı değilse setler serbest çalışır.
+   * Burada bir kapı vardı: sunucuya ulaşılabiliyorsa ve giriş yapılmamışsa
+   * Setlerim ekranı yerine bir üyelik ekranı çiziliyordu. İki ayrı sebeple
+   * kaldırıldı.
+   *
+   * BİRİNCİSİ, KAPI YANLIŞ SORUYU SORUYORDU. Ölçütü `hasRemoteApi()` idi ve
+   * o işlev "herhangi bir uzak özellik var mı?" diye bakar. Cloudflare
+   * vekiline (`worker/`) bağlanan kurulumda yapay zekâ var, hesap YOK —
+   * yani kapı açılıyor ama arkasındaki giriş hiç çalışmıyordu. Kullanıcı
+   * Setlerim'e hiç giremiyordu; çıkışı olmayan bir oda.
+   *
+   * İKİNCİSİ VE ASIL OLANI, KAPININ KORUDUĞU BİR ŞEY YOK. Setler de
+   * kelimeler de cihazda saklanıyor; hesap yalnızca bulut yedeği ekliyor.
+   * Yedek bir EK'tir, kullanma koşulu değil. Yedeği önermek için ekranın
+   * kendisini kilitlemek, kullanıcıyı kendi verisinden ayırmaktı.
+   *
+   * Hesap açma çağrısı duruyor — Ana Sayfa'daki yedek uyarısında ve
+   * Profil'de, kurulum gerçekten hesap karşılıyorsa (`accounts` yeteneği).
+   * Orada bir öneri; burada bir engeldi.
    */
-  const [accountsAvailable, setAccountsAvailable] = useState<boolean | null>(null);
-  useEffect(() => {
-    let cancelled = false;
-    void hasRemoteApi().then(ok => {
-      if (!cancelled) setAccountsAvailable(ok);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  /** Setler kilitli mi? Yalnızca hesap açılabiliyorken ve giriş yokken. */
-  const setsLocked = accountsAvailable === true && !profile.isLoggedIn;
   /*
    * Kısayol penceresi de diğer modallerle aynı davranışı taşır: Escape ile
    * kapanır, odak içeride kalır, kapanınca odak geri döner. Kendi elimizle
@@ -858,15 +858,7 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'collections' && setsLocked && (
-          <SignInGate
-            existingWordCount={customWords.length}
-            existingSetCount={collections.length}
-            onOpenAuth={() => setIsAuthModalOpen(true)}
-          />
-        )}
-
-        {activeTab === 'collections' && !setsLocked && (
+        {activeTab === 'collections' && (
           <CollectionsView
             collections={collections}
             memberships={memberships}

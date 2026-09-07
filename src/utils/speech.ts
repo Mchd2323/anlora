@@ -369,6 +369,23 @@ export async function speakText(
     return { ok: false, reason: 'unsupported' };
   }
 
+  /*
+   * ISITMA BİTMEDEN OKUMAYA GİRİLMEZ.
+   *
+   * `warmUpSpeech` açılışta duyulmayan bir okuma başlatıyor. Kullanıcı ısıtma
+   * daha sürerken düğmeye basınca iki `speak` çağrısı aynı motorda üst üste
+   * biniyordu: aşağıdaki `stop()` ısıtmayı kesiyor, ama ısıtmanın çağrısı
+   * bazen bizim okumamızdan SONRA motora ulaşıp onu kuyruktan düşürüyordu.
+   * Sonuç, kullanıcının bildirdiği davranış: ilk basışta ses yok, ikinci
+   * basışta var — çünkü ikinci basışta ısıtma çoktan bitmiştir.
+   *
+   * Üst sınır var: ısıtma bir sebeple asılı kalırsa düğme ölü hissettirmesin.
+   * O durumda aşağıdaki tek seferlik yeniden deneme devreye girer.
+   */
+  if (isitmaSozu) {
+    await Promise.race([isitmaSozu, new Promise(r => setTimeout(r, 1200))]);
+  }
+
   const istenen = options.lang || 'en-US';
   const diller = await supportedLanguages();
   const secilen = bestEnglishTag(diller, istenen);
@@ -384,63 +401,86 @@ export async function speakText(
     return { ok: false, reason: 'no-voice' };
   }
 
-  try {
-    // Önceki okuma kesiliyor: art arda iki kelimede ikincisi birincinin
-    // kuyruğuna takılmasın.
-    await tts.stop().catch(() => undefined);
+  /** Tek bir okuma denemesi. Bildirim YAPMAZ; kararı çağıran verir. */
+  const dene = async (): Promise<SpeechResult> => {
+    try {
+      // Önceki okuma kesiliyor: art arda iki kelimede ikincisi birincinin
+      // kuyruğuna takılmasın.
+      await tts.stop().catch(() => undefined);
 
-    // Ret metni AYRICA yerel bir değişkende taşınıyor: `son_hata` modül
-    // düzeyinde ve art arda iki okumada ikinci çağrı birincinin metnini
-    // ezebiliyor; sebebi çağrının kendi hatasından çıkarmak zorundayız.
-    let retMetni = '';
+      // Ret metni AYRICA yerel bir değişkende taşınıyor: `son_hata` modül
+      // düzeyinde ve art arda iki okumada ikinci çağrı birincinin metnini
+      // ezebiliyor; sebebi çağrının kendi hatasından çıkarmak zorundayız.
+      let retMetni = '';
 
-    /*
-     * OKUMANIN BİTMESİ BEKLENMEZ. Eklenti sözünü ancak konuşma bittiğinde
-     * çözüyor; düğmenin işi ise okumayı BAŞLATMAK. Bitişi beklemek uzun
-     * cümlelerde arayüzü boş yere kilitler. Yine de sözü izliyoruz: hızlı
-     * gelen bir RET, okumanın hiç başlamadığı anlamına gelir ve bunu
-     * yutmuyoruz.
-     */
-    const cagri = tts
-      .speak({
-        text,
-        lang: secilen || istenen,
-        rate: options.rate ?? 0.85,
-        pitch: options.pitch ?? 1.0,
-        category: 'ambient'
-      })
-      .then(() => 'bitti' as const)
-      .catch((err: any) => {
-        son_hata = hataMetni(err);
-        retMetni = son_hata;
-        return 'hata' as const;
-      });
-
-    const erken = await new Promise<'bitti' | 'hata' | 'suruyor'>(resolve => {
-      const t = setTimeout(() => resolve('suruyor'), 700);
-      void cagri.then(s => {
-        clearTimeout(t);
-        resolve(s);
-      });
-    });
-
-    if (erken === 'hata') {
       /*
-       * Ret metnine hiç bakmadan "ses paketi yok" demek, sorunu motorun
-       * hazır olmaması ya da metnin okunamaması olan kullanıcıyı zaten
-       * kurulu olan paketi aramaya gönderiyordu. Sebep artık metinden
-       * çıkarılıyor; bildirimin doğru olanı gösterebilmesinin tek yolu bu.
+       * OKUMANIN BİTMESİ BEKLENMEZ. Eklenti sözünü ancak konuşma bittiğinde
+       * çözüyor; düğmenin işi ise okumayı BAŞLATMAK. Bitişi beklemek uzun
+       * cümlelerde arayüzü boş yere kilitler. Yine de sözü izliyoruz: hızlı
+       * gelen bir RET, okumanın hiç başlamadığı anlamına gelir ve bunu
+       * yutmuyoruz.
        */
-      const sebep = retSebebi(retMetni);
-      notifyFailure(sebep);
-      return { ok: false, reason: sebep };
+      const cagri = tts
+        .speak({
+          text,
+          lang: secilen || istenen,
+          rate: options.rate ?? 0.85,
+          pitch: options.pitch ?? 1.0,
+          category: 'ambient'
+        })
+        .then(() => 'bitti' as const)
+        .catch((err: any) => {
+          son_hata = hataMetni(err);
+          retMetni = son_hata;
+          return 'hata' as const;
+        });
+
+      const erken = await new Promise<'bitti' | 'hata' | 'suruyor'>(resolve => {
+        const t = setTimeout(() => resolve('suruyor'), 700);
+        void cagri.then(s => {
+          clearTimeout(t);
+          resolve(s);
+        });
+      });
+
+      if (erken === 'hata') {
+        /*
+         * Ret metnine hiç bakmadan "ses paketi yok" demek, sorunu motorun
+         * hazır olmaması ya da metnin okunamaması olan kullanıcıyı zaten
+         * kurulu olan paketi aramaya gönderiyordu. Sebep artık metinden
+         * çıkarılıyor; bildirimin doğru olanı gösterebilmesinin tek yolu bu.
+         */
+        return { ok: false, reason: retSebebi(retMetni) };
+      }
+      return { ok: true };
+    } catch (err) {
+      son_hata = hataMetni(err);
+      return { ok: false, reason: 'error' };
     }
-    return { ok: true };
-  } catch (err) {
-    son_hata = hataMetni(err);
-    notifyFailure('error');
-    return { ok: false, reason: 'error' };
+  };
+
+  let sonuc = await dene();
+
+  /*
+   * MOTOR HENÜZ HAZIR DEĞİLSE BİR KEZ DAHA DENENİR.
+   *
+   * Kullanıcının "iki kere basıyorum" dediği şey elle yapılan tam olarak
+   * budur: ilk çağrı Android'in metin okuma servisini bağlıyor ve
+   * "Not yet initialized" ile dönüyor, ikinci çağrı okuyor. Bunu kullanıcıya
+   * yaptırmanın hiçbir gerekçesi yok.
+   *
+   * Yalnızca 'unsupported' sebebinde deneniyor — motorun hazır olmadığını
+   * bildiren tek sebep o. 'no-voice' (dil paketi yok) ve 'error' kalıcıdır;
+   * onları tekrarlamak kullanıcıyı bekletmekten başka bir şey yapmaz.
+   * Deneme TEK: ikisi de düşerse sorun gerçekten motorda.
+   */
+  if (!sonuc.ok && sonuc.reason === 'unsupported') {
+    await new Promise(r => setTimeout(r, 350));
+    sonuc = await dene();
   }
+
+  if (!sonuc.ok && sonuc.reason) notifyFailure(sonuc.reason);
+  return sonuc;
 }
 
 /** Son yerel hata; tanı ekranı bunu olduğu gibi gösterir. */
@@ -493,6 +533,15 @@ export async function stopSpeech(): Promise<void> {
 let isitildi = false;
 
 /**
+ * Süren ısıtmanın sözü.
+ *
+ * `speakText` bunu bekliyor: ısıtmanın `speak` çağrısıyla kullanıcının
+ * basışı aynı motorda çakışırsa ilk basış sessiz kalıyordu. Söz ısıtma
+ * bittiğinde (başarılı ya da değil) çözülür ve bir daha kurulmaz.
+ */
+let isitmaSozu: Promise<void> | null = null;
+
+/**
  * Açılışta çağrılır ve İLK BASIŞTAKİ BEKLEMEYİ ORTADAN KALDIRIR.
  *
  * ÖLÇÜLEN SORUN. Kart üzerindeki ses düğmesine ilk basışta birkaç saniye
@@ -524,7 +573,7 @@ export function warmUpSpeech(): void {
   const tts = getNativeTts();
   if (!tts) return;
 
-  void (async () => {
+  isitmaSozu = (async () => {
     try {
       const diller = await supportedLanguages();
       const secilen = bestEnglishTag(diller, 'en-US');
@@ -541,6 +590,7 @@ export function warmUpSpeech(): void {
       // Isıtma başarısızsa davranış eskisiyle aynı: ilk basış motoru kurar.
     }
   })();
+  void isitmaSozu;
 }
 
 // --- Tanı ------------------------------------------------------------------
