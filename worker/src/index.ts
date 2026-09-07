@@ -26,7 +26,6 @@ import {
   handleValidateSenses,
   type AiGateway,
 } from '../../shared/ai/handlers';
-import { WORD_MODEL } from '../../shared/ai/prompts';
 
 /** Worker'a bağlanan değerler. Yalnızca ilki zorunlu. */
 interface Env {
@@ -106,44 +105,78 @@ function jsonYanit(
 
 const GEMINI_KOK = 'https://generativelanguage.googleapis.com';
 
-/** Çözülen model, isolate ömrü boyunca yeniden sorulmaz. */
-let cozulmusModel: { surum: string; model: string } | null = null;
+/**
+ * Metin üretmeyen ya da bu iş için uygun olmayan modelleri eleyen kalıplar.
+ *
+ * Liste `generateContent` destekleyen her şeyi veriyor; içinde görüntü, ses,
+ * konuşma çözümleme ve robotik modelleri de var. Kelime kartı üretmek için
+ * hiçbiri uygun değil.
+ */
+const ELENEN = [
+  'image', 'tts', 'transcribe', 'robotics', 'computer-use', 'embedding',
+  'lyria', 'nano-banana', 'deep-research', 'antigravity', 'gemma',
+  'customtools', 'thinking', 'omni',
+];
 
-/**
- * Kullanılacak modeli API'ye sorarak bulur.
- *
- * NEDEN SABİT AD YAZILMIYOR. İlk sürüm `v1beta` altında `gemini-2.5-flash`
- * adını sabit yazıyordu ve Gemini 404 döndürdü: model adları ve API sürümleri
- * zamanla değişiyor, ayrıca her anahtarın eriştiği model kümesi aynı değil.
- * Bir ad daha tahmin etmek aynı hatayı tekrarlamak olurdu. Bunun yerine
- * "hangi modellerin var" diye soruluyor ve `generateContent` destekleyenler
- * arasından seçiliyor.
- *
- * SIRALAMA: önce `prompts.ts`'teki tercih edilen ad (sunucu da onu
- * kullanıyor, ikisi aynı kalsın), sonra herhangi bir "flash" modeli — hızlı
- * ve ucuz olan o —, sonra `generateContent` destekleyen ilk model.
- */
-/**
- * Kullanılabilir adlar arasından hangisi seçilir?
- *
- * Ayrı ve saf tutuluyor ki ağ kurmadan sınanabilsin — 404'ü doğuran karar
- * tam da buydu.
- *
- * Sıra: önce `prompts.ts`'teki tercih edilen ad (Express sunucusu da onu
- * kullanıyor, iki dağıtım aynı modeli kullansın), sonra bir "flash" modeli
- * (hızlı ve ucuz olan o), sonra elde ne varsa.
- */
-export function modelSec(uygun: string[]): string {
-  return (
-    uygun.find(ad => ad === WORD_MODEL) ||
-    uygun.find(ad => ad.includes('flash') && !ad.includes('thinking')) ||
-    uygun[0]
-  );
+/** Addaki sürüm numarası: `gemini-3.8-flash` -> 3.8, bulunamazsa 0. */
+function surumNo(ad: string): number {
+  const eslesme = ad.match(/gemini-(\d+(?:\.\d+)?)/);
+  return eslesme ? parseFloat(eslesme[1]) : 0;
 }
 
-async function modelCoz(apiKey: string): Promise<{ surum: string; model: string }> {
-  if (cozulmusModel) return cozulmusModel;
+/**
+ * Denenecek modelleri sıraya dizer.
+ *
+ * NEDEN TEK AD DEĞİL, SIRA. Önceki sürüm tek bir ad seçiyordu ve o ad
+ * listede GÖRÜNDÜĞÜ hâlde çağrılamıyordu: Gemini `gemini-2.5-flash` için
+ * "artık yeni kullanıcılara açık değil" deyip 404 döndürdü. Yani listede
+ * olmak çağrılabilir olmak demek değil ve bunu ancak çağırınca öğreniyoruz.
+ * Sıradaki aday denenebilirse tek bir emeklilik kullanıcıyı kartsız
+ * bırakmaz.
+ *
+ * SIRA:
+ *   1. `gemini-flash-latest` — takma ad, her zaman güncel olanı gösterir ve
+ *      tam da bu emeklilik sorununa karşı bağışık.
+ *   2. Sürümü en yüksek kararlı flash modeli (3.8 > 3.7 > 3.6 ...).
+ *   3. Öteki flash modelleri, sonra hafif (lite) ve önizleme sürümleri.
+ *   4. Elde ne varsa.
+ *
+ * `prompts.ts`'teki tercih edilen ad artık listenin başına KONMUYOR: onu
+ * sabitlemek bu hatanın kaynağıydı.
+ */
+export function modelAdaylari(uygun: string[]): string[] {
+  const temiz = uygun.filter(ad => !ELENEN.some(kotu => ad.includes(kotu)));
+  const havuz = temiz.length > 0 ? temiz : uygun;
 
+  const puan = (ad: string): number => {
+    if (ad === 'gemini-flash-latest') return 1000;
+    const taban = surumNo(ad);
+    const flash = ad.includes('flash');
+    const lite = ad.includes('lite');
+    const onizleme = ad.includes('preview');
+    if (flash && !lite && !onizleme) return 500 + taban;
+    if (flash && !onizleme) return 300 + taban;
+    if (flash) return 200 + taban;
+    if (ad.includes('latest')) return 150;
+    return taban;
+  };
+
+  return [...havuz].sort((a, b) => puan(b) - puan(a));
+}
+
+/**
+ * Çalıştığı KANITLANMIŞ model. Adaylardan biri gerçekten kart üretene kadar
+ * doldurulmaz — listede görünmek yetmiyor.
+ */
+let calisanModel: { surum: string; model: string } | null = null;
+
+/** Tanı için: hangi model çalışıyor? */
+export function secilenModel(): string | null {
+  return calisanModel ? `${calisanModel.surum}/${calisanModel.model}` : null;
+}
+
+/** Bu anahtarla hangi sürüm ve hangi adaylar var? Yalnızca listeyi getirir. */
+async function adaylariGetir(apiKey: string): Promise<{ surum: string; adaylar: string[] }> {
   const hatalar: string[] = [];
 
   for (const surum of ['v1beta', 'v1']) {
@@ -170,62 +203,103 @@ async function modelCoz(apiKey: string): Promise<{ surum: string; model: string 
       continue;
     }
 
-    cozulmusModel = { surum, model: modelSec(uygun) };
-    return cozulmusModel;
+    return { surum, adaylar: modelAdaylari(uygun) };
   }
 
   throw new Error(`Kullanılabilir model bulunamadı (${hatalar.join('; ')})`);
 }
 
-/** Tanı için: hangi model seçilmişti? */
-export function secilenModel(): string | null {
-  return cozulmusModel ? `${cozulmusModel.surum}/${cozulmusModel.model}` : null;
+/** Modelin kendisiyle ilgili, sıradakini denemeyi hak eden hata mı? */
+function modelHatasi(durum: number): boolean {
+  // 404: model yok ya da bu anahtara kapalı. 400: istek bu modelde geçersiz.
+  // 403: bu modele erişim yok. Üçü de "başka bir model dene" demek.
+  // 429/5xx ise modelle ilgili değil; sıradakini denemek kotayı boşa harcar.
+  return durum === 404 || durum === 400 || durum === 403;
+}
+
+/**
+ * Tek bir modele istek atar.
+ *
+ * Ayrık birleşim yerine düz bir kayıt dönüyor: bu projede `strict` kapalı ve
+ * `ok: true | false` üzerinden daraltma güvenilir çalışmıyor. `durum === 200`
+ * bakmak aynı bilgiyi verip derleyiciye iş bırakmıyor.
+ */
+async function modeleSor(
+  apiKey: string,
+  surum: string,
+  model: string,
+  prompt: string,
+  systemInstruction?: string
+): Promise<{ durum: number; metin: string; detay: string }> {
+  const yanit = await fetch(`${GEMINI_KOK}/${surum}/models/${model}:generateContent`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+    body: JSON.stringify({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      ...(systemInstruction
+        ? { systemInstruction: { parts: [{ text: systemInstruction }] } }
+        : {}),
+      generationConfig: { responseMimeType: 'application/json' },
+    }),
+  });
+
+  if (!yanit.ok) {
+    return { durum: yanit.status, metin: '', detay: (await yanit.text()).slice(0, 300) };
+  }
+
+  const veri = (await yanit.json()) as {
+    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+  };
+
+  return { durum: 200, metin: veri.candidates?.[0]?.content?.parts?.[0]?.text || '', detay: '' };
 }
 
 /**
  * Gemini'ye düz `fetch` ile bağlanan köprü.
  *
  * `@google/genai` paketi kullanılmadı: Node'a özgü bağımlılıklar taşıyor ve
- * Worker'ın paket boyutunu gereksiz büyütüyordu. REST karşılığı üç alanlık
- * bir gövde.
+ * Worker'ın paket boyutunu gereksiz büyütüyordu.
+ *
+ * Çalıştığı görülen model hatırlanır; sonraki istekler doğrudan ona gider ve
+ * her seferinde liste çekilmez.
  */
 function geminiKoprusu(apiKey: string): AiGateway {
   return {
     async generateJson({ prompt, systemInstruction }) {
-      const { surum, model } = await modelCoz(apiKey);
-
-      const yanit = await fetch(
-        `${GEMINI_KOK}/${surum}/models/${model}:generateContent`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-goog-api-key': apiKey,
-          },
-          body: JSON.stringify({
-            contents: [{ role: 'user', parts: [{ text: prompt }] }],
-            ...(systemInstruction
-              ? { systemInstruction: { parts: [{ text: systemInstruction }] } }
-              : {}),
-            generationConfig: { responseMimeType: 'application/json' },
-          }),
-        }
-      );
-
-      if (!yanit.ok) {
-        const detay = await yanit.text();
-        // Model adı hataya yazılıyor: 404 gördüğümüzde hangi adın
-        // denendiğini bilmek, ilk seferde eksik olan bilgiydi.
-        throw new Error(
-          `Gemini ${yanit.status} (${surum}/${model}): ${detay.slice(0, 300)}`
+      if (calisanModel) {
+        const sonuc = await modeleSor(
+          apiKey, calisanModel.surum, calisanModel.model, prompt, systemInstruction
         );
+        if (sonuc.durum === 200) return sonuc.metin;
+        // Bir zamanlar çalışan model artık çalışmıyorsa (emeklilik) baştan
+        // aday aranır; önbelleğe takılıp kalınmaz.
+        if (!modelHatasi(sonuc.durum)) {
+          throw new Error(
+            `Gemini ${sonuc.durum} (${calisanModel.surum}/${calisanModel.model}): ${sonuc.detay}`
+          );
+        }
+        calisanModel = null;
       }
 
-      const veri = (await yanit.json()) as {
-        candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-      };
+      const { surum, adaylar } = await adaylariGetir(apiKey);
+      const denenenler: string[] = [];
 
-      return veri.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      // En fazla dört aday: bir anahtarın erişemediği model kümesi genelde
+      // birkaç tanedir, kırk modeli tek tek denemek isteği dakikalarca
+      // uzatırdı.
+      for (const model of adaylar.slice(0, 4)) {
+        const sonuc = await modeleSor(apiKey, surum, model, prompt, systemInstruction);
+        if (sonuc.durum === 200) {
+          calisanModel = { surum, model };
+          return sonuc.metin;
+        }
+        denenenler.push(`${model} -> ${sonuc.durum}`);
+        if (!modelHatasi(sonuc.durum)) {
+          throw new Error(`Gemini ${sonuc.durum} (${surum}/${model}): ${sonuc.detay}`);
+        }
+      }
+
+      throw new Error(`Hiçbir model yanıt vermedi (${denenenler.join('; ')})`);
     },
   };
 }

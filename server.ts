@@ -10,6 +10,7 @@ import { GoogleGenAI } from '@google/genai';
  * `shared/ai/validation.ts` başında yazılı.
  */
 import { validateGeneratedWordCard } from './shared/ai/validation';
+import { WORD_MODEL } from './shared/ai/prompts';
 
 dotenv.config();
 
@@ -419,7 +420,7 @@ Return valid JSON with the following structure:
     while (attempts < 2 && !finalCard) {
       attempts++;
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: WORD_MODEL,
         contents: userPrompt,
         config: {
           systemInstruction,
@@ -560,7 +561,7 @@ Return valid JSON with structure:
 }`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: WORD_MODEL,
       contents: userPrompt,
       config: {
         systemInstruction,
@@ -620,7 +621,7 @@ Return valid JSON:
 }`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: WORD_MODEL,
       contents: prompt,
       config: {
         responseMimeType: 'application/json'

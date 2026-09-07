@@ -7,7 +7,18 @@
  * farklı kalitede kart üretir.
  */
 
-export const WORD_MODEL = 'gemini-2.5-flash';
+/**
+ * Kullanılacak Gemini modeli.
+ *
+ * NEDEN TAKMA AD. Burada bir zamanlar `gemini-2.5-flash` yazıyordu ve Gemini
+ * o adı yeni anahtarlara kapattı: "no longer available to new users", 404.
+ * Sürüm numarası sabitlemek, modelin emekliye ayrıldığı gün uygulamayı
+ * kırıyor. `-latest` takma adı her zaman güncel flash modelini gösterir.
+ *
+ * Worker bu adı yalnızca bir başlangıç noktası sayar; gerçekte hangi modelin
+ * çağrılabildiğini API'ye sorup deneyerek bulur (bkz. `worker/src/index.ts`).
+ */
+export const WORD_MODEL = 'gemini-flash-latest';
 
 export function wordSystemInstruction(): string {
   return `You are a professional English vocabulary teacher, bilingual English-Turkish lexicographer and CEFR language-learning specialist.
