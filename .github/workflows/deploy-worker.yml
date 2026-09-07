@@ -53,13 +53,9 @@ jobs:
         working-directory: worker
 
       - name: Worker'ı dağıt
-        id: dagit
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: |
-          npx wrangler deploy 2>&1 | tee cikti.txt
-          adres=$(grep -o 'https://[^ ]*\.workers\.dev' cikti.txt | head -1)
-          echo "adres=$adres" >> "$GITHUB_OUTPUT"
+        run: npx wrangler deploy
         working-directory: worker
 
       - name: Gemini anahtarını Worker'a yaz
@@ -77,14 +73,38 @@ jobs:
         # Dağıtımın çalıştığını varsaymak yerine ölçüyoruz: `/api/health`
         # yanıtındaki `ai` alanı, anahtarın gerçekten yerine oturduğunu
         # gösteren tek kanıt.
+        #
+        # ADRES NEDEN API'DEN SORULUYOR. Önceki sürüm adresi `wrangler deploy`
+        # ekran çıktısından ayıklıyordu ve bulamadı: çıktının biçimi wrangler
+        # sürümüne göre değişiyor, renk kodları araya giriyor ve log biçimi
+        # zaten kararlı bir arayüz değil. Hesabın workers.dev alt alan adı
+        # API'de duruyor; adres oradan kurulur, tahmin edilmez.
+        #
+        # Bu adım bilgi vermek için var, Worker zaten yayında: hiçbir dalı
+        # koşuyu kırmızıya çevirmez, en kötü ihtimalle uyarı bırakır.
         env:
-          ADRES: ${{ steps.dagit.outputs.adres }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
-          if [ -z "$ADRES" ]; then
-            echo "::warning::Adres çıktıdan okunamadı. Cloudflare panelinden (Workers & Pages → anlora-ai) alabilirsiniz."
+          api="https://api.cloudflare.com/client/v4"
+          yetki="Authorization: Bearer $CLOUDFLARE_API_TOKEN"
+          oku() { python3 -c "import json,sys;d=json.load(sys.stdin);r=d.get('result');r=(r[0] if r else {}) if isinstance(r,list) else r;print(r.get(sys.argv[1],'') if isinstance(r,dict) else '')" "$1" 2>/dev/null || true; }
+
+          hesap=$(curl -sS "$api/accounts" -H "$yetki" | oku id)
+          alt=""
+          if [ -n "$hesap" ]; then
+            alt=$(curl -sS "$api/accounts/$hesap/workers/subdomain" -H "$yetki" | oku subdomain)
+          fi
+
+          if [ -z "$alt" ]; then
+            echo "::warning::Adres API'den okunamadı. Cloudflare panelinden alabilirsiniz: Workers & Pages -> anlora-ai"
             exit 0
           fi
-          durum=$(curl -sS --max-time 20 "$ADRES/api/health" || echo '(yanıt alınamadı)')
+
+          ADRES="https://anlora-ai.$alt.workers.dev"
+          durum=$(curl -sS --max-time 20 "$ADRES/api/health" || echo '(yanit alinamadi)')
+          echo "Adres: $ADRES"
+          echo "Saglik: $durum"
+
           {
             echo "### Anlora AI Worker dağıtıldı"
             echo
@@ -98,7 +118,7 @@ jobs:
             echo "$durum"
             echo '```'
             echo
-            echo '`"ai": true` görüyorsanız anahtar yerine oturmuş demektir.'
+            echo 'Yanıtta `"ai": true` görüyorsanız Gemini anahtarı yerine oturmuş demektir.'
             echo
             echo "Sıradaki adım: bu adresi **Settings → Secrets and variables → Actions → Variables** sekmesinde \`API_BASE_URL\` adıyla kaydedin, sonra **Android APK** iş akışını çalıştırın."
           } >> "$GITHUB_STEP_SUMMARY"
