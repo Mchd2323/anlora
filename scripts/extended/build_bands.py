@@ -49,6 +49,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'
 from word_match import sentence_contains  # noqa: E402
 
 WORDLIST = 'scripts/extended/source/wordlist.json'
+SKIPLIST = 'scripts/extended/source/skiplist.json'
 CONTENT_DIR = 'scripts/extended/content'
 OUT_DIR = 'src/data/extended'
 INDEX_FILE = 'src/data/extended/index.json'
@@ -73,8 +74,18 @@ def sense_id(word, band, pos):
 
 
 def load_wordlist():
+    """Kelime listesini okur; skiplist.json'daki maddeleri hedeften çıkarır.
+
+    Frekans listesi birkaç satırda İngilizce sözcük değil, altyazı artığı
+    taşıyor. Bunlara karşılık yazmak uydurma içerik olurdu (talimat 59), boş
+    bırakmak da listeyi hiç bitmez gösterirdi; gerekçesiyle birlikte
+    çıkarılıyorlar.
+    """
     with open(WORDLIST, encoding='utf-8') as handle:
-        return json.load(handle)
+        words = json.load(handle)
+    with open(SKIPLIST, encoding='utf-8') as handle:
+        skipped = {k for k in json.load(handle) if not k.startswith('_')}
+    return [item for item in words if item['word'] not in skipped]
 
 
 def load_content():

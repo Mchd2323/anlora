@@ -18,8 +18,15 @@ import os
 import sys
 
 WORDLIST = 'scripts/extended/source/wordlist.json'
+SKIPLIST = 'scripts/extended/source/skiplist.json'
 CONTENT_DIR = 'scripts/extended/content'
 POS_SLUG = {'n.': 'n', 'v.': 'v', 'adj.': 'adj', 'adv.': 'adv'}
+
+
+def load_skipped():
+    """Hedeften çıkarılan madde başları; gerekçeleri skiplist.json'da."""
+    with open(SKIPLIST, encoding='utf-8') as handle:
+        return {k for k in json.load(handle) if not k.startswith('_')}
 
 
 def load_done():
@@ -33,6 +40,8 @@ def load_done():
 def main():
     with open(WORDLIST, encoding='utf-8') as handle:
         words = json.load(handle)
+    skipped = load_skipped()
+    words = [item for item in words if item['word'] not in skipped]
     done = load_done()
 
     args = sys.argv[1:]
