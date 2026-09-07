@@ -50,6 +50,9 @@ KULLANIM
 
     python3 scripts/extended/build_wordlist.py /tmp/anlora-src
 
+    # Var olan listeyi bozmadan büyüt (bkz. parse_extend_to)
+    python3 scripts/extended/build_wordlist.py /tmp/anlora-src --extend-to 15048
+
 Çıktı: scripts/extended/source/wordlist.json (depoya işlenir).
 """
 
@@ -60,11 +63,15 @@ import re
 import sys
 from collections import Counter
 
-# Hedef kelime sayısı. Komut satırından ikinci argümanla değiştirilebilir:
-#   python3 scripts/extended/build_wordlist.py /tmp/anlora-src 14677
-# Varsayılan, uygulamayı 20.000 kelimeye taşıyan değer:
-#   5.323 Oxford kaydı + 14.677 = 20.000
-TARGET = int(os.environ.get('ANLORA_TARGET', '14677'))
+# Hedef kelime sayısı. ANLORA_TARGET ile değiştirilebilir.
+#
+# İlk sürümde varsayılan 14.677'ydi; hesap "5.323 Oxford kaydı + 14.677"
+# üzerineydi. O 5.323 sayısı KAYIT sayısıydı, madde başı sayısı değil:
+# oxford3000 ile oxford5000extra birlikte 5.323 kayıt taşıyor ama aynı
+# madde başı iki listede de geçtiği için tekil madde başı 4.952. Yani o
+# hedef uygulamayı 20.000'e değil 19.626'ya taşıyordu. Doğru sayı:
+#   4.952 Oxford madde başı + 15.048 = 20.000
+TARGET = int(os.environ.get('ANLORA_TARGET', '15048'))
 BAND_SIZE = 2000        # Uygulama bantları tembel yükler; bkz. src/services
 
 CORE_FILES = [
@@ -287,8 +294,25 @@ def inflection_bases(word, irregular):
     return out
 
 
+def parse_extend_to(argv):
+    """`--extend-to N` verilmişse hedefi döner, yoksa None.
+
+    Listeyi sıfırdan üretmek artık güvenli değil: `content/*.json` anahtarları
+    `gen-b<bant>-<kelime>-<tür>` biçiminde ve bant, kelimenin listedeki
+    sırasından geliyor. Kaynaklar (WordNet, frekans listesi) zamanla
+    değiştiği için yeniden üretim mevcut kelimeleri kaydırabilir ve yazılmış
+    on binlerce anlamın anahtarını kırabilir. Bu yüzden büyütme işi ekleme
+    kipiyle yapılır: var olan kayıtlar olduğu gibi korunur, listenin sonuna
+    sıklık sırasındaki bir sonraki uygun kelimeler eklenir.
+    """
+    if '--extend-to' not in argv:
+        return None
+    return int(argv[argv.index('--extend-to') + 1])
+
+
 def main():
     src_dir = sys.argv[1] if len(sys.argv) > 1 else '/tmp/anlora-src'
+    extend_to = parse_extend_to(sys.argv)
 
     pos_by_word, ipa_by_word = load_wordnet(src_dir)
     core = load_core_vocabulary()
@@ -312,13 +336,23 @@ def main():
                 seen.add(parts[0])
                 ranked.append(parts[0])
 
+    # Ekleme kipinde var olan liste dokunulmaz; yalnızca sonuna eklenir.
+    existing = []
+    if extend_to is not None:
+        with open(OUT_FILE, encoding='utf-8') as handle:
+            existing = json.load(handle)
+
+    target = extend_to if extend_to is not None else TARGET
+
     dropped = Counter()
-    selected = []
-    chosen = set()          # seçilenler; kendi içinde çekim tekrarını önler
+    selected = [entry['word'] for entry in existing]
+    chosen = set(selected)  # seçilenler; kendi içinde çekim tekrarını önler
     for word in ranked:
-        if len(selected) >= TARGET:
+        if len(selected) >= target:
             break
         if word not in pos_by_word:
+            continue
+        if word in chosen:
             continue
         if word in core:
             dropped['zaten_var'] += 1
@@ -342,19 +376,23 @@ def main():
             selected.append(word)
             chosen.add(word)
 
-    if len(selected) < TARGET:
-        sys.exit(f'Yalnızca {len(selected)} kelime seçilebildi, {TARGET} gerekli.')
+    if len(selected) < target:
+        sys.exit(f'Yalnızca {len(selected)} kelime seçilebildi, {target} gerekli.')
 
-    entries = [
-        {
+    # Var olan kayıtlar bire bir korunur. Yeniden üretilseler `pos` alanı
+    # WordNet'in bugünkü hâline göre değişebilir; bu da yazılmış bir anlamın
+    # anahtarını listeden düşürür ya da karşılığı olmayan yeni bir anlam
+    # açar. Yalnızca yeni kelimeler kurulur.
+    entries = list(existing)
+    for index in range(len(existing), len(selected)):
+        word = selected[index]
+        entries.append({
             'word': word,
             'pos': sorted(pos_by_word[word]),
             'rank': index + 1,
             'band': index // BAND_SIZE + 1,
             'ipa': ipa_by_word.get(word),
-        }
-        for index, word in enumerate(selected)
-    ]
+        })
 
     os.makedirs(os.path.dirname(OUT_FILE), exist_ok=True)
     with open(OUT_FILE, 'w', encoding='utf-8') as handle:
