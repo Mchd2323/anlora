@@ -127,10 +127,22 @@ jobs:
             echo "Yanit: $yanit"
             # Basarisizsa kullanilabilir modelleri listele: 404'un nedenini
             # ikinci bir tur beklemeden gormek icin.
-            MODELLER=$(curl -sS --max-time 30 "https://generativelanguage.googleapis.com/v1beta/models" -H "x-goog-api-key: $GEMINI_API_KEY" | python3 -c "import json,sys;d=json.load(sys.stdin);print(chr(10).join(m.get('name','') for m in d.get('models',[]) if 'generateContent' in (m.get('supportedGenerationMethods') or [])))" 2>/dev/null || echo '(model listesi alinamadi)')
+            MODELLER=$(curl -sS --max-time 30 "https://generativelanguage.googleapis.com/v1beta/models" -H "x-goog-api-key: $GEMINI_API_KEY" | python3 -c "import json,sys;d=json.load(sys.stdin);print(chr(10).join(m.get('name','') for m in d.get('models',[]) if 'generateContent' in (m.get('supportedGenerationMethods') or [])))" 2>/dev/null)
+            if [ -z "$MODELLER" ]; then
+              # Ayristirma bos dondu: Google'in hata mesajini yutmak yerine
+              # ham yaniti goster, neden orada yaziyor.
+              MODELLER=$(curl -sS --max-time 30 "https://generativelanguage.googleapis.com/v1beta/models" -H "x-goog-api-key: $GEMINI_API_KEY" | head -c 800)
+              MODELLER="(model listesi ayristirilamadi) ham yanit: $MODELLER"
+            fi
             echo "Kullanilabilir modeller:"
             echo "$MODELLER"
           fi
+
+          # Saglik yoklamasi yapay zeka cagrisindan ONCE yapilmisti; o anda
+          # hicbir kart uretilmedigi icin `model` alani her zaman null
+          # cikiyordu. Denemeden SONRA bir kez daha okunuyor: hangi modelin
+          # gercekten calistigi ancak simdi belli.
+          durumSon=$(curl -sS --max-time 20 "$ADRES/api/health" || echo "$durum")
 
           {
             echo "### Anlora AI Worker dağıtıldı"
@@ -140,9 +152,9 @@ jobs:
             echo "$ADRES"
             echo '```'
             echo
-            echo "Sağlık yanıtı:"
+            echo "Sağlık yanıtı (yapay zekâ denemesinden sonra):"
             echo '```json'
-            echo "$durum"
+            echo "$durumSon"
             echo '```'
             echo
             echo 'Yanıtta `"ai": true` görüyorsanız Gemini anahtarı yerine oturmuş demektir.'

@@ -26,6 +26,37 @@ export interface AiResult {
   body: Record<string, unknown>;
 }
 
+/*
+ * GİRDİ SINIRLARI.
+ *
+ * Uçlar kimlik doğrulaması istemiyor ve gövde boyutu denetlenmiyordu. Aşırı
+ * uzun bir `context` Gemini'den 400 INVALID_ARGUMENT getiriyor; bu hata
+ * modele değil İSTEĞE ait olduğu için sıradaki modeli denemek aynı hatayı
+ * tekrarlamaktan başka işe yaramıyor. Sınırı kapıda uygulamak hem bunu
+ * önlüyor hem de kullanıcıya anlaşılır bir mesaj veriyor.
+ *
+ * Değerler cömert: bağlam, kullanıcının kelimeye rastladığı cümledir.
+ */
+const MAX_KELIME = 100;
+const MAX_BAGLAM = 2000;
+
+/** Girdi sınırı aşıldıysa hata sonucu, yoksa null. */
+function girdiSiniri(kelime: string, baglam?: string): AiResult | null {
+  if (kelime.length > MAX_KELIME) {
+    return {
+      status: 400,
+      body: { error: `Kelime çok uzun (en fazla ${MAX_KELIME} karakter).` },
+    };
+  }
+  if (baglam && baglam.length > MAX_BAGLAM) {
+    return {
+      status: 400,
+      body: { error: `Bağlam cümlesi çok uzun (en fazla ${MAX_BAGLAM} karakter).` },
+    };
+  }
+  return null;
+}
+
 const CARD_FAILURE = {
   error:
     'Yapay zekâ şu anda kelime bilgilerini oluşturamadı. Tekrar deneyebilir veya kartı kendiniz doldurabilirsiniz.',
@@ -49,6 +80,9 @@ export async function handleGenerateWord(
 
   const trimmedWord = word.trim();
   const contextText = typeof context === 'string' && context.trim() ? context.trim() : undefined;
+
+  const sinir = girdiSiniri(trimmedWord, contextText);
+  if (sinir) return sinir;
 
   const systemInstruction = wordSystemInstruction();
   const prompt = wordUserPrompt(trimmedWord, contextText);
@@ -95,6 +129,9 @@ export async function handleValidateSenses(
       ? contextSentence.trim()
       : undefined;
 
+  const sinir = girdiSiniri(trimmedWord, contextText);
+  if (sinir) return sinir;
+
   const responseText = await gateway.generateJson({
     prompt: sensesUserPrompt(trimmedWord, userSenses, contextText),
     systemInstruction: sensesSystemInstruction(trimmedWord, contextText),
@@ -117,6 +154,12 @@ export async function handleGenerateExamples(
   if (!word || typeof word !== 'string') {
     return { status: 400, body: { error: 'Kelime girilmedi.' } };
   }
+
+  const sinir = girdiSiniri(
+    word.trim(),
+    typeof context === 'string' ? context : undefined
+  );
+  if (sinir) return sinir;
 
   const responseText = await gateway.generateJson({
     prompt: examplesPrompt(

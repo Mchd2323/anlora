@@ -180,23 +180,43 @@ async function adaylariGetir(apiKey: string): Promise<{ surum: string; adaylar: 
   const hatalar: string[] = [];
 
   for (const surum of ['v1beta', 'v1']) {
-    const yanit = await fetch(`${GEMINI_KOK}/${surum}/models`, {
-      headers: { 'x-goog-api-key': apiKey },
-    });
+    /*
+     * SAYFALAMA. Liste tek yanıta sığmayabiliyor; `nextPageToken` gelirse
+     * sonraki sayfa da çekilir. Sayfa atlanırsa çalışan bir model listenin
+     * dışında kalıp hiç denenmezdi. Üç sayfayla sınırlı: hesabın model
+     * sayısı bunun çok altında ve sınırsız döngü istemiyoruz.
+     */
+    const uygun: string[] = [];
+    let jeton = '';
+    let hataliSayfa = false;
 
-    if (!yanit.ok) {
-      hatalar.push(`${surum}: HTTP ${yanit.status}`);
-      continue;
+    for (let sayfa = 0; sayfa < 3; sayfa++) {
+      const adres = `${GEMINI_KOK}/${surum}/models?pageSize=200${jeton ? `&pageToken=${jeton}` : ''}`;
+      const yanit = await fetch(adres, { headers: { 'x-goog-api-key': apiKey } });
+
+      if (!yanit.ok) {
+        hatalar.push(`${surum}: HTTP ${yanit.status}`);
+        hataliSayfa = true;
+        break;
+      }
+
+      const veri = (await yanit.json()) as {
+        models?: Array<{ name?: string; supportedGenerationMethods?: string[] }>;
+        nextPageToken?: string;
+      };
+
+      uygun.push(
+        ...(veri.models || [])
+          .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
+          .map(m => (m.name || '').replace(/^models\//, ''))
+          .filter(Boolean)
+      );
+
+      jeton = veri.nextPageToken || '';
+      if (!jeton) break;
     }
 
-    const veri = (await yanit.json()) as {
-      models?: Array<{ name?: string; supportedGenerationMethods?: string[] }>;
-    };
-
-    const uygun = (veri.models || [])
-      .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
-      .map(m => (m.name || '').replace(/^models\//, ''))
-      .filter(Boolean);
+    if (hataliSayfa) continue;
 
     if (uygun.length === 0) {
       hatalar.push(`${surum}: generateContent destekleyen model yok`);
@@ -281,41 +301,67 @@ export function _onbellegiBosalt(): void {
   calisanModel = null;
 }
 
+/**
+ * Bu hata İSTEĞE mi ait, MODELE mi?
+ *
+ * Bir zamanlar burada 404/400/403 "modele ait" sayılıyordu, ötekiler değil.
+ * O ayrım gerçek dağıtımda yanlış çıktı: 503 "high demand" modele özgüydü ve
+ * kod yüklü olmayan modeli denemeden pes etti. Ayrım kaldırıldı, her hatada
+ * sıradaki denendi.
+ *
+ * Şimdi tersinden bir tek istisna kalıyor: 400 INVALID_ARGUMENT isteğin
+ * kendisiyle ilgilidir (gövde çok büyük, alan geçersiz). Aynı gövdeyi beş
+ * modele göndermek aynı hatayı beş kez almak, kotayı harcamak ve gerçek
+ * nedeni "Hiçbir model yanıt vermedi" mesajının altına gömmektir.
+ */
+function istekHatasi(durum: number): boolean {
+  return durum === 400;
+}
+
 export function geminiKoprusu(apiKey: string): AiGateway {
   return {
     async generateJson({ prompt, systemInstruction }) {
       const denenenler: string[] = [];
+      let atlanan = '';
+      let sonDetay = '';
 
       // Daha önce çalıştığı görülen model varsa önce o denenir: her istekte
       // model listesi çekmek gereksiz gecikme olurdu.
-      if (calisanModel) {
+      const onbellek = calisanModel;
+      if (onbellek) {
         const sonuc = await modeleSor(
-          apiKey, calisanModel.surum, calisanModel.model, prompt, systemInstruction
+          apiKey, onbellek.surum, onbellek.model, prompt, systemInstruction
         );
         if (sonuc.durum === 200) return sonuc.metin;
-        denenenler.push(`${calisanModel.model} -> ${sonuc.durum}`);
-        // Dün çalışan model bugün emekliye ayrılmış ya da aşırı yüklü
-        // olabilir. Önbelleğe takılıp kalmak yerine baştan aday aranır.
-        calisanModel = null;
+
+        denenenler.push(`${onbellek.model} -> ${sonuc.durum}`);
+        sonDetay = sonuc.detay;
+
+        // İstek hatasında model suçsuz: önbellek korunur, sıradaki modeli
+        // denemek aynı gövdeyle aynı hatayı almak olurdu.
+        if (istekHatasi(sonuc.durum)) {
+          throw new Error(
+            `Gemini 400 (${onbellek.surum}/${onbellek.model}): ${sonuc.detay}`
+          );
+        }
+
+        /*
+         * Önbellek yalnızca HÂLÂ bizim denediğimiz modeli gösteriyorsa
+         * boşaltılır. Es zamanlı bir istek bu arada yeni ve çalışan bir
+         * model kanıtlamış olabilir; koşulsuz `null` atamak onu silerdi.
+         */
+        if (calisanModel === onbellek) calisanModel = null;
+        atlanan = onbellek.model;
       }
 
       const { surum, adaylar } = await adaylariGetir(apiKey);
-      let sonDetay = '';
 
       /*
-       * HER HATADA SIRADAKİ ADAY DENENİR.
-       *
-       * Önceki sürüm hataları ikiye ayırıyordu: 404/400/403 "sıradakini
-       * dene", ötekiler "hemen bırak". Gerekçesi 429'da kotayı boşa
-       * harcamamaktı. Gerçek dağıtımda bu ayrım yanlış çıktı: Gemini
-       * `gemini-flash-latest` için 503 "high demand" döndürdü ve kod, YÜKLÜ
-       * OLMAYAN bir modeli denemeden pes etti. Yoğunluk modele özgüdür;
-       * sıradakini denemek tam da doğru davranıştır.
-       *
-       * Dört değil beş aday: 503 geçici bir yoğunluk hatası, birkaç model
-       * aynı anda yüklü olabilir.
+       * HER HATADA SIRADAKİ ADAY DENENİR (400 dışında, yukarıya bakın).
+       * Az önce başarısız olan model listeden çıkarılır: aynı istekte onu
+       * bir kez daha denemek boşa çağrıdır.
        */
-      for (const model of adaylar.slice(0, 5)) {
+      for (const model of adaylar.filter(ad => ad !== atlanan).slice(0, 5)) {
         const sonuc = await modeleSor(apiKey, surum, model, prompt, systemInstruction);
         if (sonuc.durum === 200) {
           calisanModel = { surum, model };
@@ -323,6 +369,10 @@ export function geminiKoprusu(apiKey: string): AiGateway {
         }
         denenenler.push(`${model} -> ${sonuc.durum}`);
         sonDetay = sonuc.detay;
+
+        if (istekHatasi(sonuc.durum)) {
+          throw new Error(`Gemini 400 (${surum}/${model}): ${sonuc.detay}`);
+        }
       }
 
       throw new Error(

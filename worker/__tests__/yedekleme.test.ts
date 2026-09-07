@@ -30,7 +30,7 @@ function kartYaniti(metin: string) {
 function sahteFetch(durumlar: Record<string, number>) {
   const cagrilar: string[] = [];
   const sahte = vi.fn(async (url: string) => {
-    if (url.endsWith('/models')) {
+    if (url.includes('/models?') || url.endsWith('/models')) {
       return { ok: true, status: 200, json: async () => MODEL_LISTESI } as any;
     }
     const model = (url.match(/models\/([^:]+):/) || [])[1] || '';
@@ -117,7 +117,7 @@ describe('geminiKoprusu yedeklemesi', () => {
     let ucSekizYuklu = false;
     const cagrilar: string[] = [];
     const sahte = vi.fn(async (url: string) => {
-      if (url.endsWith('/models')) {
+      if (url.includes('/models?') || url.endsWith('/models')) {
         return { ok: true, status: 200, json: async () => MODEL_LISTESI } as any;
       }
       const model = (url.match(/models\/([^:]+):/) || [])[1] || '';
@@ -146,7 +146,7 @@ describe('geminiKoprusu yedeklemesi', () => {
     // boş metni ayrıştırmaya çalışır ve model yanlışlıkla önbelleğe girer.
     const cagrilar: string[] = [];
     const sahte = vi.fn(async (url: string) => {
-      if (url.endsWith('/models')) {
+      if (url.includes('/models?') || url.endsWith('/models')) {
         return { ok: true, status: 200, json: async () => MODEL_LISTESI } as any;
       }
       const model = (url.match(/models\/([^:]+):/) || [])[1] || '';
@@ -166,7 +166,7 @@ describe('geminiKoprusu yedeklemesi', () => {
 
   it('metinsiz yanıt veren modeli önbelleğe almaz', async () => {
     const sahte = vi.fn(async (url: string) => {
-      if (url.endsWith('/models')) {
+      if (url.includes('/models?') || url.endsWith('/models')) {
         return { ok: true, status: 200, json: async () => MODEL_LISTESI } as any;
       }
       const model = (url.match(/models\/([^:]+):/) || [])[1] || '';
@@ -183,5 +183,114 @@ describe('geminiKoprusu yedeklemesi', () => {
     await geminiKoprusu('anahtar').generateJson({ prompt: 'x' });
 
     expect(secilenModel()).toBe('v1beta/gemini-3.8-flash');
+  });
+
+  it('400 istek hatasinda siradaki modeli denemez', async () => {
+    // 400 INVALID_ARGUMENT istegin kendisiyle ilgilidir. Ayni govdeyi bes
+    // modele gondermek ayni hatayi bes kez almak ve kotayi harcamaktir.
+    const cagrilar: string[] = [];
+    const sahte = vi.fn(async (url: string) => {
+      if (url.includes('/models?') || url.endsWith('/models')) {
+        return { ok: true, status: 200, json: async () => MODEL_LISTESI } as any;
+      }
+      const model = (url.match(/models\/([^:]+):/) || [])[1] || '';
+      cagrilar.push(model);
+      return {
+        ok: false, status: 400,
+        text: async () => '{"error":{"message":"input token count exceeds maximum"}}',
+      } as any;
+    });
+    vi.stubGlobal('fetch', sahte);
+
+    await expect(
+      geminiKoprusu('anahtar').generateJson({ prompt: 'x' })
+    ).rejects.toThrow(/400.*input token count/s);
+
+    expect(cagrilar).toHaveLength(1);
+  });
+
+  it('400 alan onbellekli model onbellekte kalir', async () => {
+    let ilkTur = true;
+    const sahte = vi.fn(async (url: string) => {
+      if (url.includes('/models?') || url.endsWith('/models')) {
+        return { ok: true, status: 200, json: async () => MODEL_LISTESI } as any;
+      }
+      const model = (url.match(/models\/([^:]+):/) || [])[1] || '';
+      if (ilkTur) {
+        return { ok: true, status: 200, json: async () => kartYaniti(`{"ok":"${model}"}`) } as any;
+      }
+      return { ok: false, status: 400, text: async () => '{"error":{"message":"kotu govde"}}' } as any;
+    });
+    vi.stubGlobal('fetch', sahte);
+    const kopru = geminiKoprusu('anahtar');
+
+    await kopru.generateJson({ prompt: 'iyi' });
+    const onbellekOnce = secilenModel();
+    ilkTur = false;
+    await expect(kopru.generateJson({ prompt: 'kotu' })).rejects.toThrow(/400/);
+
+    // Model suclu degil: kanitlanmis onbellek silinmemeli.
+    expect(secilenModel()).toBe(onbellekOnce);
+  });
+
+  it('onbellekten dusen modeli ayni istekte tekrar denemez', async () => {
+    const cagrilar: string[] = [];
+    const sahte = vi.fn(async (url: string) => {
+      if (url.includes('/models?') || url.endsWith('/models')) {
+        return { ok: true, status: 200, json: async () => MODEL_LISTESI } as any;
+      }
+      const model = (url.match(/models\/([^:]+):/) || [])[1] || '';
+      cagrilar.push(model);
+      if (model === 'gemini-flash-latest') {
+        return { ok: false, status: 503, text: async () => '{}' } as any;
+      }
+      return { ok: true, status: 200, json: async () => kartYaniti(`{"ok":"${model}"}`) } as any;
+    });
+    vi.stubGlobal('fetch', sahte);
+    const kopru = geminiKoprusu('anahtar');
+
+    await kopru.generateJson({ prompt: 'bir' });   // latest 503 -> 3.8 calisir
+    cagrilar.length = 0;
+    // Simdi 3.8 onbellekte; onu da bozalim ki onbellekten dussun.
+    const sahte2 = vi.fn(async (url: string) => {
+      if (url.includes('/models?') || url.endsWith('/models')) {
+        return { ok: true, status: 200, json: async () => MODEL_LISTESI } as any;
+      }
+      const model = (url.match(/models\/([^:]+):/) || [])[1] || '';
+      cagrilar.push(model);
+      if (model === 'gemini-3.8-flash') {
+        return { ok: false, status: 503, text: async () => '{}' } as any;
+      }
+      return { ok: true, status: 200, json: async () => kartYaniti(`{"ok":"${model}"}`) } as any;
+    });
+    vi.stubGlobal('fetch', sahte2);
+    await kopru.generateJson({ prompt: 'iki' });
+
+    // 3.8 bir kez denendi (onbellekten), aday dongusunde TEKRAR denenmedi.
+    expect(cagrilar.filter(m => m === 'gemini-3.8-flash')).toHaveLength(1);
+  });
+
+  it('model listesi sayfalanmissa sonraki sayfayi da okur', async () => {
+    const sahte = vi.fn(async (url: string) => {
+      if (url.includes('/models?') || url.endsWith('/models')) {
+        if (url.includes('pageToken=ikinci')) {
+          return { ok: true, status: 200, json: async () => ({
+            models: [{ name: 'models/gemini-3.8-flash', supportedGenerationMethods: ['generateContent'] }],
+          }) } as any;
+        }
+        return { ok: true, status: 200, json: async () => ({
+          models: [{ name: 'models/gemini-2.5-flash-image', supportedGenerationMethods: ['generateContent'] }],
+          nextPageToken: 'ikinci',
+        }) } as any;
+      }
+      const model = (url.match(/models\/([^:]+):/) || [])[1] || '';
+      return { ok: true, status: 200, json: async () => kartYaniti(`{"ok":"${model}"}`) } as any;
+    });
+    vi.stubGlobal('fetch', sahte);
+
+    const metin = await geminiKoprusu('anahtar').generateJson({ prompt: 'x' });
+
+    // Calisan model yalnizca IKINCI sayfada vardi.
+    expect(metin).toContain('gemini-3.8-flash');
   });
 });
