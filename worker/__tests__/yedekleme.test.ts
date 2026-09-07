@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { _onbellegiBosalt, geminiKoprusu } from '../src/index';
+import { _onbellegiBosalt, geminiKoprusu, secilenModel } from '../src/index';
 
 /**
  * Model yedeklemesi.
@@ -138,5 +138,50 @@ describe('geminiKoprusu yedeklemesi', () => {
     const metin = await kopru.generateJson({ prompt: 'iki' });
 
     expect(metin).toContain('gemini-3.7-flash');
+  });
+
+  it('200 ama metinsiz yanıtı başarı saymaz, sıradakini dener', async () => {
+    // Gemini güvenlik engeli, boş aday listesi ya da görüntü modeli
+    // yüzünden metinsiz 200 dönebiliyor. Bu yanıt başarı sayılırsa çağıran
+    // boş metni ayrıştırmaya çalışır ve model yanlışlıkla önbelleğe girer.
+    const cagrilar: string[] = [];
+    const sahte = vi.fn(async (url: string) => {
+      if (url.endsWith('/models')) {
+        return { ok: true, status: 200, json: async () => MODEL_LISTESI } as any;
+      }
+      const model = (url.match(/models\/([^:]+):/) || [])[1] || '';
+      cagrilar.push(model);
+      if (model === 'gemini-flash-latest') {
+        return { ok: true, status: 200, json: async () => ({ candidates: [] }) } as any;
+      }
+      return { ok: true, status: 200, json: async () => kartYaniti(`{"ok":"${model}"}`) } as any;
+    });
+    vi.stubGlobal('fetch', sahte);
+
+    const metin = await geminiKoprusu('anahtar').generateJson({ prompt: 'x' });
+
+    expect(cagrilar).toEqual(['gemini-flash-latest', 'gemini-3.8-flash']);
+    expect(metin).toContain('gemini-3.8-flash');
+  });
+
+  it('metinsiz yanıt veren modeli önbelleğe almaz', async () => {
+    const sahte = vi.fn(async (url: string) => {
+      if (url.endsWith('/models')) {
+        return { ok: true, status: 200, json: async () => MODEL_LISTESI } as any;
+      }
+      const model = (url.match(/models\/([^:]+):/) || [])[1] || '';
+      if (model === 'gemini-flash-latest') {
+        // Metin olmayan parca: goruntu modeli boyle doner.
+        return { ok: true, status: 200, json: async () => ({
+          candidates: [{ content: { parts: [{ inlineData: { mimeType: 'image/png' } }] } }],
+        }) } as any;
+      }
+      return { ok: true, status: 200, json: async () => kartYaniti('{"iyi":true}') } as any;
+    });
+    vi.stubGlobal('fetch', sahte);
+
+    await geminiKoprusu('anahtar').generateJson({ prompt: 'x' });
+
+    expect(secilenModel()).toBe('v1beta/gemini-3.8-flash');
   });
 });

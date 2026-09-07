@@ -243,7 +243,24 @@ async function modeleSor(
     candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
   };
 
-  return { durum: 200, metin: veri.candidates?.[0]?.content?.parts?.[0]?.text || '', detay: '' };
+  const metin = veri.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+  /*
+   * 200 AMA METİN YOK.
+   *
+   * Gemini kimi zaman başarı döndürüp içi boş bir yanıt verir: güvenlik
+   * engeli, boş aday listesi ya da metin olmayan bir parça (görüntü modeli
+   * `inlineData` döndürür). Bunu başarı saymak iki kat zarar veriyordu —
+   * çağıran boş metni ayrıştırmaya çalışıp başarısız oluyor, ÜSTELİK o model
+   * "çalışıyor" diye önbelleğe yazıldığı için aynı kopyaya gelen her istek
+   * aynı şekilde boş dönüyordu. Metinsiz yanıt başarısızlıktır; sıradaki
+   * aday denenmeli.
+   */
+  if (!metin.trim()) {
+    return { durum: 204, metin: '', detay: 'yanıt metin içermiyor' };
+  }
+
+  return { durum: 200, metin, detay: '' };
 }
 
 /**
