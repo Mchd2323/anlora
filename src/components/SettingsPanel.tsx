@@ -65,6 +65,15 @@ const STUDY_MODES: { value: UserSettings['preferredStudyMode']; label: string; h
  * #8FB8D4 vurgu. "Sistem" ikisini birden gösteriyor, çünkü seçenek zaten
  * "telefonun ayarına göre bu ikisinden biri" demek.
  */
+/*
+ * TABAN GÖRÜNÜM ARTIK TEK: "Sistem".
+ *
+ * Yanında "Açık" ve "Koyu" duruyordu; üçü de aynı onaylı Anlora Realms
+ * görünümüydü, aradaki tek fark telefonun ayarını izleyip izlemedikleriydi.
+ * İkisi kaldırıldı — taban görünümü telefona sabitlemek isteyen kullanıcı
+ * bunu telefonun kendi ayarından zaten yapıyor; listede aynı görünümün üç
+ * kopyasını tutmak seçenek değil, gürültüydü.
+ */
 const TABAN_SECENEKLER = [
   {
     id: 'system' as const,
@@ -73,9 +82,7 @@ const TABAN_SECENEKLER = [
       { zemin: '#F2E8D8', vurgu: '#15283D' },
       { zemin: '#0D1925', vurgu: '#8FB8D4' }
     ]
-  },
-  { id: 'light' as const, ad: 'Açık', yarimlar: [{ zemin: '#F2E8D8', vurgu: '#15283D' }] },
-  { id: 'dark' as const, ad: 'Koyu', yarimlar: [{ zemin: '#0D1925', vurgu: '#8FB8D4' }] }
+  }
 ];
 
 /**
@@ -398,15 +405,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
               Görünüm
             </label>
             {/*
-              ÜÇÜ DE AYNI ONAYLI GÖRÜNÜM. Aralarındaki tek fark telefonun
-              ayarını izleyip izlemedikleri: "Sistem" izliyor, "Açık" ve
-              "Koyu" sabitliyor. Üçü de ek tema katmanını hiç devreye
-              sokmuyor.
-
-              Bir ara yalnızca "Sistem" bırakılmıştı; o hâlde telefonu koyu
-              olan biri onaylı AÇIK görünümü hiçbir şekilde seçemiyordu.
+              Onaylı Anlora Realms görünümü. Ek tema katmanını hiç devreye
+              sokmaz: kökte hiçbir öznitelik durmaz ve açık mı koyu mu olduğuna
+              telefonun kendi ayarı karar verir.
             */}
-            <div className="grid grid-cols-3 gap-1.5" role="group" aria-label="Anlora Realms görünümü">
+            {/* İki sütun, tek kutu: genişliği alttaki tema kutularıyla aynı
+                olsun; üç sütunluk ızgarada tek başına kalınca dar ve
+                hizasız duruyordu. */}
+            <div className="grid grid-cols-2 gap-2" role="group" aria-label="Anlora Realms görünümü">
               {TABAN_SECENEKLER.map(t => {
                 const secili = aktifTema === t.id;
                 return (
@@ -448,8 +454,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
               })}
             </div>
             <p className="text-[11px] text-[var(--text-muted)] mt-1.5">
-              Anlora Realms'in kendi görünümü. "Sistem" telefonun ayarını izler;
-              diğer ikisi sabit kalır.
+              Anlora Realms'in kendi görünümü; telefonun açık/koyu ayarını
+              izler.
             </p>
           </div>
 

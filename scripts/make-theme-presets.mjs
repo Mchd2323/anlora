@@ -6,11 +6,14 @@
  *   1. SİSTEM — bugünkü onaylı Anlora Realms açık ve koyu görünümü. İşletim
  *      sistemini izler, kökte hiçbir öznitelik taşımaz, bu dosyadan hiç
  *      etkilenmez. Taban seçenek budur ve değişmez.
- *   2. DÖRT BAĞIMSIZ AÇIK TEMA
- *   3. DÖRT BAĞIMSIZ KOYU TEMA
+ *   2. EK AÇIK TEMALAR
+ *   3. EK KOYU TEMALAR
  *
- * Sekiz ek tema birbirinden bağımsız: "açık/koyu çift" değiller, her biri tek
- * başına seçilen bir görünüm.
+ * Ek temalar birbirinden bağımsız: "açık/koyu çift" değiller, her biri tek
+ * başına seçilen bir görünüm. KAÇ TANE OLDUKLARI BURADA YAZMIYOR — sayı
+ * `theme-presets.json`'dan geliyor ve tema eklenip çıkarıldığında bu dosyada
+ * güncellenmesi gereken bir yer kalmasın diye üretilen metinler de sayıyı
+ * veriden okuyor.
  *
  * DEĞERLER `src/theme/theme-presets.json` DOSYASINDAN GELİR. Paket bu dosyayı
  * otorite ilan ediyor; page, panel, inner, text, secondary, accent, buttonBg ve
@@ -207,7 +210,8 @@ const veri = await p.evaluate(({ KAYNAK, SET_RENKLERI, METIN_ESIGI, KENAR_ESIGI 
   const koyu = KAYNAK.dark.map(t => isle(t, true));
 
   // Set kutucukları metin değil, dolu birer kare: eşik 3:1. Her renk hem
-  // taban yüzeylerde hem de sekiz ek temanın yüzeylerinde ölçülüyor.
+  // taban yüzeylerde hem de KAÇ TANE OLURSA OLSUN her ek temanın yüzeylerinde
+  // ölçülüyor; liste `theme-presets.json`'dan geliyor.
   const acikYuzeyler = ['#F2E8D8', '#F8F1E4', '#EFE5D3', ...acik.flatMap(t => [t.page, t.panel, t.inner])];
   const koyuYuzeyler = ['#0D1925', '#142433', '#0F1D29', ...koyu.flatMap(t => [t.page, t.panel, t.inner])];
   const setler = SET_RENKLERI.map(r => ({
@@ -338,12 +342,12 @@ export interface RealmsOnAyari {
 export type RealmsOnAyarId =
 ${hepsi.map(t => `  | '${t.id}'`).join('\n')};
 
-/** Ek açık temalar — dördü de birbirinden bağımsız. */
+/** Ek açık temalar (${veri.acik.length}) — her biri birbirinden bağımsız. */
 export const ACIK_ON_AYARLAR: RealmsOnAyari[] = [
 ${veri.acik.map(satir).join(',\n')}
 ];
 
-/** Ek koyu temalar — dördü de birbirinden bağımsız. */
+/** Ek koyu temalar (${veri.koyu.length}) — her biri birbirinden bağımsız. */
 export const KOYU_ON_AYARLAR: RealmsOnAyari[] = [
 ${veri.koyu.map(satir).join(',\n')}
 ];
@@ -386,7 +390,7 @@ for (const t of hepsi) {
   const o = t.olcum;
   console.log(`  ${t.name.padEnd(16)} ${t.koyuMu ? 'koyu' : 'açık'}  metin ${o.metinEnDusuk}  ikincil ${o.ikincilEnDusuk}  vurgu ${o.vurguEnDusuk}  düğme ${o.dugmeYazisi}/${o.dugmeUstDurak}  kenar ${o.kenarlik}  arma-altın ${o.armaAltini}`);
 }
-console.log('  --- set renkleri (dokuz temanın tüm yüzeylerinde en düşük) ---');
+console.log(`  --- set renkleri (taban + ${veri.acik.length + veri.koyu.length} ek temanın tüm yüzeylerinde en düşük) ---`);
 for (const r of veri.setler) {
   console.log(`  ${r.ad.padEnd(16)} açık ${r.acik} ${r.acikEnDusuk}   koyu ${r.koyu} ${r.koyuEnDusuk}`);
 }

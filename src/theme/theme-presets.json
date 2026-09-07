@@ -27,30 +27,6 @@
       "accent": "#7E2C2A",
       "buttonBg": "#7E2C2A",
       "buttonText": "#F7EDE6"
-    },
-    {
-      "id": "light-ancient-map",
-      "name": "Kadim Harita",
-      "page": "#EFE7D6",
-      "panel": "#FAF4E8",
-      "inner": "#E6D9BE",
-      "text": "#3B2C1B",
-      "secondary": "#665B4D",
-      "accent": "#6D5428",
-      "buttonBg": "#6D5428",
-      "buttonText": "#FBF7EF"
-    },
-    {
-      "id": "light-grove-oath",
-      "name": "Orman Yemini",
-      "page": "#E5EEE6",
-      "panel": "#F5F9F3",
-      "inner": "#DAE8DE",
-      "text": "#1F3D32",
-      "secondary": "#52665D",
-      "accent": "#2D5A45",
-      "buttonBg": "#2D5A45",
-      "buttonText": "#F0F5EE"
     }
   ],
   "dark": [
@@ -77,30 +53,6 @@
       "accent": "#9FC9DE",
       "buttonBg": "#9FC9DE",
       "buttonText": "#0B1827"
-    },
-    {
-      "id": "dark-dragon-ember",
-      "name": "Ejderha Köz",
-      "page": "#1B1512",
-      "panel": "#2B1F1A",
-      "inner": "#241914",
-      "text": "#F4E7D8",
-      "secondary": "#CBB9A9",
-      "accent": "#E28F61",
-      "buttonBg": "#E28F61",
-      "buttonText": "#24150E"
-    },
-    {
-      "id": "dark-iron-grove",
-      "name": "Demir Orman",
-      "page": "#0E1C18",
-      "panel": "#153027",
-      "inner": "#11251E",
-      "text": "#E7F1E7",
-      "secondary": "#B6CDBE",
-      "accent": "#8BC6A1",
-      "buttonBg": "#8BC6A1",
-      "buttonText": "#0D2017"
     }
   ],
   "contrastCheck": {

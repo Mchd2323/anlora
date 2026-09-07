@@ -14,14 +14,10 @@ export interface RealmsOnAyari {
 export type RealmsOnAyarId =
   | 'light-frost-crystal'
   | 'light-crimson-dawn'
-  | 'light-ancient-map'
-  | 'light-grove-oath'
   | 'dark-crimson-night'
-  | 'dark-frost-watch'
-  | 'dark-dragon-ember'
-  | 'dark-iron-grove';
+  | 'dark-frost-watch';
 
-/** Ek açık temalar — dördü de birbirinden bağımsız. */
+/** Ek açık temalar (2) — her biri birbirinden bağımsız. */
 export const ACIK_ON_AYARLAR: RealmsOnAyari[] = [
   {
     id: 'light-frost-crystal',
@@ -34,22 +30,10 @@ export const ACIK_ON_AYARLAR: RealmsOnAyari[] = [
     ad: 'Kızıl Şafak',
     mod: 'light',
     onizleme: { zemin: '#F3E3DE', panel: '#FCF5F1', vurgu: '#7E2C2A', yazi: '#451D22' }
-  },
-  {
-    id: 'light-ancient-map',
-    ad: 'Kadim Harita',
-    mod: 'light',
-    onizleme: { zemin: '#EFE7D6', panel: '#FAF4E8', vurgu: '#6D5428', yazi: '#3B2C1B' }
-  },
-  {
-    id: 'light-grove-oath',
-    ad: 'Orman Yemini',
-    mod: 'light',
-    onizleme: { zemin: '#E5EEE6', panel: '#F5F9F3', vurgu: '#2D5A45', yazi: '#1F3D32' }
   }
 ];
 
-/** Ek koyu temalar — dördü de birbirinden bağımsız. */
+/** Ek koyu temalar (2) — her biri birbirinden bağımsız. */
 export const KOYU_ON_AYARLAR: RealmsOnAyari[] = [
   {
     id: 'dark-crimson-night',
@@ -62,18 +46,6 @@ export const KOYU_ON_AYARLAR: RealmsOnAyari[] = [
     ad: 'Buz Nöbeti',
     mod: 'dark',
     onizleme: { zemin: '#0B1827', panel: '#142A3A', vurgu: '#9FC9DE', yazi: '#F0F6F8' }
-  },
-  {
-    id: 'dark-dragon-ember',
-    ad: 'Ejderha Köz',
-    mod: 'dark',
-    onizleme: { zemin: '#1B1512', panel: '#2B1F1A', vurgu: '#E28F61', yazi: '#F4E7D8' }
-  },
-  {
-    id: 'dark-iron-grove',
-    ad: 'Demir Orman',
-    mod: 'dark',
-    onizleme: { zemin: '#0E1C18', panel: '#153027', vurgu: '#8BC6A1', yazi: '#E7F1E7' }
   }
 ];
 

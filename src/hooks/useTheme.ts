@@ -5,12 +5,13 @@ import { ON_AYAR_KIMLIKLERI, onAyarModu, RealmsOnAyarId } from '../theme/realmsP
 /**
  * Tema ve yazı büyüklüğü tercihini belgeye uygular.
  *
- * DOKUZ SEÇENEK, TEK LİSTE. Görünüm tek bir tercihten ibaret:
+ * BEŞ SEÇENEK, TEK LİSTE. Görünüm tek bir tercihten ibaret:
  *
  *   'system'  — bugünkü onaylı Anlora Realms görünümü. Kökte HİÇBİR öznitelik
  *               durmaz; açık mı koyu mu olduğuna telefonun kendi ayarı karar
  *               verir. Taban seçenek budur ve hiç değişmedi.
- *   sekiz ek  — dört açık, dört koyu; her biri bağımsız bir görünüm.
+ *   dört ek   — iki açık, iki koyu; her biri bağımsız bir görünüm. Liste
+ *               `theme-presets.json`'dan üretiliyor, buradan değil.
  *
  * Ek bir tema seçildiğinde köke İKİ öznitelik yazılıyor:
  *
@@ -33,64 +34,67 @@ import { ON_AYAR_KIMLIKLERI, onAyarModu, RealmsOnAyarId } from '../theme/realmsP
 /**
  * Görünüm tercihi.
  *
- * 'system' | 'light' | 'dark' ÜÇÜ DE ONAYLI TABAN GÖRÜNÜMDÜR — aralarındaki
- * tek fark telefonun ayarını izleyip izlemedikleri. Kökte 'system' hiçbir
- * şey yazmaz, 'light'/'dark' yalnızca `data-theme` yazar; ikisi de
- * `data-realm-preset` yazmaz, yani ek tema katmanı hiç devreye girmez.
- *
- * NEDEN ÜÇÜ DE DURUYOR. Bir ara yalnızca 'system' bırakılmıştı; o hâlde
- * telefonu koyu olan bir kullanıcı onaylı AÇIK görünümü hiçbir şekilde
- * seçemiyordu, üstelik daha önce açıkça "Koyu" demiş kullanıcı da onaylı
- * Gece yerine ek temalardan birine düşüyordu. İkisi de tercih kaybı.
+ * 'system' onaylı Anlora Realms görünümüdür: kökte hiçbir öznitelik durmaz,
+ * açık mı koyu mu olduğuna telefonun ayarı karar verir. Yanında bir zamanlar
+ * 'light' ve 'dark' de vardı; ikisi de aynı görünümü telefondan bağımsız
+ * sabitliyordu ve listeden kaldırıldılar — aynı görünümün üç kopyasıydılar.
+ * Geri kalanlar ek temalar: her biri kendi zemin/panel/metin/vurgu değerine
+ * sahip bağımsız bir görünüm.
  */
-export type TemaTercihi = 'system' | 'light' | 'dark' | RealmsOnAyarId;
+export type TemaTercihi = 'system' | RealmsOnAyarId;
 
 /**
- * Eski tema kayıtlarının karşılığı.
+ * KALDIRILAN EK TEMALARIN KARŞILIĞI.
  *
- * Uygulamada sırayla üç model yaşadı ve her birinin değerleri kullanıcıların
- * ayarlarında KAYITLI:
+ * Dört ek tema listeden çıkarıldı. Onları seçmiş bir kullanıcının ayarı
+ * telefonunda KAYITLI duruyor ve tanınmayan bir kimlik sessizce 'system'e
+ * düşerdi: koyu bir tema seçmiş kullanıcı, telefonu açık olduğu için bir
+ * sabah uygulamayı açık bulurdu.
+ *
+ * Bu yüzden her biri AYNI MODDA kalan, karakteri en yakın temaya bağlanıyor:
+ * sıcak olan sıcağa, soğuk olan soğuğa. Kullanıcı tam olarak seçtiği şeyi
+ * bulamıyor — o tema artık yok — ama açık/koyu tercihini ve rengin havasını
+ * koruyor.
+ */
+const KALDIRILAN_TEMA_KARSILIGI: Record<string, RealmsOnAyarId> = {
+  // Kadim Harita (sıcak altın/parşömen) -> Kızıl Şafak (sıcak)
+  'light-ancient-map': 'light-crimson-dawn',
+  // Orman Yemini (soğuk yeşil) -> Buz Kristali (soğuk)
+  'light-grove-oath': 'light-frost-crystal',
+  // Ejderha Köz (sıcak köz) -> Kızıl Gece (sıcak)
+  'dark-dragon-ember': 'dark-crimson-night',
+  // Demir Orman (soğuk demir/yeşil) -> Buz Nöbeti (soğuk)
+  'dark-iron-grove': 'dark-frost-watch'
+};
+
+/**
+ * Ayarlardan geçerli tema tercihini çözer; eski alanlar da hesaba katılır.
+ *
+ * Uygulamada sırayla dört model yaşadı ve her birinin değerleri
+ * kullanıcıların ayarlarında KAYITLI:
  *
  *   1. Tek listeli sekiz ön ayar   -> `theme`      ('deniz', 'komur', …)
  *   2. Mod + sekiz tema ailesi     -> `themeMode`  ('light' | 'dark' | 'system')
  *                                     `themeFamily` ('kizil-kale', …)
- *   3. Bugünkü dokuz seçenek       -> `themePreset`
+ *   3. Dokuz seçenek               -> `themePreset` ('light' | 'dark' | …)
+ *   4. Bugünkü beş seçenek         -> `themePreset`
  *
- * Hiçbir alan silinmiyor; yalnızca ilk okumada karşılığı hesaplanıyor. Eşleme
- * kullanıcının ASIL NİYETİNİ korumaya çalışıyor: açık bir görünüm seçmiş olan
- * açık kalsın, koyu seçmiş olan koyu kalsın. "Sistem" diyen sistemde kalır.
+ * Hiçbir alan silinmiyor; yalnızca ilk okumada karşılığı hesaplanıyor.
  *
- * Eşleme ek temalara DEĞİL, onaylı tabanın kendisine gidiyor: "Açık" demiş
- * kullanıcı onaylı parşömeni, "Koyu" demiş kullanıcı onaylı Gece'yi alıyor.
- * Ek temalardan birine yönlendirmek görünümü sessizce değiştirmek olurdu.
+ * ÜÇÜNCÜ MODELİN 'light'/'dark' TABAN SEÇENEKLERİ ARTIK 'system'. Onlar zaten
+ * bugünkü onaylı görünümün ta kendisiydi; tek farkları telefonun ayarını
+ * izlememeleriydi. Ek temalardan birine yönlendirmek görünümü sessizce
+ * değiştirmek olurdu — o yüzden eşleme tabanın kendisine gidiyor. Eski
+ * `theme` ve `themeMode` alanları da aynı sebeple aynı yere düşüyor.
  */
-const ESKI_TEMA_KARSILIGI: Record<string, TemaTercihi> = {
-  system: 'system',
-  light: 'light',
-  deniz: 'light',
-  kum: 'light',
-  gul: 'light',
-  sis: 'light',
-  lavanta: 'light',
-  dark: 'dark',
-  orman: 'dark',
-  komur: 'dark'
-};
-
-/** Ayarlardan geçerli tema tercihini çözer; eski alanlar da hesaba katılır. */
 export function cozTemayi(settings: UserSettings): TemaTercihi {
   const secili = settings.themePreset;
-  if (secili === 'system' || secili === 'light' || secili === 'dark') return secili;
   if (secili && ON_AYAR_KIMLIKLERI.includes(secili as RealmsOnAyarId)) {
     return secili as RealmsOnAyarId;
   }
-  // İkinci model: mod açıkça seçilmişse niyet ondan okunur.
-  if (settings.themeMode === 'light') return 'light';
-  if (settings.themeMode === 'dark') return 'dark';
-  if (settings.themeMode === 'system') return 'system';
-  // İlk model: tek listeli eski ön ayar.
-  const eski = settings.theme;
-  if (eski && ESKI_TEMA_KARSILIGI[eski]) return ESKI_TEMA_KARSILIGI[eski];
+  if (secili && KALDIRILAN_TEMA_KARSILIGI[secili]) {
+    return KALDIRILAN_TEMA_KARSILIGI[secili];
+  }
   return 'system';
 }
 
@@ -104,9 +108,6 @@ export function useTheme(settings: UserSettings): void {
 
     if (tema === 'system') {
       root.removeAttribute('data-theme');
-    } else if (tema === 'light' || tema === 'dark') {
-      // Onaylı taban görünüm, sabitlenmiş hâli: ek tema katmanı devreye girmez.
-      root.setAttribute('data-theme', tema);
     } else {
       const mod = onAyarModu(tema);
       if (!mod) {
