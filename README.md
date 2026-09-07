@@ -1,6 +1,6 @@
 # Anlora
 
-> **Heh, şimdi anlorum!**
+> **Words are power.**
 
 Anlora, İngilizce kelime öğrenmek için tasarlanmış bir web uygulamasıdır. **20.000 kelimeyi** Türkçe anlamları, anlam ayrımları (sense) ve çift dilli örnek cümlelerle sunar; aralıklı tekrar (SRS) motoruyla kelimelerin kalıcı olarak öğrenilmesini hedefler. Bütün veri pakete gömülüdür: uygulama çevrimdışı çalışır, çalışma zamanında hiçbir yapay zekâ isteği yapmaz.
 

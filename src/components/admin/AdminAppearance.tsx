@@ -116,7 +116,7 @@ export const AdminAppearance: React.FC = () => {
               type="text"
               value={branding.slogan || ''}
               onChange={e => setBranding({ ...branding, slogan: e.target.value })}
-              placeholder="Heh, şimdi anlorum!"
+              placeholder="Words are power."
               className={inputClass}
             />
           </Field>
