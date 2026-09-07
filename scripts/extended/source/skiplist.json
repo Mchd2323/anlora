@@ -1,6 +1,7 @@
 {
-  "_aciklama": "Kelime listesi Open English WordNet ve OpenSubtitles frekans listelerinden üretildi. Frekans listesi bazı satırlarda İngilizce sözcük değil, altyazı artığı ya da özel ad taşıyor. Böyle maddelere Türkçe karşılık ve örnek cümle yazmak uydurma içerik üretmek olurdu (talimat 59); bu yüzden hedeften çıkarılıyorlar. Anahtar madde başı, değer çıkarılma gerekçesidir.",
+  "_aciklama": "Kelime listesi Open English WordNet ve OpenSubtitles frekans listelerinden üretildi. Frekans listesi bazı satırlarda İngilizce sözcük değil, altyazı artığı ya da özel ad taşıyor. Böyle maddelere Türkçe karşılık ve örnek cümle yazmak uydurma içerik üretmek olurdu (talimat 59); bu yüzden hedeften çıkarılıyorlar. Listede ayrıca build_wordlist.py'deki müstehcen sözcük süzgecinden kaçmış maddeler de var: uygulama öğrencilere yönelik, bu kelimeler kart olarak öğretilmiyor. Anahtar madde başı, değer çıkarılma gerekçesidir.",
   "nuna": "İngilizce sözlük anlamı yok; altyazı frekans listesinden gelen özel ad ya da yabancı sözcük artığı.",
   "unnie": "İngilizce sözlük maddesi değil; Korece bir akrabalık hitabının altyazı frekans listesine karışmış hâli.",
-  "nagi": "İngilizce sözlük maddesi değil; altyazı frekans listesinden gelen Japonca özel ad artığı."
+  "nagi": "İngilizce sözlük maddesi değil; altyazı frekans listesinden gelen Japonca özel ad artığı.",
+  "masturbator": "Müstehcen sözcük süzgecinden kaçmış: türev biçim olduğu için VULGAR kümesindeki köke takılmadı. Uygulama öğrencilere yönelik; bu kelime kart olarak öğretilmiyor."
 }
