@@ -84,6 +84,8 @@ jobs:
         # koşuyu kırmızıya çevirmez, en kötü ihtimalle uyarı bırakır.
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          # Deneme basarisiz olursa kullanilabilir modelleri listelemek icin.
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           api="https://api.cloudflare.com/client/v4"
           yetki="Authorization: Bearer $CLOUDFLARE_API_TOKEN"
@@ -123,6 +125,11 @@ jobs:
             echo "::warning::Yapay zeka denemesi basarisiz. Worker ayakta ama Gemini cagrisi kart uretemedi."
             echo "Yapay zeka denemesi: BASARISIZ"
             echo "Yanit: $yanit"
+            # Basarisizsa kullanilabilir modelleri listele: 404'un nedenini
+            # ikinci bir tur beklemeden gormek icin.
+            MODELLER=$(curl -sS --max-time 30 "https://generativelanguage.googleapis.com/v1beta/models" -H "x-goog-api-key: $GEMINI_API_KEY" | python3 -c "import json,sys;d=json.load(sys.stdin);print(chr(10).join(m.get('name','') for m in d.get('models',[]) if 'generateContent' in (m.get('supportedGenerationMethods') or [])))" 2>/dev/null || echo '(model listesi alinamadi)')
+            echo "Kullanilabilir modeller:"
+            echo "$MODELLER"
           fi
 
           {
@@ -145,6 +152,11 @@ jobs:
               echo
               echo '```'
               echo "$yanit" | head -c 1500
+              echo '```'
+              echo
+              echo "Bu anahtarla kullanılabilen modeller:"
+              echo '```'
+              echo "$MODELLER"
               echo '```'
             fi
             echo

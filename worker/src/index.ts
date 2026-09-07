@@ -104,6 +104,84 @@ function jsonYanit(
   });
 }
 
+const GEMINI_KOK = 'https://generativelanguage.googleapis.com';
+
+/** Çözülen model, isolate ömrü boyunca yeniden sorulmaz. */
+let cozulmusModel: { surum: string; model: string } | null = null;
+
+/**
+ * Kullanılacak modeli API'ye sorarak bulur.
+ *
+ * NEDEN SABİT AD YAZILMIYOR. İlk sürüm `v1beta` altında `gemini-2.5-flash`
+ * adını sabit yazıyordu ve Gemini 404 döndürdü: model adları ve API sürümleri
+ * zamanla değişiyor, ayrıca her anahtarın eriştiği model kümesi aynı değil.
+ * Bir ad daha tahmin etmek aynı hatayı tekrarlamak olurdu. Bunun yerine
+ * "hangi modellerin var" diye soruluyor ve `generateContent` destekleyenler
+ * arasından seçiliyor.
+ *
+ * SIRALAMA: önce `prompts.ts`'teki tercih edilen ad (sunucu da onu
+ * kullanıyor, ikisi aynı kalsın), sonra herhangi bir "flash" modeli — hızlı
+ * ve ucuz olan o —, sonra `generateContent` destekleyen ilk model.
+ */
+/**
+ * Kullanılabilir adlar arasından hangisi seçilir?
+ *
+ * Ayrı ve saf tutuluyor ki ağ kurmadan sınanabilsin — 404'ü doğuran karar
+ * tam da buydu.
+ *
+ * Sıra: önce `prompts.ts`'teki tercih edilen ad (Express sunucusu da onu
+ * kullanıyor, iki dağıtım aynı modeli kullansın), sonra bir "flash" modeli
+ * (hızlı ve ucuz olan o), sonra elde ne varsa.
+ */
+export function modelSec(uygun: string[]): string {
+  return (
+    uygun.find(ad => ad === WORD_MODEL) ||
+    uygun.find(ad => ad.includes('flash') && !ad.includes('thinking')) ||
+    uygun[0]
+  );
+}
+
+async function modelCoz(apiKey: string): Promise<{ surum: string; model: string }> {
+  if (cozulmusModel) return cozulmusModel;
+
+  const hatalar: string[] = [];
+
+  for (const surum of ['v1beta', 'v1']) {
+    const yanit = await fetch(`${GEMINI_KOK}/${surum}/models`, {
+      headers: { 'x-goog-api-key': apiKey },
+    });
+
+    if (!yanit.ok) {
+      hatalar.push(`${surum}: HTTP ${yanit.status}`);
+      continue;
+    }
+
+    const veri = (await yanit.json()) as {
+      models?: Array<{ name?: string; supportedGenerationMethods?: string[] }>;
+    };
+
+    const uygun = (veri.models || [])
+      .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
+      .map(m => (m.name || '').replace(/^models\//, ''))
+      .filter(Boolean);
+
+    if (uygun.length === 0) {
+      hatalar.push(`${surum}: generateContent destekleyen model yok`);
+      continue;
+    }
+
+    cozulmusModel = { surum, model: modelSec(uygun) };
+    return cozulmusModel;
+  }
+
+  throw new Error(`Kullanılabilir model bulunamadı (${hatalar.join('; ')})`);
+}
+
+/** Tanı için: hangi model seçilmişti? */
+export function secilenModel(): string | null {
+  return cozulmusModel ? `${cozulmusModel.surum}/${cozulmusModel.model}` : null;
+}
+
 /**
  * Gemini'ye düz `fetch` ile bağlanan köprü.
  *
@@ -114,8 +192,10 @@ function jsonYanit(
 function geminiKoprusu(apiKey: string): AiGateway {
   return {
     async generateJson({ prompt, systemInstruction }) {
+      const { surum, model } = await modelCoz(apiKey);
+
       const yanit = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${WORD_MODEL}:generateContent`,
+        `${GEMINI_KOK}/${surum}/models/${model}:generateContent`,
         {
           method: 'POST',
           headers: {
@@ -134,7 +214,11 @@ function geminiKoprusu(apiKey: string): AiGateway {
 
       if (!yanit.ok) {
         const detay = await yanit.text();
-        throw new Error(`Gemini ${yanit.status}: ${detay.slice(0, 300)}`);
+        // Model adı hataya yazılıyor: 404 gördüğümüzde hangi adın
+        // denendiğini bilmek, ilk seferde eksik olan bilgiydi.
+        throw new Error(
+          `Gemini ${yanit.status} (${surum}/${model}): ${detay.slice(0, 300)}`
+        );
       }
 
       const veri = (await yanit.json()) as {
@@ -171,6 +255,9 @@ export default {
             sync: false,
             admin: false,
           },
+          // İlk yapay zekâ isteğinden sonra dolar. Hangi modelin seçildiğini
+          // görmek, 404 gibi hataları tanımanın en kısa yolu.
+          model: secilenModel(),
         },
         200,
         cors
