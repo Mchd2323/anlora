@@ -23,7 +23,23 @@ gerçekten karşılanan özellikleri çizer. Yani Worker'a bağlanan bir APK'da
 yapay zekâ çalışır, giriş düğmesi hiç görünmez — basıldığında çalışmayan bir
 düğme bırakmaktansa hiç göstermemek doğrusu.
 
-## Kurulum (tek seferlik, ~5 dakika)
+## İki kurulum yolu
+
+**A) Tarayıcıdan, GitHub Actions ile (önerilen).** Makinene hiçbir şey
+kurmadan biter; adımlar kök `README.md`'de ve aşağıda özetli.
+
+1. `https://aistudio.google.com/apikey` → anahtar al.
+2. Cloudflare hesabı aç → **My Profile → API Tokens → Create Token →
+   "Edit Cloudflare Workers"** şablonu → jetonu kopyala.
+3. GitHub deposunda **Settings → Secrets and variables → Actions → New
+   repository secret** ile iki gizli değer ekle: `CLOUDFLARE_API_TOKEN` ve
+   `GEMINI_API_KEY`.
+4. **Actions → Anlora AI Worker → Run workflow.** İş akışı dağıtır, anahtarı
+   yazar ve özet sayfasında adresi + sağlık yanıtını gösterir.
+
+**B) Kendi makinenden (Node 20+ gerekir).**
+
+## Kurulum (elle, tek seferlik, ~5 dakika)
 
 Gereken: bir Cloudflare hesabı (ücretsiz) ve bir Gemini API anahtarı
 ([aistudio.google.com](https://aistudio.google.com/apikey), ücretsiz).

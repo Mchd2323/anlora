@@ -1,0 +1,104 @@
+name: Anlora AI Worker
+
+# Anlora AI vekilini Cloudflare'a dağıtır.
+#
+# NEDEN CI'DAN. Worker'ı elle dağıtmak için makinede Node ve `wrangler`
+# gerekiyor. Bu depoyu kullanan kişinin APK'yı da Actions'tan üretmesi
+# bekleniyor; dağıtımı da buraya alınca kurulum tarayıcıdan çıkmadan bitiyor.
+#
+# GEREKEN İKİ GİZLİ DEĞER (Settings → Secrets and variables → Actions):
+#   CLOUDFLARE_API_TOKEN  — Cloudflare'da "Edit Cloudflare Workers" şablonuyla
+#                           üretilen jeton.
+#   GEMINI_API_KEY        — aistudio.google.com'dan alınan anahtar.
+#
+# İkisi de GitHub'da gizli kalır; ne depoya ne de APK'ya girer.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Gizli değerleri denetle
+        # Eksik jetonla dağıtım denemek, wrangler'ın anlaşılması güç bir
+        # kimlik hatasıyla düşmesine yol açıyor. Sorunu burada, adıyla
+        # söylemek daha yararlı.
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          GEMINI: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          eksik=0
+          if [ -z "$CF_TOKEN" ]; then
+            echo "::error::CLOUDFLARE_API_TOKEN tanımlı değil. Settings → Secrets and variables → Actions altından ekleyin."
+            eksik=1
+          fi
+          if [ -z "$GEMINI" ]; then
+            echo "::error::GEMINI_API_KEY tanımlı değil. https://aistudio.google.com/apikey adresinden alıp ekleyin."
+            eksik=1
+          fi
+          exit $eksik
+
+      - name: Bağımlılıkları kur
+        # `npm ci` değil: worker/ altında kilit dosyası tutulmuyor, tek
+        # bağımlılığı wrangler.
+        run: npm install --no-audit --no-fund
+        working-directory: worker
+
+      - name: Worker'ı dağıt
+        id: dagit
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          npx wrangler deploy 2>&1 | tee cikti.txt
+          adres=$(grep -o 'https://[^ ]*\.workers\.dev' cikti.txt | head -1)
+          echo "adres=$adres" >> "$GITHUB_OUTPUT"
+        working-directory: worker
+
+      - name: Gemini anahtarını Worker'a yaz
+        # Dağıtımdan SONRA: `secret put` var olan bir Worker'a yazar.
+        # Anahtar Cloudflare tarafında saklanır, istemciye hiç gitmez.
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          # Şablonla komut satırına gömmek yerine ortam değişkeni: komut
+          # satırı süreç listesinde görünür, ortam değişkeni görünmez.
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: printf '%s' "$GEMINI_API_KEY" | npx wrangler secret put GEMINI_API_KEY
+        working-directory: worker
+
+      - name: Adresi ve durumu bildir
+        # Dağıtımın çalıştığını varsaymak yerine ölçüyoruz: `/api/health`
+        # yanıtındaki `ai` alanı, anahtarın gerçekten yerine oturduğunu
+        # gösteren tek kanıt.
+        env:
+          ADRES: ${{ steps.dagit.outputs.adres }}
+        run: |
+          if [ -z "$ADRES" ]; then
+            echo "::warning::Adres çıktıdan okunamadı. Cloudflare panelinden (Workers & Pages → anlora-ai) alabilirsiniz."
+            exit 0
+          fi
+          durum=$(curl -sS --max-time 20 "$ADRES/api/health" || echo '(yanıt alınamadı)')
+          {
+            echo "### Anlora AI Worker dağıtıldı"
+            echo
+            echo "Adres:"
+            echo '```'
+            echo "$ADRES"
+            echo '```'
+            echo
+            echo "Sağlık yanıtı:"
+            echo '```json'
+            echo "$durum"
+            echo '```'
+            echo
+            echo '`"ai": true` görüyorsanız anahtar yerine oturmuş demektir.'
+            echo
+            echo "Sıradaki adım: bu adresi **Settings → Secrets and variables → Actions → Variables** sekmesinde \`API_BASE_URL\` adıyla kaydedin, sonra **Android APK** iş akışını çalıştırın."
+          } >> "$GITHUB_STEP_SUMMARY"
