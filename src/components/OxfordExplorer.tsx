@@ -10,6 +10,9 @@ import { aramaAnahtari } from '../utils/aramaAnahtari';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { RealmsIcon } from './ui/RealmsIcon';
 import { SahneSeridi } from './ui/SahneSeridi';
+import { SayfaAtlama } from './ui/SayfaAtlama';
+import { GorunumSecici, type Gorunum } from './ui/GorunumSecici';
+import { KelimeSatiri } from './KelimeSatiri';
 
 /**
  * Oxford 5000 gezgini.
@@ -147,6 +150,14 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
    * bellekte kalır, ikinci açılış bedava.
    */
   const [kaliplar, setKaliplar] = useState<WordCard[] | null>(null);
+
+  /*
+   * Liste mi kart mı? Varsayılan LİSTE: bu ekran bir sözlük ve sözlükte önce
+   * aranan kelime bulunur, sonra okunur. Kart görünümü tek tek incelemek
+   * için bir tık uzakta duruyor.
+   */
+  const [gorunum, setGorunum] = useState<Gorunum>('liste');
+  const [acikSatir, setAcikSatir] = useState<string | null>(null);
   const [kaliplarYukleniyor, setKaliplarYukleniyor] = useState(false);
   const [kalipSeviyesi, setKalipSeviyesi] = useState<Level | 'ALL'>('ALL');
 
@@ -455,6 +466,8 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
 
   return (
     <div className="space-y-6 pb-safe-nav max-w-[1180px] mx-auto animate-fadeIn">
+      {/* Uzun listede sayfanın başına/sonuna atlama; kısa sayfada çizilmez. */}
+      <SayfaAtlama />
       {/*
         BAŞLIK VE AÇIKLAMA.
 
@@ -804,21 +817,60 @@ export const OxfordExplorer: React.FC<OxfordExplorerProps> = ({
 
       {isListOpen && filteredWords.length > 0 ? (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-            {visibleWords.map(word => (
-              <WordCardComponent
-                key={word.id}
-                card={word}
-                isFavorite={favorites.includes(word.id)}
-                learningState={learningStates[word.id]}
-                onToggleFavorite={onToggleFavorite}
-                onToggleLearned={onToggleLearned}
-                onSetStatus={onSetStatus}
-                onOpenAddToCollection={onOpenAddToCollection}
-                onReportWord={onReportWord}
-              />
-            ))}
+          {/*
+            SEÇİCİ SOLDA DURUYOR, SAĞDA DEĞİL.
+
+            Sağa hizalıyken sayfanın sağ kenarındaki sabit "en üste / en alta"
+            düğmelerinin altında kalıyordu: ekran görüntüsünde "Kart"
+            seçeneğinin yarısı görünmüyordu. Sabit düğmeler sağ kenarda
+            kalmalı (baş parmağın doğal yeri), o hâlde taşınacak olan bu.
+          */}
+          <div className="flex items-center justify-between gap-2 px-1">
+            <GorunumSecici deger={gorunum} onDegis={setGorunum} />
+            <span className="text-[11px] font-semibold text-[var(--text-muted)]">
+              {filteredWords.length} kelime
+            </span>
           </div>
+
+          {gorunum === 'liste' ? (
+            <div className="gorsel-panel bg-[var(--surface)] rounded-2xl border border-[var(--border)] overflow-hidden">
+              {visibleWords.map(word => (
+                <KelimeSatiri
+                  key={word.id}
+                  card={word}
+                  acik={acikSatir === word.id}
+                  onDegistir={() => setAcikSatir(acikSatir === word.id ? null : word.id)}
+                >
+                  <WordCardComponent
+                    card={word}
+                    isFavorite={favorites.includes(word.id)}
+                    learningState={learningStates[word.id]}
+                    onToggleFavorite={onToggleFavorite}
+                    onToggleLearned={onToggleLearned}
+                    onSetStatus={onSetStatus}
+                    onOpenAddToCollection={onOpenAddToCollection}
+                    onReportWord={onReportWord}
+                  />
+                </KelimeSatiri>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+              {visibleWords.map(word => (
+                <WordCardComponent
+                  key={word.id}
+                  card={word}
+                  isFavorite={favorites.includes(word.id)}
+                  learningState={learningStates[word.id]}
+                  onToggleFavorite={onToggleFavorite}
+                  onToggleLearned={onToggleLearned}
+                  onSetStatus={onSetStatus}
+                  onOpenAddToCollection={onOpenAddToCollection}
+                  onReportWord={onReportWord}
+                />
+              ))}
+            </div>
+          )}
 
           {visibleCount < filteredWords.length && (
             <button

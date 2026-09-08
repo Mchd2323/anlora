@@ -32,6 +32,9 @@ import { formatPhonetic } from '../utils/phonetic';
 import { reportMissingWord } from '../services/usageReporter';
 import { RealmsIcon } from './ui/RealmsIcon';
 import { SahneSeridi } from './ui/SahneSeridi';
+import { SayfaAtlama } from './ui/SayfaAtlama';
+import { GorunumSecici, type Gorunum } from './ui/GorunumSecici';
+import { KelimeSatiri } from './KelimeSatiri';
 import {
   hasExtendedWord,
   getExtendedCard,
@@ -165,6 +168,14 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
    */
   const GORUNEN_SET_SINIRI = 3;
   const [setListesiAcik, setSetListesiAcik] = useState(false);
+
+  /*
+   * Liste mi kart mı? Varsayılan KART: kendi setinde kullanıcı genellikle
+   * kelimeyi aramaz, üzerinde çalışır. Liste görünümü set büyüdükçe
+   * değerleniyor ve bir tık uzakta.
+   */
+  const [gorunum, setGorunum] = useState<Gorunum>('kart');
+  const [acikSatir, setAcikSatir] = useState<string | null>(null);
   const [setAramasi, setSetAramasi] = useState('');
 
   const { gorunenSetler, gizliSetler } = useMemo(() => {
@@ -1329,6 +1340,8 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
   return (
     <div className="space-y-6 pb-safe-nav max-w-[1180px] mx-auto animate-fadeIn">
+      {/* Uzun listede sayfanın başına/sonuna atlama; kısa sayfada çizilmez. */}
+      <SayfaAtlama />
       {/* Top Banner: Kelime Setlerim */}
       {/*
         Sayfanın tek üst görseli: EJDERHA sahnesi. Ana Sayfa'daki "Kelime
@@ -1931,6 +1944,49 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
             {/* Words Grid or Empty State */}
             {filteredWords.length > 0 ? (
               <>
+              {/* Sola hizalı: sağ kenarda sabit duran "en üste / en alta"
+                  düğmelerinin altında kalmasın. */}
+              <div className="flex items-center justify-start px-1">
+                <GorunumSecici deger={gorunum} onDegis={setGorunum} />
+              </div>
+
+              {gorunum === 'liste' ? (
+                <div className="gorsel-panel bg-[var(--surface)] rounded-2xl border border-[var(--border)] overflow-hidden">
+                  {pencereKartlari.map(card => (
+                    <KelimeSatiri
+                      key={card.id}
+                      card={card}
+                      acik={acikSatir === card.id}
+                      onDegistir={() => setAcikSatir(acikSatir === card.id ? null : card.id)}
+                    >
+                      <WordCardComponent
+                        card={card}
+                        isFavorite={favorites.includes(card.id)}
+                        learningState={learningStates[card.id]}
+                        status={getUserWordStatus(card.id, learningStates)}
+                        onSetStatus={onSetWordStatus}
+                        onToggleFavorite={onToggleFavorite}
+                        onEditCustom={
+                          card.isCustom ? onOpenEditModal : sozlukKartiniKisisellestir
+                        }
+                        onDeleteCustom={
+                          card.isCustom
+                            ? onDeleteCustomWord
+                            : (id: string) => onRemoveWordFromCollection(id, activeDeck.id)
+                        }
+                        sozlukKarti={!card.isCustom}
+                        onOpenAddToCollection={onOpenAddToCollection}
+                      />
+                      <button
+                        onClick={() => onRemoveWordFromCollection(card.id, activeDeck.id)}
+                        className="mt-1.5 w-full py-1 text-[11px] font-semibold text-[var(--text-muted)] hover:text-[var(--danger)] text-center transition-colors hover:underline cursor-pointer"
+                      >
+                        Bu Setten Çıkar
+                      </button>
+                    </KelimeSatiri>
+                  ))}
+                </div>
+              ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {pencereKartlari.map((card) => {
                   const state = learningStates[card.id];
@@ -1985,6 +2041,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   );
                 })}
               </div>
+              )}
               {pencereKartlari.length < gorunenKartlar.length && (
                 <div ref={listeSonuRef} aria-hidden="true" className="h-px" />
               )}
