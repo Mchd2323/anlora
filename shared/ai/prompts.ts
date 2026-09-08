@@ -35,7 +35,6 @@ For each sense:
 - never use an example belonging to another sense
 - return natural Turkish translations of each example
 
-If the word has other common learner-relevant meanings, you may suggest them separately, but do not automatically add them.
 Do not overwhelm the learner with rare dictionary senses. Prioritize common contemporary English.`;
 }
 
@@ -57,6 +56,7 @@ Requirements:
 4. If context was supplied, prioritize the sense corresponding to the context sentence as the first sense!
 5. Provide top-level "turkishMeaning" (concise summary of primary senses, e.g. "ışık (n.), hafif (adj.)").
 6. Provide top-level "examples" containing EXACTLY 3 varied sentences illustrating the primary senses.
+7. Return ONLY the fields in the schema below. Do not add extra fields; every extra field is time the learner spends waiting.
 
 Return valid JSON with the following structure:
 {
@@ -86,16 +86,6 @@ Return valid JSON with the following structure:
     { "en": "string", "tr": "string" },
     { "en": "string", "tr": "string" },
     { "en": "string", "tr": "string" }
-  ],
-  "otherSuggestions": [
-    {
-      "id": "sugg-1",
-      "partOfSpeech": "string",
-      "turkishMeanings": ["string"],
-      "examples": [
-        { "en": "string", "tr": "string" }
-      ]
-    }
   ]
 }`;
 }

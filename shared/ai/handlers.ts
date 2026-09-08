@@ -20,10 +20,17 @@ export interface AiGateway {
   generateJson(input: { prompt: string; systemInstruction?: string }): Promise<string>;
 }
 
-/** Ucun HTTP karşılığı: durum kodu ve gövde. */
+/** Ucun HTTP karşılığı: durum kodu, gövde ve varsa tanı başlıkları. */
 export interface AiResult {
   status: number;
   body: Record<string, unknown>;
+  /**
+   * Gövdeye değil BAŞLIĞA yazılan tanı bilgisi.
+   *
+   * Kartın içine karışsaydı istemciye sızar ve kaydedilen veriye bulaşırdı;
+   * başlık yalnızca ölçüm yapanın göreceği yerde durur.
+   */
+  headers?: Record<string, string>;
 }
 
 /*
@@ -103,11 +110,25 @@ export async function handleGenerateWord(
     }
   }
 
+  /*
+   * DENEME SAYISI BİLDİRİLİYOR.
+   *
+   * Doğrulama düşerse kart BAŞTAN ürettiriliyor; yani ikinci deneme süreyi
+   * ikiye katlıyor. Dışarıdan bakınca bu görünmüyordu — kart geliyor, sadece
+   * geç geliyor. Ölçümde 22 saniyelik bir kart görüldü ve tek makul açıklama
+   * buydu, ama kanıt yoktu. Başlık o kanıtı veriyor.
+   */
+  const basliklar = { 'X-Anlora-Denemeler': String(attempts) };
+
   if (!finalCard) {
-    return { status: 500, body: { ...CARD_FAILURE, code: 'AI_VALIDATION_FAILED' } };
+    return {
+      status: 500,
+      body: { ...CARD_FAILURE, code: 'AI_VALIDATION_FAILED' },
+      headers: basliklar,
+    };
   }
 
-  return { status: 200, body: finalCard };
+  return { status: 200, body: finalCard, headers: basliklar };
 }
 
 /** Kullanıcının yazdığı anlamları tek tek denetler. */

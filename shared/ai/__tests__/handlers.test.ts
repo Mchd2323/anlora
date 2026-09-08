@@ -88,3 +88,46 @@ describe('worker ucu akisi', () => {
     expect((s.body as any).examples).toHaveLength(1);
   });
 });
+
+/**
+ * Deneme sayısı bildiriliyor mu?
+ *
+ * Doğrulama düşerse kart baştan ürettiriliyor ve süre ikiye katlanıyor.
+ * Dışarıdan bakınca bu görünmüyordu: kart geliyor, sadece geç geliyor.
+ */
+describe('handleGenerateWord deneme sayısını bildirir', () => {
+  const gecerliKart = (kelime: string) => JSON.stringify({
+    word: kelime,
+    turkishMeaning: 'toprak kokusu',
+    senses: [{
+      turkishMeanings: ['toprak kokusu'],
+      // Doğrulayıcı her örneğin kelimeyi geçirmesini şart koşuyor.
+      examples: [{ en: 'She loves the petrichor after rain.', tr: 'Yağmurdan sonraki toprak kokusunu sever.' }]
+    }],
+    examples: [{ en: 'The petrichor filled the air.', tr: 'Toprak kokusu havayı doldurdu.' }]
+  });
+
+  it('ilk denemede geçen kart için 1 bildirir', async () => {
+    const sonuc = await handleGenerateWord(
+      { word: 'petrichor' },
+      { generateJson: async () => gecerliKart('petrichor') }
+    );
+    expect(sonuc.status).toBe(200);
+    expect(sonuc.headers?.['X-Anlora-Denemeler']).toBe('1');
+  });
+
+  it('ilk deneme düşerse 2 bildirir — sürenin ikiye katlandığı yer burası', async () => {
+    let cagri = 0;
+    const sonuc = await handleGenerateWord(
+      { word: 'petrichor' },
+      {
+        generateJson: async () => {
+          cagri++;
+          return cagri === 1 ? 'bozuk json' : gecerliKart('petrichor');
+        }
+      }
+    );
+    expect(sonuc.status).toBe(200);
+    expect(sonuc.headers?.['X-Anlora-Denemeler']).toBe('2');
+  });
+});

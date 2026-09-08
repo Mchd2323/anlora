@@ -95,11 +95,12 @@ function corsBasliklari(request: Request, env: Env): Record<string, string> {
 function jsonYanit(
   govde: unknown,
   durum: number,
-  cors: Record<string, string>
+  cors: Record<string, string>,
+  ek: Record<string, string> = {}
 ): Response {
   return new Response(JSON.stringify(govde), {
     status: durum,
-    headers: { ...JSON_HEADERS, ...cors },
+    headers: { ...JSON_HEADERS, ...cors, ...ek },
   });
 }
 
@@ -536,7 +537,7 @@ export default {
           sonuc.status === 200
             ? { ...sonuc.body, isAiGenerated: true, unverified: true }
             : sonuc.body;
-        return jsonYanit(govdeSon, sonuc.status, cors);
+        return jsonYanit(govdeSon, sonuc.status, cors, sonuc.headers);
       }
 
       if (url.pathname === '/api/ai/validate-senses') {
