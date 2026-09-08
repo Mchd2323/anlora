@@ -73,6 +73,39 @@ jobs:
           npx vite build
           node scripts/build-sw.mjs
 
+      - name: Sunucu adresi pakete girdi mi?
+        # BU ADIM BİR HATADAN SONRA EKLENDİ.
+        #
+        # Bir APK, yapay zekâ SESSİZCE KAPALI olarak üretildi ve dağıtıldı.
+        # Sebep: iş akışı adres kutusu boş çalıştırıldı, `vars.API_BASE_URL`
+        # deposu değişkeni de tanımlı değildi. Sonuç, kullanıcının telefonunda
+        # "Bu kelime sözlükte yok, kendin yazabilirsin" — Anlora AI seçeneği
+        # hiç görünmüyor. Derlemenin hiçbir yerinde bunu söyleyen bir satır
+        # yoktu; başarı yeşil tik olarak göründü.
+        #
+        # Adres bir SIR DEĞİL (herkese açık bir uç) ama depo herkese açık
+        # olduğu için yine de değişkende tutuluyor, iş akışına gömülmüyor.
+        # Burada yapılan tek şey, gömülüp gömülmediğini SÖYLEMEK.
+        env:
+          ADRES: ${{ github.event.inputs.api_base_url || vars.API_BASE_URL }}
+        run: |
+          if [ -z "$ADRES" ]; then
+            echo "::warning::Sunucu adresi verilmedi. Bu APK TAMAMEN ÇEVRİMDIŞI: 20.000 kelimelik sözlük çalışır, Anlora AI çalışmaz. Adres istiyorsanız iş akışını 'Sunucu adresi' kutusunu doldurarak çalıştırın ya da API_BASE_URL depo değişkenini tanımlayın."
+            AI_DURUM='**Anlora AI: KAPALI** — pakete sunucu adresi girmedi.'
+          elif grep -rqF "$ADRES" dist/assets 2>/dev/null; then
+            echo "Sunucu adresi pakete girdi."
+            AI_DURUM='**Anlora AI: açık** — sunucu adresi pakete gömüldü.'
+          else
+            # Adres verildi ama üretilen dosyalarda yok: derleme onu almamış.
+            echo "::error::Sunucu adresi verildi ama üretilen pakette bulunamadı; Anlora AI yine kapalı olurdu."
+            exit 1
+          fi
+          {
+            echo "### Anlora APK"
+            echo
+            echo "$AI_DURUM"
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
