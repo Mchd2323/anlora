@@ -9,6 +9,8 @@
  * Saf işlevdir: ağ, dosya sistemi ya da çalışma ortamı bilgisi kullanmaz.
  */
 
+import { cumledeGeciyorMu } from './inflections';
+
 export function validateGeneratedWordCard(card: any, targetWord: string): boolean {
   if (!card || typeof card !== 'object') return false;
   const word = (card.word || targetWord || '').trim().toLowerCase();
@@ -124,8 +126,13 @@ export function validateGeneratedWordCard(card: any, targetWord: string): boolea
     if (matchesTemplate(ex.en || '')) {
       return false;
     }
-    // Örnek cümle hedef kelimeyi gerçekten içermeli; içermiyorsa örnek değildir.
-    if (word && !new RegExp(escapeForRegExp(word), 'i').test(ex.en || '')) {
+    /*
+     * Örnek cümle hedef kelimeyi gerçekten içermeli; içermiyorsa örnek
+     * değildir. ÇEKİMLİ BİÇİMLER DE SAYILIR: "run" için "She ran a marathon"
+     * geçerli bir örnektir. Düz alt dize araması düzensiz fiillerin tamamını
+     * reddediyordu (bkz. `inflections.ts`).
+     */
+    if (word && !cumledeGeciyorMu(ex.en || '', word)) {
       return false;
     }
   }
