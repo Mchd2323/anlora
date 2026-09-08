@@ -423,6 +423,18 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
                     </>
                   )}
                 </p>
+                {/*
+                  Marka metninden AYRI bir satır: yukarısı `branding` ile
+                  değiştirilebiliyor ve bu cümle orada kaybolmamalı. Sözlükte
+                  20.000 kelime var ama kullanıcının denk geldiği her kelime
+                  onların içinde olmayabilir; o durumda ne yapacağını burada
+                  öğreniyor.
+                */}
+                <p className="text-[var(--text-secondary)] text-[11px] mt-1">
+                  Sözlüğümüzde bulamadığın kelimeleri{' '}
+                  <strong className="font-bold text-[var(--primary)]">Anlora AI</strong>{' '}
+                  yardımıyla bulabilirsin.
+                </p>
               </div>
             </div>
           </div>

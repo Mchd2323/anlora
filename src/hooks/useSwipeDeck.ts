@@ -14,7 +14,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  *    kartı ekranın yarısına kadar sürüklemek zorunda kalmaz.
  * 4. Kapalı yönde direnç: desteninin sonundayken kart tamamen kilitli değil,
  *    lastik gibi az miktarda esner. Sınıra çarpıldığı hissedilir.
- * 5. `prefers-reduced-motion` açıksa çıkış animasyonu atlanır.
+ * 5. Eşik geçilince kart ANINDA değişir; bırakma sonrası bekleme yoktur.
  * 6. Düğme, bağlantı ve form alanları üzerinde başlayan dokunuşlar desteye
  *    HİÇ girmez. Sebebi ölçülmüş bir hatadır: parmak "Öğrendim" düğmesinin
  *    üzerinde 20 pikselden fazla kayınca deste yatay kilide geçip
@@ -48,8 +48,25 @@ const VELOCITY_MAX_AGE = 100;
 const AXIS_LOCK = 8;
 /** Kapalı yöne sürüklerken uygulanan sönümleme katsayısı. */
 const RESISTANCE = 0.3;
-/** Çıkış animasyonunun süresi; CSS ile aynı olmalı. */
-export const SWIPE_EXIT_MS = 200;
+/**
+ * Çıkış animasyonunun süresi; CSS ile aynı olmalı.
+ *
+ * SIFIR. Eskiden 200'dü ve kullanıcının şikâyeti tam olarak buydu: "parmakla
+ * kaydırma butonla tıklandığı gibi hızlı değil, hafifçe ağır kayıyor."
+ *
+ * ÖLÇÜM DEĞİL, KODUN KENDİSİ SÖYLÜYORDU. Parmak kalktığında kart 200 ms
+ * boyunca ekrandan uçuyor ve `onSwipe` ANCAK O BİTİNCE çağrılıyordu. Alttaki
+ * "önceki / sonraki" düğmeleri ise indeksi doğrudan değiştiriyor. Yani
+ * kaydırma, düğmeden tam olarak 200 ms yavaştı ve bu fark tasarımdandı --
+ * kartın uçup gittiğini göstermek için.
+ *
+ * Kullanıcı seçimi net koydu: ya düğme kadar hızlı olsun ya da özellik
+ * silinsin. Kaydırmanın kendisi silinmedi -- sürükleme sırasında kart hâlâ
+ * parmağı takip ediyor ve eşik geçilince yön kararı veriliyor. Kaldırılan
+ * şey yalnızca BIRAKTIKTAN SONRAKİ bekleme: kart artık parmak kalkar
+ * kalkmaz değişiyor.
+ */
+export const SWIPE_EXIT_MS = 0;
 
 export interface UseSwipeDeckOptions {
   /** Eşik aşıldığında çağrılır. */
@@ -100,10 +117,6 @@ export interface SwipeDeckState {
   };
 }
 
-function prefersReducedMotion(): boolean {
-  if (typeof window === 'undefined' || !window.matchMedia) return false;
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
 
 export function useSwipeDeck({
   onSwipe,
@@ -181,19 +194,19 @@ export function useSwipeDeck({
       activePointerRef.current = null;
       axisRef.current = 'undecided';
 
-      if (prefersReducedMotion()) {
-        setOffsetX(0);
-        onSwipe(direction);
-        return;
-      }
-
-      setExitDirection(direction);
-      exitTimerRef.current = window.setTimeout(() => {
-        onSwipe(direction);
-        setExitDirection(null);
-        setOffsetX(0);
-        exitTimerRef.current = null;
-      }, SWIPE_EXIT_MS);
+      /*
+       * Kart ANINDA değişiyor; zamanlayıcı yok.
+       *
+       * Burada iki dal vardı: `prefers-reduced-motion` açıkken anında,
+       * kapalıyken 200 ms beklemeli. İkincisi kaldırılınca ikisi aynı şeye
+       * indi ve ayrı tutmak, aynı davranışı iki kez yazmak olurdu.
+       *
+       * `exitDirection` bir daha hiç dolmuyor: onunla korunan "çıkış
+       * penceresinde ikinci kez ilerleme" hatası artık var olamıyor, çünkü
+       * o pencere yok.
+       */
+      setOffsetX(0);
+      onSwipe(direction);
     },
     [onSwipe, kareyiIptalEt]
   );

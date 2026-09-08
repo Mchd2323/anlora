@@ -260,93 +260,15 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
         <span>Çalışma Ayarları</span>
       </h3>
 
-      {/* Günlük hedefler */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)]">
-          <Target className="w-3.5 h-3.5 text-[var(--primary)]" />
-          <span>Günlük hedefler</span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <label className="block">
-            <span className="text-[11px] font-semibold text-[var(--text-secondary)] block mb-1.5">
-              Günlük tekrar hedefi: <b className="text-[var(--primary)]">{settings.dailyReviewGoal}</b>
-            </span>
-            <input
-              type="range"
-              min={5}
-              max={100}
-              step={5}
-              value={settings.dailyReviewGoal}
-              onChange={e => update('dailyReviewGoal', Number(e.target.value))}
-              className="w-full accent-[var(--primary)] cursor-pointer"
-            />
-          </label>
-
-          <label className="block">
-            <span className="text-[11px] font-semibold text-[var(--text-secondary)] block mb-1.5">
-              Günlük yeni kelime: <b className="text-[var(--primary)]">{settings.dailyNewWordsGoal}</b>
-            </span>
-            <input
-              type="range"
-              min={0}
-              max={40}
-              step={1}
-              value={settings.dailyNewWordsGoal}
-              onChange={e => update('dailyNewWordsGoal', Number(e.target.value))}
-              className="w-full accent-[var(--primary)] cursor-pointer"
-            />
-          </label>
-        </div>
-      </div>
-
       {/*
-        'Tercih edilen çalışma modu' ayarı KALDIRILDI.
+        GÖRÜNÜM EN ÜSTTE.
 
-        Çalışma ekranında zaten mod sekmeleri var; bu ayar yalnızca bir
-        dokunuş kazandırıyor ama karşılığında açıklanması gereken bir bölüm
-        ekliyordu. Oturum artık son kullanılan modu kendiliğinden hatırlıyor:
-        aynı fayda, ayar yok.
+        Bir zamanlar günlük hedeflerin ve telaffuz hızının altındaydı; tema
+        değiştirmek isteyen kullanıcı üç bloğu geçmek zorundaydı. Oysa
+        görünüm, ayarların içinde en sık dokunulanı ve etkisi anında görünen
+        tek ayar. Profil ekranında da bu panel artık istatistiklerin hemen
+        altında duruyor, yani "İstatistikler -> Görünüm" ardışık.
       */}
-      {/* Anahtarlar */}
-      <div className="space-y-2.5">
-        <label className="flex items-start gap-2.5 p-3 rounded-xl border border-[var(--border-light)] bg-[var(--surface-subtle)] cursor-pointer hover:bg-[var(--surface-soft)] transition-colors">
-          <input
-            type="checkbox"
-            checked={settings.autoPlayAudioOnCard}
-            onChange={e => update('autoPlayAudioOnCard', e.target.checked)}
-            className="mt-0.5 accent-[var(--primary)] cursor-pointer"
-          />
-          <span>
-            <span className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5">
-              <RealmsIcon name="audio" size={18} className="text-[var(--primary)]" />
-              Kart açılınca telaffuzu otomatik çal
-            </span>
-            <span className="text-[11px] text-[var(--text-secondary)]">
-              Çalışma sırasında her yeni kelime kendiliğinden seslendirilir.
-            </span>
-          </span>
-        </label>
-
-        <label className="flex items-start gap-2.5 p-3 rounded-xl border border-[var(--border-light)] bg-[var(--surface-subtle)] cursor-pointer hover:bg-[var(--surface-soft)] transition-colors">
-          <input
-            type="checkbox"
-            checked={settings.enableTypoTolerance}
-            onChange={e => update('enableTypoTolerance', e.target.checked)}
-            className="mt-0.5 accent-[var(--primary)] cursor-pointer"
-          />
-          <span>
-            <span className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5">
-              <Keyboard className="w-3.5 h-3.5 text-[var(--primary)]" />
-              Yazarken bir harflik hatayı hoş gör
-            </span>
-            <span className="text-[11px] text-[var(--text-secondary)]">
-              Yazdığın şey başka bir gerçek kelimeyse yine de yanlış sayılır.
-            </span>
-          </span>
-        </label>
-      </div>
-
       {/* Görünüm */}
       <div className="space-y-3 pt-2 border-t border-[var(--border-light)]">
         <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)]">
@@ -571,6 +493,93 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onChange
         hiçbir faydası olmayan, sadece kafa karıştıran bir bölüm. Sunucu
         açılırsa geri gelir; kod tarafı (pushNotifications) duruyor.
       */}
+      {/* Günlük hedefler */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)]">
+          <Target className="w-3.5 h-3.5 text-[var(--primary)]" />
+          <span>Günlük hedefler</span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <label className="block">
+            <span className="text-[11px] font-semibold text-[var(--text-secondary)] block mb-1.5">
+              Günlük tekrar hedefi: <b className="text-[var(--primary)]">{settings.dailyReviewGoal}</b>
+            </span>
+            <input
+              type="range"
+              min={5}
+              max={100}
+              step={5}
+              value={settings.dailyReviewGoal}
+              onChange={e => update('dailyReviewGoal', Number(e.target.value))}
+              className="w-full accent-[var(--primary)] cursor-pointer"
+            />
+          </label>
+
+          <label className="block">
+            <span className="text-[11px] font-semibold text-[var(--text-secondary)] block mb-1.5">
+              Günlük yeni kelime: <b className="text-[var(--primary)]">{settings.dailyNewWordsGoal}</b>
+            </span>
+            <input
+              type="range"
+              min={0}
+              max={40}
+              step={1}
+              value={settings.dailyNewWordsGoal}
+              onChange={e => update('dailyNewWordsGoal', Number(e.target.value))}
+              className="w-full accent-[var(--primary)] cursor-pointer"
+            />
+          </label>
+        </div>
+      </div>
+
+      {/*
+        'Tercih edilen çalışma modu' ayarı KALDIRILDI.
+
+        Çalışma ekranında zaten mod sekmeleri var; bu ayar yalnızca bir
+        dokunuş kazandırıyor ama karşılığında açıklanması gereken bir bölüm
+        ekliyordu. Oturum artık son kullanılan modu kendiliğinden hatırlıyor:
+        aynı fayda, ayar yok.
+      */}
+      {/* Anahtarlar */}
+      <div className="space-y-2.5">
+        <label className="flex items-start gap-2.5 p-3 rounded-xl border border-[var(--border-light)] bg-[var(--surface-subtle)] cursor-pointer hover:bg-[var(--surface-soft)] transition-colors">
+          <input
+            type="checkbox"
+            checked={settings.autoPlayAudioOnCard}
+            onChange={e => update('autoPlayAudioOnCard', e.target.checked)}
+            className="mt-0.5 accent-[var(--primary)] cursor-pointer"
+          />
+          <span>
+            <span className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+              <RealmsIcon name="audio" size={18} className="text-[var(--primary)]" />
+              Kart açılınca telaffuzu otomatik çal
+            </span>
+            <span className="text-[11px] text-[var(--text-secondary)]">
+              Çalışma sırasında her yeni kelime kendiliğinden seslendirilir.
+            </span>
+          </span>
+        </label>
+
+        <label className="flex items-start gap-2.5 p-3 rounded-xl border border-[var(--border-light)] bg-[var(--surface-subtle)] cursor-pointer hover:bg-[var(--surface-soft)] transition-colors">
+          <input
+            type="checkbox"
+            checked={settings.enableTypoTolerance}
+            onChange={e => update('enableTypoTolerance', e.target.checked)}
+            className="mt-0.5 accent-[var(--primary)] cursor-pointer"
+          />
+          <span>
+            <span className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+              <Keyboard className="w-3.5 h-3.5 text-[var(--primary)]" />
+              Yazarken bir harflik hatayı hoş gör
+            </span>
+            <span className="text-[11px] text-[var(--text-secondary)]">
+              Yazdığın şey başka bir gerçek kelimeyse yine de yanlış sayılır.
+            </span>
+          </span>
+        </label>
+      </div>
+
       {/* Telaffuz sesi */}
       <div className="space-y-2 pt-2 border-t border-[var(--border-light)]">
         <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)]">

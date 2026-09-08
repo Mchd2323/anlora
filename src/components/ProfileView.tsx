@@ -765,6 +765,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         )}
       </div>
 
+      {/* 3. Ayarlar — istatistiklerin hemen altında.
+           Görünüm bu panelin ilk bloğu; kullanıcı temayı değiştirmek için
+           sayfanın dibine inmek zorunda kalmıyor. */}
+      <SettingsPanel settings={settings} onChange={onUpdateSettings} />
+
       {/* 4. Çalışma Ayarları */}
       {onOpenAdminPanel && (
         <button
@@ -803,8 +808,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <span className="text-[var(--text-muted)] text-lg">→</span>
         </button>
       )}
-
-      <SettingsPanel settings={settings} onChange={onUpdateSettings} />
 
       {/* 5. Veri Yönetimi & Yedekleme */}
       <div className="parsomen-panel bg-[var(--surface)] rounded-2xl p-6 sm:p-7 border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-4">
