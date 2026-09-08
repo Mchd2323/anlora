@@ -372,12 +372,37 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     reader.readAsText(file);
   };
 
+  /**
+   * Tüm yerel veriyi siler.
+   *
+   * ONAY METNİ NEDEN DEĞİŞTİ. Eskiden "Bu işlem geri alınamaz!" diyordu ve bu
+   * DOĞRU DEĞİLDİ. Uygulamada Android Otomatik Yedekleme açık
+   * (`AndroidManifest.xml`, `allowBackup="true"`): Google, uygulamanın
+   * verisinin bir kopyasını kendi sunucusunda tutuyor ve kullanıcı uygulamayı
+   * silip yeniden kurduğunda o kopyayı geri yüklüyor.
+   *
+   * Sıfırlama yalnızca TELEFONDAKİ veriyi siler; buluttaki kopyaya
+   * dokunamaz — bir uygulamanın kendi bulut yedeğini silme yetkisi yok.
+   * Otomatik yedekleme günde bir civarı çalıştığı için, sıfırlayıp aynı gün
+   * uygulamayı kaldıran kullanıcı, kurulumda sıfırlamadan ÖNCEKİ hâlini geri
+   * alıyor. Gerçekte yaşandı ve "sıfırlama çalışmıyor" gibi göründü; oysa
+   * sıfırlama çalışmıştı, yedek onu geri getiriyordu.
+   *
+   * Yedeklemeyi kapatmak da bir seçenek ama bedeli ağır: telefonunu kaybeden
+   * kullanıcı aylarca biriktirdiği setleri geri getiremez. Doğrusu yedeği
+   * açık tutup kullanıcıya DOĞRUYU söylemek.
+   */
   const handleResetData = () => {
-    if (
-      confirm(
-        'Tüm yerel ilerlemenizi ve özel kelimelerinizi sıfırlamak istediğinize emin misiniz? Bu işlem geri alınamaz!'
-      )
-    ) {
+    const onay =
+      'Bu telefondaki tüm ilerlemen ve kendi eklediğin kelimeler silinecek.\n\n' +
+      'DİKKAT: Google yedeklemesi açık. Uygulamayı silip yeniden kurarsan ' +
+      'Google, sıfırlamadan ÖNCEKİ yedeği geri yükleyebilir — sıfırlama ' +
+      'yalnızca bu telefonu temizler, buluttaki kopyaya dokunamaz.\n\n' +
+      'Buluttaki kopyayı da silmek için: uygulamayı kaldır, sonra ' +
+      'Google One > Depolama > Cihaz yedekleri > Anlora > sil.\n\n' +
+      'Devam edilsin mi?';
+
+    if (confirm(onay)) {
       localStorage.clear();
       window.location.reload();
     }

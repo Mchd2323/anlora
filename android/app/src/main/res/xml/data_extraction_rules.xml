@@ -18,6 +18,18 @@
   DİKKAT: Sunucu ve hesap sistemi ileride açılırsa bu karar yeniden
   düşünülmeli. O gün depoda yeniden oturum jetonu olacak; en azından
   jetonun tutulduğu anahtar yedekten çıkarılmalı.
+
+  BİLİNEN YAN ETKİ — "TÜM VERİLERİ SIFIRLA" UNINSTALL'I AŞMAZ.
+  Uygulama içindeki sıfırlama yalnızca telefondaki veriyi siler; Google'ın
+  sunucusundaki kopyaya dokunamaz, çünkü bir uygulamanın kendi bulut yedeğini
+  silme yetkisi yoktur. Otomatik yedekleme günde bir civarı çalıştığından,
+  sıfırlayıp aynı gün uygulamayı kaldıran kullanıcı, yeniden kurduğunda
+  sıfırlamadan ÖNCEKİ hâlini geri alır. Gerçekte yaşandı.
+
+  Bu bir kusur değil, bu kararın bedeli: yedeği açık tutmanın karşılığı,
+  sıfırlamanın cihazla sınırlı kalması. Kullanıcıya söylenmesi gereken şey
+  `ProfileView.handleResetData` onay metninde duruyor — buluttaki kopyayı
+  silmenin yolu Google One > Depolama > Cihaz yedekleri.
 -->
 <data-extraction-rules>
     <!--
