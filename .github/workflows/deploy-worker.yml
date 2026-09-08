@@ -120,14 +120,30 @@ jobs:
           # hazirliyor" dedi. Ikisi de olculebilir seyler; her dagitimda
           # olculup ozete yaziliyorlar ki bir sonraki degisikligin gercekten
           # ise yarayip yaramadigi tartisma konusu olmasin.
+          # IKI CAGRI, CUNKU BIRI SORUYU CEVAPLAMIYOR.
+          #
+          # Ilk cagri SOGUK: Worker kopyasi yeni ayaga kalkmis, calisan model
+          # onbellegi bos ve Gemini'nin model listesi cekiliyor. Ikinci cagri
+          # SICAK: model biliniyor, yalnizca uretim suresi kaliyor.
+          # Tek olcum bu ikisini birbirine karistiriyor ve "yavas" sikayetinin
+          # kaynagi kesfe mi uretime mi ait, soylenemiyordu.
+          istek() {
+            curl -sS --max-time 90 -X POST "$ADRES/api/ai/generate-word" \
+              -H 'Content-Type: application/json' -d "{\"word\":\"$1\"}" || echo ''
+          }
+
           basla=$(date +%s%3N)
-          yanit=$(curl -sS --max-time 90 -X POST "$ADRES/api/ai/generate-word" \
-            -H 'Content-Type: application/json' \
-            -d '{"word":"serendipity"}' || echo '')
+          yanit=$(istek serendipity)
           bitir=$(date +%s%3N)
-          SURE_MS=$((bitir - basla))
+          SOGUK_MS=$((bitir - basla))
+
+          basla=$(date +%s%3N)
+          ikinci=$(istek petrichor)
+          bitir=$(date +%s%3N)
+          SICAK_MS=$((bitir - basla))
+          SURE_MS="$SICAK_MS"
+          echo "Soguk cagri: ${SOGUK_MS} ms | Sicak cagri: ${SICAK_MS} ms"
           ORNEKLER=$(printf '%s' "$yanit" | python3 -c "import json,sys;d=json.load(sys.stdin);print('ust duzey: '+str(len(d.get('examples',[])))+' | anlam basina: '+(', '.join(str(len(s.get('examples',[]))) for s in d.get('senses',[])) or 'anlam yok'))" 2>/dev/null || echo '(okunamadi)')
-          echo "Sure: ${SURE_MS} ms"
           echo "Ornek sayisi: $ORNEKLER"
           if printf '%s' "$yanit" | grep -q '"turkishMeaning"'; then
             AI_SONUC="çalışıyor — örnek kart üretildi"
@@ -175,10 +191,15 @@ jobs:
             echo
             echo "| Ölçüm | Değer |"
             echo "| --- | --- |"
-            echo "| Kart üretme süresi | ${SURE_MS} ms |"
+            echo "| İlk kart (soğuk: model keşfi dahil) | ${SOGUK_MS} ms |"
+            echo "| Sonraki kart (sıcak: yalnızca üretim) | ${SICAK_MS} ms |"
             echo "| Örnek cümle sayısı | ${ORNEKLER} |"
             echo
             echo 'Anlam başına **3** bekleniyor; 2 görürsen istem geri gerilemiş demektir.'
+            echo
+            echo 'Sağlık yanıtındaki `dusunmeKapali` alanı: `true` ise düşünme aşaması'
+            echo 'gerçekten kapatıldı; `false` ise model bu alanı reddetti ve her kart'
+            echo 'için iki istek gidiyor — o hâlde kapatma işe yaramıyor demektir.'
             if [ "${AI_SONUC#ÇALIŞMIYOR}" != "$AI_SONUC" ]; then
               echo
               echo '```'

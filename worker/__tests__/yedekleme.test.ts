@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { _onbellegiBosalt, geminiKoprusu, secilenModel } from '../src/index';
+import { _onbellegiBosalt, dusunmeDurumu, geminiKoprusu, secilenModel } from '../src/index';
 
 /**
  * Model yedeklemesi.
@@ -248,6 +248,9 @@ describe('geminiKoprusu yedeklemesi', () => {
     expect(govdeler).toHaveLength(2);
     expect(govdeler[0]).toContain('thinkingConfig');
     expect(govdeler[1]).not.toContain('thinkingConfig');
+    // Sağlık yanıtı bunu bildirmeli: kapatma işe yaramadıysa dışarıdan
+    // görülemiyordu, çünkü her iki hâlde de kart geliyor.
+    expect(dusunmeDurumu()).toBe(false);
   });
 
   it('normal akista tek istek gider ve dusunme kapali olur', async () => {
@@ -266,6 +269,7 @@ describe('geminiKoprusu yedeklemesi', () => {
 
     expect(govdeler).toHaveLength(1);
     expect(govdeler[0]).toContain('"thinkingBudget":0');
+    expect(dusunmeDurumu()).toBe(true);
   });
 
   it('400 alan onbellekli model onbellekte kalir', async () => {

@@ -175,6 +175,24 @@ export function secilenModel(): string | null {
   return calisanModel ? `${calisanModel.surum}/${calisanModel.model}` : null;
 }
 
+/**
+ * Düşünme aşaması gerçekten kapatılabildi mi?
+ *
+ * NEDEN ÖLÇÜLÜYOR. `thinkingConfig` her modelde geçerli değil; tanımayan
+ * model 400 döndürüyor ve `modeleSor` aynı isteği alansız tekrarlıyor. O
+ * durumda kapatma HİÇ İŞE YARAMIYOR ve üstelik her kart için İKİ istek
+ * gidiyor — yani beklenenin tersine yavaşlıyor.
+ *
+ * Dışarıdan bakınca ikisi ayırt edilemiyordu: her iki hâlde de kart geliyor.
+ * `null` "henüz kart üretilmedi", `true` "kapatıldı", `false` "model alanı
+ * reddetti, alansız gönderildi".
+ */
+let dusunmeKapatildi: boolean | null = null;
+
+export function dusunmeDurumu(): boolean | null {
+  return dusunmeKapatildi;
+}
+
 /** Bu anahtarla hangi sürüm ve hangi adaylar var? Yalnızca listeyi getirir. */
 async function adaylariGetir(apiKey: string): Promise<{ surum: string; adaylar: string[] }> {
   const hatalar: string[] = [];
@@ -281,6 +299,11 @@ async function modeleSor(
   let yanit = await gonder(true);
   if (yanit.status === 400) {
     yanit = await gonder(false);
+    // Yalnızca alansız istek BAŞARILI olduysa "model bu alanı tanımıyor"
+    // sonucuna varılır; ikisi de düşerse hata isteğin kendisine aittir.
+    if (yanit.ok) dusunmeKapatildi = false;
+  } else if (yanit.ok) {
+    dusunmeKapatildi = true;
   }
 
   if (!yanit.ok) {
@@ -327,6 +350,7 @@ async function modeleSor(
  */
 export function _onbellegiBosalt(): void {
   calisanModel = null;
+  dusunmeKapatildi = null;
 }
 
 /**
@@ -438,6 +462,7 @@ export default {
           // İlk yapay zekâ isteğinden sonra dolar. Hangi modelin seçildiğini
           // görmek, 404 gibi hataları tanımanın en kısa yolu.
           model: secilenModel(),
+          dusunmeKapali: dusunmeDurumu(),
         },
         200,
         cors
