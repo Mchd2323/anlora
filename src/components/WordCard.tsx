@@ -20,6 +20,16 @@ interface WordCardProps {
   onToggleLearned?: (id: string) => void;
   onSetStatus?: (id: string, status: 'learned' | 'learning' | 'unseen') => void;
   onDeleteCustom?: (id: string) => void;
+  /**
+   * Bu kart paylaşılan sözlükten mi geliyor?
+   *
+   * İki düğmenin NE YAPTIĞINI değiştirmez -- onu çağıran belirliyor -- ama ne
+   * SÖYLEDİĞİNİ değiştirir. Sözlük kaydı silinemez ve düzenlenemez: o kayıt
+   * bütün kullanıcılarda aynı. Orada çöp kutusu kelimeyi setten çıkarır,
+   * kalem ise kişisel bir kopya çıkarıp onu açar. "Kartı Sil" yazmak
+   * yapılmayan bir şeyi vaat etmek olurdu.
+   */
+  sozlukKarti?: boolean;
   onEditCustom?: (card: WordCardType) => void;
   onOpenAddToCollection?: (card: WordCardType) => void;
   /**
@@ -56,6 +66,7 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
   onToggleLearned,
   onSetStatus,
   onDeleteCustom,
+  sozlukKarti,
   onEditCustom,
   onOpenAddToCollection,
   onReportWord,
@@ -282,16 +293,23 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
               />
             </button>
 
-            {/* Custom Card Editing */}
-            {card.isCustom && (
-              <>
+            {/*
+              DÜZENLE VE SİL.
+
+              Bir zamanlar bu blok `card.isCustom` koşuluna bağlıydı ve
+              sözlükten sete eklenen kelimelerde iki düğme birden yok
+              oluyordu. Koşul kaldırıldı: düğmelerin VARLIĞI karta değil,
+              çağıranın bir işlev verip vermediğine bağlı. Sözlük kartında
+              ne yapacaklarını `CollectionsView` belirliyor.
+            */}
+            <>
                 {onEditCustom && (
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       onEditCustom(card);
                     }}
-                    title="Kartı Düzenle"
+                    title={sozlukKarti ? 'Kendi kopyanı çıkar ve düzenle' : 'Kartı Düzenle'}
                     className="p-1.5 text-[var(--text-muted)] hover:text-[var(--primary)] hover:bg-[var(--primary-soft)] rounded-lg transition-colors cursor-pointer"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
@@ -301,18 +319,20 @@ const WordCardComponentImpl: React.FC<WordCardProps> = ({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (confirm(`"${card.word}" kelime kartını silmek istediğinize emin misiniz?`)) {
+                      const soru = sozlukKarti
+                        ? `"${card.word}" bu setten çıkarılsın mı? Sözlükten silinmez, istediğinde yeniden ekleyebilirsin.`
+                        : `"${card.word}" kelime kartını silmek istediğinize emin misiniz?`;
+                      if (confirm(soru)) {
                         onDeleteCustom(card.id);
                       }
                     }}
-                    title="Kartı Sil"
+                    title={sozlukKarti ? 'Bu setten çıkar' : 'Kartı Sil'}
                     className="p-1.5 text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger-soft)] rounded-lg transition-colors cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 )}
-              </>
-            )}
+            </>
           </div>
         </div>
 

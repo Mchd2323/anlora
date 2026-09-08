@@ -348,6 +348,40 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   const importModalRef = useModalA11y(showImport && !!activeDeck, () => setShowImport(false));
 
   // Words in the active deck
+  /*
+   * SÖZLÜK KELİMESİNİ DÜZENLEME VE SETTEN ÇIKARMA.
+   *
+   * ÖLÇÜLEN SORUN. Kullanıcı sete bir kelime ekliyor ve kartın üstünde
+   * "Kartı Düzenle" ile "Kartı Sil" bulunmuyordu. Sebep: o iki düğme
+   * `card.isCustom` koşuluna bağlıydı ve sözlükte BULUNAN bir kelime sete
+   * kendi kaydı olarak değil, PAYLAŞILAN sözlük kaydı olarak giriyor. Yani
+   * kullanıcının kendi yazdığı kelimede düğmeler vardı, sözlükten seçtiği
+   * kelimede yoktu — arada bir fark olduğu ekranda hiçbir yerde yazmıyordu.
+   *
+   * Sözlük kaydının kendisi düzenlenemez ve silinemez: o kayıt bütün
+   * kullanıcılarda aynı ve pakete gömülü. Bu yüzden iki düğme sözlük
+   * kartında şunu yapıyor:
+   *
+   *   Düzenle -> kartın KİŞİSEL BİR KOPYASI çıkarılır, set o kopyaya
+   *              geçirilir ve düzenleme penceresi kopya üzerinde açılır.
+   *              Paylaşılan sözlüğe dokunulmaz.
+   *   Sil     -> kelime yalnızca BU SETTEN çıkarılır. Sözlükten silmek
+   *              anlamına gelmez ve onay metni bunu açıkça söyler.
+   */
+  const sozlukKartiniKisisellestir = useCallback((card: WordCard) => {
+    if (!activeDeck) return;
+    const kopya: WordCard = {
+      ...card,
+      id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      isCustom: true,
+      sourceType: 'custom',
+      dateAdded: new Date().toISOString().slice(0, 10)
+    };
+    onAddCustomWord(kopya, activeDeck.id, card.sourceContext);
+    onRemoveWordFromCollection(card.id, activeDeck.id);
+    onOpenEditModal?.(kopya);
+  }, [activeDeck, onAddCustomWord, onRemoveWordFromCollection, onOpenEditModal]);
+
   const activeDeckWords = useMemo(() => {
     if (!activeDeck) return [];
     const deckWordIds = memberships
@@ -413,7 +447,24 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
       }
 
       default:
-        return cards;
+        /*
+         * VARSAYILAN SIRA: SON EKLENEN EN ÜSTTE.
+         *
+         * Önce üyelik dizisinin kendi sırası dönüyordu, yani en eski kelime
+         * başta, yeni eklenen en sonda. Kullanıcının şikâyeti tam olarak
+         * buydu: her kelime eklemesinden sonra onu görmek için sayfanın
+         * dibine inmek gerekiyordu — üstelik set büyüdükçe daha da aşağı.
+         *
+         * Eklemenin hangi yoldan yapıldığı fark etmiyor (tekli, toplu,
+         * metinden yakalama, yeni set): hepsi bir üyelik kaydı yazıyor ve
+         * sıra o kaydın zamanından geliyor. `addedAt` tam ISO damgası, yani
+         * aynı gün eklenen kelimeler de doğru sırada.
+         */
+        return [...cards].sort((a, b) =>
+          String(membershipDate.get(b.id) || '').localeCompare(
+            String(membershipDate.get(a.id) || '')
+          )
+        );
     }
   }, [activeDeck, memberships, customWords, oxfordWords, learningStates]);
 
@@ -1912,8 +1963,15 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                         status={getUserWordStatus(card.id, learningStates)}
                         onSetStatus={onSetWordStatus}
                         onToggleFavorite={onToggleFavorite}
-                        onEditCustom={card.isCustom ? onOpenEditModal : undefined}
-                        onDeleteCustom={card.isCustom ? onDeleteCustomWord : undefined}
+                        onEditCustom={
+                          card.isCustom ? onOpenEditModal : sozlukKartiniKisisellestir
+                        }
+                        onDeleteCustom={
+                          card.isCustom
+                            ? onDeleteCustomWord
+                            : (id: string) => onRemoveWordFromCollection(id, activeDeck.id)
+                        }
+                        sozlukKarti={!card.isCustom}
                         onOpenAddToCollection={onOpenAddToCollection}
                       />
 

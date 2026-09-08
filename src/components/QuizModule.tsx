@@ -98,10 +98,12 @@ type StatusFilter = 'ALL' | 'LEARNING' | 'LEARNED';
  * Sınavda seçilebilen soru sayıları.
  *
  * Liste burada duruyor ki hem açılır menü hem de ileride başka bir yer aynı
- * kaynaktan okusun. En küçük değer 2: havuzun alt sınırı olan dört kelimenin
- * altına inmiyor, yani hızlı bir deneme sınavı da üretilebiliyor.
+ * kaynaktan okusun.
+ *
+ * En küçük değer 5. Bir ara 2 de vardı ve kaldırıldı: iki soruluk bir sınav
+ * ölçüm sayılmaz, listeyi uzatmaktan başka işe yaramıyordu.
  */
-const SORU_SAYILARI = [2, 5, 10, 15, 20, 30, 50, 75, 100] as const;
+const SORU_SAYILARI = [5, 10, 15, 20, 30, 50, 75, 100] as const;
 
 export const QuizModule: React.FC<QuizModuleProps> = ({
   initialCollectionId,
