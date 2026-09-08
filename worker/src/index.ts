@@ -243,17 +243,45 @@ async function modeleSor(
   prompt: string,
   systemInstruction?: string
 ): Promise<{ durum: number; metin: string; detay: string }> {
-  const yanit = await fetch(`${GEMINI_KOK}/${surum}/models/${model}:generateContent`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
-    body: JSON.stringify({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      ...(systemInstruction
-        ? { systemInstruction: { parts: [{ text: systemInstruction }] } }
-        : {}),
-      generationConfig: { responseMimeType: 'application/json' },
-    }),
-  });
+  /*
+   * DÜŞÜNME AŞAMASI KAPATILIYOR.
+   *
+   * Gemini'nin 2.5 ve sonrası flash modelleri, istenmese de önce bir "düşünme"
+   * adımı çalıştırıyor ve ilk simge gelene kadar geçen süre buna gidiyor.
+   * Bizim istediğimiz şey akıl yürütme değil, BİÇİMİ BELLİ bir sözlük kaydı:
+   * anlamlar, tür, örnek cümleler. Bunun için ayrı bir düşünme adımı, kartın
+   * kalitesine görülür bir şey katmadan bekleme süresine ekleniyor.
+   *
+   * `thinkingBudget: 0` o adımı kapatır.
+   *
+   * TANIMAYAN MODEL OLABİLİR. Alan her modelde geçerli değil; tanımayan model
+   * 400 INVALID_ARGUMENT döner. Bu kodda 400 "istek hatası" sayılıyor ve
+   * SIRADAKİ MODEL HİÇ DENENMEDEN fırlatılıyor (aşağıdaki `istekHatasi`) —
+   * yani alanı körlemesine eklemek, tanımayan bir modele düşüldüğü anda yapay
+   * zekâyı tamamen durdururdu. Bu yüzden 400 alınırsa aynı model alansız bir
+   * kez daha denenir. Ek çağrının bedeli yalnızca gerçekten 400 alındığında
+   * ödenir; normal akışta tek istek gider.
+   */
+  const gonder = (dusunmeyiKapat: boolean) =>
+    fetch(`${GEMINI_KOK}/${surum}/models/${model}:generateContent`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        ...(systemInstruction
+          ? { systemInstruction: { parts: [{ text: systemInstruction }] } }
+          : {}),
+        generationConfig: {
+          responseMimeType: 'application/json',
+          ...(dusunmeyiKapat ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
+        },
+      }),
+    });
+
+  let yanit = await gonder(true);
+  if (yanit.status === 400) {
+    yanit = await gonder(false);
+  }
 
   if (!yanit.ok) {
     return { durum: yanit.status, metin: '', detay: (await yanit.text()).slice(0, 300) };

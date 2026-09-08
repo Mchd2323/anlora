@@ -53,10 +53,10 @@ Requirements:
    - "shortExplanationTr": short Turkish explanation (e.g., "Ağırlığı az olan" or "Görüş sağlayan aydınlık")
    - "usageNoteTr": a short helpful note in Turkish explaining when/how this sense is used
    - "cefr": CEFR level for this specific sense
-   - "examples": 2 natural, real-world English example sentences showing EXACTLY this sense (NEVER mixed with other senses) with fluent Turkish translations ("en" and "tr").
+   - "examples": EXACTLY 3 natural, real-world English example sentences showing EXACTLY this sense (NEVER mixed with other senses) with fluent Turkish translations ("en" and "tr"). Three is a hard requirement, not a suggestion.
 4. If context was supplied, prioritize the sense corresponding to the context sentence as the first sense!
 5. Provide top-level "turkishMeaning" (concise summary of primary senses, e.g. "ışık (n.), hafif (adj.)").
-6. Provide top-level "examples" containing 2-3 varied sentences illustrating the primary senses.
+6. Provide top-level "examples" containing EXACTLY 3 varied sentences illustrating the primary senses.
 
 Return valid JSON with the following structure:
 {
@@ -77,11 +77,13 @@ Return valid JSON with the following structure:
       "cefr": "A1 | A2 | B1 | B2 | C1 | C2",
       "examples": [
         { "en": "string", "tr": "string" },
+        { "en": "string", "tr": "string" },
         { "en": "string", "tr": "string" }
       ]
     }
   ],
   "examples": [
+    { "en": "string", "tr": "string" },
     { "en": "string", "tr": "string" },
     { "en": "string", "tr": "string" }
   ],
@@ -114,7 +116,7 @@ Your tasks:
      * "WARNING": The meaning is plausible or possible in some contexts, but ambiguous.
      * "INVALID": The meaning is completely wrong (e.g. "run" -> "okumak" or "light" -> "yürümek").
    - If "INVALID" or "WARNING", provide "aiWarningNote" and "suggestedCorrection" in Turkish without overwriting the user's text.
-   - Generate 2 high-quality, natural, modern English example sentences that illustrate EXACTLY this sense (never an example of a different part of speech), with natural Turkish translations.
+   - Generate EXACTLY 3 high-quality, natural, modern English example sentences that illustrate EXACTLY this sense (never an example of a different part of speech), with natural Turkish translations.
 3. If there is another very common learner meaning that the user has NOT included, you may include it under "additionalSuggestions" (1-2 max).
 4. Preserve the exact client id of each sense.`;
 }
@@ -143,6 +145,7 @@ Return valid JSON with structure:
       "aiWarningNote": "string or null",
       "suggestedCorrection": "string or null",
       "examples": [
+        { "en": "string", "tr": "string" },
         { "en": "string", "tr": "string" },
         { "en": "string", "tr": "string" }
       ]

@@ -206,7 +206,66 @@ describe('geminiKoprusu yedeklemesi', () => {
       geminiKoprusu('anahtar').generateJson({ prompt: 'x' })
     ).rejects.toThrow(/400.*input token count/s);
 
-    expect(cagrilar).toHaveLength(1);
+    /*
+     * ÖLÇÜT ÇAĞRI SAYISI DEĞİL, DENENEN MODEL SAYISI.
+     *
+     * Aynı model 400'de iki kez çağrılır: ilk istek `thinkingConfig` taşır,
+     * o alanı tanımayan bir modele düşülmüş olabileceği için ikinci istek
+     * alansız gider (bkz. `modeleSor`). Testin koruduğu davranış bu değil —
+     * korunan şey, isteğin kendisi hatalıyken SIRADAKİ MODELE geçilmemesi.
+     */
+    expect(new Set(cagrilar).size).toBe(1);
+    expect(cagrilar[0]).toBe('gemini-flash-latest');
+  });
+
+  it('thinkingConfig 400 verirse ayni model alansiz bir kez daha denenir', async () => {
+    /*
+     * Düşünme aşamasını kapatan alanı her model tanımıyor; tanımayan model
+     * 400 döner. Bu kodda 400 "istek hatası" sayılıp sıradaki model hiç
+     * denenmeden fırlatıldığı için, alanı körlemesine eklemek yapay zekâyı
+     * tamamen durdururdu. Alansız ikinci deneme o tuzağı kapatıyor.
+     */
+    const govdeler: string[] = [];
+    const sahte = vi.fn(async (url: string, secenek?: any) => {
+      if (url.includes('/models?') || url.endsWith('/models')) {
+        return { ok: true, status: 200, json: async () => MODEL_LISTESI } as any;
+      }
+      const govde = String(secenek?.body || '');
+      govdeler.push(govde);
+      if (govde.includes('thinkingConfig')) {
+        return {
+          ok: false, status: 400,
+          text: async () => '{"error":{"message":"Unknown name \\"thinkingConfig\\""}}',
+        } as any;
+      }
+      return { ok: true, status: 200, json: async () => kartYaniti('{"iyi":true}') } as any;
+    });
+    vi.stubGlobal('fetch', sahte);
+
+    const metin = await geminiKoprusu('anahtar').generateJson({ prompt: 'x' });
+
+    expect(metin).toBe('{"iyi":true}');
+    expect(govdeler).toHaveLength(2);
+    expect(govdeler[0]).toContain('thinkingConfig');
+    expect(govdeler[1]).not.toContain('thinkingConfig');
+  });
+
+  it('normal akista tek istek gider ve dusunme kapali olur', async () => {
+    // Ek çağrının bedeli yalnızca gerçekten 400 alındığında ödenmeli.
+    const govdeler: string[] = [];
+    const sahte = vi.fn(async (url: string, secenek?: any) => {
+      if (url.includes('/models?') || url.endsWith('/models')) {
+        return { ok: true, status: 200, json: async () => MODEL_LISTESI } as any;
+      }
+      govdeler.push(String(secenek?.body || ''));
+      return { ok: true, status: 200, json: async () => kartYaniti('{"iyi":true}') } as any;
+    });
+    vi.stubGlobal('fetch', sahte);
+
+    await geminiKoprusu('anahtar').generateJson({ prompt: 'x' });
+
+    expect(govdeler).toHaveLength(1);
+    expect(govdeler[0]).toContain('"thinkingBudget":0');
   });
 
   it('400 alan onbellekli model onbellekte kalir', async () => {
