@@ -334,7 +334,16 @@ describe('geminiKoprusu yedeklemesi', () => {
   });
 
   it('model listesi sayfalanmissa sonraki sayfayi da okur', async () => {
+    /*
+     * Kesif ancak DOGRUDAN deneme dustugunde calisiyor: kod once
+     * `gemini-flash-latest` takma adini deniyor ve tutarsa liste hic
+     * cekilmiyor (soguk baslangictaki ~20 saniye bu yuzden kalkti).
+     * Bu test sayfalamayi olctugu icin takma adin dusmesi gerekiyor.
+     */
     const sahte = vi.fn(async (url: string) => {
+      if (url.includes('models/gemini-flash-latest:')) {
+        return { ok: false, status: 404, text: async () => '{"error":"emekli"}' } as any;
+      }
       if (url.includes('/models?') || url.endsWith('/models')) {
         if (url.includes('pageToken=ikinci')) {
           return { ok: true, status: 200, json: async () => ({
@@ -354,6 +363,56 @@ describe('geminiKoprusu yedeklemesi', () => {
     const metin = await geminiKoprusu('anahtar').generateJson({ prompt: 'x' });
 
     // Calisan model yalnizca IKINCI sayfada vardi.
+    expect(metin).toContain('gemini-3.8-flash');
+  });
+});
+
+/**
+ * SOĞUK BAŞLANGIÇ MALİYETİ.
+ *
+ * Ölçüldü: soğuk kopyada kart 28.465 ms, aynı kopyanın ikincisi 8.025 ms.
+ * Aradaki ~20 saniyenin tamamı üretim değil, model listesinin çekilmesiydi.
+ */
+describe('soguk baslangicta model listesi cekilmiyor', () => {
+  beforeEach(() => {
+    _onbellegiBosalt();
+  });
+
+  it('takma ad tutarsa liste hic istenmez', async () => {
+    const istekler: string[] = [];
+    const sahte = vi.fn(async (url: string) => {
+      istekler.push(url);
+      if (url.includes('/models?') || url.endsWith('/models')) {
+        return { ok: true, status: 200, json: async () => MODEL_LISTESI } as any;
+      }
+      return { ok: true, status: 200, json: async () => kartYaniti('{"iyi":true}') } as any;
+    });
+    vi.stubGlobal('fetch', sahte);
+
+    await geminiKoprusu('anahtar').generateJson({ prompt: 'x' });
+
+    expect(istekler.some(u => u.includes('/models?'))).toBe(false);
+    expect(istekler).toHaveLength(1);
+    expect(secilenModel()).toBe('v1beta/gemini-flash-latest');
+  });
+
+  it('takma ad emekliye ayrilmissa liste yine cekilir ve kart gelir', async () => {
+    // Bu tam olarak gecmiste yasandi: `gemini-2.5-flash` yeni anahtarlara
+    // kapatildi ve sabit ad tasiyan kod calismayi birakti. Yedek yol duruyor.
+    const sahte = vi.fn(async (url: string) => {
+      if (url.includes('models/gemini-flash-latest:')) {
+        return { ok: false, status: 404, text: async () => '{"error":"emekli"}' } as any;
+      }
+      if (url.includes('/models?') || url.endsWith('/models')) {
+        return { ok: true, status: 200, json: async () => MODEL_LISTESI } as any;
+      }
+      const model = (url.match(/models\/([^:]+):/) || [])[1] || '';
+      return { ok: true, status: 200, json: async () => kartYaniti(`{"ok":"${model}"}`) } as any;
+    });
+    vi.stubGlobal('fetch', sahte);
+
+    const metin = await geminiKoprusu('anahtar').generateJson({ prompt: 'x' });
+
     expect(metin).toContain('gemini-3.8-flash');
   });
 });

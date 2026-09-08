@@ -26,6 +26,7 @@ import {
   handleValidateSenses,
   type AiGateway,
 } from '../../shared/ai/handlers';
+import { WORD_MODEL } from '../../shared/ai/prompts';
 
 /** Worker'a bağlanan değerler. Yalnızca ilki zorunlu. */
 interface Env {
@@ -405,6 +406,44 @@ export function geminiKoprusu(apiKey: string): AiGateway {
          */
         if (calisanModel === onbellek) calisanModel = null;
         atlanan = onbellek.model;
+      }
+
+      /*
+       * ÖNCE DOĞRUDAN DENE, SONRA LİSTE ÇEK.
+       *
+       * ÖLÇÜLDÜ. Soğuk bir Worker kopyasında kart 28.465 ms'de geldi; aynı
+       * kopyanın ikinci kartı 8.025 ms. Aradaki ~20 saniyenin tamamı üretim
+       * değil HAZIRLIK: model önbelleği boş olduğu için önce Gemini'nin model
+       * listesi çekiliyor (iki API sürümü, sayfa sayfa, `pageSize=200`),
+       * ancak ondan sonra ilk kart isteniyor.
+       *
+       * Oysa listenin ucunda çıkan birinci aday zaten `gemini-flash-latest`:
+       * sıralama onu 1000 puanla en öne koyuyor. Yani listeyi çekmenin tek
+       * yaptığı, bilinen bir adı doğrulamak için beklemekti.
+       *
+       * Artık takma ad DOĞRUDAN deneniyor. Tutarsa liste hiç çekilmiyor.
+       * Tutmazsa -- ki bu ad bir gün yine emekliye ayrılabilir, daha önce
+       * `gemini-2.5-flash` ile tam olarak bu oldu -- eski yol olduğu gibi
+       * devrede: liste çekilir, adaylar sırayla denenir. Yani kazanılan şey
+       * hız, kaybedilen şey yok.
+       *
+       * Cloudflare kopyaları sık geri dönüştürülüyor; bu yüzden "soğuk" hâl
+       * kullanıcı için istisna değil, düzenli olarak karşılaştığı hâl.
+       */
+      if (!atlanan) {
+        const dogrudan = await modeleSor(
+          apiKey, 'v1beta', WORD_MODEL, prompt, systemInstruction
+        );
+        if (dogrudan.durum === 200) {
+          calisanModel = { surum: 'v1beta', model: WORD_MODEL };
+          return dogrudan.metin;
+        }
+        denenenler.push(`${WORD_MODEL} -> ${dogrudan.durum}`);
+        sonDetay = dogrudan.detay;
+        if (istekHatasi(dogrudan.durum)) {
+          throw new Error(`Gemini 400 (v1beta/${WORD_MODEL}): ${dogrudan.detay}`);
+        }
+        atlanan = WORD_MODEL;
       }
 
       const { surum, adaylar } = await adaylariGetir(apiKey);

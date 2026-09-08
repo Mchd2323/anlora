@@ -180,6 +180,9 @@ jobs:
           # cikiyordu. Denemeden SONRA bir kez daha okunuyor: hangi modelin
           # gercekten calistigi ancak simdi belli.
           durumSon=$(curl -sS --max-time 20 "$ADRES/api/health" || echo "$durum")
+          # Bu satir stdout'a da basiliyor: `dusunmeKapali` yalnizca ozet
+          # sayfasinda gorunuyordu ve loga bakan onu hic goremiyordu.
+          echo "Saglik (denemeden sonra): $durumSon"
 
           {
             echo "### Anlora AI Worker dağıtıldı"
