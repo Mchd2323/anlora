@@ -139,6 +139,13 @@ jobs:
             grep -i '^x-anlora-denemeler:' "/tmp/basliklar-$1.txt" 2>/dev/null \
               | tr -d '\r' | awk '{print $2}' || echo '?'
           }
+          # Dusunme durumu da BASLIKTAN okunuyor, saglik yanitindan degil:
+          # modul durumu izoleye ait ve saglik istegi baska bir kopyaya
+          # dusebiliyor (olcumde iki karttan sonra bile null geldi).
+          dusunme() {
+            grep -i '^x-anlora-dusunme:' "/tmp/basliklar-$1.txt" 2>/dev/null \
+              | tr -d '\r' | awk '{print $2}' || echo '?'
+          }
 
           basla=$(date +%s%3N)
           yanit=$(istek serendipity)
@@ -151,7 +158,9 @@ jobs:
           SICAK_MS=$((bitir - basla))
           SURE_MS="$SICAK_MS"
           SOGUK_DENEME=$(deneme serendipity); SICAK_DENEME=$(deneme petrichor)
+          DUSUNME=$(dusunme petrichor)
           echo "Soguk: ${SOGUK_MS} ms (${SOGUK_DENEME:-?} deneme) | Sicak: ${SICAK_MS} ms (${SICAK_DENEME:-?} deneme)"
+          echo "Dusunme kapatilabildi mi: ${DUSUNME:-?}"
           ORNEKLER=$(printf '%s' "$yanit" | python3 -c "import json,sys;d=json.load(sys.stdin);print('ust duzey: '+str(len(d.get('examples',[])))+' | anlam basina: '+(', '.join(str(len(s.get('examples',[]))) for s in d.get('senses',[])) or 'anlam yok'))" 2>/dev/null || echo '(okunamadi)')
           echo "Ornek sayisi: $ORNEKLER"
           if printf '%s' "$yanit" | grep -q '"turkishMeaning"'; then
@@ -206,6 +215,7 @@ jobs:
             echo "| İlk kart (soğuk: model keşfi dahil) | ${SOGUK_MS} ms · ${SOGUK_DENEME:-?} deneme |"
             echo "| Sonraki kart (sıcak: yalnızca üretim) | ${SICAK_MS} ms · ${SICAK_DENEME:-?} deneme |"
             echo "| Örnek cümle sayısı | ${ORNEKLER} |"
+            echo "| Düşünme aşaması kapatıldı mı | ${DUSUNME:-?} |"
             echo
             echo 'Anlam başına **3** bekleniyor; 2 görürsen istem geri gerilemiş demektir.'
             echo

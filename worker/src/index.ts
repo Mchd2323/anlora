@@ -576,7 +576,23 @@ export default {
           sonuc.status === 200
             ? { ...sonuc.body, isAiGenerated: true, unverified: true }
             : sonuc.body;
-        return jsonYanit(govdeSon, sonuc.status, cors, sonuc.headers);
+        /*
+         * DÜŞÜNME DURUMU YANITIN KENDİSİNDE BİLDİRİLİYOR.
+         *
+         * Önce `/api/health` üzerinden bildiriliyordu ve HİÇ İŞE YARAMADI:
+         * ölçümde iki kart üretildikten sonra bile sağlık yanıtı
+         * `"model":null, "dusunmeKapali":null` dedi. Sebep, modül düzeyindeki
+         * durumun İZOLEye ait olması — Cloudflare her isteği başka bir
+         * kopyaya yollayabiliyor, dolayısıyla sağlık isteği hiç kart
+         * üretmemiş bir kopyaya düşüyor.
+         *
+         * Aynı sebeple "sıcak istek" diye bir şey de garanti değil. Buradaki
+         * okuma ise üretimle AYNI isteğin içinde yapıldığı için doğru.
+         */
+        return jsonYanit(govdeSon, sonuc.status, cors, {
+          ...sonuc.headers,
+          'X-Anlora-Dusunme': String(dusunmeDurumu()),
+        });
       }
 
       if (url.pathname === '/api/ai/validate-senses') {
