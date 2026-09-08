@@ -38,8 +38,10 @@ import { KelimeSatiri } from './KelimeSatiri';
 import {
   hasExtendedWord,
   getExtendedCard,
-  loadExtendedIndex
+  loadExtendedIndex,
+  extendedKelimeler
 } from '../services/extendedRepository';
+import { yazimOnerileri } from '../utils/yazimOnerisi';
 
 interface CollectionsViewProps {
   collections: Collection[];
@@ -282,6 +284,22 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
    */
   const [creationMode, setCreationMode] = useState<'FORM' | 'AI_GENERATING' | 'AI_PREVIEW'>('FORM');
   const [aiError, setAiError] = useState<string | null>(null);
+  /*
+   * Yazım önerisi varken yapay zekâ düğmesine basıldı mı?
+   *
+   * Öneri kutusu zaten düğmenin hemen üstünde duruyor, ama görmek ile
+   * onaylamak aynı şey değil: kullanıcı doğrudan düğmeye uzanabilir. Bu
+   * bayrak açıkken kutu soruya dönüşüyor ("bunu mu demek istedin?") ve iki
+   * çıkış sunuyor. Kapı DEĞİL: ikinci dokunuş kendi yazdığıyla devam ettirir.
+   */
+  const [yazimOnayBekliyor, setYazimOnayBekliyor] = useState(false);
+  /*
+   * Yapay zekâ "bu bir İngilizce kelime değil" dediyse: uyarı ve varsa
+   * onun önerdiği kelime. Yerel listede aday bulunamadığında tek denetim bu.
+   */
+  const [yapayZekaYazimUyarisi, setYapayZekaYazimUyarisi] = useState<
+    { onerilen: string } | null
+  >(null);
   const [generatedPreviewCard, setGeneratedPreviewCard] = useState<WordCard | null>(null);
 
   // Manual Form State
@@ -332,7 +350,14 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     | { kind: 'searching' }
     | { kind: 'found'; card: WordCard; source: 'oxford' | 'extended' }
     | { kind: 'in-set'; card: WordCard }
-    | { kind: 'not-found' };
+    /*
+     * Bulunamadı — ve varsa YAZIM ÖNERİSİ.
+     *
+     * Öneriler burada duruyor, ayrı bir state'te değil: ikisi tek bir aramanın
+     * sonucu ve ayrı tutulursa kaçınılmaz olarak birbirinden şaşar (kullanıcı
+     * yeni harf yazar, sonuç yenilenir ama eski öneri ekranda kalır).
+     */
+    | { kind: 'not-found'; oneriler: string[] };
 
   const [lookup, setLookup] = useState<LookupResult>({ kind: 'idle' });
 
@@ -735,6 +760,10 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
     let cancelled = false;
     setLookup({ kind: 'searching' });
+    // Kullanıcı yazdığını değiştirdi: eski onay ve eski yapay zekâ uyarısı
+    // artık başka bir kelimeye ait.
+    setYazimOnayBekliyor(false);
+    setYapayZekaYazimUyarisi(null);
 
     const timer = window.setTimeout(async () => {
       const key = aramaAnahtari(raw);
@@ -816,9 +845,32 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
       }
 
       if (!cancelled) {
-        setLookup({ kind: 'not-found' });
-        // Elimizde olmayan ama istenen kelime: yöneticiye sinyal.
-        reportMissingWord(key);
+        /*
+         * BULUNAMADI — PEKİ YANLIŞ MI YAZILDI?
+         *
+         * Buraya kadar gelen kelime hiçbir yerel listede yok. İki ihtimal
+         * var ve kullanıcıya söylenecek şey ikisinde farklı: kelime gerçek
+         * ama bizde yok ("petrichor"), ya da kelime yanlış yazıldı
+         * ("recieve"). İkincisinde yapay zekâya gitmek sekiz saniye bekleyip
+         * OLMAYAN bir kelimenin kartını almak demek; yanlış yazım sete girer
+         * ve kullanıcı onu öyle öğrenir.
+         *
+         * Adaylar cihazdaki iki listeden: Oxford madde başları ve Genel
+         * Dağarcık dizini (~19 bin kelime). Dizin yukarıda zaten beklendi,
+         * yani burada hazır. Ağ yok, kota yok.
+         */
+        const oneriler = yazimOnerileri(
+          key,
+          [...oxfordByWord.keys(), ...extendedKelimeler()]
+        );
+        setLookup({ kind: 'not-found', oneriler });
+        /*
+         * Yöneticiye sinyal yalnızca DÜZGÜN yazılmış göründüğünde gidiyor.
+         * Yazım hatası "eksik kelime" değildir; sözlüğe eklenecekler listesini
+         * kullanıcının klavye hatalarıyla doldurmak, listeyi işe yaramaz hâle
+         * getirir.
+         */
+        if (oneriler.length === 0) reportMissingWord(key);
       }
     }, 350);
 
@@ -1211,6 +1263,8 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
     setContextInput('');
     setCreationMode('FORM');
     setAiError(null);
+    setYazimOnayBekliyor(false);
+    setYapayZekaYazimUyarisi(null);
     setGeneratedPreviewCard(null);
     setManualTurkishMeaning('');
     setManualPartOfSpeech('');
@@ -1224,6 +1278,23 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   const handleCheckAndProceedWithAi = () => {
     if (!wordInput.trim()) {
       alert('Lütfen önce bir İngilizce kelime yazın.');
+      return;
+    }
+
+    /*
+     * YAZIM DENETİMİ, İSTEKTEN ÖNCE.
+     *
+     * Yerel listede yakın bir kelime varsa yapay zekâya HİÇ gidilmiyor:
+     * "recieve" için sekiz saniye bekleyip olmayan bir kelimenin kartını
+     * almak, kullanıcının kaybettiği zamandan da fazlasına mal olur — yanlış
+     * yazım sete girer ve öyle öğrenilir.
+     *
+     * Tek dokunuş engelleniyor, ikincisi değil: kutu soruya dönüşüyor ve
+     * "yine de kendi yazdığımla devam et" seçeneği duruyor. Sözlüğümüz
+     * İngilizcenin tamamı olmadığı için son söz kullanıcıda kalmalı.
+     */
+    if (lookup.kind === 'not-found' && lookup.oneriler.length > 0 && !yazimOnayBekliyor) {
+      setYazimOnayBekliyor(true);
       return;
     }
 
@@ -1245,9 +1316,19 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   };
 
   // Execute Gemini AI Card Generation
-  const handleExecuteAiGeneration = async () => {
+  /**
+   * Yapay zekâya kart ürettirir.
+   *
+   * @param yazimiZorla Yapay zekânın "bu İngilizce bir kelime değil" cevabını
+   *   bir kez gördükten sonra kullanıcı ısrar ederse `true` gelir: istek
+   *   yazım denetimi olmadan tekrarlanır. Sözlük de model de yanılabilir
+   *   (yeni terimler, özel adlar, ağız kullanımları), bu yüzden son söz
+   *   kullanıcıda kalıyor.
+   */
+  const handleExecuteAiGeneration = async (yazimiZorla = false) => {
     setCreationMode('AI_GENERATING');
     setAiError(null);
+    setYapayZekaYazimUyarisi(null);
 
     try {
       /*
@@ -1264,7 +1345,8 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           word: wordInput.trim(),
-          context: contextInput.trim() || undefined
+          context: contextInput.trim() || undefined,
+          yazimiZorla: yazimiZorla || undefined
         })
       });
 
@@ -1273,6 +1355,22 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
       }
 
       const data = await response.json();
+
+      /*
+       * KELİME TANINMADIYSA KART UYDURULMUYOR.
+       *
+       * Yapay zekâ "bu bir İngilizce kelime değil" derse geriye kart değil
+       * bu işaret geliyor. Eskiden böyle bir durumda model yine de bir şeyler
+       * yazıyordu ve kullanıcı olmayan bir kelimenin kartını kaydediyordu.
+       */
+      if (data && data.notAWord) {
+        setYapayZekaYazimUyarisi({
+          onerilen: typeof data.suggestion === 'string' ? data.suggestion.trim() : ''
+        });
+        setCreationMode('FORM');
+        return;
+      }
+
       const previewCard: WordCard = {
         id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
         word: data.word || wordInput.trim(),
@@ -2508,11 +2606,60 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   satır duruyor, böylece kutu boşalıp dolmuyor ve kullanıcı
                   yanlış bir bilgiyle karşılaşmıyor.
                 */}
+                {/*
+                  YAZIM ÖNERİSİ — "bunu mu demek istedin?"
+                  Yalnızca kelime hiçbir yerel listede yokken ve yakın bir
+                  aday varken çiziliyor. Sözlükte BULUNAN bir kelimede bu kutu
+                  hiç görünmez; orada düzeltilecek bir şey yoktur.
+                */}
+                {lookup.kind === 'not-found' && lookup.oneriler.length > 0 && (
+                  <div
+                    className="pt-3 border-t border-[var(--border-light)] space-y-2"
+                    aria-live="polite"
+                  >
+                    <div className="text-[11px] font-bold text-[var(--text-muted)] tracking-wider">
+                      {yazimOnayBekliyor ? 'ÖNCE ŞUNU SORAYIM' : 'YAZIMI KONTROL ET'}
+                    </div>
+                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                      <span className="font-bold text-[var(--text-primary)]">
+                        “{wordInput.trim()}”
+                      </span>{' '}
+                      sözlüklerimizde yok. Bunu mu demek istedin?
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {lookup.oneriler.map(oneri => (
+                        <button
+                          key={oneri}
+                          type="button"
+                          onClick={() => {
+                            setWordInput(oneri);
+                            setYazimOnayBekliyor(false);
+                          }}
+                          className="px-3 py-2 rounded-xl border border-[var(--primary-border)] bg-[var(--primary-soft)] text-[var(--primary)] text-xs font-bold cursor-pointer hover:bg-[var(--primary-soft)]/70"
+                        >
+                          {oneri}
+                        </button>
+                      ))}
+                    </div>
+                    {yazimOnayBekliyor && (
+                      <button
+                        type="button"
+                        onClick={() => handleExecuteAiGeneration()}
+                        className="w-full px-3 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--bg)] text-[var(--text-secondary)] text-xs font-semibold cursor-pointer hover:bg-[var(--surface-soft)] text-left"
+                      >
+                        Hayır, “{wordInput.trim()}” doğru — ✨ Anlora AI ile hazırla
+                      </button>
+                    )}
+                  </div>
+                )}
+
                 {lookup.kind === 'not-found' && yapayZekaBekleniyor && (
                   <div className="pt-3 border-t border-[var(--border-light)] space-y-1">
-                    <div className="text-[11px] font-bold text-[var(--text-muted)]  tracking-wider">
-                      Bu kelime sözlükte yok
-                    </div>
+                    {lookup.oneriler.length === 0 && (
+                      <div className="text-[11px] font-bold text-[var(--text-muted)]  tracking-wider">
+                        Bu kelime sözlükte yok
+                      </div>
+                    )}
                     <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                       Anlora AI'nın bu kurulumda kullanılabilir olup olmadığı
                       denetleniyor…
@@ -2522,9 +2669,11 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
 
                 {lookup.kind === 'not-found' && yapayZeka === false && (
                   <div className="pt-3 border-t border-[var(--border-light)] space-y-1">
-                    <div className="text-[11px] font-bold text-[var(--text-muted)]  tracking-wider">
-                      Bu kelime sözlükte yok
-                    </div>
+                    {lookup.oneriler.length === 0 && (
+                      <div className="text-[11px] font-bold text-[var(--text-muted)]  tracking-wider">
+                        Bu kelime sözlükte yok
+                      </div>
+                    )}
                     <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                       Anlamını ve örnek cümlelerini aşağıdaki alanlara kendin
                       yazabilirsin; kart aynı şekilde kaydedilir.
@@ -2532,11 +2681,21 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   </div>
                 )}
 
-                {lookup.kind === 'not-found' && yapayZekaVar && (
+                {/*
+                  Soru sorulduğu sırada büyük yapay zekâ kartı ÇİZİLMİYOR.
+                  Kalsaydı ilk dokunuştan sonra ekranda hiçbir şey değişmemiş
+                  gibi görünürdü: kullanıcı düğmenin bozuk olduğunu sanır ve
+                  üstüne basmaya devam ederdi. Şimdi seçenekler iki tane ve
+                  ikisi de açık: önerilen kelime, ya da "kendi yazdığımla
+                  devam et".
+                */}
+                {lookup.kind === 'not-found' && yapayZekaVar && !yazimOnayBekliyor && (
                 <div className="pt-3 border-t border-[var(--border-light)] space-y-2">
-                  <div className="text-[11px] font-bold text-[var(--text-muted)]  tracking-wider">
-                    Bu kelime sözlükte yok
-                  </div>
+                  {lookup.oneriler.length === 0 && (
+                    <div className="text-[11px] font-bold text-[var(--text-muted)]  tracking-wider">
+                      Bu kelime sözlükte yok
+                    </div>
+                  )}
                   <button
                     type="button"
                     onClick={handleCheckAndProceedWithAi}
@@ -2796,6 +2955,51 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     className="w-full px-3 py-2 text-xs bg-[var(--bg)] border border-[var(--border)] rounded-xl focus:bg-[var(--surface)] focus:outline-none italic text-[var(--text-primary)]"
                   />
                 </div>
+
+                {/*
+                  YAPAY ZEKÂNIN YAZIM UYARISI.
+
+                  Yerel listede aday çıkmadığında ikinci denetim bu. Yapay
+                  zekâ kelimeyi tanımıyorsa artık kart UYDURMUYOR; bunun yerine
+                  kelimenin İngilizce olmadığını söylüyor ve varsa doğrusunu
+                  öneriyor. Kullanıcı önerilen kelimeyi seçebilir ya da kendi
+                  yazdığında ısrar edebilir — ikinci istek uyarıyı atlar,
+                  çünkü sözlük de model de yanılabilir ve son söz kullanıcıda.
+                */}
+                {yapayZekaYazimUyarisi && (
+                  <div
+                    className="p-3 bg-[var(--learning-soft)] rounded-xl border border-[var(--learning-border)] text-xs space-y-2"
+                    aria-live="polite"
+                  >
+                    <div className="flex items-start gap-2 text-[var(--learning-text)] font-semibold">
+                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                      <span>
+                        “{wordInput.trim()}” bir İngilizce kelime gibi görünmüyor.
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {yapayZekaYazimUyarisi.onerilen && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setWordInput(yapayZekaYazimUyarisi.onerilen);
+                            setYapayZekaYazimUyarisi(null);
+                          }}
+                          className="px-3 py-2 rounded-xl border border-[var(--primary-border)] bg-[var(--primary-soft)] text-[var(--primary)] text-xs font-bold cursor-pointer"
+                        >
+                          {yapayZekaYazimUyarisi.onerilen}
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleExecuteAiGeneration(true)}
+                        className="text-xs text-[var(--text-secondary)] underline underline-offset-2 cursor-pointer"
+                      >
+                        Yazdığım doğru, yine de dene
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {/* AI hata bildirimi */}
                 {aiError && (

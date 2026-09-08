@@ -256,6 +256,22 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
 
           {
             const cardData = await res.json();
+
+            /*
+             * Yapay zekâ "bu bir İngilizce kelime değil" derse ortada kart
+             * yoktur. Aşağıdaki dal `cardData.word || item.raw` ile yine de
+             * bir kart kurardı: anlamı ve örnekleri boş, ama YAPAY ZEKÂ
+             * ÜRETTİ damgalı. Aşağıdaki catch dalı tam olarak bu durum için
+             * yazılmış (bilgi yok, kart boş bırakılır, kullanıcı doldurur);
+             * oraya düşürülüyor.
+             *
+             * Toplu eklemede tek tek "bunu mu demek istedin" sorulmuyor: kırk
+             * kelimelik bir yüklemede her biri için soru sormak akışı
+             * kilitler. Kelime kaybolmuyor, elle doldurulacak kart olarak
+             * listede kalıyor.
+             */
+            if (cardData && cardData.notAWord) throw new Error('yazim-supheli');
+
             const newCard: WordCard = {
               id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
               word: cardData.word || item.raw,

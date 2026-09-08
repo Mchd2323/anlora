@@ -38,10 +38,33 @@ For each sense:
 Do not overwhelm the learner with rare dictionary senses. Prioritize common contemporary English.`;
 }
 
-export function wordUserPrompt(trimmedWord: string, context?: string): string {
+/**
+ * @param yazimDenetimi Modelden önce YAZIM DENETİMİ istenir mi?
+ *
+ * Kullanıcı yanlış yazdığı bir kelime için kart isteyince model eskiden yine
+ * de bir şeyler yazıyordu: "recieve" diye bir İngilizce kelime yok ama kart
+ * geliyordu ve yanlış yazım kullanıcının setine giriyordu. Artık model önce
+ * kelimenin gerçekliğine bakıyor.
+ *
+ * Denetim KAPATILABİLİR olmalı: kullanıcı ısrar ederse (yeni bir terim, özel
+ * addan türemiş bir kelime, modelin tanımadığı bir kullanım) ikinci istek
+ * denetimsiz gider. Model de yanılır; son söz kullanıcıda.
+ */
+export function wordUserPrompt(
+  trimmedWord: string,
+  context?: string,
+  yazimDenetimi = true
+): string {
   return `Analyze the target English word "${trimmedWord}" for a Turkish learner.
 ${context ? `The user encountered this word in this context sentence: "${context}"` : ''}
-
+${
+  yazimDenetimi
+    ? `SPELLING CHECK FIRST. If "${trimmedWord}" is not a real English word — a misspelling, a Turkish or other non-English word, or nonsense — do NOT invent a card. Return ONLY this JSON and nothing else:
+{ "notAWord": true, "suggestion": "<the English word the learner most likely meant, or an empty string if you cannot tell>" }
+Judge this conservatively. Rare, technical, archaic, dialectal, slang and proper-noun-derived words ARE real English words; produce the normal card for them. Report notAWord only when no English dictionary would list the string at all. When in doubt, produce the card.
+`
+    : ''
+}
 Requirements:
 1. Provide accurate canonical lemma, standard IPA phonetic notation, and overall CEFR level ("A1" | "A2" | "B1" | "B2" | "C1" | "C2").
 2. Separate distinct, common parts of speech (e.g. "n.", "v.", "adj.", "adv.", "prep.", "phr. v.", "idiom") into individual "senses".

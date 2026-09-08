@@ -50,6 +50,46 @@ describe('worker ucu akisi', () => {
     expect(s.status).toBe(200);
   });
 
+  it('kelime taninmadiginda kart uydurmak yerine yazim uyarisi doner', async () => {
+    const sayac = { n: 0 };
+    const s = await handleGenerateWord(
+      { word: 'recieve' },
+      sahteKapi(JSON.stringify({ notAWord: true, suggestion: 'receive' }), sayac)
+    );
+    // 200: istek basarisiz degil, cevabi "bu kelime yok". 500 donerse istemci
+    // "yapay zeka yanit veremedi" der ve kullanici asil soyleneni gormez.
+    expect(s.status).toBe(200);
+    expect((s.body as any).notAWord).toBe(true);
+    expect((s.body as any).suggestion).toBe('receive');
+    // Kart dogrulamasindan gecemedigi icin BOSUNA ikinci kez denenmemeli.
+    expect(sayac.n).toBe(1);
+  });
+
+  it('yazim uyarisinin onerisi kullanicinin yazdiginin ayni ise bosaltilir', async () => {
+    const s = await handleGenerateWord(
+      { word: 'Recieve' },
+      sahteKapi(JSON.stringify({ notAWord: true, suggestion: 'recieve' }))
+    );
+    expect((s.body as any).suggestion).toBe('');
+  });
+
+  it('kullanici israr ederse istemde yazim denetimi istenmez', async () => {
+    let gorulenIstem = '';
+    const kapi: AiGateway = {
+      async generateJson({ prompt }) {
+        gorulenIstem = prompt;
+        return JSON.stringify(kart);
+      },
+    };
+    const denetimli = await handleGenerateWord({ word: 'light' }, kapi);
+    expect(denetimli.status).toBe(200);
+    expect(gorulenIstem).toContain('SPELLING CHECK FIRST');
+
+    const zorlanmis = await handleGenerateWord({ word: 'light', yazimiZorla: true }, kapi);
+    expect(zorlanmis.status).toBe(200);
+    expect(gorulenIstem).not.toContain('SPELLING CHECK FIRST');
+  });
+
   it('kusurlu kart icin iki kez dener sonra reddeder', async () => {
     const sayac = { n: 0 };
     const s = await handleGenerateWord(

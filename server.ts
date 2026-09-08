@@ -307,7 +307,7 @@ function guardAiRequest(req: express.Request, res: express.Response): boolean {
 app.post('/api/ai/generate-word', blockDuringMaintenance, async (req, res) => {
   if (!guardAiRequest(req, res)) return;
 
-  const { word, context } = req.body;
+  const { word, context, yazimiZorla } = req.body;
   if (!word || typeof word !== 'string' || !word.trim()) {
     return res.status(400).json({ error: 'Kelime girilmedi.' });
   }
@@ -324,7 +324,13 @@ app.post('/api/ai/generate-word', blockDuringMaintenance, async (req, res) => {
    * genel kartta yok, onu döndürmek kullanıcının sorduğu soruyu yanıtsız
    * bırakmak olurdu.
    */
-  const cached = ownLookup(aiCache.cards, key);
+  /*
+   * Kullanıcı yazımında ısrar ediyorsa (`yazimiZorla`) önbellek atlanır.
+   * Aksi hâlde ilk isteğin "bu bir İngilizce kelime değil" cevabı önbellekte
+   * durduğu sürece ısrar hiçbir zaman modele ulaşamaz ve düğme hiçbir şey
+   * yapmıyormuş gibi görünürdü.
+   */
+  const cached = yazimiZorla === true ? undefined : ownLookup(aiCache.cards, key);
   if (cached && !hasContext) {
     cached.hits++;
     aiCache.callsAvoided++;
@@ -381,6 +387,18 @@ app.post('/api/ai/generate-word', blockDuringMaintenance, async (req, res) => {
      * doğrulamak.
      */
     const sonuc = await handleGenerateWord(req.body, dugumKoprusu(ai));
+
+    /*
+     * "Bu bir İngilizce kelime değil" cevabı KART DEĞİLDİR.
+     *
+     * Önbelleğe yazılırsa iki şey birden bozulur: kayıt kart sayılıp
+     * yönetim panelinde kart gibi listelenir, ve kullanıcı yazımında ısrar
+     * ettiğinde istek modele hiç ulaşmaz. Doğrudan döndürülüyor.
+     */
+    if (sonuc.status === 200 && (sonuc.body as any)?.notAWord) {
+      return res.json(sonuc.body);
+    }
+
     const finalCard = sonuc.status === 200 ? sonuc.body : null;
 
     if (!finalCard) {

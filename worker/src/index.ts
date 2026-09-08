@@ -572,10 +572,15 @@ export default {
         const sonuc = await handleGenerateWord(govde, kopru);
         // Kart üretildiyse arayüz bunun doğrulanmamış olduğunu kullanıcıya
         // söyler; sunucudaki davranışla aynı.
-        const govdeSon =
-          sonuc.status === 200
-            ? { ...sonuc.body, isAiGenerated: true, unverified: true }
-            : sonuc.body;
+        /*
+         * "Bu bir İngilizce kelime değil" cevabına kart bayrakları
+         * takılmıyor: ortada üretilmiş bir kart yok, `isAiGenerated` ve
+         * `unverified` orada yalan olurdu.
+         */
+        const kartMi = sonuc.status === 200 && !(sonuc.body as any)?.notAWord;
+        const govdeSon = kartMi
+          ? { ...sonuc.body, isAiGenerated: true, unverified: true }
+          : sonuc.body;
         /*
          * DÜŞÜNME DURUMU YANITIN KENDİSİNDE BİLDİRİLİYOR.
          *

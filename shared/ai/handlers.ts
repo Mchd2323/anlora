@@ -77,10 +77,10 @@ const CARD_FAILURE = {
  * bilgisiymiş gibi göstermek olurdu (talimat 59).
  */
 export async function handleGenerateWord(
-  body: { word?: unknown; context?: unknown },
+  body: { word?: unknown; context?: unknown; yazimiZorla?: unknown },
   gateway: AiGateway
 ): Promise<AiResult> {
-  const { word, context } = body;
+  const { word, context, yazimiZorla } = body;
   if (!word || typeof word !== 'string' || !word.trim()) {
     return { status: 400, body: { error: 'Kelime girilmedi.' } };
   }
@@ -92,17 +92,34 @@ export async function handleGenerateWord(
   if (sinir) return sinir;
 
   const systemInstruction = wordSystemInstruction();
-  const prompt = wordUserPrompt(trimmedWord, contextText);
+  const prompt = wordUserPrompt(trimmedWord, contextText, yazimiZorla !== true);
 
   let attempts = 0;
   let finalCard: Record<string, unknown> | null = null;
+  /*
+   * Model "bu bir İngilizce kelime değil" dediyse bu cevap kartın YERİNE
+   * geçer; doğrulamadan geçirmenin anlamı yok, çünkü ortada kart yok.
+   * Döngünün içinde bakılıyor: dışarıda bakılsaydı ilk cevap doğrulamayı
+   * geçemediği için istek bir kez daha, boşuna tekrarlanırdı.
+   */
+  let yazimUyarisi: { notAWord: true; suggestion: string } | null = null;
 
-  while (attempts < 2 && !finalCard) {
+  while (attempts < 2 && !finalCard && !yazimUyarisi) {
     attempts++;
     const responseText = await gateway.generateJson({ prompt, systemInstruction });
     try {
       const parsed = JSON.parse(stripJsonFence(responseText));
-      if (validateGeneratedWordCard(parsed, trimmedWord)) {
+      if (parsed && typeof parsed === 'object' && (parsed as any).notAWord === true) {
+        const oneri = (parsed as any).suggestion;
+        yazimUyarisi = {
+          notAWord: true,
+          // Modelin önerisi kendi yazdığıyla aynıysa öneri değildir.
+          suggestion:
+            typeof oneri === 'string' && oneri.trim().toLowerCase() !== trimmedWord.toLowerCase()
+              ? oneri.trim()
+              : ''
+        };
+      } else if (validateGeneratedWordCard(parsed, trimmedWord)) {
         finalCard = parsed;
       }
     } catch {
@@ -119,6 +136,13 @@ export async function handleGenerateWord(
    * buydu, ama kanıt yoktu. Başlık o kanıtı veriyor.
    */
   const basliklar = { 'X-Anlora-Denemeler': String(attempts) };
+
+  if (yazimUyarisi) {
+    // 200: istek başarısız değil, cevabı "bu kelime yok". Hata olarak
+    // dönerse istemci "yapay zekâ yanıt veremedi" der ve kullanıcı asıl
+    // söyleneni hiç görmez.
+    return { status: 200, body: yazimUyarisi, headers: basliklar };
+  }
 
   if (!finalCard) {
     return {

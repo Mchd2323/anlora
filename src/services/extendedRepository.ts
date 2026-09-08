@@ -102,6 +102,17 @@ export function hasExtendedWord(word: string): boolean {
 }
 
 /**
+ * Dizindeki madde başları — yazım önerisi ("bunu mu demek istedin?") için.
+ *
+ * Ham diziyi döndürüyor, kopyalamıyor: 15 bin kelime her tuşta kopyalanacak
+ * bir şey değil. `readonly` işareti çağıranın onu değiştirmemesi gerektiğini
+ * söylüyor; dizin yüklenmemişse boş dizi döner ve çağıran yine de çalışır.
+ */
+export function extendedKelimeler(): readonly string[] {
+  return index ? index.words : [];
+}
+
+/**
  * Öneki eşleşen madde başları. Kullanıcı yazarken öneri göstermek için.
  */
 export function suggestExtendedWords(prefix: string, limit = 8): string[] {
