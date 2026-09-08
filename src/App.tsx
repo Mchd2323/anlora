@@ -397,10 +397,20 @@ export default function App() {
    * Sözlüğe muhtaç bir ekran açıldığında yükleme beklemeye alınmaz.
    * Boştaki yükleme çoktan başlamış olsa bile bu çağrı zararsız: aynı söze
    * düşer.
+   *
+   * 'collections' listede UNUTULMUŞTU. Sete giren bir Oxford kelimesi sete
+   * kopyalanmaz, ÜYELİK olarak yazılır; kartın kendisi sözlükten çözülür.
+   * Sözlük gelmemişken Setlerim o üyelikleri çözemiyor ve dolu bir seti boş
+   * gösteriyordu.
    */
   useEffect(() => {
     if (isDictionaryReady) return;
-    if (activeTab === 'oxford' || activeTab === 'quiz' || activeTab === 'study') {
+    if (
+      activeTab === 'oxford' ||
+      activeTab === 'quiz' ||
+      activeTab === 'study' ||
+      activeTab === 'collections'
+    ) {
       sozlugüYukle();
     }
   }, [activeTab, isDictionaryReady, sozlugüYukle]);
@@ -813,6 +823,10 @@ export default function App() {
             memberships={memberships}
             customWords={customWords}
             oxfordWords={oxfordPool}
+            sozlukDurumu={
+              isDictionaryReady ? 'hazir' : dictionaryError ? 'hata' : 'yukleniyor'
+            }
+            onSozlugüYenidenDene={() => { setDictionaryError(false); sozlugüYukle(); }}
             learningStates={learningStates}
             favorites={favorites}
             profile={profile}
@@ -932,6 +946,7 @@ export default function App() {
           <QuizModule
             allWords={oxfordWords}
             extraWords={oxfordExtraWords}
+            sozlukHazir={isDictionaryReady}
             customCards={customWords}
             collections={collections}
             memberships={memberships}

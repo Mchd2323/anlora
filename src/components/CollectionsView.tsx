@@ -46,6 +46,22 @@ interface CollectionsViewProps {
   memberships: CollectionMembership[];
   customWords: WordCard[];
   oxfordWords: WordCard[];
+  /*
+   * SÖZLÜK DURUMU ÜÇ DEĞERLİ, İKİ DEĞİLDİR.
+   *
+   * Bu ekran sözlüğe bağımlı: sete giren bir Oxford kelimesi kopyalanmaz,
+   * ÜYELİK olarak yazılır (bkz. `activeDeckWords`), kartın kendisi
+   * `oxfordWords` içinden çözülür. Sözlük 3 MB + 1,9 MB iki JSON olduğu için
+   * her soğuk açılışta birkaç yüz ms ile birkaç saniye arası gecikmeli gelir.
+   *
+   * Tek bir `hazir: boolean` yetmez: "daha gelmedi" ile "hiç gelmeyecek"
+   * kullanıcıya aynı şeyi söyleyemez. Birincisinde beklemek, ikincisinde
+   * yeniden denemek gerekir. Bunlar tek bayrağa katlanırsa ekran bekleme
+   * sırasında hata, hatadan sonra da sonsuza kadar bekleme gösterir.
+   */
+  sozlukDurumu?: 'yukleniyor' | 'hazir' | 'hata';
+  /** Sözlük yüklenemediyse yeniden denemeyi tetikler. */
+  onSozlugüYenidenDene?: () => void;
   learningStates: Record<string, LearningState>;
   favorites: string[];
   profile?: UserProfile;
@@ -112,6 +128,8 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   memberships,
   customWords,
   oxfordWords,
+  sozlukDurumu = 'hazir',
+  onSozlugüYenidenDene,
   learningStates,
   favorites,
   profile,
@@ -497,6 +515,25 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   }, [activeDeck, memberships, customWords, oxfordWords, learningStates]);
 
   /*
+   * ÇÖZÜLEMEYEN ÜYELİK: SETTE OLDUĞU YAZAN AMA HENÜZ KARTI OLMAYAN KELİME.
+   *
+   * `activeDeckWords` bir üyeliği çözemezse onu `.filter(Boolean)` ile sessizce
+   * atıyor. Sözlük gelmediği sürece bu, DOLU bir seti boş ya da eksik
+   * gösteriyordu: aynı ekranda set rozeti üyelikleri saydığı için "50 kelime"
+   * yazarken gövde "Henüz kelime yok" diyordu. Kullanıcının gördüğü şey
+   * verisini kaybetmiş olmak; yapacağı şey kelimeleri yeniden ekleyip çift
+   * kayıt üretmek.
+   *
+   * Fark üyelik sayısından çıkarılıyor; ikinci bir tarama gerekmiyor.
+   */
+  const setUyelikSayisi = useMemo(
+    () => (activeDeck ? memberships.filter(m => m.collectionId === activeDeck.id).length : 0),
+    [activeDeck, memberships]
+  );
+  const cozulemeyenUyelik = Math.max(0, setUyelikSayisi - activeDeckWords.length);
+  const sozlukBekleniyor = sozlukDurumu !== 'hazir' && cozulemeyenUyelik > 0;
+
+  /*
    * AKTİF SET GERÇEKTEN VAR MI?
    *
    * `activeDeckId` silinen bir setin kimliğini tutmaya devam edebiliyordu:
@@ -741,6 +778,30 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
           /* kalıp verisi gelmezse elle yazmaya düşülür */
         }
       }
+
+      /*
+       * GENEL DAĞARCIK DİZİNİ BEKLENİR — YOKSA "SÖZLÜKTE YOK" BİR YALAN.
+       *
+       * `hasExtendedWord` eşzamanlı bir Set sorgusu; dizin henüz gelmemişken
+       * HER kelime için false döner. Dizin yukarıda (pencere açılınca) ateşle
+       * unut yöntemiyle başlatılıyor ama BEKLENMİYORDU, dolayısıyla hızlı
+       * yazan kullanıcı sözlükte BULUNAN bir kelime için "Bu kelime sözlükte
+       * yok" cevabını alıyordu.
+       *
+       * Üstelik kendi kendini düzeltmiyordu: efektin bağımlılıkları
+       * (wordInput, oxfordByWord, ...) dizin yüklenmesiyle değişmediği için
+       * dizin sonradan gelse bile arama tazelenmiyor, yanlış cevap kullanıcı
+       * yazdığını değiştirene kadar ekranda kalıyordu. Ayrıca `reportMissingWord`
+       * aslında var olan bir kelimeyi "eksik" diye bildiriyordu.
+       *
+       * Söz zaten bellekte tutuluyor; dizin hazırsa bu bekleme sıfır maliyetli.
+       */
+      try {
+        await loadExtendedIndex();
+      } catch {
+        /* dizin açılamazsa aşağıdaki denetim zaten false döner */
+      }
+      if (cancelled) return;
 
       if (hasExtendedWord(key)) {
         try {
@@ -1961,6 +2022,25 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
             {/* Words Grid or Empty State */}
             {filteredWords.length > 0 ? (
               <>
+              {/*
+                * KARMA SETTE LİSTE EKSİK ÇİZİLİYOR OLABİLİR.
+                *
+                * Kendi kelimeleri hemen geliyor, sözlükten gelenler gecikiyor.
+                * O aralıkta liste boş değil ama EKSİK; hiçbir şey söylenmezse
+                * kullanıcı aradaki kelimelerin silindiğini sanıyor. Sayı
+                * üyeliklerden geliyor, tahmin değil.
+                */}
+              {sozlukBekleniyor && (
+                <p
+                  className="px-1 text-xs text-[var(--text-secondary)]"
+                  aria-live="polite"
+                >
+                  {sozlukDurumu === 'hata'
+                    ? `${cozulemeyenUyelik} kelime sözlükten okunuyor ve sözlük açılamadı; listede henüz görünmüyorlar.`
+                    : `${cozulemeyenUyelik} kelime daha hazırlanıyor…`}
+                </p>
+              )}
+
               {/* Sola hizalı: sağ kenarda sabit duran "en üste / en alta"
                   düğmelerinin altında kalmasın. */}
               <div className="flex items-center justify-start px-1">
@@ -2063,6 +2143,52 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 <div ref={listeSonuRef} aria-hidden="true" className="h-px" />
               )}
               </>
+            ) : sozlukBekleniyor ? (
+              /*
+               * SÖZLÜK BEKLENİYOR — BOŞ SET DEĞİL.
+               *
+               * Buraya düşmenin iki yolu var ve ikisi de "sette kelime yok"
+               * DEĞİL: sözlük henüz yükleniyor, ya da yüklenemedi. İkisini
+               * ayırmayan tek bir metin yazılamaz; birinde beklemek, diğerinde
+               * yeniden denemek gerekiyor.
+               */
+              <div
+                className="parsomen-panel bg-[var(--surface)] p-10 rounded-2xl border border-[var(--border)] text-center space-y-3 shadow-[0_1px_3px_rgba(30,36,48,0.03)]"
+                aria-busy={sozlukDurumu === 'yukleniyor'}
+                aria-live="polite"
+              >
+                {sozlukDurumu === 'hata' ? (
+                  <>
+                    <div className="space-y-1">
+                      <h4 className="text-base font-bold text-[var(--text-primary)]">Sözlük yüklenemedi</h4>
+                      <p className="text-xs text-[var(--text-secondary)] max-w-sm mx-auto leading-relaxed">
+                        Bu setteki {cozulemeyenUyelik} kelime sözlükten okunuyor ve
+                        sözlük açılamadı. Kelimelerin duruyor, silinmediler.
+                      </p>
+                    </div>
+                    {onSozlugüYenidenDene && (
+                      <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                        <button
+                          type="button"
+                          onClick={onSozlugüYenidenDene}
+                          className="dugme-birincil px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--on-primary)] text-xs font-semibold rounded-xl cursor-pointer"
+                        >
+                          Yeniden dene
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="h-5 w-40 mx-auto rounded-lg bg-[var(--surface-soft)] animate-pulse" />
+                    <div className="h-3 w-full max-w-xs mx-auto rounded bg-[var(--surface-soft)] animate-pulse" />
+                    <div className="h-3 w-2/3 max-w-[16rem] mx-auto rounded bg-[var(--surface-soft)] animate-pulse" />
+                    <p className="text-xs text-[var(--text-secondary)] pt-1">
+                      Bu setteki {cozulemeyenUyelik} kelime hazırlanıyor…
+                    </p>
+                  </>
+                )}
+              </div>
             ) : (
               /* Empty Set View */
               <div className="parsomen-panel bg-[var(--surface)] p-10 rounded-2xl border border-[var(--border)] text-center space-y-3 shadow-[0_1px_3px_rgba(30,36,48,0.03)]">

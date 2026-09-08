@@ -60,6 +60,14 @@ interface QuizModuleProps {
   initialCollectionId?: string;
   allWords: WordCard[]; // Oxford 3000 words
   extraWords?: WordCard[]; // Oxford 5000 Ek (B2 Ek + C1)
+  /*
+   * Sözlük geldi mi? Oxford dizileri tembel yükleniyor ve bu ekran onlara
+   * bağlı; gelmemişken her seviye "0" görünüyor, havuz "0 Kelime" yazıyor ve
+   * sınav başlatılamıyordu. Bayrak yalnızca SAYILARIN ne zaman anlamlı
+   * olduğunu söylüyor — ekranı kilitlemiyor, çünkü kendi setleriyle sınav
+   * sözlüğe hiç ihtiyaç duymuyor.
+   */
+  sozlukHazir?: boolean;
   customCards: WordCard[]; // Custom cards
   collections: Collection[];
   memberships: CollectionMembership[];
@@ -109,6 +117,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
   initialCollectionId,
   allWords,
   extraWords = [],
+  sozlukHazir = true,
   customCards,
   collections,
   memberships,
@@ -179,6 +188,29 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
   const handleSelectAllOxford = () => {
     setSelectedSources(['A1', 'A2', 'B1', 'B2', 'C1']);
   };
+
+  /*
+   * Seçili kaynaklardan en az biri sözlüğe mi bağlı? Kendi setleriyle sınav
+   * sözlük gelmeden de düzgün çalışıyor; bekleme metni yalnızca gerçekten
+   * beklenen durumda yazılmalı.
+   */
+  const oxfordKaynagiSecili = useMemo(
+    () => selectedSources.some(kaynak => (OXFORD_GROUP_KEYS as readonly string[]).includes(kaynak)),
+    [selectedSources]
+  );
+
+  /*
+   * SÖZLÜK GELİNCE BAYAT UYARI SİLİNİR.
+   *
+   * `setupError` yalnızca kaynak değiştirilince ya da sınav başlayınca
+   * temizleniyordu. Sözlük yüklenmeden "Sınavı Başlat"a basan kullanıcı
+   * "Seçtiğin kaynaklarda 0 kelime var" uyarısını alıyor, sözlük saniyeler
+   * sonra gelip sayılar dolduğunda kırmızı uyarı ekranda KALIYORDU — artık
+   * doğru olmayan bir cümle, kullanıcının silemeyeceği bir yerde.
+   */
+  useEffect(() => {
+    if (sozlukHazir) setSetupError(null);
+  }, [sozlukHazir]);
 
   // Oxford grup sayıları; arayüzde sabit sayı yazmak yerine veriden okunur.
   const oxfordGroupCounts = useMemo(() => {
@@ -253,9 +285,16 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
        * kullanıcı sorunu düzeltebileceği yerde olsun.
        */
       setQuizState('IDLE');
+      /*
+       * Sözlük daha gelmemişken "kaynaklarda 0 kelime var" demek yanlış:
+       * kelimeler duruyor, henüz okunmadılar. Kullanıcıya yapması gereken
+       * şeyi söylemek gerek — set eklemek değil, bir saniye beklemek.
+       */
       setSetupError(
-        `Seçtiğin kaynaklarda ${currentPool.length} kelime var. ` +
-          `Sınav için en az ${MIN_POOL_SIZE} kelime gerekiyor; başka bir seviye ya da set ekleyebilirsin.`
+        !sozlukHazir && oxfordKaynagiSecili
+          ? 'Oxford kelimeleri hâlâ hazırlanıyor. Birkaç saniye içinde hazır olacak.'
+          : `Seçtiğin kaynaklarda ${currentPool.length} kelime var. ` +
+              `Sınav için en az ${MIN_POOL_SIZE} kelime gerekiyor; başka bir seviye ya da set ekleyebilirsin.`
       );
       return;
     }
@@ -513,7 +552,9 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                           )}
                           <span>{OXFORD_GROUP_LABELS[lvl]}</span>
                         </div>
-                        <span className="text-[10px] text-[var(--text-muted)]">{count}</span>
+                        <span className="text-[10px] text-[var(--text-muted)]">
+                          {sozlukHazir ? count : '…'}
+                        </span>
                       </button>
                     );
                   })}
@@ -637,7 +678,9 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
                 Seçilen kriterlere uygun havuz:
               </span>
               <span className="font-bold text-[var(--primary)]">
-                {currentPool.length} Kelime
+                {sozlukHazir || !oxfordKaynagiSecili
+                  ? `${currentPool.length} Kelime`
+                  : 'hazırlanıyor…'}
               </span>
             </div>
           </div>

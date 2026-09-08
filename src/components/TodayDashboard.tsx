@@ -640,16 +640,27 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
                   </div>
                 </div>
 
-                {/* Progress bar */}
+                {/*
+                  * İLERLEME DE SÖZLÜĞE BAĞLI.
+                  *
+                  * Üst satır `sozlukHazir` ile korunuyordu ama buradaki iki
+                  * sayı ve çubuk korunmuyordu: aynı kartın başı "… Kelime"
+                  * derken altı kesin bir dille "0 Öğrendim / %0" diyor ve
+                  * çubuk bomboş duruyordu. `learned` sayacı kart listesi
+                  * üzerinde dönüyor (oxfordLevelStats), yani liste boşken
+                  * `learningStates` dolu olsa bile sıfır çıkıyor — öğrendiği
+                  * yüzlerce kelimeyi sıfırlanmış gören kullanıcı için bu
+                  * boş bir sayı değil, kaybedilmiş emek gibi okunuyor.
+                  */}
                 <div className="mt-3 space-y-1">
                   <div className="flex justify-between text-[10px] font-semibold text-[var(--text-secondary)]">
-                    <span>{lvl.stats.learned} Öğrendim</span>
-                    <span>%{learnedPercent}</span>
+                    <span>{sozlukHazir ? lvl.stats.learned : '…'} Öğrendim</span>
+                    <span>{sozlukHazir ? `%${learnedPercent}` : '…'}</span>
                   </div>
                   <div className="h-1.5 w-full bg-[var(--border)] rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-[var(--learned)] rounded-full transition-all"
-                      style={{ width: `${learnedPercent}%` }}
+                      className={`h-full bg-[var(--learned)] rounded-full transition-all ${sozlukHazir ? '' : 'opacity-0'}`}
+                      style={{ width: `${sozlukHazir ? learnedPercent : 0}%` }}
                     />
                   </div>
                 </div>
@@ -715,10 +726,20 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           )}
         </div>
 
+        {/*
+          * GÜNLÜK PLAN SAYAÇLARI DA SÖZLÜĞÜ BEKLİYOR.
+          *
+          * `todayQueue` yalnızca verilen kimlik listesi üzerinde dönüyor
+          * (srsEngine.summarizeQueue); Oxford dizisi boşken `learningStates`
+          * içinde kaç tane vadesi gelmiş kayıt olursa olsun sonuç sıfır. O
+          * aralıkta ekran hem "0 tekrar" diyor, hem ana düğmeyi kilitliyor,
+          * hem de "Bugünlük her şey tamam" diye KESİN bir cümle kuruyordu —
+          * yani çalışmak isteyen kullanıcı geri çevriliyordu.
+          */}
         <div className="grid grid-cols-2 gap-3 mt-4">
           <div className="p-3.5 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-light)]">
             <div className="text-2xl font-black text-[var(--primary)] tabular-nums">
-              {todayQueue.dueCount}
+              {sozlukHazir ? todayQueue.dueCount : '…'}
             </div>
             <div className="text-[10px] font-bold text-[var(--text-secondary)]  tracking-wide mt-0.5">
               Tekrar zamanı geldi
@@ -729,7 +750,7 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           </div>
           <div className="p-3.5 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border-light)]">
             <div className="text-2xl font-black text-[var(--learned)] tabular-nums">
-              {todayQueue.newCount.toLocaleString('tr-TR')}
+              {sozlukHazir ? todayQueue.newCount.toLocaleString('tr-TR') : '…'}
             </div>
             <div className="text-[10px] font-bold text-[var(--text-secondary)]  tracking-wide mt-0.5">
               Seni bekleyen kelime
@@ -745,19 +766,29 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
         {onStartStudy && (
           <button
             onClick={() => onStartStudy()}
-            disabled={plannedTotal === 0}
+            /*
+             * Yüklenirken düğme KAPALI kalıyor ama metni artık "Bugünlük her
+             * şey tamam" demiyor. Açık bırakmak daha kötü olurdu: havuz henüz
+             * boş olduğu için seans "çalışılacak kelime bulunamadı" uyarısıyla
+             * geri dönerdi. Kapalı + ne olduğunu söyleyen metin, açık +
+             * başarısız seanstan dürüst.
+             */
+            disabled={!sozlukHazir || plannedTotal === 0}
+            aria-busy={!sozlukHazir}
             className="dugme-birincil w-full mt-4 py-3.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 text-[var(--on-primary)] text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <RealmsIcon name="play" size={20} />
             <span>
-              {plannedTotal > 0
-                ? `Kaldığın yerden devam et (${plannedTotal} kelime)`
-                : 'Bugünlük her şey tamam'}
+              {!sozlukHazir
+                ? 'Günlük planın hazırlanıyor…'
+                : plannedTotal > 0
+                  ? `Kaldığın yerden devam et (${plannedTotal} kelime)`
+                  : 'Bugünlük her şey tamam'}
             </span>
           </button>
         )}
 
-        {plannedTotal > 0 && (
+        {sozlukHazir && plannedTotal > 0 && (
           <p className="text-[10px] text-[var(--text-muted)] text-center mt-2 leading-snug">
             Önce tekrar zamanı gelenler, sonra yeni kelimeler gösterilir.
           </p>
