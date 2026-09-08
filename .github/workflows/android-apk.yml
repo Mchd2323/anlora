@@ -1,12 +1,26 @@
-name: Android APK
+name: Android paketi (APK + AAB)
 
-# Anlora'nın Android paketini üretir.
+# Anlora'nın Android paketlerini üretir.
+#
+# İKİ AYRI ÇIKTI, İKİ AYRI İŞ İÇİN:
+#   * APK — telefona doğrudan kurulan dosya. Kendi telefonuna, test edenlere
+#     ve GitHub Release'ine giden şey budur. Play Store bunu KABUL ETMEZ.
+#   * AAB (Android App Bundle) — Play Console'a yüklenen dosya. Google onu
+#     açıp her cihaz için ayrı, küçük bir APK üretir; kullanıcı yalnızca kendi
+#     ekran yoğunluğuna ve işlemci mimarisine ait parçaları indirir.
+#
+# AAB YALNIZCA İMZALI ÜRETİLİR. İmzasız (hata ayıklama) bir paket Play'e
+# yüklenemez zaten; üretip artefakta koymak, işe yaramaz bir dosyayı işe
+# yarar sanmaya davetiye olurdu.
 #
 # İki tetikleyici vardır:
-#   * workflow_dispatch — Actions sekmesinden elle çalıştırılır. APK, koşunun
-#     artefaktı olarak indirilir (bağlantı 90 gün yaşar, GitHub oturumu gerekir).
+#   * workflow_dispatch — Actions sekmesinden elle çalıştırılır. Paketler
+#     koşunun artefaktı olarak indirilir (bağlantı 90 gün yaşar, GitHub
+#     oturumu gerekir).
 #   * v* etiketi — kalıcı bir Release oluşturur ve APK'yı ona ekler. Herkese
-#     açık, süresiz bir indirme bağlantısı isteniyorsa yol budur.
+#     açık, süresiz bir indirme bağlantısı isteniyorsa yol budur. AAB
+#     Release'e KONULMAZ: o dosya son kullanıcının kuramayacağı, yalnızca
+#     Play Console'a yüklenen bir ara biçimdir.
 #
 # İMZA. Depo gizlilerinde ANLORA_KEYSTORE_BASE64 tanımlıysa paket o anahtarla
 # imzalanmış bir release derlemesi olur; her koşu aynı kimliği taşır, yani
@@ -140,7 +154,7 @@ jobs:
             echo "::warning::ANLORA_KEYSTORE_BASE64 tanımlı değil. Hata ayıklama derlemesi üretilecek; bu paket her koşuda farklı imzalanır ve kullanıcıya dağıtılmamalıdır."
           fi
 
-      - name: APK derle
+      - name: Paketleri derle
         env:
           ANLORA_KEYSTORE_FILE: ${{ steps.imza.outputs.dosya }}
           ANLORA_KEYSTORE_PASSWORD: ${{ secrets.ANLORA_KEYSTORE_PASSWORD }}
@@ -153,7 +167,9 @@ jobs:
           ANLORA_VERSION_NAME: ${{ github.ref_type == 'tag' && github.ref_name || format('1.0.{0}', github.run_number) }}
         run: |
           if [ "${{ steps.imza.outputs.var }}" = "evet" ]; then
-            ./gradlew assembleRelease --no-daemon
+            # Tek Gradle çağrısı: iki ayrı çağrı aynı işi (kaynak birleştirme,
+            # dex) ikinci kez yapar ve koşuyu birkaç dakika uzatırdı.
+            ./gradlew assembleRelease bundleRelease --no-daemon
           else
             ./gradlew assembleDebug --no-daemon
           fi
@@ -172,22 +188,84 @@ jobs:
           echo "path=$DEST" >> "$GITHUB_OUTPUT"
           ls -lh "$DEST"
 
+      - name: AAB'yi adlandır
+        id: aab
+        if: steps.imza.outputs.var == 'evet'
+        run: |
+          SRC=android/app/build/outputs/bundle/release/app-release.aab
+          DEST="anlora-${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}.aab"
+          cp "$SRC" "$DEST"
+          echo "path=$DEST" >> "$GITHUB_OUTPUT"
+          ls -lh "$DEST"
+
       - name: İmzayı doğrula
         # İmzasız ya da beklenmedik anahtarla imzalanmış bir paketin sessizce
         # dağıtılması, bu iş akışının düzeltmek için var olduğu hatanın ta
         # kendisi. Bu yüzden imza koşulu burada ölçülüyor, varsayılmıyor.
+        #
+        # İKİ AYRI ARAÇ GEREKİYOR. `apksigner` yalnızca APK doğrular; AAB bir
+        # APK değil, imzalı bir JAR'dır ve onu `jarsigner` okur. Aynı aracı
+        # ikisine de uygulamaya çalışmak, AAB'yi hiç doğrulamadan geçirmek
+        # olurdu — Play'e imzasız dosya yüklemek ise koşu bittikten çok sonra,
+        # yükleme ekranında anlaşılan bir hatadır.
         if: steps.imza.outputs.var == 'evet'
         run: |
           APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner | sort | tail -1)
           "$APKSIGNER" verify --print-certs "${{ steps.apk.outputs.path }}"
 
-      - name: Artefakt olarak yükle
+          echo "--- AAB imzası ---"
+          # `-strict` KULLANILMIYOR. O bayrak uyarıları da hataya çeviriyor ve
+          # kendi imzaladığımız anahtar zorunlu olarak kendinden imzalı: sertifika
+          # zinciri bir kök otoriteye çıkmıyor, jarsigner buna uyarı veriyor ve
+          # -strict ile koşu KIRMIZI olurdu. Oysa Play'in beklediği tam olarak
+          # budur. Bu yüzden çıktı okunup "jar verified" satırı aranıyor:
+          # imzasızlık yine yakalanır, normal uyarı derlemeyi düşürmez.
+          jarsigner -verify -certs -verbose:summary "${{ steps.aab.outputs.path }}" \
+            | tee "$RUNNER_TEMP/aab-imza.txt" | tail -20
+          if ! grep -q "jar verified" "$RUNNER_TEMP/aab-imza.txt"; then
+            echo "::error::AAB imzalı değil; Play Console bu dosyayı reddeder."
+            exit 1
+          fi
+
+      - name: Artefakt olarak yükle (APK)
         uses: actions/upload-artifact@v4
         with:
           name: anlora-apk
           path: ${{ steps.apk.outputs.path }}
           if-no-files-found: error
           retention-days: 90
+
+      - name: Artefakt olarak yükle (AAB — Play Console için)
+        if: steps.imza.outputs.var == 'evet'
+        uses: actions/upload-artifact@v4
+        with:
+          name: anlora-aab
+          path: ${{ steps.aab.outputs.path }}
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Koşu özeti
+        # Play Console'a yükleme yapan kişinin bilmesi gereken tek sayı
+        # versionCode. Play aynı sayıyı ikinci kez kabul etmiyor ve bir
+        # yükleme reddedildiğinde sebebi "hangi sayıyı kullanmıştım"
+        # sorusunda düğümleniyordu. Sayı burada, koşunun kendi sayfasında
+        # yazılı duruyor.
+        if: always()
+        run: |
+          {
+            echo "### Paketler"
+            echo
+            echo "| Alan | Değer |"
+            echo "| --- | --- |"
+            echo "| versionCode | \`${{ github.run_number }}\` |"
+            echo "| versionName | \`${{ github.ref_type == 'tag' && github.ref_name || format('1.0.{0}', github.run_number) }}\` |"
+            echo "| APK (telefona kurulur) | \`${{ steps.apk.outputs.path }}\` |"
+            if [ "${{ steps.imza.outputs.var }}" = "evet" ]; then
+              echo "| AAB (Play Console'a yüklenir) | \`${{ steps.aab.outputs.path }}\` |"
+            else
+              echo "| AAB | üretilmedi — imza anahtarı yok |"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Etiketliyse Release'e ekle
         # İmzasız paket Release'e EKLENMEZ. Kalıcı bir indirme bağlantısına
