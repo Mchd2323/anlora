@@ -4,7 +4,7 @@ import { Sparkles, ArrowRight, X, Loader2 } from 'lucide-react';
 import { normalizeWordString } from '../utils/lemmatizer';
 import { detectWordDuplicate } from '../utils/duplicateDetector';
 import { useModalA11y } from '../hooks/useModalA11y';
-import { apiUrl } from '../config/api';
+import { apiUrl, getApiCapabilities } from '../config/api';
 import { useRemoteApi } from '../hooks/useRemoteApi';
 import { RealmsIcon } from './ui/RealmsIcon';
 
@@ -230,7 +230,17 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
         addedCount++;
       } else {
         try {
-          if (!yapayZekaVar) throw new Error('yapay-zeka-yok');
+          /*
+           * YOKLAMA BURADA BEKLENİYOR, RENDER ANINDAKİ BAYRAĞA GÜVENİLMİYOR.
+           *
+           * `yapayZekaVar` çizim anındaki değerdir ve yoklama sürerken `false`
+           * olur. Burada ona bakmak, uygulama yeni açılmışken başlatılan bir
+           * toplu eklemede yapay zekâyı ATLAYIP kelimeleri boş kart olarak
+           * kaydediyordu -- yani yalnızca görüntüyü değil, KAYDEDİLEN VERİYİ
+           * bozuyordu. Bu dal zaten `async`; sonucu beklemenin bedeli yok.
+           */
+          const yetenekler = await getApiCapabilities();
+          if (!yetenekler.ai) throw new Error('yapay-zeka-yok');
           const res = await fetch(apiUrl('/api/ai/generate-word'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

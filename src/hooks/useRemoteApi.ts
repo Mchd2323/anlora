@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getApiCapabilities, type ApiCapabilities } from '../config/api';
+import { getApiCapabilities, yoklamayiTazele, type ApiCapabilities } from '../config/api';
 
 /**
  * Sunucuya bağlı özellikler bu kurulumda var mı?
@@ -33,11 +33,41 @@ export function useRemoteApi(
 
   useEffect(() => {
     let cancelled = false;
-    void getApiCapabilities().then(yetenekler => {
-      if (!cancelled) setAvailable(yetenekler[ozellik]);
-    });
+
+    const yokla = () => {
+      void getApiCapabilities().then(yetenekler => {
+        if (!cancelled) setAvailable(yetenekler[ozellik]);
+      });
+    };
+
+    yokla();
+
+    /*
+     * UYGULAMA ÖN PLANA DÖNÜNCE YENİDEN YOKLANIYOR.
+     *
+     * Yoklama tek seferlikti ve başarısız olursa sonuç oturum boyunca "yok"
+     * kalıyordu: telefonda anlık bir ağ kesintisi, tünel ya da Cloudflare
+     * kopyasının soğuk başlaması Anlora AI'yı uygulama öldürülene kadar
+     * kaybettiriyordu. Kullanıcının elinde bunu düzeltecek hiçbir düğme yoktu.
+     *
+     * Ön plana dönüş doğru an: kullanıcı telefonu cebinden çıkarmış, ağ
+     * durumu değişmiş olabilir. Yalnızca sonuç OLUMSUZKEN yeniden yokluyoruz;
+     * özellik zaten varsa sormanın anlamı yok.
+     */
+    const geriDonuldu = () => {
+      if (document.visibilityState !== 'visible') return;
+      setAvailable(onceki => {
+        if (onceki === true) return onceki;
+        yoklamayiTazele();
+        yokla();
+        return onceki;
+      });
+    };
+
+    document.addEventListener('visibilitychange', geriDonuldu);
     return () => {
       cancelled = true;
+      document.removeEventListener('visibilitychange', geriDonuldu);
     };
   }, [ozellik]);
 

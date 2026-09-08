@@ -77,6 +77,28 @@ export function parseCapabilities(data: unknown): ApiCapabilities {
 let remoteProbe: Promise<ApiCapabilities> | null = null;
 
 /**
+ * Başarısız yoklamanın geçerlilik süresi (ms).
+ *
+ * NEDEN VAR. Önceden yoklama SONUCU değil, SÖZÜ önbelleğe alınıyordu ve
+ * ayrım yoktu: bir kez başarısız olan yoklama uygulama kapanana kadar
+ * "hiçbir özellik yok" olarak kalıyordu. Telefonda anlık bir ağ kesintisi,
+ * tünelden geçmek ya da Cloudflare kopyasının soğuk başlaması yeterliydi --
+ * Anlora AI o oturum boyunca kayboluyordu ve kullanıcı bunu ancak
+ * uygulamayı öldürüp yeniden açarak düzeltebiliyordu.
+ *
+ * Başarı kalıcı önbelleklenir: sunucu bir kez yanıt verdiyse yeteneklerini
+ * her ekran için yeniden sormanın anlamı yok.
+ *
+ * Başarısızlık ise GEÇİCİ sayılır. Otuz saniye, iki uç arasında duruyor:
+ * her çağrıda yeniden denemek sunucusuz pakette 3 saniyelik zaman aşımını
+ * tekrar tekrar ödetirdi; hiç denememek bugünkü hatadır.
+ */
+const BASARISIZ_TAZELIK_MS = 30_000;
+
+/** Son başarısız yoklamanın zamanı; başarıdan sonra hiç okunmaz. */
+let sonBasarisiz = 0;
+
+/**
  * Kurulum hangi uzak özellikleri karşılıyor?
  *
  * VARSAYIM DEĞİL, ÖLÇÜM.
@@ -93,6 +115,17 @@ let remoteProbe: Promise<ApiCapabilities> | null = null;
  */
 export async function getApiCapabilities(): Promise<ApiCapabilities> {
   if (remoteProbe) return remoteProbe;
+
+  /*
+   * Son deneme başarısızsa hemen tekrar denenmiyor. Bu olmadan, başarısızlıkta
+   * sözün boşaltılması her çağrıyı yeni bir ağ isteğine çevirirdi: sunucusuz
+   * pakette her ekran 3 saniyelik zaman aşımını yeniden öderdi.
+   */
+  if (sonBasarisiz && Date.now() - sonBasarisiz < BASARISIZ_TAZELIK_MS) {
+    return HICBIRI;
+  }
+
+  const baslangic = Date.now();
 
   remoteProbe = (async () => {
     try {
@@ -123,9 +156,36 @@ export async function getApiCapabilities(): Promise<ApiCapabilities> {
     } catch {
       return HICBIRI;
     }
-  })();
+  })().then(yetenekler => {
+    /*
+     * BAŞARISIZ YOKLAMA ÖNBELLEKTE TUTULMAZ.
+     *
+     * "Hiçbir özellik yok" iki farklı şeyin sonucu olabilir: sunucu
+     * gerçekten yok (sunucusuz paket) ya da o an ulaşılamadı. İkisi
+     * dışarıdan ayırt edilemiyor, ama ikincisinden dönüş mümkün. Sözü
+     * boşaltmak bir sonraki çağrının yeniden denemesini sağlıyor;
+     * `sonBasarisiz` damgası da o denemenin hemen olmasını engelliyor.
+     */
+    const hicbiri = !yetenekler.ai && !yetenekler.accounts && !yetenekler.sync;
+    if (hicbiri) {
+      sonBasarisiz = baslangic;
+      remoteProbe = null;
+    }
+    return yetenekler;
+  });
 
   return remoteProbe;
+}
+
+/**
+ * Bekleme süresini iptal edip bir sonraki yoklamayı hemen serbest bırakır.
+ *
+ * Uygulama ön plana geri döndüğünde çağrılıyor: kullanıcı telefonu cebine
+ * koyup çıkarana kadar ağ durumu değişmiş olabilir ve otuz saniyeyi
+ * beklemesi için bir sebep yok.
+ */
+export function yoklamayiTazele(): void {
+  sonBasarisiz = 0;
 }
 
 /*

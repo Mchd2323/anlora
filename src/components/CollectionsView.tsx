@@ -136,7 +136,24 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
    * için yapay zekâ ile kart üretmek. Set paylaşımı da buradaydı ama giriş
    * gerektirdiği için üyelikle birlikte kaldırıldı.
    */
-  const yapayZekaVar = useRemoteApi('ai') === true;
+  /*
+   * ÜÇ DURUM, İKİ DEĞİL.
+   *
+   * Burada `useRemoteApi('ai') === true` yazıyordu ve bu, "yoklama SÜRÜYOR"
+   * (null) durumunu "özellik YOK" (false) ile aynı yere katlıyordu. Kancanın
+   * kendi belgesi bunu açıkça yasaklıyor: null gelince arayüz KARARSIZ
+   * olmalı.
+   *
+   * Kullanıcının gördüğü sonuç şuydu: uygulamayı açıp hemen kelime ekleme
+   * penceresini açtığında, yoklama daha bitmemişken ekran emin bir dille
+   * "Bu kelime sözlükte yok, kendin yazabilirsin" diyordu; birkaç saniye
+   * sonra o yazı gidip yerine "Anlora AI ile hazırla" düğmesi geliyordu.
+   * Kullanıcı bunu güncellemenin geç gelmesi sandı, oysa uygulama daha
+   * bilmediği bir şeyi biliyormuş gibi söylüyordu.
+   */
+  const yapayZeka = useRemoteApi('ai');
+  const yapayZekaVar = yapayZeka === true;
+  const yapayZekaBekleniyor = yapayZeka === null;
 
   /*
    * FORM ALANLARININ KİMLİK ÖNEKİ.
@@ -2359,7 +2376,25 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                   çizilmez; yerine kullanıcıya durumu söyleyen bir satır kalır.
                   Basıldığında hata veren bir düğme, olmayan düğmeden kötüdür.
                 */}
-                {lookup.kind === 'not-found' && !yapayZekaVar && (
+                {/*
+                  Yoklama sürerken hiçbir hüküm verilmiyor: ne "kendin yaz"
+                  ne de yapay zekâ düğmesi. Yerine ne olduğunu söyleyen tek
+                  satır duruyor, böylece kutu boşalıp dolmuyor ve kullanıcı
+                  yanlış bir bilgiyle karşılaşmıyor.
+                */}
+                {lookup.kind === 'not-found' && yapayZekaBekleniyor && (
+                  <div className="pt-3 border-t border-[var(--border-light)] space-y-1">
+                    <div className="text-[11px] font-bold text-[var(--text-muted)]  tracking-wider">
+                      Bu kelime sözlükte yok
+                    </div>
+                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                      Anlora AI'nın bu kurulumda kullanılabilir olup olmadığı
+                      denetleniyor…
+                    </p>
+                  </div>
+                )}
+
+                {lookup.kind === 'not-found' && yapayZeka === false && (
                   <div className="pt-3 border-t border-[var(--border-light)] space-y-1">
                     <div className="text-[11px] font-bold text-[var(--text-muted)]  tracking-wider">
                       Bu kelime sözlükte yok
