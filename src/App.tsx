@@ -65,6 +65,7 @@ import { runOxfordIdMigrationIfNeeded } from './utils/oxfordIdMigration';
 import { OxfordGroupKey } from './types/oxford';
 import { loadExtendedIndex } from './services/extendedRepository';
 import { useToast } from './components/ui/ToastProvider';
+import { useTopluKuyruk } from './hooks/useTopluKuyruk';
 import { useAndroidBackButton } from './hooks/useAndroidBackButton';
 import { useTheme } from './hooks/useTheme';
 import { useKeyboardShortcuts, Shortcut } from './hooks/useKeyboardShortcuts';
@@ -554,6 +555,34 @@ export default function App() {
     setUnlockedBadges(checkAndUnlockBadgesV2());
   };
 
+  /*
+   * TOPLU EKLEMENİN ARKA PLAN KOŞUCUSU BURADA, KÖKTE DURUYOR.
+   *
+   * Üretim döngüsü toplu ekleme penceresinin içindeydi: pencere kapanınca
+   * ya da kullanıcı başka sekmeye geçince ölüyor, kalan kelimeler hiç
+   * eklenmiyordu. Doksan sekiz kelimelik bir liste on üç dakika sürüyor;
+   * kullanıcıdan o süre boyunca ekrana bakmasını istemek makul değil.
+   *
+   * Kanca burada olduğu için sekme değişimi, pencere kapanması ve hatta
+   * uygulamanın kapanıp açılması işi kesmiyor.
+   */
+  const { ilerleme: topluIlerleme, kuyrugaEkle } = useTopluKuyruk({
+    onKartEkle: (card, collectionId) => {
+      /*
+       * Kuyruk dakikalarca sürebiliyor ve kullanıcı bu sırada hedef seti
+       * silebilir. Silinmiş bir sete üyelik yazmak, hiçbir ekranda
+       * görünmeyen ölü bir kayıt bırakırdı. Set yoksa kart yine ekleniyor
+       * ama sete bağlanmıyor: üretilen içerik kaybolmuyor, kullanıcının
+       * kendi kelimeleri arasında duruyor.
+       */
+      const setVar = collections.some(c => c.id === collectionId);
+      handleAddCustomWord(card, setVar ? collectionId : undefined);
+    },
+    onBitti: (eklenen) => {
+      showToast(`${eklenen} kelime eklendi.`, 'learned');
+    }
+  });
+
   const handleUpdateCustomWord = (card: WordCard) => {
     updateCustomWordV2(card);
     setCustomWords(getCustomWordsV2());
@@ -827,6 +856,8 @@ export default function App() {
               isDictionaryReady ? 'hazir' : dictionaryError ? 'hata' : 'yukleniyor'
             }
             onSozlugüYenidenDene={() => { setDictionaryError(false); sozlugüYukle(); }}
+            topluIlerleme={topluIlerleme}
+            onTopluKuyrugaEkle={kuyrugaEkle}
             learningStates={learningStates}
             favorites={favorites}
             profile={profile}

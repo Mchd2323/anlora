@@ -42,6 +42,8 @@ import {
   extendedKelimeler
 } from '../services/extendedRepository';
 import { yazimOnerileri } from '../utils/yazimOnerisi';
+import type { TopluIlerleme } from '../hooks/useTopluKuyruk';
+import { settekiKalan } from '../services/topluKuyruk';
 
 interface CollectionsViewProps {
   collections: Collection[];
@@ -64,6 +66,13 @@ interface CollectionsViewProps {
   sozlukDurumu?: 'yukleniyor' | 'hazir' | 'hata';
   /** Sözlük yüklenemediyse yeniden denemeyi tetikler. */
   onSozlugüYenidenDene?: () => void;
+  /*
+   * Arka planda süren toplu ekleme. Koşucu uygulamanın kökünde duruyor;
+   * bu ekran yalnızca durumu GÖSTERİYOR, yönetmiyor.
+   */
+  topluIlerleme?: TopluIlerleme;
+  /** Yapay zekâ ile üretilecek kelimeleri arka plan kuyruğuna verir. */
+  onTopluKuyrugaEkle?: (setId: string, setAdi: string, kelimeler: string[]) => void;
   learningStates: Record<string, LearningState>;
   favorites: string[];
   profile?: UserProfile;
@@ -132,6 +141,8 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   oxfordWords,
   sozlukDurumu = 'hazir',
   onSozlugüYenidenDene,
+  topluIlerleme,
+  onTopluKuyrugaEkle,
   learningStates,
   favorites,
   profile,
@@ -1888,6 +1899,38 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
         {/* Right Active Set Workspace */}
         {activeDeck ? (
           <div className="lg:col-span-8 space-y-5">
+            {/*
+              ARKA PLANDA SÜREN EKLEME.
+
+              Yapay zekâ üretimi kelime başına ~8 saniye ve sırayla gidiyor.
+              İş artık toplu ekleme penceresinde değil, uygulamanın kökündeki
+              kuyrukta dönüyor; pencere kapansa da, başka sekmeye geçilse de,
+              uygulama kapanıp açılsa da sürüyor. Bu satır bunun TEK görünür
+              işareti: olmasaydı kullanıcı kartların neden azar azar
+              belirdiğini anlamaz, işin durduğunu sanırdı. Kuyruk bitince
+              satır kendiliğinden kalkıyor.
+            */}
+            {topluIlerleme?.kuyruk && settekiKalan(topluIlerleme.kuyruk, activeDeck.id) > 0 && (
+              <div
+                className="parsomen-panel bg-[var(--primary-soft)] border border-[var(--primary-border)] rounded-2xl px-4 py-3 flex items-center gap-3"
+                aria-live="polite"
+              >
+                <Loader2 className="w-4 h-4 animate-spin text-[var(--primary)] shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-[var(--primary)]">
+                    Kelimeler eklenmeye devam ediyor —{' '}
+                    {settekiKalan(topluIlerleme.kuyruk, activeDeck.id)} kelime kaldı
+                  </p>
+                  <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed truncate">
+                    {topluIlerleme.suAnki
+                      ? `Şu an: ${topluIlerleme.suAnki}`
+                      : 'Anlora AI kartları hazırlıyor'}
+                    {' · '}Uygulamayı kullanmaya devam edebilirsin.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Active Set Header */}
             <div className="parsomen-panel bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)] shadow-[0_1px_3px_rgba(30,36,48,0.03)] space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -3400,8 +3443,22 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
         oxfordWords={oxfordWords}
         onAddCustomWord={(card, cId) => onAddCustomWord(card, cId)}
         onLinkWordToCollection={(wId, cId) => onAddWordToCollection(wId, cId)}
+        onKuyrugaEkle={onTopluKuyrugaEkle}
         onBatchProcessComplete={(stats) => {
-          console.log('Batch completed:', stats);
+          /*
+           * Sonuç sessizce yutulmasın. Burada `console.log` vardı: pencere
+           * kapanıyor, sette birkaç kart beliriyor ve kullanıcıya ne olduğunu
+           * söyleyen hiçbir şey yoktu. Kuyruğa alınanlar ayrıca söyleniyor,
+           * çünkü onlar HENÜZ eklenmedi -- setin üstündeki satır onları
+           * takip ediyor.
+           */
+          const parcalar: string[] = [];
+          if (stats.addedCount) parcalar.push(`${stats.addedCount} kelime eklendi`);
+          if (stats.linkedCount) parcalar.push(`${stats.linkedCount} kelime bağlandı`);
+          if (stats.skippedCount) parcalar.push(`${stats.skippedCount} atlandı`);
+          if (stats.kuyrugaAlinan)
+            parcalar.push(`${stats.kuyrugaAlinan} kelime arka planda hazırlanıyor`);
+          if (parcalar.length) setSetNotice(parcalar.join(', ') + '.');
         }}
       />
 

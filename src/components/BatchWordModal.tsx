@@ -36,9 +36,20 @@ interface BatchWordModalProps {
     addedCount: number;
     linkedCount: number;
     skippedCount: number;
+    /** Arka plan kuyruğuna verilen, yapay zekâ ile üretilecek kelime sayısı. */
+    kuyrugaAlinan: number;
   }) => void;
   onAddCustomWord: (card: WordCard, collectionId?: string) => void;
   onLinkWordToCollection: (wordId: string, collectionId: string) => void;
+  /**
+   * Yapay zekâ ile üretilecek kelimeleri ARKA PLAN kuyruğuna verir.
+   *
+   * Üretim eskiden bu pencerenin içinde dönüyordu ve pencere kapanınca
+   * ölüyordu; doksan sekiz kelimelik bir liste on üç dakika boyunca ekranın
+   * açık kalmasını gerektiriyordu. Verilmezse (eski davranış) üretim yine
+   * burada yapılır, ama uygulama artık her zaman veriyor.
+   */
+  onKuyrugaEkle?: (setId: string, setAdi: string, kelimeler: string[]) => void;
 }
 
 interface AnalyzedToken {
@@ -100,7 +111,8 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
   oxfordWords,
   onBatchProcessComplete,
   onAddCustomWord,
-  onLinkWordToCollection
+  onLinkWordToCollection,
+  onKuyrugaEkle
 }) => {
   /*
    * Yapay zekâ ulaşılabilir mi? Sunucusuz kurulumda eşleşmeyen her kelime
@@ -378,8 +390,24 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
 
     const selectedItems = analyzedList.filter(i => i.selected);
 
+    /*
+     * YAPAY ZEKÂ İSTEYEN KELİMELER ARKA PLANA VERİLİYOR.
+     *
+     * Geri kalan her şey (bağlama, sözlükten kopyalama, elle doldurulmuş
+     * kart) anında biter -- hepsi cihazda. Uzun süren tek iş üretim ve
+     * pencerenin onu beklemesi için bir sebep yok: kuyruk uygulamanın
+     * kökünde, pencere kapansa da sürüyor.
+     */
+    const kuyrugaGidecek = onKuyrugaEkle
+      ? selectedItems.filter(
+          i => i.status === 'NEW' && !i.elleDolduruldu && !i.matchedCard
+        )
+      : [];
+    const kuyruktakiler = new Set(kuyrugaGidecek.map(i => i.raw));
+
     for (let i = 0; i < selectedItems.length; i++) {
       const item = selectedItems[i];
+      if (kuyruktakiler.has(item.raw)) continue;
       setProgressMsg(`İşleniyor (${i + 1}/${selectedItems.length}): ${item.raw}...`);
 
       if (item.status === 'EXACT_IN_COLLECTION' || item.status === 'LISTEDE_TEKRAR') {
@@ -546,8 +574,25 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
       }
     }
 
+    /*
+     * Kuyruk EN SONDA doldruluyor: yukarıdaki anlık işler bitmeden koşucu
+     * çalışmaya başlarsa aynı kelime iki koldan eklenebilirdi.
+     */
+    if (kuyrugaGidecek.length && onKuyrugaEkle) {
+      onKuyrugaEkle(
+        targetCollection.id,
+        targetCollection.name,
+        kuyrugaGidecek.map(i => i.raw)
+      );
+    }
+
     setIsProcessing(false);
-    onBatchProcessComplete({ addedCount, linkedCount, skippedCount });
+    onBatchProcessComplete({
+      addedCount,
+      linkedCount,
+      skippedCount,
+      kuyrugaAlinan: kuyrugaGidecek.length
+    });
     onClose();
   };
 
