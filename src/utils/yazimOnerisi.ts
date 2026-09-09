@@ -94,6 +94,22 @@ export function yazimOnerileri(
   limit = 3
 ): string[] {
   const anahtar = sorgu.trim().toLowerCase();
+
+  /*
+   * ÇOK KELİMELİ GİRDİYE ÖNERİ VERİLMEZ.
+   *
+   * KULLANICININ BİLDİRDİĞİ HATA: "day off" yazınca "bunu mu demek istedin?
+   * layoff | payoff" çıkıyordu. Sebep, boşluğun sıradan bir harf gibi
+   * sayılması: "day off" ile "layoff" arasındaki uzaklık iki (d->l ve boşluğu
+   * sil), yani eşiğin içinde. Aday listesinden çok kelimeliler zaten
+   * eleniyordu ama SORGUNUN kendisi elenmiyordu.
+   *
+   * Bir kalıbın doğruluğu tek kelimelik bir listeye bakarak yargılanamaz:
+   * "day off" gayet doğru yazılmış bir ifadedir, bizde olmaması onu yanlış
+   * yapmaz. Böyle girdiler doğrudan yapay zekâya gider ve çevrilir.
+   */
+  if (/\s/.test(anahtar)) return [];
+
   const tavan = oneriTavani(anahtar.length);
   if (!tavan) return [];
 

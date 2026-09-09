@@ -70,6 +70,8 @@ interface AnalyzedToken {
   yazimOnerisi?: string[];
   /** Çekimli biçim; kökü sözlükte bulunanlar için ("skidded" -> "skid"). */
   kokBicimi?: string;
+  /** Boşluk içeren girdi: kalıp/deyim. Rozeti ve önerileri buna göre değişir. */
+  cokKelimeli?: boolean;
   selected: boolean;
   /**
    * Kullanıcının bu ekranda doldurduğu kart bilgisi.
@@ -250,6 +252,8 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
     else if (check.type === 'EXACT_IN_OXFORD') status = 'EXACT_IN_OXFORD';
 
     const anahtar = aramaAnahtari(raw);
+    /** Boşluk içeren girdi: kalıp, deyim ya da öbek fiil. */
+    const cokKelimeli = /\s/.test(normalized);
     let sozlukKaynagi: AnalyzedToken['sozlukKaynagi'];
     let yazimOnerisi: string[] | undefined;
     let kokBicimi: string | undefined;
@@ -273,12 +277,22 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
          * "sewer" gibi gerçek kelimeler de bu dala düşüyor. Öneri bir
          * sorudur, düzeltme değil.
          */
-        const kok = findLemmaCandidate(normalized, bilinenKelime);
-        if (kok && kok.baseForm !== normalized) kokBicimi = kok.baseForm;
-        // Kök biçimi zaten ayrı bir düğme olarak sunuluyor; yazım
-        // önerilerinde ikinci kez göstermek aynı şeyi iki kez sormak olurdu.
-        const oneri = yazimOnerileri(anahtar, adaylar, 2).filter(o => o !== kokBicimi);
-        if (oneri.length) yazimOnerisi = oneri;
+        /*
+         * ÇOK KELİMELİ GİRDİ AYRI BİR ŞEYDİR.
+         *
+         * "day off" için kullanıcıya "layoff | payoff" önerilmişti: boşluk
+         * sıradan bir harf sayılınca uzaklık iki çıkıyor. Kök arama da aynı
+         * şekilde anlamsız -- bir kalıbın "tekil biçimi" yoktur. İkisi de
+         * atlanıyor; kalıp doğrudan yapay zekâya gidip çevriliyor.
+         */
+        if (!cokKelimeli) {
+          const kok = findLemmaCandidate(normalized, bilinenKelime);
+          if (kok && kok.baseForm !== normalized) kokBicimi = kok.baseForm;
+          // Kök biçimi zaten ayrı bir düğme olarak sunuluyor; yazım
+          // önerilerinde ikinci kez göstermek aynı şeyi iki kez sormak olurdu.
+          const oneri = yazimOnerileri(anahtar, adaylar, 2).filter(o => o !== kokBicimi);
+          if (oneri.length) yazimOnerisi = oneri;
+        }
       }
     }
 
@@ -290,6 +304,7 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
       sozlukKaynagi,
       yazimOnerisi,
       kokBicimi,
+      cokKelimeli,
       // 'LISTEDE_TEKRAR' bu işlevden hiç dönmüyor; o durum listeyi
       // gezen döngüde, aynı kelimenin ikinci kopyası görülünce yazılıyor.
       selected: status !== 'EXACT_IN_COLLECTION'
@@ -871,7 +886,7 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
                       {item.status === 'NEW' && !item.elleDolduruldu &&
                         (yapayZekaVar ? (
                           <span className="text-[10px] font-bold bg-[var(--learned-soft)] text-[var(--learned-text)] px-2 py-0.5 rounded-md border border-[var(--learned-border)]">
-                            Yeni AI Kartı
+                            {item.cokKelimeli ? 'Kalıp · AI çevirecek' : 'Yeni AI Kartı'}
                           </span>
                         ) : (
                           /*

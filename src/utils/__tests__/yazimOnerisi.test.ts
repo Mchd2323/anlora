@@ -70,6 +70,23 @@ describe('yazimOnerileri', () => {
     expect(yazimOnerileri('give ups', ADAYLAR)).toEqual([]);
   });
 
+  it('çok kelimeli GİRDİYE hiç öneri vermez', () => {
+    /*
+     * Bildirilen hata: "day off" için "layoff | payoff" öneriliyordu. Boşluk
+     * sıradan bir harf sayılınca uzaklık ikiye düşüyor (d->l, boşluğu sil).
+     * Kalıbın doğruluğu tek kelimelik listeye bakarak yargılanamaz.
+     */
+    expect(yazimOnerileri('day off', ['layoff', 'payoff', 'day', 'off'])).toEqual([]);
+    expect(yazimOnerileri('sense of humour', ADAYLAR)).toEqual([]);
+    expect(yazimOnerileri('look down on', ADAYLAR)).toEqual([]);
+  });
+
+  it('tireli birleşik kelimede öneri VERMEYE devam eder', () => {
+    // Tire boşluk değildir: "co-star" tek bir madde başıdır ve "costar"
+    // gerçek bir yazım önerisidir. Kalıplarla aynı kefeye konmamalı.
+    expect(yazimOnerileri('co-star', ['costar', 'co-stars'])).toContain('costar');
+  });
+
   it('ilk harfi tutan adayı öne alır', () => {
     // 'receive' ile 'deceive' aynı uzaklıkta; kullanıcının bastığı ilk harf
     // daha güvenilir bir ipucu.
