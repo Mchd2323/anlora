@@ -1,8 +1,17 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Collection, WordCard, CollectionMembership } from '../types';
 import { Sparkles, ArrowRight, X, Loader2 } from 'lucide-react';
-import { normalizeWordString } from '../utils/lemmatizer';
+import { findLemmaCandidate, normalizeWordString } from '../utils/lemmatizer';
 import { detectWordDuplicate } from '../utils/duplicateDetector';
+import { aramaAnahtari } from '../utils/aramaAnahtari';
+import { yazimOnerileri } from '../utils/yazimOnerisi';
+import {
+  extendedKelimeler,
+  getExtendedCard,
+  hasExtendedWord,
+  loadExtendedIndex
+} from '../services/extendedRepository';
+import { getPhraseCard, loadPhrases } from '../services/phraseRepository';
 import { useModalA11y } from '../hooks/useModalA11y';
 import { apiUrl, getApiCapabilities } from '../config/api';
 import { useRemoteApi } from '../hooks/useRemoteApi';
@@ -35,8 +44,32 @@ interface BatchWordModalProps {
 interface AnalyzedToken {
   raw: string;
   normalized: string;
-  status: 'EXACT_IN_COLLECTION' | 'EXACT_IN_OTHER_COLLECTION' | 'EXACT_IN_OXFORD' | 'NEW';
+  /*
+   * SOZLUKTE: kelime Oxford'da değil ama Genel Dağarcık'ta ya da kalıp
+   * listesinde bulundu. Bu durum ÖLÇÜLEREK eklendi: 299 kelimelik gerçek bir
+   * listede 47 kelime Genel Dağarcık'ta, 2'si kalıp listesinde vardı; ekran
+   * yalnızca Oxford'a baktığı için 49'unu da "yeni" sayıp yapay zekâya
+   * gönderiyordu. Cihazda doğrulanmış kart dururken yaklaşık yedi dakika
+   * bekleme ve boşuna kota demekti.
+   *
+   * LISTEDE_TEKRAR: aynı kelime metinde birden çok kez yazılmış. Önceden
+   * ikinci kopya sessizce düşürülüyordu; kullanıcı 307 satır yapıştırıp 299
+   * satır görüyor ve farkın nereye gittiğini bilmiyordu.
+   */
+  status:
+    | 'EXACT_IN_COLLECTION'
+    | 'EXACT_IN_OTHER_COLLECTION'
+    | 'EXACT_IN_OXFORD'
+    | 'SOZLUKTE'
+    | 'LISTEDE_TEKRAR'
+    | 'NEW';
   matchedCard?: WordCard;
+  /** SOZLUKTE ise kartın hangi kaynaktan çözüleceği. */
+  sozlukKaynagi?: 'extended' | 'phrase';
+  /** Sözlükte yok ama yakın yazımlar var: "bunu mu demek istedin?" */
+  yazimOnerisi?: string[];
+  /** Çekimli biçim; kökü sözlükte bulunanlar için ("skidded" -> "skid"). */
+  kokBicimi?: string;
   selected: boolean;
   /**
    * Kullanıcının bu ekranda doldurduğu kart bilgisi.
@@ -124,7 +157,38 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
     setDoldurulanIndex(null);
   };
 
+  /**
+   * Kullanıcı bir öneriye dokundu: girdi değiştirilir ve YENİDEN
+   * sınıflandırılır. Düzeltilen kelime çoğu zaman sözlükte bulunur, yani
+   * satır "yeni AI kartı"ndan "hazır kart"a döner.
+   */
+  const oneriyiUygula = (idx: number, yeniKelime: string) => {
+    const adaylar = [
+      ...oxfordWords.map(w => aramaAnahtari(w.word)),
+      ...extendedKelimeler()
+    ];
+    const yeni = girdiyiSinifla(yeniKelime, adaylar);
+    if (!yeni) return;
+    const guncel = [...analyzedList];
+    guncel[idx] = yeni;
+    setAnalyzedList(guncel);
+  };
+
   const [rawInput, setRawInput] = useState('');
+  /*
+   * Kalıp listesinin anahtarları. Kalıp dosyası ayrı ve tembel yükleniyor;
+   * çözümleme başlarken bir kez okunup burada tutuluyor ki her kelime için
+   * yeniden dosyaya gidilmesin.
+   *
+   * DURUM DEĞİL REF. İlk yazımda `useState` kullanılmıştı ve ölçümde
+   * yakalandı: `setKalipAnahtarlari(...)` çağrıldıktan hemen sonra çalışan
+   * döngü hâlâ ESKİ boş kümeyi okuyor (durum yazımı bir sonraki render'da
+   * görünür). Sonuç: kullanıcının listesindeki "in advance" ve "for instance"
+   * kalıp listesinde OLMASINA rağmen bulunamıyor, ikisi de yapay zekâya
+   * gidiyordu. Ref'in değeri atandığı anda okunabiliyor ve bu değer hiçbir
+   * çizimi etkilemiyor, yani durum olmasının bir gerekçesi de yok.
+   */
+  const kalipAnahtarlariRef = useRef<Set<string>>(new Set());
   const [analyzedList, setAnalyzedList] = useState<AnalyzedToken[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -143,44 +207,146 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
    */
   if (!isOpen) return null;
 
-  const handleAnalyze = () => {
+  const kalipVarMi = (anahtar: string) => kalipAnahtarlariRef.current.has(anahtar);
+
+  /*
+   * Kök biçim aranırken "bu kelime sözlükte var mı" sorusunu cevaplar.
+   * Lemmatizer sözlüğe doğrudan bağlanmıyor (dairesel bağımlılık olurdu),
+   * denetimi çağıran taraf veriyor. Böylece "skidded" -> "skid" gibi gerçek
+   * bir kök öneriliyor, "beed" gibi uydurma bir taban değil.
+   */
+  const bilinenKelime = (aday: string) => {
+    const anahtar = aramaAnahtari(aday);
+    return (
+      oxfordWords.some(w => aramaAnahtari(w.word) === anahtar) ||
+      customWords.some(w => aramaAnahtari(w.word) === anahtar) ||
+      hasExtendedWord(anahtar)
+    );
+  };
+
+  /**
+   * Tek bir girdiyi sınıflandırır.
+   *
+   * Öneri uygulandığında da (kullanıcı "enthusiast"ı seçtiğinde) aynı işlev
+   * çağrılıyor; iki ayrı sınıflandırma yazmak, ikisinin zamanla ayrışması
+   * demekti.
+   */
+  const girdiyiSinifla = (raw: string, adaylar: string[]): AnalyzedToken | null => {
+    const normalized = normalizeWordString(raw);
+    if (!normalized) return null;
+
+    const check = detectWordDuplicate({
+      rawWord: raw,
+      targetCollectionId: targetCollection?.id,
+      collections,
+      memberships,
+      customWords,
+      oxfordWords
+    });
+
+    let status: AnalyzedToken['status'] = 'NEW';
+    if (check.type === 'EXACT_IN_COLLECTION') status = 'EXACT_IN_COLLECTION';
+    else if (check.type === 'EXACT_IN_OTHER_COLLECTION') status = 'EXACT_IN_OTHER_COLLECTION';
+    else if (check.type === 'EXACT_IN_OXFORD') status = 'EXACT_IN_OXFORD';
+
+    const anahtar = aramaAnahtari(raw);
+    let sozlukKaynagi: AnalyzedToken['sozlukKaynagi'];
+    let yazimOnerisi: string[] | undefined;
+    let kokBicimi: string | undefined;
+
+    if (status === 'NEW') {
+      /*
+       * Oxford'da yoksa CİHAZDAKİ diğer iki kaynağa bakılıyor. Buraya kadar
+       * gelmeden yapay zekâya gitmek, elimizde hazır ve doğrulanmış bir kart
+       * varken sekiz saniye beklemek demekti.
+       */
+      if (hasExtendedWord(anahtar)) {
+        status = 'SOZLUKTE';
+        sozlukKaynagi = 'extended';
+      } else if (kalipVarMi(anahtar)) {
+        status = 'SOZLUKTE';
+        sozlukKaynagi = 'phrase';
+      } else {
+        /*
+         * Hâlâ yok. İki ipucu aranıyor ve HİÇBİRİ KENDİLİĞİNDEN
+         * UYGULANMIYOR: sözlüğümüz İngilizcenin tamamı değil, "holder" ya da
+         * "sewer" gibi gerçek kelimeler de bu dala düşüyor. Öneri bir
+         * sorudur, düzeltme değil.
+         */
+        const kok = findLemmaCandidate(normalized, bilinenKelime);
+        if (kok && kok.baseForm !== normalized) kokBicimi = kok.baseForm;
+        // Kök biçimi zaten ayrı bir düğme olarak sunuluyor; yazım
+        // önerilerinde ikinci kez göstermek aynı şeyi iki kez sormak olurdu.
+        const oneri = yazimOnerileri(anahtar, adaylar, 2).filter(o => o !== kokBicimi);
+        if (oneri.length) yazimOnerisi = oneri;
+      }
+    }
+
+    return {
+      raw,
+      normalized,
+      status,
+      matchedCard: check.matchedWordCard,
+      sozlukKaynagi,
+      yazimOnerisi,
+      kokBicimi,
+      // 'LISTEDE_TEKRAR' bu işlevden hiç dönmüyor; o durum listeyi
+      // gezen döngüde, aynı kelimenin ikinci kopyası görülünce yazılıyor.
+      selected: status !== 'EXACT_IN_COLLECTION'
+    };
+  };
+
+  const handleAnalyze = async () => {
     if (!rawInput.trim()) return;
     setIsAnalyzing(true);
+
+    /*
+     * Sözlükler BEKLENİYOR. İkisi de tembel yükleniyor ve beklemeden
+     * sorulursa her kelime için "yok" cevabı gelir -- yani listenin tamamı
+     * yapay zekâya gider. Dosyalar pakete gömülü, bekleme bir kereliktir.
+     */
+    await Promise.all([
+      loadExtendedIndex().catch(() => undefined),
+      loadPhrases()
+        .then(l => {
+          kalipAnahtarlariRef.current = new Set(l.map(k => aramaAnahtari(k.headword)));
+        })
+        .catch(() => undefined)
+    ]);
 
     const tokens = rawInput
       .split(/[\n,;]+/)
       .map(t => t.trim())
       .filter(t => t.length > 0);
 
+    // Yazım önerisinin adayları: cihazdaki iki liste.
+    const adaylar = [
+      ...oxfordWords.map(w => aramaAnahtari(w.word)),
+      ...extendedKelimeler()
+    ];
+
     const seen = new Set<string>();
     const results: AnalyzedToken[] = [];
 
     tokens.forEach(raw => {
       const normalized = normalizeWordString(raw);
-      if (!normalized || seen.has(normalized)) return;
+      if (!normalized) return;
+
+      if (seen.has(normalized)) {
+        // Sessizce düşürmek yerine görünür kılınıyor; kullanıcı listesindeki
+        // tekrarı ancak burada görebilir.
+        results.push({
+          raw,
+          normalized,
+          status: 'LISTEDE_TEKRAR',
+          selected: false
+        });
+        return;
+      }
       seen.add(normalized);
 
-      const check = detectWordDuplicate({
-        rawWord: raw,
-        targetCollectionId: targetCollection?.id,
-        collections,
-        memberships,
-        customWords,
-        oxfordWords
-      });
-
-      let status: AnalyzedToken['status'] = 'NEW';
-      if (check.type === 'EXACT_IN_COLLECTION') status = 'EXACT_IN_COLLECTION';
-      else if (check.type === 'EXACT_IN_OTHER_COLLECTION') status = 'EXACT_IN_OTHER_COLLECTION';
-      else if (check.type === 'EXACT_IN_OXFORD') status = 'EXACT_IN_OXFORD';
-
-      results.push({
-        raw,
-        normalized,
-        status,
-        matchedCard: check.matchedWordCard,
-        selected: status !== 'EXACT_IN_COLLECTION'
-      });
+      const sonuc = girdiyiSinifla(raw, adaylar);
+      if (sonuc) results.push(sonuc);
     });
 
     setAnalyzedList(results);
@@ -201,9 +367,45 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
       const item = selectedItems[i];
       setProgressMsg(`İşleniyor (${i + 1}/${selectedItems.length}): ${item.raw}...`);
 
-      if (item.status === 'EXACT_IN_COLLECTION') {
+      if (item.status === 'EXACT_IN_COLLECTION' || item.status === 'LISTEDE_TEKRAR') {
         skippedCount++;
         continue;
+      }
+
+      /*
+       * CİHAZDAKİ SÖZLÜKTEN GELEN KART. Yapay zekâ çağrılmıyor: kart zaten
+       * var, doğrulanmış ve çevrimdışı.
+       *
+       * Kart KOPYALANARAK ekleniyor, kimliği yazılarak değil. Genel Dağarcık
+       * ve kalıp kayıtları Oxford dizisinde bulunmuyor (ayrı dosyalardan
+       * tembel yükleniyorlar); yalnızca üyelik yazmak, sette hiçbir yerde
+       * çözülemeyen görünmez bir kayıt bırakırdı. Tekli ekleme yolu da
+       * (CollectionsView `addLookedUpCard`) aynı şeyi yapıyor.
+       */
+      if (item.status === 'SOZLUKTE') {
+        try {
+          const anahtar = normalizeWordString(item.raw);
+          const kart =
+            item.sozlukKaynagi === 'phrase'
+              ? await getPhraseCard(anahtar)
+              : await getExtendedCard(anahtar);
+          if (kart) {
+            onAddCustomWord(
+              {
+                ...kart,
+                id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+                isCustom: true,
+                dateAdded: new Date().toISOString().slice(0, 10),
+                isAiGenerated: false
+              },
+              targetCollection.id
+            );
+            addedCount++;
+            continue;
+          }
+        } catch {
+          /* harf dosyası açılamadıysa aşağıdaki genel yola düşülür */
+        }
       }
 
       if (item.matchedCard) {
@@ -550,35 +752,79 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
                 <div className="p-2.5 bg-[var(--primary-soft)] rounded-xl border border-[var(--primary-border)] text-center">
                   <span className="text-[10px] text-[var(--primary)] font-bold block">HAZIR KART</span>
                   <span className="text-base font-bold text-[var(--primary)]">
-                    {analyzedList.filter(i => i.status === 'EXACT_IN_OXFORD' || i.status === 'EXACT_IN_OTHER_COLLECTION').length}
+                    {analyzedList.filter(i =>
+                      i.status === 'EXACT_IN_OXFORD' ||
+                      i.status === 'EXACT_IN_OTHER_COLLECTION' ||
+                      i.status === 'SOZLUKTE'
+                    ).length}
                   </span>
                 </div>
                 <div className="p-2.5 bg-[var(--learning-soft)] rounded-xl border border-[var(--learning-border)] text-center">
-                  <span className="text-[10px] text-[var(--learning-text)] font-bold block">ZATEN EKLİ</span>
+                  <span className="text-[10px] text-[var(--learning-text)] font-bold block">ATLANACAK</span>
                   <span className="text-base font-bold text-[var(--learning-text)]">
-                    {analyzedList.filter(i => i.status === 'EXACT_IN_COLLECTION').length}
+                    {analyzedList.filter(i =>
+                      i.status === 'EXACT_IN_COLLECTION' || i.status === 'LISTEDE_TEKRAR'
+                    ).length}
                   </span>
                 </div>
               </div>
+
+              {/*
+                KAÇ KELİME YAPAY ZEKÂYA GİDECEK VE NE KADAR SÜRECEK?
+                Ölçüldü: kart üretimi kelime başına yaklaşık sekiz saniye ve
+                istekler sırayla gidiyor. Yüz kelimelik bir liste on üç dakika
+                demek; kullanıcı bunu BAŞLAMADAN önce bilmeli, yoksa ekranın
+                donduğunu sanıp pencereyi kapatıyor ve yarım kalmış bir set
+                kalıyor.
+              */}
+              {(() => {
+                const yapayZekayaGidecek = analyzedList.filter(
+                  i => i.selected && i.status === 'NEW' && !i.elleDolduruldu
+                ).length;
+                if (!yapayZekayaGidecek) return null;
+                const dakika = Math.max(1, Math.round((yapayZekayaGidecek * 8) / 60));
+                return (
+                  <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed px-1">
+                    {yapayZekaVar ? (
+                      <>
+                        <span className="font-bold text-[var(--text-primary)]">{yapayZekayaGidecek}</span>{' '}
+                        kelime sözlükte yok; Anlora AI ile hazırlanacak.
+                        Yaklaşık <span className="font-bold">{dakika} dakika</span> sürer ve
+                        pencere açık kalmalı.
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-bold text-[var(--text-primary)]">{yapayZekayaGidecek}</span>{' '}
+                        kelime sözlükte yok ve Anlora AI bu kurulumda kapalı; bunlar
+                        anlamı boş kart olarak eklenir. Yukarıdan tek tek doldurabilirsin.
+                      </>
+                    )}
+                  </p>
+                );
+              })()}
 
               {/* List */}
               <div className="space-y-1.5 max-h-60 overflow-y-auto pr-1">
                 {analyzedList.map((item, idx) => (
                   <div
                     key={idx}
-                    className={`p-2.5 rounded-xl border flex items-center justify-between transition-all ${
-                      item.status === 'EXACT_IN_COLLECTION'
+                    className={`p-2.5 rounded-xl border transition-all ${
+                      item.status === 'EXACT_IN_COLLECTION' || item.status === 'LISTEDE_TEKRAR'
                         ? 'bg-[var(--learning-soft)]/40 border-[var(--learning-border)] opacity-60'
                         : item.selected
                         ? 'bg-[var(--surface)] border-[var(--border)]'
                         : 'bg-[var(--bg)] border-[var(--border)] opacity-50'
                     }`}
                   >
+                    <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2.5">
                       <input
                         type="checkbox"
                         checked={item.selected}
-                        disabled={item.status === 'EXACT_IN_COLLECTION'}
+                        disabled={
+                          item.status === 'EXACT_IN_COLLECTION' ||
+                          item.status === 'LISTEDE_TEKRAR'
+                        }
                         onChange={(e) => {
                           const updated = [...analyzedList];
                           updated[idx].selected = e.target.checked;
@@ -588,11 +834,23 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
                       />
                       <div>
                         <span className="text-xs font-bold text-[var(--text-primary)]">{item.raw}</span>
-                        {item.matchedCard && (
-                          <span className="text-[11px] text-[var(--text-secondary)] ml-2">
-                            ({item.matchedCard.turkishMeaning})
-                          </span>
-                        )}
+                        {/*
+                          Anlam yalnızca O KART GERÇEKTEN kullanılacaksa
+                          yazılıyor. `matchedCard`, tekrar denetimi yakın bir
+                          kayıt bulduğunda (örneğin "suburbs" için "suburb")
+                          durum hâlâ NEW iken de doluyor; anlamı orada
+                          göstermek "bu kelime bizde var" demek olurdu, oysa
+                          satırın rozeti "Yeni AI Kartı" diyor. İki bilgi
+                          birbiriyle çelişiyordu.
+                        */}
+                        {item.matchedCard &&
+                          (item.status === 'EXACT_IN_OXFORD' ||
+                            item.status === 'EXACT_IN_OTHER_COLLECTION' ||
+                            item.status === 'EXACT_IN_COLLECTION') && (
+                            <span className="text-[11px] text-[var(--text-secondary)] ml-2">
+                              ({item.matchedCard.turkishMeaning})
+                            </span>
+                          )}
                       </div>
                     </div>
 
@@ -649,7 +907,59 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
                           Zaten Bu Sette
                         </span>
                       )}
+                      {item.status === 'SOZLUKTE' && (
+                        <span className="text-[10px] font-bold bg-[var(--primary-soft)] text-[var(--primary)] px-2 py-0.5 rounded-md border border-[var(--primary-border)]">
+                          {item.sozlukKaynagi === 'phrase' ? 'Kalıp' : 'Sözlükte'} · hazır
+                        </span>
+                      )}
+                      {item.status === 'LISTEDE_TEKRAR' && (
+                        <span className="text-[10px] font-bold bg-[var(--learning-soft)] text-[var(--learning-text)] px-2 py-0.5 rounded-md border border-[var(--learning-border)]">
+                          Listede zaten var
+                        </span>
+                      )}
                     </div>
+                    </div>
+
+                    {/*
+                      ÖNERİLER — KENDİLİĞİNDEN UYGULANMAZ.
+
+                      Sözlüğümüz İngilizcenin tamamı değil: "holder", "sewer",
+                      "ox" gibi gerçek kelimeler de bulunamayanlar arasına
+                      düşüyor ve onlar için önerilen "düzeltme" yanlış olurdu.
+                      Bu yüzden öneri bir SORUDUR; dokunulmadıkça hiçbir şey
+                      değişmez.
+                    */}
+                    {(item.yazimOnerisi?.length || item.kokBicimi) && (
+                      <div className="mt-1.5 pl-6 flex flex-wrap items-center gap-1.5">
+                        {item.kokBicimi && (
+                          <>
+                            <span className="text-[10px] text-[var(--text-muted)]">kök biçimi:</span>
+                            <button
+                              type="button"
+                              onClick={() => oneriyiUygula(idx, item.kokBicimi!)}
+                              className="text-[10px] font-bold px-2 py-1 rounded-md border border-[var(--primary-border)] bg-[var(--primary-soft)] text-[var(--primary)] cursor-pointer"
+                            >
+                              {item.kokBicimi}
+                            </button>
+                          </>
+                        )}
+                        {item.yazimOnerisi?.length ? (
+                          <>
+                            <span className="text-[10px] text-[var(--text-muted)]">bunu mu demek istedin?</span>
+                            {item.yazimOnerisi.map(oneri => (
+                              <button
+                                key={oneri}
+                                type="button"
+                                onClick={() => oneriyiUygula(idx, oneri)}
+                                className="text-[10px] font-bold px-2 py-1 rounded-md border border-[var(--border)] bg-[var(--bg)] text-[var(--text-primary)] cursor-pointer hover:bg-[var(--surface-soft)]"
+                              >
+                                {oneri}
+                              </button>
+                            ))}
+                          </>
+                        ) : null}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

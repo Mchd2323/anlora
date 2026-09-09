@@ -59,9 +59,15 @@ export function wordUserPrompt(
 ${context ? `The user encountered this word in this context sentence: "${context}"` : ''}
 ${
   yazimDenetimi
-    ? `SPELLING CHECK FIRST. If "${trimmedWord}" is not a real English word — a misspelling, a Turkish or other non-English word, or nonsense — do NOT invent a card. Return ONLY this JSON and nothing else:
-{ "notAWord": true, "suggestion": "<the English word the learner most likely meant, or an empty string if you cannot tell>" }
-Judge this conservatively. Rare, technical, archaic, dialectal, slang and proper-noun-derived words ARE real English words; produce the normal card for them. Report notAWord only when no English dictionary would list the string at all. When in doubt, produce the card.
+    ? `SPELLING CHECK FIRST. If "${trimmedWord}" is not real English — a misspelling, a Turkish or other non-English string, or nonsense — do NOT invent a card. Return ONLY this JSON and nothing else:
+{ "notAWord": true, "suggestion": "<the English word or phrase the learner most likely meant, or an empty string if you cannot tell>" }
+Judge this conservatively. ALL of the following are real English and MUST get the normal card, never notAWord:
+- multi-word entries: phrases, idioms, phrasal verbs, collocations and compounds ("in advance", "look down on", "sense of humour", "power plant", "as well as");
+- inflected forms ("skidded", "carried out", "employed");
+- rare, technical, archaic, dialectal and slang words;
+- regional spellings ("neighbor" and "neighbour", "humor" and "humour" are both correct);
+- words derived from proper nouns.
+Report notAWord only when no English dictionary or phrase book would list the string at all. When in doubt, produce the card.
 `
     : ''
 }
