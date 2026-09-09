@@ -73,6 +73,8 @@ interface CollectionsViewProps {
   topluIlerleme?: TopluIlerleme;
   /** Yapay zekâ ile üretilecek kelimeleri arka plan kuyruğuna verir. */
   onTopluKuyrugaEkle?: (setId: string, setAdi: string, kelimeler: string[]) => void;
+  /** Hatırlatmaya dokununca kelime listesini açar. */
+  onTopluDetay?: () => void;
   learningStates: Record<string, LearningState>;
   favorites: string[];
   profile?: UserProfile;
@@ -143,6 +145,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   onSozlugüYenidenDene,
   topluIlerleme,
   onTopluKuyrugaEkle,
+  onTopluDetay,
   learningStates,
   favorites,
   profile,
@@ -1911,8 +1914,10 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               satır kendiliğinden kalkıyor.
             */}
             {topluIlerleme?.kuyruk && settekiKalan(topluIlerleme.kuyruk, activeDeck.id) > 0 && (
-              <div
-                className="parsomen-panel bg-[var(--primary-soft)] border border-[var(--primary-border)] rounded-2xl px-4 py-3 flex items-center gap-3"
+              <button
+                type="button"
+                onClick={onTopluDetay}
+                className="w-full parsomen-panel bg-[var(--primary-soft)] border border-[var(--primary-border)] rounded-2xl px-4 py-3 flex items-center gap-3 text-left cursor-pointer hover:bg-[var(--primary-soft)]/70"
                 aria-live="polite"
               >
                 <Loader2 className="w-4 h-4 animate-spin text-[var(--primary)] shrink-0" />
@@ -1925,10 +1930,10 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     {topluIlerleme.suAnki
                       ? `Şu an: ${topluIlerleme.suAnki}`
                       : 'Anlora AI kartları hazırlıyor'}
-                    {' · '}Uygulamayı kullanmaya devam edebilirsin.
+                    {' · '}Listeyi görmek için dokun.
                   </p>
                 </div>
-              </div>
+              </button>
             )}
 
             {/* Active Set Header */}

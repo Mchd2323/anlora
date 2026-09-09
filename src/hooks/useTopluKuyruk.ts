@@ -67,9 +67,15 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
         onKartEkleRef.current(kart, oge.setId);
         eklenenRef.current++;
 
-        // Düşürme ÜRETİMDEN SONRA: uygulama tam o anda kapanırsa kelime
-        // kuyrukta kalır ve yeniden denenir.
-        mevcut = ilkiniDusur();
+        /*
+         * Düşürme ÜRETİMDEN SONRA: uygulama tam o anda kapanırsa kelime
+         * kuyrukta kalır ve yeniden denenir.
+         *
+         * Sonuç da kaydediliyor: anlamı boş kalan kart "eklendi" diye
+         * gösterilirse kullanıcı kartı açıp boş bulduğunda bunu hata sanar.
+         * Boş kalanlar listede ayrı görünüyor.
+         */
+        mevcut = ilkiniDusur(kart.turkishMeaning ? 'eklendi' : 'bos');
         setKuyruk(mevcut);
 
         if (mevcut) await new Promise(r => setTimeout(r, ARA_MS));

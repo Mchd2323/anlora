@@ -66,6 +66,7 @@ import { OxfordGroupKey } from './types/oxford';
 import { loadExtendedIndex } from './services/extendedRepository';
 import { useToast } from './components/ui/ToastProvider';
 import { useTopluKuyruk } from './hooks/useTopluKuyruk';
+import { TopluKuyrukPaneli } from './components/TopluKuyrukPaneli';
 import { useAndroidBackButton } from './hooks/useAndroidBackButton';
 import { useTheme } from './hooks/useTheme';
 import { useKeyboardShortcuts, Shortcut } from './hooks/useKeyboardShortcuts';
@@ -566,6 +567,9 @@ export default function App() {
    * Kanca burada olduğu için sekme değişimi, pencere kapanması ve hatta
    * uygulamanın kapanıp açılması işi kesmiyor.
    */
+  /** Kuyruk ayrıntı penceresi; hatırlatmaya dokununca açılıyor. */
+  const [topluPanelAcik, setTopluPanelAcik] = useState(false);
+
   const { ilerleme: topluIlerleme, kuyrugaEkle } = useTopluKuyruk({
     onKartEkle: (card, collectionId) => {
       /*
@@ -813,6 +817,8 @@ export default function App() {
             oxfordWords={oxfordWords}
             extraWords={oxfordExtraWords}
             sozlukHazir={isDictionaryReady}
+            topluIlerleme={topluIlerleme}
+            onTopluDetay={() => setTopluPanelAcik(true)}
             learningStates={learningStates}
             settings={settings}
             stats={stats}
@@ -858,6 +864,7 @@ export default function App() {
             onSozlugüYenidenDene={() => { setDictionaryError(false); sozlugüYukle(); }}
             topluIlerleme={topluIlerleme}
             onTopluKuyrugaEkle={kuyrugaEkle}
+            onTopluDetay={() => setTopluPanelAcik(true)}
             learningStates={learningStates}
             favorites={favorites}
             profile={profile}
@@ -1163,6 +1170,19 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/*
+        Kuyruk ayrıntı penceresi uygulamanın KÖKÜNDE duruyor: hatırlatma hem
+        ana sayfada hem set ekranında var ve ikisi de aynı pencereyi açıyor.
+        Bileşenlerin içinde ayrı ayrı tutmak, iki kopyanın zamanla ayrışması
+        demekti.
+      */}
+      {topluPanelAcik && (
+        <TopluKuyrukPaneli
+          ilerleme={topluIlerleme}
+          onClose={() => setTopluPanelAcik(false)}
+        />
+      )}
     </div>
   );
 }

@@ -18,6 +18,8 @@ import { CEFRBadge } from './ui/CEFRBadge';
 import { BRAND } from '../config/brand';
 import { IntroCarousel } from './home/IntroCarousel';
 import { HomeHeroArt } from './HomeHeroArt';
+import type { TopluIlerleme } from '../hooks/useTopluKuyruk';
+import { Loader2 } from 'lucide-react';
 import mansetGeyik from '../assets/themes/realms/carousel/carousel-stag-grove.webp';
 import mansetKule from '../assets/themes/realms/carousel/carousel-storm-watchtower.webp';
 import mansetSalon from '../assets/themes/realms/carousel/carousel-oath-chamber.webp';
@@ -40,6 +42,14 @@ interface TodayDashboardProps {
    * kaldığı için sözlük gelince kayma olmuyor.
    */
   sozlukHazir?: boolean;
+  /*
+   * Arka planda süren toplu ekleme. Ana sayfada da görünüyor: kullanıcı
+   * uygulamayı kapatıp açtığında ilk gördüğü ekran burası ve işin devam
+   * ettiğini başka hiçbir yerde öğrenemezdi.
+   */
+  topluIlerleme?: TopluIlerleme;
+  /** Hatırlatmaya dokununca kelime listesini açar. */
+  onTopluDetay?: () => void;
   customWords?: WordCard[];
   learningStates?: Record<string, LearningState>;
   settings?: UserSettings;
@@ -73,6 +83,8 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
   memberships,
   oxfordWords,
   sozlukHazir = true,
+  topluIlerleme,
+  onTopluDetay,
   extraWords = [],
   customWords = [],
   learningStates = {},
@@ -200,6 +212,37 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
 
   return (
     <div className="space-y-6 pb-safe-nav max-w-[1080px] mx-auto animate-fadeIn">
+      {/*
+        ARKA PLANDA SÜREN EKLEME — ANA SAYFADAKİ HATIRLATMA.
+
+        Kuyruk uygulama kapanıp açılsa bile sürüyor ama kullanıcının ilk
+        gördüğü ekran burası; işin devam ettiğini başka hiçbir yerde
+        öğrenemezdi. Dokununca hangi kelimenin hazır, hangisinin sırada
+        olduğunu gösteren liste açılıyor. Kuyruk bitince satır kendiliğinden
+        kalkıyor.
+      */}
+      {topluIlerleme?.kuyruk && (
+        <button
+          type="button"
+          onClick={onTopluDetay}
+          aria-live="polite"
+          className="w-full parsomen-panel bg-[var(--primary-soft)] border border-[var(--primary-border)] rounded-2xl px-4 py-3 flex items-center gap-3 text-left cursor-pointer hover:bg-[var(--primary-soft)]/70"
+        >
+          <Loader2 className="w-4 h-4 animate-spin text-[var(--primary)] shrink-0" />
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold text-[var(--primary)]">
+              Yeni kelimeler eklenmeye devam ediyor —{' '}
+              {topluIlerleme.kuyruk.ogeler.length} kelime kaldı
+            </p>
+            <p className="text-[11px] text-[var(--text-secondary)] truncate">
+              {topluIlerleme.suAnki ? `Şu an: ${topluIlerleme.suAnki}` : 'Anlora AI hazırlıyor'}
+              {' · '}Listeyi görmek için dokun
+            </p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-[var(--primary)] shrink-0" />
+        </button>
+      )}
+
       {/*
         Yalnızca kaybedecek bir şeyi olan kullanıcıya gösterilir: hiç kelime
         eklememiş birine "verilerin kaybolmasın" demek boş bir uyarıdır.

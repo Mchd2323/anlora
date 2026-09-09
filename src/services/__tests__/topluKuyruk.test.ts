@@ -76,4 +76,33 @@ describe('topluKuyruk', () => {
   it('settekiKalan null kuyrukta sıfır döner', () => {
     expect(settekiKalan(null, 'set1')).toBe(0);
   });
+
+  it('biten kelimeleri sonucuyla birlikte kaydeder', () => {
+    // Ekrandaki "eklendi" listesi bunu okuyor.
+    kuyrugaAl('set1', 'Deneme', ['alpha', 'beta', 'gamma']);
+    ilkiniDusur('eklendi');
+    ilkiniDusur('bos');
+    const k = kuyruguOku()!;
+    expect(k.bitenler).toEqual([
+      { kelime: 'alpha', durum: 'eklendi' },
+      { kelime: 'beta', durum: 'bos' }
+    ]);
+  });
+
+  it('varsayılan sonuç "eklendi"', () => {
+    kuyrugaAl('set1', 'Deneme', ['alpha', 'beta']);
+    ilkiniDusur();
+    expect(kuyruguOku()?.bitenler[0].durum).toBe('eklendi');
+  });
+
+  it('bitenler listesi kuyrukla birlikte siliniyor', () => {
+    /*
+     * Kuyruk boşalınca kayıt tamamen gidiyor; "eklendi" listesi de onunla
+     * birlikte. Kalsaydı hatırlatma satırı bitmiş bir işi göstermeye devam
+     * ederdi -- kullanıcının istediği tam tersi: bitince kalksın.
+     */
+    kuyrugaAl('set1', 'Deneme', ['alpha']);
+    expect(ilkiniDusur('eklendi')).toBeNull();
+    expect(kuyruguOku()).toBeNull();
+  });
 });

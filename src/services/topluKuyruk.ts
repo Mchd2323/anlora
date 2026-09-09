@@ -37,8 +37,27 @@ export interface KuyrukOgesi {
   setAdi: string;
 }
 
+/**
+ * Tamamlanmış bir öğe.
+ *
+ * `durum` neden var: yapay zekâ ulaşılamadığında ya da kelimeyi
+ * tanımadığında kart BOŞ olarak ekleniyor (uydurma anlam yazmaktansa).
+ * Kullanıcı listede "eklendi" görüp kartı açtığında boş bulursa bunu hata
+ * sanır; iki durumu ayırmak, sonradan doldurulması gerekenleri de gösteriyor.
+ */
+export interface BitenOge {
+  kelime: string;
+  durum: 'eklendi' | 'bos';
+}
+
 export interface TopluKuyruk {
   ogeler: KuyrukOgesi[];
+  /**
+   * Bu turda tamamlananlar. Kuyruk boşalınca kayıt tamamen siliniyor, yani
+   * bu liste yalnızca iş SÜRERKEN yaşıyor -- ekrandaki "eklendi" satırlarını
+   * beslemek için.
+   */
+  bitenler: BitenOge[];
   /** Kuyruğa toplam kaç öğe girdiği; ilerleme bunun üzerinden hesaplanır. */
   toplam: number;
   baslangic: string;
@@ -57,7 +76,8 @@ export function kuyruguOku(): TopluKuyruk | null {
     removeKey(ANAHTAR);
     return null;
   }
-  return kayit;
+  // Alan sonradan eklendi; diskteki eski kayıtlar onsuz olabilir.
+  return { ...kayit, bitenler: Array.isArray(kayit.bitenler) ? kayit.bitenler : [] };
 }
 
 export function kuyrugaAl(setId: string, setAdi: string, kelimeler: string[]): TopluKuyruk | null {
@@ -76,6 +96,7 @@ export function kuyrugaAl(setId: string, setAdi: string, kelimeler: string[]): T
       }
     : {
         ogeler: yeniOgeler,
+        bitenler: [],
         toplam: yeniOgeler.length,
         baslangic: new Date().toISOString()
       };
@@ -92,15 +113,20 @@ export function kuyrugaAl(setId: string, setAdi: string, kelimeler: string[]): T
  * ihtimali, hiç eklenmemesinden iyidir -- tekrar denetimi zaten ikinciyi
  * yakalar.
  */
-export function ilkiniDusur(): TopluKuyruk | null {
+export function ilkiniDusur(durum: BitenOge['durum'] = 'eklendi'): TopluKuyruk | null {
   const kayit = kuyruguOku();
   if (!kayit) return null;
+  const biten = kayit.ogeler[0];
   const ogeler = kayit.ogeler.slice(1);
   if (!ogeler.length) {
     removeKey(ANAHTAR);
     return null;
   }
-  const yeni = { ...kayit, ogeler };
+  const yeni: TopluKuyruk = {
+    ...kayit,
+    ogeler,
+    bitenler: [...kayit.bitenler, { kelime: biten.kelime, durum }]
+  };
   writeJSON(ANAHTAR, yeni);
   return yeni;
 }
