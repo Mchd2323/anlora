@@ -15,15 +15,23 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  * 4. Kapalı yönde direnç: desteninin sonundayken kart tamamen kilitli değil,
  *    lastik gibi az miktarda esner. Sınıra çarpıldığı hissedilir.
  * 5. Eşik geçilince kart ANINDA değişir; bırakma sonrası bekleme yoktur.
- * 6. Düğme, bağlantı ve form alanları üzerinde başlayan dokunuşlar desteye
- *    HİÇ girmez. Sebebi ölçülmüş bir hatadır: parmak "Öğrendim" düğmesinin
- *    üzerinde 20 pikselden fazla kayınca deste yatay kilide geçip
- *    setPointerCapture çağırıyordu; yakalama etkinken tarayıcı `click`
- *    olayını düğmeye değil yakalayan öğeye gönderir, dolayısıyla düğmenin
- *    onClick'i hiç çalışmazdı. Kullanıcının gördüğü şey buydu: ilk basışta
- *    bir şey olmuyor, ikincide oluyordu. Düğmeye nişan alan bir parmağın
- *    birkaç piksel kayması kaydırma niyeti değildir; kart yüzeyi zaten
- *    yeterince büyük.
+ * 6. Denetim üzerinde başlayan dokunuş desteyi KAPATMAZ, yalnızca ZORLAŞTIRIR.
+ *
+ *    Önceki sürüm düğme/bağlantı üzerinde başlayan her dokunuşu desteden
+ *    tamamen dışlıyordu. Bunun bedeli ölçüldü: kartta anlam açıkken
+ *    "Örnek cümleler" düğmesi `w-full` olduğu için kartın ortasını boydan
+ *    boya kaplıyor ve kart o bölgeden HİÇ kaydırılamıyordu. Ölçümde anlam
+ *    açıkken sekiz denemenin sekizi de başarısızdı; kullanıcının "iki kere
+ *    denemek gerekiyor" dediği durum buydu.
+ *
+ *    Çözüm dışlamak değil, eşiği yükseltmek: denetim üzerinde başlayan bir
+ *    sürüklemenin desteyi devralması için 8 değil 20 piksel gerekiyor.
+ *    Düğmeye nişan alan parmağın birkaç piksellik titremesi kaydırma
+ *    sayılmıyor, ama gerçek bir kaydırma her yerden çalışıyor.
+ *
+ *    Deste devraldığında `click` YUTULUYOR (`onClickCapture`). Yakalama
+ *    etkinken tarayıcı tıklamayı düğmeye değil yakalayan öğeye gönderir;
+ *    yutmak, kaydırma sonunda düğmenin yanlışlıkla çalışmasını da önler.
  */
 
 /** Dokunuşun kaydırma değil, bir denetimin kullanımı sayıldığı öğeler. */
@@ -46,6 +54,13 @@ const COMMIT_VELOCITY = 0.4;
 const VELOCITY_MAX_AGE = 100;
 /** Yön kilidi bu mesafeden sonra kararlaştırılır. */
 const AXIS_LOCK = 8;
+/**
+ * Denetim (düğme, bağlantı, alan) üzerinde başlayan sürüklemede aranan yatay
+ * mesafe. Daha büyük: düğmeye basmak isteyen parmağın kaçınılmaz birkaç
+ * piksellik kayması kaydırma sayılmamalı. Ama sonsuz değil -- kartın yarısı
+ * düğmeyle kaplıyken kaydırmayı tamamen kapatmak, özelliği kaybetmek olur.
+ */
+const AXIS_LOCK_KONTROL = 20;
 /** Kapalı yöne sürüklerken uygulanan sönümleme katsayısı. */
 const RESISTANCE = 0.3;
 /**
@@ -114,6 +129,8 @@ export interface SwipeDeckState {
     onPointerMove: (event: React.PointerEvent) => void;
     onPointerUp: (event: React.PointerEvent) => void;
     onPointerCancel: (event: React.PointerEvent) => void;
+    /** Kaydırma bir denetimden başladıysa ardından gelen tıklamayı yutar. */
+    onClickCapture: (event: React.MouseEvent) => void;
   };
 }
 
@@ -141,6 +158,10 @@ export function useSwipeDeck({
   const exitTimerRef = useRef<number | null>(null);
   /** Sürükleme boyunca anlık öteleme; durum değil, çünkü render tetiklemiyor. */
   const anlikXRef = useRef(0);
+  /** Bu dokunuş bir düğme/bağlantı üzerinde mi başladı? */
+  const kontroldenBasladiRef = useRef(false);
+  /** Deste devraldı: ardından gelen tıklama yutulmalı. */
+  const tiklamayiYutRef = useRef(false);
   const kareRef = useRef<number | null>(null);
   const onFrameRef = useRef(onFrame);
   onFrameRef.current = onFrame;
@@ -222,13 +243,19 @@ export function useSwipeDeck({
       // Fare ile yalnızca sol tuş sürükler; sağ tuş menüsü bozulmasın.
       if (event.pointerType === 'mouse' && event.button !== 0) return;
 
-      // Denetim üzerinde başlayan dokunuş desteye ait değildir.
+      /*
+       * Denetim üzerinde başlayan dokunuş DIŞLANMIYOR, işaretleniyor: aşağıda
+       * daha büyük bir eşik uygulanacak. Dışlamak, düğmenin kapladığı alanı
+       * kaydırılamaz ölü bölgeye çeviriyordu.
+       */
       const origin = event.target as HTMLElement | null;
-      if (origin && typeof origin.closest === 'function' && origin.closest(INTERACTIVE_SELECTOR)) {
-        activePointerRef.current = null;
-        axisRef.current = 'vertical'; // hareketi tamamen dışarıda bırak
-        return;
-      }
+      kontroldenBasladiRef.current = !!(
+        origin &&
+        typeof origin.closest === 'function' &&
+        origin.closest(INTERACTIVE_SELECTOR)
+      );
+      // Yeni dokunuş: önceki kaydırmadan kalan tıklama yutma borcu silinir.
+      tiklamayiYutRef.current = false;
 
       activePointerRef.current = event.pointerId;
       startXRef.current = event.clientX;
@@ -250,7 +277,8 @@ export function useSwipeDeck({
       const dy = event.clientY - startYRef.current;
 
       if (axisRef.current === 'undecided') {
-        if (Math.abs(dx) < AXIS_LOCK && Math.abs(dy) < AXIS_LOCK) return;
+        const yatayEsik = kontroldenBasladiRef.current ? AXIS_LOCK_KONTROL : AXIS_LOCK;
+        if (Math.abs(dx) < yatayEsik && Math.abs(dy) < AXIS_LOCK) return;
         // Yatay hareket dikeyden belirgin biçimde baskınsa deste devralır;
         // aksi hâlde parmağı sayfaya bırakırız.
         if (Math.abs(dx) <= Math.abs(dy)) {
@@ -258,7 +286,15 @@ export function useSwipeDeck({
           activePointerRef.current = null;
           return;
         }
+        // Yatay baskın ama denetim eşiğini geçmedi: karar ERTELENİR. Burada
+        // 'vertical'e düşmek, parmağını biraz oynatan kullanıcının o
+        // dokunuşta kaydırma hakkını tamamen kaybetmesi olurdu.
+        if (Math.abs(dx) < yatayEsik) return;
+
         axisRef.current = 'horizontal';
+        // Denetimden başlayan gerçek bir kaydırma: bitince gelecek tıklama
+        // düğmeyi çalıştırmasın.
+        if (kontroldenBasladiRef.current) tiklamayiYutRef.current = true;
         setIsDragging(true);
         // Sürükleme boyunca imleç kartı takip etsin; parmak kart sınırından
         // çıksa bile olaylar bize gelmeye devam eder.
@@ -356,7 +392,13 @@ export function useSwipeDeck({
       onPointerDown,
       onPointerMove,
       onPointerUp: finish,
-      onPointerCancel: finish
+      onPointerCancel: finish,
+      onClickCapture: (event: React.MouseEvent) => {
+        if (!tiklamayiYutRef.current) return;
+        tiklamayiYutRef.current = false;
+        event.stopPropagation();
+        event.preventDefault();
+      }
     }
   };
 }

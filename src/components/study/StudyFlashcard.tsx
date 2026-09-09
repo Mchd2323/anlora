@@ -9,6 +9,7 @@ import { shouldShowCefr } from '../../types/oxford';
 import { WordStatusActions } from '../ui/WordStatusActions';
 import { getUserWordStatus } from '../../utils/storageV2';
 import { useSwipeDeck } from '../../hooks/useSwipeDeck';
+import { useDokunusAktivasyonu } from '../../hooks/useDokunusAktivasyonu';
 import { readJSON, writeJSON } from '../../utils/safeStorage';
 import { formatPhonetic } from '../../utils/phonetic';
 import { RealmsIcon } from '../ui/RealmsIcon';
@@ -223,6 +224,25 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
     if (draggedRef.current) return;
     setIsMeaningRevealed((prev) => !prev);
   }, []);
+
+  /*
+   * KART İÇİ DÜĞMELER `click`E BAĞLI DEĞİL.
+   *
+   * Ölçüldü: yatay bir sürüklemeden hemen sonraki dokunuşta tarayıcı `click`
+   * üretmiyor (0-250 ms; çıplak bir sayfada da aynı, yani uygulamaya özgü
+   * değil). Kullanıcının "anlamı açarken/kapatırken iki kere basmak
+   * gerekiyor" dediği durum buydu. Kanca eylemi parmak kalkarken çalıştırıyor
+   * ve geç gelen tıklamayı yok sayıyor.
+   */
+  const anlamAktif = useDokunusAktivasyonu(handleToggleReveal);
+  const orneklerAktif = useDokunusAktivasyonu(
+    useCallback(() => {
+      if (draggedRef.current) return;
+      setIsExamplesExpanded((prev) => !prev);
+    }, [])
+  );
+  const oncekiAktif = useDokunusAktivasyonu(useCallback(() => goPrev(), [goPrev]));
+  const sonrakiAktif = useDokunusAktivasyonu(useCallback(() => goNext(), [goNext]));
 
   // Klavye gezinmesi
   useEffect(() => {
@@ -673,7 +693,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
               <div className="flex-1 flex flex-col justify-center items-center text-center py-6">
                 <button
                   type="button"
-                  onClick={handleToggleReveal}
+                  {...anlamAktif}
                   aria-expanded={isMeaningRevealed}
                   className="group flex flex-col items-center gap-2 cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-4 rounded-2xl"
                 >
@@ -724,7 +744,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
                     {examples.length > 0 && (
                       <div className="w-full text-left mt-5">
                         <button
-                          onClick={() => setIsExamplesExpanded(!isExamplesExpanded)}
+                          {...orneklerAktif}
                           className="w-full px-3.5 py-2.5 hover:bg-[var(--bg)] text-xs font-semibold text-[var(--text-secondary)] rounded-xl border border-[var(--border-light)] flex items-center justify-between transition-colors cursor-pointer"
                           aria-expanded={isExamplesExpanded}
                         >
@@ -793,7 +813,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
           --------------------------------------------------------------- */}
       <div className="mt-5 flex items-center justify-center gap-4">
         <button
-          onClick={goPrev}
+          {...oncekiAktif}
           disabled={!hasPrev}
           className="w-11 h-11 flex items-center justify-center bg-[var(--surface)] text-[var(--text-primary)] rounded-full border border-[var(--border)] shadow-[var(--elev-1)] transition-all cursor-pointer hover:border-[var(--primary-border)] hover:text-[var(--primary)] active:scale-95 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:border-[var(--border)] disabled:hover:text-[var(--text-primary)]"
           aria-label="Önceki kelime"
@@ -816,7 +836,7 @@ export const StudyFlashcard: React.FC<StudyFlashcardProps> = ({
         </p>
 
         <button
-          onClick={goNext}
+          {...sonrakiAktif}
           disabled={!hasNext}
           className="dugme-birincil w-11 h-11 flex items-center justify-center bg-[var(--primary)] text-[var(--on-primary)] rounded-full shadow-[var(--elev-2)] transition-all cursor-pointer hover:bg-[var(--primary-hover)] active:scale-95 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-[var(--primary)]"
           aria-label="Sonraki kelime"

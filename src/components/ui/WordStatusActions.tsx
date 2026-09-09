@@ -1,6 +1,7 @@
 import React from 'react';
 import { Check } from 'lucide-react';
 import { RealmsIcon } from '../ui/RealmsIcon';
+import { useDokunusAktivasyonu } from '../../hooks/useDokunusAktivasyonu';
 
 export interface WordStatusActionsProps {
   status: 'learned' | 'learning' | 'unseen';
@@ -30,23 +31,21 @@ export const WordStatusActions: React.FC<WordStatusActionsProps> = ({
   const isLearned = status === 'learned';
   const isReview = status === 'learning'; // 'learning' maps to 'Tekrar Et'
 
-  const handleToggleReview = (e: React.MouseEvent) => {
+  /*
+   * DOKUNUŞ `click`E BAĞLI DEĞİL.
+   *
+   * Ölçüldü: kartı kaydırdıktan hemen sonraki dokunuşta tarayıcı `click`
+   * üretmiyor (0-250 ms penceresi; çıplak bir sayfada da aynı). Kullanıcının
+   * "Öğrendim'e iki kere basmak gerekiyor" dediği şey buydu. Kanca eylemi
+   * parmak kalkarken çalıştırıyor, geç gelen tıklamayı yok sayıyor.
+   */
+  const durumDegistir = (yeni: 'learned' | 'learning' | 'unseen') => (e: React.SyntheticEvent) => {
     e.stopPropagation();
-    if (isReview) {
-      onSetStatus('unseen');
-    } else {
-      onSetStatus('learning');
-    }
+    onSetStatus(yeni);
   };
 
-  const handleToggleLearned = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (isLearned) {
-      onSetStatus('unseen');
-    } else {
-      onSetStatus('learned');
-    }
-  };
+  const tekrarAktif = useDokunusAktivasyonu(durumDegistir(isReview ? 'unseen' : 'learning'));
+  const ogrendimAktif = useDokunusAktivasyonu(durumDegistir(isLearned ? 'unseen' : 'learned'));
 
   const btnPadding =
     size === 'sm'
@@ -60,7 +59,7 @@ export const WordStatusActions: React.FC<WordStatusActionsProps> = ({
       {/* ↻ Tekrar Et Button (Warm Amber) */}
       <button
         type="button"
-        onClick={handleToggleReview}
+        {...tekrarAktif}
         aria-pressed={isReview}
         className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl font-semibold transition-all duration-150 border cursor-pointer select-none active:scale-[0.98] ${btnPadding} ${
           isReview
@@ -80,7 +79,7 @@ export const WordStatusActions: React.FC<WordStatusActionsProps> = ({
       {/* ✓ Öğrendim Button (Sage Green) */}
       <button
         type="button"
-        onClick={handleToggleLearned}
+        {...ogrendimAktif}
         aria-pressed={isLearned}
         className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl font-semibold transition-all duration-150 border cursor-pointer select-none active:scale-[0.98] ${btnPadding} ${
           isLearned
