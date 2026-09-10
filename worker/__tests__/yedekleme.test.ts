@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { _onbellegiBosalt, dusunmeDurumu, geminiKoprusu, secilenModel } from '../src/index';
+import worker, { _onbellegiBosalt, dusunmeDurumu, geminiKoprusu, secilenModel } from '../src/index';
 
 /**
  * Model yedeklemesi.
@@ -414,5 +414,56 @@ describe('soguk baslangicta model listesi cekilmiyor', () => {
     const metin = await geminiKoprusu('anahtar').generateJson({ prompt: 'x' });
 
     expect(metin).toContain('gemini-3.8-flash');
+  });
+});
+
+/*
+ * KOTA HATASI 500'E SARILMAMALI.
+ *
+ * Kullanıcının telefonunda görülen ekran: "Sunucu hatası (500) — Yapay zekâ
+ * şu anda yanıt veremedi." Bu cümle, kotası dolmuş bir hesapla gerçekten
+ * arızalı bir sunucuyu aynı gösteriyordu; uygulama da ikisine aynı tepkiyi
+ * verip saniyeler sonra yeniden deniyordu -- yani dolu kotaya tekrar tekrar
+ * vurup sınırı daha da zorluyordu.
+ */
+describe('hız sınırı dışarıya aynen yansır', () => {
+  beforeEach(() => {
+    _onbellegiBosalt();
+    vi.restoreAllMocks();
+  });
+
+  it('bütün modeller 429 dönerse yanıt 429 olur ve ayrıntı taşınır', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (adres: string) => {
+        if (String(adres).includes('/models?')) {
+          return {
+            ok: true,
+            json: async () => ({
+              models: [{ name: 'models/gemini-flash-latest', supportedGenerationMethods: ['generateContent'] }]
+            })
+          } as unknown as Response;
+        }
+        return {
+          ok: false,
+          status: 429,
+          text: async () =>
+            '{"error":{"message":"Quota exceeded for quota metric generate_requests_per_day"}}'
+        } as unknown as Response;
+      })
+    );
+
+    const istek = new Request('https://x/api/ai/generate-word', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ word: 'ox' })
+    });
+    const yanit = await worker.fetch(istek, { GEMINI_API_KEY: 'k' } as never);
+
+    expect(yanit.status).toBe(429);
+    const govde = (await yanit.json()) as { code: string; details: string };
+    expect(govde.code).toBe('AI_RATE_LIMIT');
+    // Gemini'nin kendi açıklaması çağırana ulaşmalı: tanıyı yapan tek bilgi bu.
+    expect(govde.details).toContain('Quota exceeded');
   });
 });

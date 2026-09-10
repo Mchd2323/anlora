@@ -372,12 +372,31 @@ function istekHatasi(durum: number): boolean {
   return durum === 400;
 }
 
+/**
+ * Yukarıdan gelen durumu TAŞIYAN hata.
+ *
+ * NEDEN GEREKLİ. Buradaki her hata dışarıya 500 olarak çıkıyordu. Kotası
+ * dolmuş bir hesap ile gerçekten arızalı bir sunucu, çağıran için aynı
+ * görünüyordu: uygulama "sunucu hatası" deyip saniyeler sonra yeniden
+ * deniyor, bu da dolu kotaya tekrar tekrar vurmak anlamına geliyordu.
+ * Kullanıcı da ağını değiştirip duruyordu, çünkü ekranda bunun ağla ilgisi
+ * olmadığını söyleyen bir şey yoktu.
+ */
+export class AiHatasi extends Error {
+  constructor(mesaj: string, readonly durum: number) {
+    super(mesaj);
+    this.name = 'AiHatasi';
+  }
+}
+
 export function geminiKoprusu(apiKey: string): AiGateway {
   return {
     async generateJson({ prompt, systemInstruction }) {
       const denenenler: string[] = [];
       let atlanan = '';
       let sonDetay = '';
+      /** Son denemenin Gemini durumu; dışarıya aynen yansıtılıyor. */
+      let sonDurum = 0;
 
       // Daha önce çalıştığı görülen model varsa önce o denenir: her istekte
       // model listesi çekmek gereksiz gecikme olurdu.
@@ -390,12 +409,14 @@ export function geminiKoprusu(apiKey: string): AiGateway {
 
         denenenler.push(`${onbellek.model} -> ${sonuc.durum}`);
         sonDetay = sonuc.detay;
+        sonDurum = sonuc.durum;
 
         // İstek hatasında model suçsuz: önbellek korunur, sıradaki modeli
         // denemek aynı gövdeyle aynı hatayı almak olurdu.
         if (istekHatasi(sonuc.durum)) {
-          throw new Error(
-            `Gemini 400 (${onbellek.surum}/${onbellek.model}): ${sonuc.detay}`
+          throw new AiHatasi(
+            `Gemini 400 (${onbellek.surum}/${onbellek.model}): ${sonuc.detay}`,
+            400
           );
         }
 
@@ -440,8 +461,9 @@ export function geminiKoprusu(apiKey: string): AiGateway {
         }
         denenenler.push(`${WORD_MODEL} -> ${dogrudan.durum}`);
         sonDetay = dogrudan.detay;
+        sonDurum = dogrudan.durum;
         if (istekHatasi(dogrudan.durum)) {
-          throw new Error(`Gemini 400 (v1beta/${WORD_MODEL}): ${dogrudan.detay}`);
+          throw new AiHatasi(`Gemini 400 (v1beta/${WORD_MODEL}): ${dogrudan.detay}`, 400);
         }
         atlanan = WORD_MODEL;
       }
@@ -461,14 +483,22 @@ export function geminiKoprusu(apiKey: string): AiGateway {
         }
         denenenler.push(`${model} -> ${sonuc.durum}`);
         sonDetay = sonuc.detay;
+        sonDurum = sonuc.durum;
 
         if (istekHatasi(sonuc.durum)) {
-          throw new Error(`Gemini 400 (${surum}/${model}): ${sonuc.detay}`);
+          throw new AiHatasi(`Gemini 400 (${surum}/${model}): ${sonuc.detay}`, 400);
         }
       }
 
-      throw new Error(
-        `Hiçbir model yanıt vermedi (${denenenler.join('; ')}). Son yanıt: ${sonDetay}`
+      /*
+       * 429 AYNEN GEÇİRİLİYOR. Bütün adaylar hız sınırına takıldıysa sorun
+       * modellerde değil hesabın kotasında; bunu 500 diye bildirmek çağıranı
+       * "sunucu arızası" sanıp hızla yeniden denemeye itiyor ve sınırı daha
+       * da zorluyor.
+       */
+      throw new AiHatasi(
+        `Hiçbir model yanıt vermedi (${denenenler.join('; ')}). Son yanıt: ${sonDetay}`,
+        sonDurum === 429 ? 429 : 500
       );
     },
   };
@@ -613,13 +643,22 @@ export default {
       return jsonYanit({ error: 'Bilinmeyen uç.' }, 404, cors);
     } catch (hata) {
       const mesaj = hata instanceof Error ? hata.message : 'Bilinmeyen hata';
+      const durum = hata instanceof AiHatasi ? hata.durum : 500;
+      /*
+       * Durum ve mesaj artık gerçeği söylüyor. Önceden her hata 500 ve tek
+       * bir cümleydi; kotası dolmuş hesapla arızalı sunucu ayırt edilemiyor,
+       * uygulama da ikisine aynı tepkiyi veriyordu.
+       */
+      const kota = durum === 429;
       return jsonYanit(
         {
-          error: 'Yapay zekâ şu anda yanıt veremedi. Tekrar deneyebilirsiniz.',
-          code: 'AI_ERROR',
+          error: kota
+            ? 'Anlora AI şu an istek kabul etmiyor (kota ya da hız sınırı).'
+            : 'Yapay zekâ şu anda yanıt veremedi. Tekrar deneyebilirsiniz.',
+          code: kota ? 'AI_RATE_LIMIT' : 'AI_ERROR',
           details: mesaj,
         },
-        500,
+        durum,
         cors
       );
     }

@@ -486,10 +486,27 @@ async function birDeneme(kelime: string, disSinyal?: AbortSignal): Promise<Denem
     };
   }
   if (res.status >= 500) {
+    const ayrinti = await hataMetni(res);
+    /*
+     * VEKİL SUNUCU KOTA HATASINI 500'E SARABİLİR.
+     *
+     * Anlora Worker'ı Gemini'den gelen her hatayı yakalayıp 500 döndürüyor;
+     * yukarıdaki gerçek durum yalnızca `details` metninin içinde kalıyor.
+     * Kotayı sunucu arızasından ayırmak, kullanıcıya doğru cümleyi kurmak
+     * ve boşuna hızlı yeniden denememek için metne de bakılıyor.
+     */
+    if (/\b429\b|quota|rate limit|resource_exhausted/i.test(ayrinti)) {
+      return {
+        tur: 'gecici',
+        hizSiniri: true,
+        hataTuru: 'kota',
+        neden: `Anlora AI istekleri sınırlıyor${ayrinti}`
+      };
+    }
     return {
       tur: 'gecici',
       hataTuru: 'sunucu',
-      neden: `Sunucu hatası (${res.status})${await hataMetni(res)}`
+      neden: `Sunucu hatası (${res.status})${ayrinti}`
     };
   }
   if (res.status === 408) {
@@ -532,11 +549,23 @@ async function hataMetni(res: Response): Promise<string> {
     let ozet = metin;
     try {
       const j = JSON.parse(metin);
-      ozet = String(j?.error?.message || j?.error || j?.message || metin);
+      /*
+       * `details` ÖNCE OKUNUYOR.
+       *
+       * Anlora Worker'ı yakaladığı hatayı iki alanda gönderiyor: `error`
+       * kullanıcıya gösterilecek genel cümle ("Yapay zekâ şu anda yanıt
+       * veremedi"), `details` ise Gemini'nin KENDİ yanıtı ("Hiçbir model
+       * yanıt vermedi (gemini-flash-latest -> 429 ...)"). Burada yalnızca
+       * `error` okunuyordu: sunucu tanıyı zaten göndermişken ekranda hiçbir
+       * şey söylemeyen cümle beliriyordu.
+       */
+      const genel = String(j?.error?.message || j?.error || j?.message || '');
+      const ayrinti = String(j?.details || '');
+      ozet = ayrinti && ayrinti !== genel ? ayrinti : genel || metin;
     } catch {
       /* düz metin */
     }
-    ozet = ozet.replace(/\s+/g, ' ').slice(0, 120);
+    ozet = ozet.replace(/\s+/g, ' ').slice(0, 200);
     return ozet ? ` — ${ozet}` : '';
   } catch {
     return '';
