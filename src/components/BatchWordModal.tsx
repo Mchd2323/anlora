@@ -151,6 +151,19 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
     setDoldurulanIndex(idx);
   };
 
+  /**
+   * Kelimeyi yeniden Anlora AI'ya bırakır: elle doldurulan içerik silinir.
+   *
+   * Geri dönüşü olmayan bir seçim bırakmamak için var. Kullanıcı yanlışlıkla
+   * "Elle doldur"a dokunduğunda ya da fikrini değiştirdiğinde, tek yol
+   * anlam alanını boşaltıp kaydetmekti; bunu kimsenin keşfetmesi beklenemez.
+   */
+  const aiyaBirak = (idx: number) => {
+    const guncel = [...analyzedList];
+    guncel[idx] = { ...guncel[idx], elleDolduruldu: undefined };
+    setAnalyzedList(guncel);
+  };
+
   const doldurmayiKaydet = () => {
     if (doldurulanIndex === null) return;
     const guncel = [...analyzedList];
@@ -900,39 +913,55 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
                         Rozet gerçeği söylüyor: yapay zekâ bu kurulumda kapalıysa
                         kart boş eklenir, "AI kartı" demek yanlış olur.
                       */}
-                      {item.status === 'NEW' && item.elleDolduruldu && (
-                        <button
-                          type="button"
-                          onClick={() => doldurmayiAc(idx)}
-                          className="text-[10px] font-bold bg-[var(--learned-soft)] text-[var(--learned-text)] px-2 py-1 rounded-md border border-[var(--learned-border)] cursor-pointer"
-                        >
-                          ✓ Dolduruldu · düzenle
-                        </button>
-                      )}
-                      {item.status === 'NEW' && !item.elleDolduruldu &&
-                        (yapayZekaVar ? (
-                          <span className="text-[10px] font-bold bg-[var(--learned-soft)] text-[var(--learned-text)] px-2 py-0.5 rounded-md border border-[var(--learned-border)]">
-                            {item.cokKelimeli ? 'Kalıp · AI çevirecek' : 'Yeni AI Kartı'}
-                          </span>
-                        ) : (
-                          /*
-                            ARTIK BOŞ KART BIRAKILMIYOR.
+                      {/*
+                        SÖZLÜKTE OLMAYAN KELİMEDE İKİ SEÇENEK DE VERİLİYOR.
+                        Burada yalnızca "Yeni AI Kartı" yazan bir ROZET vardı:
+                        kullanıcının elle doldurma seçeneği, yalnızca Anlora AI
+                        kapalıyken beliriyordu. Yani yapay zekâ açıkken kelimeyi
+                        kendi bilgisiyle doldurmak isteyen kullanıcının hiçbir
+                        yolu yoktu -- oysa anlamı bilen kullanıcı için sekiz
+                        saniye beklemek de, kota harcamak da gereksiz.
 
-                            Eskiden burada yalnızca "anlamı sen yazacaksın"
-                            yazan bir rozet vardı; kullanıcının o kartı sonradan
-                            bulması için setteki yüzlerce kartın arasında aşağı
-                            inmesi gerekiyordu ve pratikte kartlar boş kalıyordu.
-                            Düğme, kelime EKLENMEDEN ÖNCE aynı pencerede kartı
-                            doldurmayı öneriyor.
-                          */
+                        İkisi bir arada duruyor ve hangisinin seçili olduğu
+                        görünüyor; seçim geri alınabilir.
+                      */}
+                      {item.status === 'NEW' && (
+                        <div className="flex flex-wrap items-center justify-end gap-1">
                           <button
                             type="button"
-                            onClick={() => doldurmayiAc(idx)}
-                            className="text-[10px] font-bold bg-[var(--primary-soft)] text-[var(--primary)] px-2 py-1 rounded-md border border-[var(--primary-border)] cursor-pointer"
+                            disabled={!yapayZekaVar}
+                            aria-pressed={!item.elleDolduruldu}
+                            onClick={() => aiyaBirak(idx)}
+                            title={
+                              yapayZekaVar
+                                ? 'Anlora AI bu kelimenin kartını hazırlasın'
+                                : 'Anlora AI bu kurulumda kapalı'
+                            }
+                            className={`text-[10px] font-bold px-2 py-1 rounded-md border transition-colors ${
+                              !yapayZekaVar
+                                ? 'bg-[var(--bg)] text-[var(--text-muted)] border-[var(--border)] opacity-50 cursor-not-allowed'
+                                : !item.elleDolduruldu
+                                  ? 'bg-[var(--learned-soft)] text-[var(--learned-text)] border-[var(--learned-border)] cursor-pointer'
+                                  : 'bg-[var(--bg)] text-[var(--text-secondary)] border-[var(--border)] cursor-pointer'
+                            }`}
                           >
-                            Kartı doldurmak için dokun
+                            {!item.elleDolduruldu && yapayZekaVar ? '✓ ' : ''}
+                            Anlora AI
                           </button>
-                        ))}
+                          <button
+                            type="button"
+                            aria-pressed={!!item.elleDolduruldu}
+                            onClick={() => doldurmayiAc(idx)}
+                            className={`text-[10px] font-bold px-2 py-1 rounded-md border cursor-pointer transition-colors ${
+                              item.elleDolduruldu
+                                ? 'bg-[var(--learned-soft)] text-[var(--learned-text)] border-[var(--learned-border)]'
+                                : 'bg-[var(--primary-soft)] text-[var(--primary)] border-[var(--primary-border)]'
+                            }`}
+                          >
+                            {item.elleDolduruldu ? '✓ Elle dolduruldu · düzenle' : 'Elle doldur'}
+                          </button>
+                        </div>
+                      )}
                       {item.status === 'EXACT_IN_OXFORD' && (
                         <span className="text-[10px] font-bold bg-[var(--primary-soft)] text-[var(--primary)] px-2 py-0.5 rounded-md border border-[var(--primary-border)]">
                           Oxford ({item.matchedCard?.level}) Bağlanacak

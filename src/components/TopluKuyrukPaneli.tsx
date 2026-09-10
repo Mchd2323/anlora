@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader2, Check, X, WifiOff } from 'lucide-react';
+import { Loader2, Check, X, WifiOff, RotateCw } from 'lucide-react';
 import { useModalA11y } from '../hooks/useModalA11y';
 import type { TopluIlerleme } from '../hooks/useTopluKuyruk';
 
@@ -23,10 +23,19 @@ import type { TopluIlerleme } from '../hooks/useTopluKuyruk';
 
 interface Props {
   ilerleme: TopluIlerleme;
+  /** "Şimdi tekrar dene" düğmesi. */
+  onYenidenDene?: () => void;
   onClose: () => void;
 }
 
-export const TopluKuyrukPaneli: React.FC<Props> = ({ ilerleme, onClose }) => {
+/** 95_000 -> "1 dk 35 sn" */
+function sureMetni(ms: number): string {
+  const sn = Math.floor(ms / 1000);
+  if (sn < 60) return `${sn} sn`;
+  return `${Math.floor(sn / 60)} dk ${sn % 60} sn`;
+}
+
+export const TopluKuyrukPaneli: React.FC<Props> = ({ ilerleme, onYenidenDene, onClose }) => {
   const panelRef = useModalA11y(true, onClose);
   const kuyruk = ilerleme.kuyruk;
 
@@ -75,14 +84,36 @@ export const TopluKuyrukPaneli: React.FC<Props> = ({ ilerleme, onClose }) => {
             üretmek yerine duruyor; bunu söylemezsek kullanıcı ilerlemeyen bir
             sayıya bakıp uygulamanın kilitlendiğini sanır.
           */}
-          {ilerleme.duraklatildi && (
-            <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl bg-[var(--danger-soft)] border border-[var(--danger-border)]">
-              <WifiOff className="w-3.5 h-3.5 text-[var(--danger)] shrink-0 mt-0.5" />
-              <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
-                <span className="font-bold text-[var(--danger)]">Bağlantı bekleniyor.</span>{' '}
-                Anlora AI'ya şu an ulaşılamıyor. Kelimeler kuyrukta duruyor, hiçbiri
-                kaybolmadı; bağlantı gelince kaldığı yerden sürecek.
-              </p>
+          {(ilerleme.duraklatildi || ilerleme.takildi) && (
+            <div className="px-3 py-2.5 rounded-xl bg-[var(--danger-soft)] border border-[var(--danger-border)] space-y-2">
+              <div className="flex items-start gap-2">
+                <WifiOff className="w-3.5 h-3.5 text-[var(--danger)] shrink-0 mt-0.5" />
+                <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
+                  {ilerleme.duraklatildi ? (
+                    <>
+                      <span className="font-bold text-[var(--danger)]">Bağlantı bekleniyor.</span>{' '}
+                      Anlora AI'ya şu an ulaşılamıyor. Kelimeler kuyrukta duruyor, hiçbiri
+                      kaybolmadı; bağlantı gelince kaldığı yerden sürecek.
+                    </>
+                  ) : (
+                    /*
+                      TAKILMA GİZLENMİYOR. Uygulama arka plandayken Android
+                      isteği öldürebiliyor ve yanıt hiç gelmiyor; ekranda
+                      yalnızca dönen bir çark kalıyordu. Bekçi bunu kendisi
+                      toparlıyor, ama kullanıcının beklemesi gerekmesin diye
+                      durum yazılıyor ve elinde bir düğme oluyor.
+                    */
+                    <>
+                      <span className="font-bold text-[var(--danger)]">
+                        Yanıt gecikti ({sureMetni(ilerleme.gecenSure)}).
+                      </span>{' '}
+                      Uygulama arka plandayken istek kesilmiş olabilir. Kendiliğinden
+                      yeniden denenecek; beklemek istemezsen aşağıdaki "Şimdi tekrar
+                      dene" düğmesine dokun.
+                    </>
+                  )}
+                </p>
+              </div>
             </div>
           )}
 
@@ -98,8 +129,20 @@ export const TopluKuyrukPaneli: React.FC<Props> = ({ ilerleme, onClose }) => {
                   }`}
                 />
                 <span className="text-xs font-bold text-[var(--primary)]">{suAnki}</span>
+                {/*
+                  SAYAÇ, DÖNEN ÇARKIN YERİNE GEÇEN BİLGİ.
+
+                  Kullanıcının bildirdiği ekranda ilk kelimenin yanında sonsuza
+                  kadar dönen bir çark vardı ve başka hiçbir şey yoktu: iş
+                  ilerliyor mu, donmuş mu, ayırt edilemiyordu. Saniye sayacı bu
+                  farkı görünür kılıyor.
+                */}
                 <span className="text-[11px] text-[var(--text-secondary)] ml-auto">
-                  {ilerleme.duraklatildi ? 'bekliyor' : 'ekleniyor'}
+                  {ilerleme.duraklatildi
+                    ? 'bekliyor'
+                    : ilerleme.gecenSure > 3000
+                      ? `${sureMetni(ilerleme.gecenSure)}`
+                      : 'ekleniyor'}
                 </span>
               </div>
             </div>
@@ -163,6 +206,28 @@ export const TopluKuyrukPaneli: React.FC<Props> = ({ ilerleme, onClose }) => {
             </p>
           )}
         </div>
+
+        {/*
+          DÜĞME HER ZAMAN BURADA.
+
+          Önce yalnızca "takıldı" kararı verildiğinde gösteriliyordu; ölçümde
+          görüldü ki bekçi çoğu zaman o eşikten önce toparlıyor ve düğme
+          pratikte hiç görünmüyordu. Beklemek istemeyen kullanıcının elinde
+          her an bir kol olması, nadiren basılan bir düğmeden iyi. Basmanın
+          bedeli süren isteğin kesilmesi; kelime kaybolmuyor, yeniden deneniyor.
+        */}
+        {kuyruk && onYenidenDene && (
+          <div className="px-5 py-3 border-t border-[var(--border-light)]">
+            <button
+              type="button"
+              onClick={onYenidenDene}
+              className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[var(--bg)] border border-[var(--border)] text-[11px] font-bold text-[var(--text-primary)] cursor-pointer hover:bg-[var(--surface-soft)]"
+            >
+              <RotateCw className="w-3 h-3" />
+              Şimdi tekrar dene
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

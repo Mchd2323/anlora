@@ -570,7 +570,11 @@ export default function App() {
   /** Kuyruk ayrıntı penceresi; hatırlatmaya dokununca açılıyor. */
   const [topluPanelAcik, setTopluPanelAcik] = useState(false);
 
-  const { ilerleme: topluIlerleme, kuyrugaEkle } = useTopluKuyruk({
+  const {
+    ilerleme: topluIlerleme,
+    kuyrugaEkle,
+    yenidenDene: topluYenidenDene
+  } = useTopluKuyruk({
     onKartEkle: (card, collectionId) => {
       /*
        * Kuyruk dakikalarca sürebiliyor ve kullanıcı bu sırada hedef seti
@@ -1180,6 +1184,7 @@ export default function App() {
       {topluPanelAcik && (
         <TopluKuyrukPaneli
           ilerleme={topluIlerleme}
+          onYenidenDene={topluYenidenDene}
           onClose={() => setTopluPanelAcik(false)}
         />
       )}

@@ -35,6 +35,40 @@ const DENEME_BEKLEME_MS = [1_000, 4_000];
 const DURAKLAMA_MS = 30_000;
 
 /**
+ * Koşucu bu kadar süredir tek adım ilerlemediyse TAKILMIŞ sayılır.
+ *
+ * NEDEN GEREKLİ. Android uygulamayı arka plana aldığında WebView'i askıya
+ * alıyor ve süren `fetch` çağrısı öldürülüyor -- ama sözü ÇÖZÜLMÜYOR.
+ * Uygulama öne döndüğünde döngü hâlâ o sözü bekliyor, kilit "çalışıyor"
+ * dediği için `visibilitychange` yeni bir tur da başlatamıyor. Sonuç,
+ * kullanıcının bildirdiği ekran: "0 hazır · 57 bekliyor", ilk kelimenin
+ * yanında sonsuza kadar dönen bir çark. İstek zaman aşımı da kurtarmıyor,
+ * çünkü onun sayacı da askıya alınmış durumda.
+ *
+ * Süre, tek bir isteğin zaman aşımından (45 sn) belirgin şekilde uzun: yavaş
+ * ama yaşayan bir istek yarıda kesilmesin.
+ */
+const TAKILMA_MS = 75_000;
+
+/**
+ * Kullanıcıya "takıldı" denmeden önceki süre.
+ *
+ * Bekçinin eşiğinden (75 sn) kısa: kullanıcı, otomatik kurtarma devreye
+ * girmeden önce durumu görsün ve isterse beklemeyi kendisi kessin. Normal bir
+ * üretim yaklaşık sekiz saniye sürdüğü için kırk saniye yanlış alarm vermez.
+ */
+const TAKILDI_UYARI_MS = 40_000;
+
+/**
+ * Bekçinin ne sıklıkla yokladığı.
+ *
+ * Aynı sayaç ekrandaki saniyeyi de besliyor; on beş saniyede bir güncellenen
+ * bir "geçen süre", donmuş bir çarktan çok da farklı görünmüyordu. Üç saniye,
+ * canlı görünmesi ile gereksiz yeniden çizim arasında duruyor.
+ */
+const BEKCI_ARALIK_MS = 3_000;
+
+/**
  * Tek bir üretim isteğinin zaman aşımı.
  *
  * Yapay zekâ kart üretimi kelime başına sekiz saniyeyi bulabiliyor, bu yüzden
@@ -50,6 +84,10 @@ export interface TopluIlerleme {
   suAnki: string | null;
   /** Sunucuya ulaşılamadığı için beklemede mi? */
   duraklatildi: boolean;
+  /** Şu anki kelimenin üzerinde ne kadar süredir durulduğu (ms). */
+  gecenSure: number;
+  /** Koşucu takılmış görünüyor mu? */
+  takildi: boolean;
 }
 
 interface Secenekler {
@@ -62,22 +100,49 @@ interface Secenekler {
 export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
   ilerleme: TopluIlerleme;
   kuyrugaEkle: (setId: string, setAdi: string, kelimeler: string[]) => void;
+  /** Kullanıcı "şimdi tekrar dene" dediğinde çağrılır. */
+  yenidenDene: () => void;
 } {
   const [kuyruk, setKuyruk] = useState<TopluKuyruk | null>(() => kuyruguOku());
   const [suAnki, setSuAnki] = useState<string | null>(null);
   const [duraklatildi, setDuraklatildi] = useState(false);
+  /** Ekrana yansıyan "kaç saniyedir bekliyor" değeri. */
+  const [gecenSure, setGecenSure] = useState(0);
 
   const calisiyorRef = useRef(false);
   const eklenenRef = useRef(0);
   const zamanlayiciRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /**
+   * Kaçıncı tur olduğumuz. Takılan bir tur terk edilirken artıyor; eski tur
+   * bir gün uyanırsa numarasının değiştiğini görüp sessizce çekiliyor.
+   * Olmasaydı iki döngü aynı kuyruğu işler, kelimeler iki kez üretilirdi.
+   */
+  const nesilRef = useRef(0);
+  /** Son ilerlemenin zamanı; bekçi buna bakıyor. */
+  const sonIlerlemeRef = useRef(0);
+  /** Süren isteğin iptal kolu; terk edilen tur bunu çekiyor. */
+  const iptalRef = useRef<AbortController | null>(null);
   const onKartEkleRef = useRef(onKartEkle);
   onKartEkleRef.current = onKartEkle;
   const onBittiRef = useRef(onBitti);
   onBittiRef.current = onBitti;
 
-  const dongu = useCallback(async () => {
-    if (calisiyorRef.current) return;
+  const dongu = useCallback(async (zorla = false) => {
+    if (calisiyorRef.current) {
+      if (!zorla) return;
+      /*
+       * TAKILAN TUR TERK EDİLİYOR. Kilidi beklemek işe yaramaz: beklenen söz
+       * hiç çözülmeyebilir (askıya alınmış WebView'de öldürülen istek).
+       * Numarayı artırmak eski turu geçersiz kılıyor, iptal kolu da varsa
+       * süren isteği kapatıyor.
+       */
+      nesilRef.current++;
+      iptalRef.current?.abort();
+      calisiyorRef.current = false;
+    }
     calisiyorRef.current = true;
+    const nesil = nesilRef.current;
+    sonIlerlemeRef.current = Date.now();
 
     if (zamanlayiciRef.current) {
       clearTimeout(zamanlayiciRef.current);
@@ -89,8 +154,12 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
       while (mevcut && mevcut.ogeler.length) {
         const oge = mevcut.ogeler[0];
         setSuAnki(oge.kelime);
+        sonIlerlemeRef.current = Date.now();
 
-        const sonuc = await kartUret(oge.kelime);
+        const iptal = new AbortController();
+        iptalRef.current = iptal;
+        const sonuc = await kartUret(oge.kelime, iptal.signal);
+        if (nesil !== nesilRef.current) return; // tur terk edilmiş
 
         /*
          * GEÇİCİ ARIZADA KELİME HARCANMIYOR.
@@ -103,6 +172,7 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
          */
         if (sonuc.tur === 'gecici') {
           setDuraklatildi(true);
+          sonIlerlemeRef.current = Date.now();
           yoklamayiTazele();
           zamanlayiciRef.current = setTimeout(() => {
             zamanlayiciRef.current = null;
@@ -112,8 +182,19 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
         }
 
         setDuraklatildi(false);
-        onKartEkleRef.current(sonuc.kart, oge.setId);
+        /*
+         * Kart ekleme KORUMA ALTINDA. Buradan çıkan bir hata (silinmiş set,
+         * dolu depolama) bütün döngüyü öldürüyor ve kuyruk, ekranda dönen bir
+         * çarkla sonsuza kadar asılı kalıyordu. Kelime yine düşürülüyor:
+         * aynı hatayı sonsuza kadar tekrar denemek de kilitlenmektir.
+         */
+        try {
+          onKartEkleRef.current(sonuc.kart, oge.setId);
+        } catch {
+          /* kart eklenemedi; kuyruk yine de ilerlemeli */
+        }
         eklenenRef.current++;
+        sonIlerlemeRef.current = Date.now();
 
         /*
          * Düşürme ÜRETİMDEN SONRA: uygulama tam o anda kapanırsa kelime
@@ -136,7 +217,11 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
         eklenenRef.current = 0;
       }
     } finally {
-      calisiyorRef.current = false;
+      // Terk edilmiş bir tur kilidi bırakmamalı: yerine geçen tur çalışıyor.
+      if (nesil === nesilRef.current) {
+        calisiyorRef.current = false;
+        iptalRef.current = null;
+      }
     }
   }, []);
 
@@ -155,7 +240,13 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
    */
   useEffect(() => {
     const geriDonuldu = () => {
-      if (document.visibilityState === 'visible' && kuyruguOku()) void dongu();
+      if (document.visibilityState !== 'visible' || !kuyruguOku()) return;
+      /*
+       * Öne dönüşte takılmış bir tur varsa ZORLA yenileniyor. Askıya alınmış
+       * WebView'de öldürülen istek geri geldiğimizde de çözülmüyor; kilidi
+       * kibarca beklemek, kullanıcının gördüğü sonsuz çarkın ta kendisi.
+       */
+      void dongu(takilmisMi());
     };
     document.addEventListener('visibilitychange', geriDonuldu);
     window.addEventListener('online', geriDonuldu);
@@ -163,6 +254,25 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
       document.removeEventListener('visibilitychange', geriDonuldu);
       window.removeEventListener('online', geriDonuldu);
     };
+  }, [dongu]);
+
+  /** Koşucu çalışıyor görünüp ilerlemiyorsa doğru. */
+  const takilmisMi = () =>
+    calisiyorRef.current && Date.now() - sonIlerlemeRef.current > TAKILMA_MS;
+
+  /*
+   * BEKÇİ. Ekran açıkken de bir istek yanıtsız kalabilir; bu sayaç kuyruğu
+   * kendiliğinden kurtarıyor. Aynı zamanda "kaç saniyedir bekliyor" değerini
+   * besliyor: kullanıcı donmuş bir çarka değil, ilerleyen bir sayaca bakıyor
+   * ve bir şeyin ters gittiğini kendisi görebiliyor.
+   */
+  useEffect(() => {
+    const sayac = setInterval(() => {
+      const calisan = calisiyorRef.current || zamanlayiciRef.current !== null;
+      setGecenSure(calisan && sonIlerlemeRef.current ? Date.now() - sonIlerlemeRef.current : 0);
+      if (takilmisMi() && kuyruguOku()) void dongu(true);
+    }, BEKCI_ARALIK_MS);
+    return () => clearInterval(sayac);
   }, [dongu]);
 
   useEffect(
@@ -181,7 +291,29 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
     [dongu]
   );
 
-  return { ilerleme: { kuyruk, suAnki, duraklatildi }, kuyrugaEkle };
+  /**
+   * "Şimdi tekrar dene": bekleme süresini atlar, takılmış turu terk eder.
+   *
+   * Kullanıcının elinde bir kol olmalı. Otuz saniyelik bekleme ya da bekçinin
+   * yetmiş beş saniyesi, ekrana bakıp bekleyen biri için uzun; üstelik ağın
+   * geri geldiğini çoğu zaman uygulamadan önce kullanıcı bilir.
+   */
+  const yenidenDene = useCallback(() => {
+    yoklamayiTazele();
+    void dongu(true);
+  }, [dongu]);
+
+  return {
+    ilerleme: {
+      kuyruk,
+      suAnki,
+      duraklatildi,
+      gecenSure,
+      takildi: gecenSure > TAKILDI_UYARI_MS
+    },
+    kuyrugaEkle,
+    yenidenDene
+  };
 }
 
 /**
@@ -223,11 +355,15 @@ function bosKart(kelime: string): WordCard {
  * kullanıcının gördüğü fark tam olarak buydu. Artık iki yol da aynı: önce
  * istek atılır, karar yanıta göre verilir.
  */
-async function birDeneme(kelime: string): Promise<Deneme> {
+async function birDeneme(kelime: string, disSinyal?: AbortSignal): Promise<Deneme> {
   let res: Response;
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), URETIM_ZAMAN_ASIMI_MS);
+    // Terk edilen tur isteği de kapatıyor: yoksa öldürülmüş bir turun isteği
+    // arka planda dönmeye devam eder ve kota harcar.
+    const disIptal = () => controller.abort();
+    disSinyal?.addEventListener('abort', disIptal);
     try {
       res = await fetch(apiUrl('/api/ai/generate-word'), {
         method: 'POST',
@@ -237,6 +373,7 @@ async function birDeneme(kelime: string): Promise<Deneme> {
       });
     } finally {
       clearTimeout(timer);
+      disSinyal?.removeEventListener('abort', disIptal);
     }
   } catch {
     // Ağ hatası ya da zaman aşımı: geçici sayılır.
@@ -272,13 +409,15 @@ async function birDeneme(kelime: string): Promise<Deneme> {
  * sessizce düşürmek kullanıcının listesini eksiltir, uydurma bir anlam
  * yazmak ise yanlış öğretir.
  */
-export async function kartUret(kelime: string): Promise<UretimSonucu> {
+export async function kartUret(kelime: string, disSinyal?: AbortSignal): Promise<UretimSonucu> {
   const bos = bosKart(kelime);
 
   for (let deneme = 0; deneme < DENEME_SAYISI; deneme++) {
-    const cevap = await birDeneme(kelime);
+    const cevap = await birDeneme(kelime, disSinyal);
 
     if (cevap.tur === 'gecici') {
+      // Tur terk edildiyse yeniden denemenin anlamı yok.
+      if (disSinyal?.aborted) return { tur: 'gecici' };
       const bekleme = DENEME_BEKLEME_MS[deneme];
       if (bekleme !== undefined) await new Promise(r => setTimeout(r, bekleme));
       continue;
