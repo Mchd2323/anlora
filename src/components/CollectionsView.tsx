@@ -9,7 +9,7 @@ import {
 } from '../types';
 import { WordCardComponent } from './WordCard';
 import { StudyFlashcard } from './study/StudyFlashcard';
-import { Layers, Search, Sparkles, BookOpen, GraduationCap, Tv, Briefcase, Plane, Merge, MoveRight, X, Pin, Trash2, Edit2, Copy, FileText, Check, CheckCircle2, Loader2, AlertCircle, GitMerge, ArrowUp, ArrowDown } from 'lucide-react';
+import { Layers, Search, Sparkles, BookOpen, GraduationCap, Tv, Briefcase, Plane, Merge, MoveRight, X, Pin, Trash2, Edit2, Copy, FileText, Check, CheckCircle2, Loader2, AlertCircle, GitMerge, ArrowUp, ArrowDown, WifiOff } from 'lucide-react';
 import { getPhraseCard } from '../services/phraseRepository';
 import { DeckOptionFields, DeckOptionValues } from './collections/DeckOptionFields';
 import { SET_RENKLERI, setPaletteId, setRengi } from '../theme/setColors';
@@ -1920,16 +1920,25 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                 className="w-full parsomen-panel bg-[var(--primary-soft)] border border-[var(--primary-border)] rounded-2xl px-4 py-3 flex items-center gap-3 text-left cursor-pointer hover:bg-[var(--primary-soft)]/70"
                 aria-live="polite"
               >
-                <Loader2 className="w-4 h-4 animate-spin text-[var(--primary)] shrink-0" />
+                {topluIlerleme.duraklatildi ? (
+                  <WifiOff className="w-4 h-4 text-[var(--danger)] shrink-0" />
+                ) : (
+                  <Loader2 className="w-4 h-4 animate-spin text-[var(--primary)] shrink-0" />
+                )}
                 <div className="min-w-0">
                   <p className="text-xs font-bold text-[var(--primary)]">
-                    Kelimeler eklenmeye devam ediyor —{' '}
+                    {topluIlerleme.duraklatildi
+                      ? 'Bağlantı bekleniyor'
+                      : 'Kelimeler eklenmeye devam ediyor'}
+                    {' — '}
                     {settekiKalan(topluIlerleme.kuyruk, activeDeck.id)} kelime kaldı
                   </p>
                   <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed truncate">
-                    {topluIlerleme.suAnki
-                      ? `Şu an: ${topluIlerleme.suAnki}`
-                      : 'Anlora AI kartları hazırlıyor'}
+                    {topluIlerleme.duraklatildi
+                      ? 'Kelimeler kuyrukta duruyor, bağlantı gelince kaldığı yerden sürecek'
+                      : topluIlerleme.suAnki
+                        ? `Şu an: ${topluIlerleme.suAnki}`
+                        : 'Anlora AI kartları hazırlıyor'}
                     {' · '}Listeyi görmek için dokun.
                   </p>
                 </div>

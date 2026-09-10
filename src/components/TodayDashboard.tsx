@@ -19,7 +19,7 @@ import { BRAND } from '../config/brand';
 import { IntroCarousel } from './home/IntroCarousel';
 import { HomeHeroArt } from './HomeHeroArt';
 import type { TopluIlerleme } from '../hooks/useTopluKuyruk';
-import { Loader2 } from 'lucide-react';
+import { Loader2, WifiOff } from 'lucide-react';
 import mansetGeyik from '../assets/themes/realms/carousel/carousel-stag-grove.webp';
 import mansetKule from '../assets/themes/realms/carousel/carousel-storm-watchtower.webp';
 import mansetSalon from '../assets/themes/realms/carousel/carousel-oath-chamber.webp';
@@ -228,14 +228,25 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
           aria-live="polite"
           className="w-full parsomen-panel bg-[var(--primary-soft)] border border-[var(--primary-border)] rounded-2xl px-4 py-3 flex items-center gap-3 text-left cursor-pointer hover:bg-[var(--primary-soft)]/70"
         >
-          <Loader2 className="w-4 h-4 animate-spin text-[var(--primary)] shrink-0" />
+          {topluIlerleme.duraklatildi ? (
+            <WifiOff className="w-4 h-4 text-[var(--danger)] shrink-0" />
+          ) : (
+            <Loader2 className="w-4 h-4 animate-spin text-[var(--primary)] shrink-0" />
+          )}
           <div className="min-w-0 flex-1">
             <p className="text-xs font-bold text-[var(--primary)]">
-              Yeni kelimeler eklenmeye devam ediyor —{' '}
+              {topluIlerleme.duraklatildi
+                ? 'Bağlantı bekleniyor'
+                : 'Yeni kelimeler eklenmeye devam ediyor'}
+              {' — '}
               {topluIlerleme.kuyruk.ogeler.length} kelime kaldı
             </p>
             <p className="text-[11px] text-[var(--text-secondary)] truncate">
-              {topluIlerleme.suAnki ? `Şu an: ${topluIlerleme.suAnki}` : 'Anlora AI hazırlıyor'}
+              {topluIlerleme.duraklatildi
+                ? 'Bağlantı gelince kaldığı yerden sürecek'
+                : topluIlerleme.suAnki
+                  ? `Şu an: ${topluIlerleme.suAnki}`
+                  : 'Anlora AI hazırlıyor'}
               {' · '}Listeyi görmek için dokun
             </p>
           </div>

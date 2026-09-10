@@ -13,7 +13,8 @@ import {
 } from '../services/extendedRepository';
 import { getPhraseCard, loadPhrases } from '../services/phraseRepository';
 import { useModalA11y } from '../hooks/useModalA11y';
-import { apiUrl, getApiCapabilities } from '../config/api';
+import { kartUret } from '../hooks/useTopluKuyruk';
+// Üretim isteği `kartUret` üzerinden gidiyor; bu dosyada doğrudan API çağrısı yok.
 import { useRemoteApi } from '../hooks/useRemoteApi';
 import { RealmsIcon } from './ui/RealmsIcon';
 
@@ -476,49 +477,29 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
       } else {
         try {
           /*
-           * YOKLAMA BURADA BEKLENİYOR, RENDER ANINDAKİ BAYRAĞA GÜVENİLMİYOR.
+           * ÜRETİM KUYRUKLA AYNI İŞLEVDEN GEÇİYOR.
            *
-           * `yapayZekaVar` çizim anındaki değerdir ve yoklama sürerken `false`
-           * olur. Burada ona bakmak, uygulama yeni açılmışken başlatılan bir
-           * toplu eklemede yapay zekâyı ATLAYIP kelimeleri boş kart olarak
-           * kaydediyordu -- yani yalnızca görüntüyü değil, KAYDEDİLEN VERİYİ
-           * bozuyordu. Bu dal zaten `async`; sonucu beklemenin bedeli yok.
+           * Burada ayrı bir istek ve ayrı bir `getApiCapabilities()` kapısı
+           * vardı. Yoklamanın üç saniyelik zaman aşımı ve otuz saniyelik
+           * başarısızlık önbelleği yüzünden, soğuk başlayan bir sunucuda
+           * yapay zekâya TEK BİR İSTEK BİLE gitmeden bütün kelimeler boş
+           * karta düşüyordu. `kartUret` yoklama yapmıyor, doğrudan deniyor
+           * ve geçici arızada yeniden deniyor; iki yolun aynı işlevi
+           * kullanması, birinin düzelip diğerinin bozuk kalmasını da
+           * önlüyor.
+           *
+           * Bu dal yalnızca kuyruğa girmeyen bir kelime kaldığında çalışır
+           * (örneğin sözlükte görünüp harf dosyası açılamayan bir girdi);
+           * NEW kelimelerin tamamı arka plan kuyruğuna gidiyor.
            */
-          const yetenekler = await getApiCapabilities();
-          if (!yetenekler.ai) throw new Error('yapay-zeka-yok');
-          const res = await fetch(apiUrl('/api/ai/generate-word'), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ word: item.raw })
-          });
-          /*
-           * Hata kodu sessizce yutulmasın. Önceki hâlde `res.ok` false ise
-           * hiçbir dal çalışmıyordu: kelime ne ekleniyor ne de kullanıcıya
-           * söyleniyordu, listeden düşüp gidiyordu. Şimdi aşağıdaki catch'e
-           * düşüyor ve "elle doldurulacak boş kart" olarak ekleniyor.
-           */
-          if (!res.ok) throw new Error('yapay-zeka-basarisiz');
+          const sonuc = await kartUret(item.raw);
+          if (sonuc.tur !== 'kart') throw new Error('yapay-zeka-basarisiz');
 
           {
-            const cardData = await res.json();
-
-            /*
-             * Yapay zekâ "bu bir İngilizce kelime değil" derse ortada kart
-             * yoktur. Aşağıdaki dal `cardData.word || item.raw` ile yine de
-             * bir kart kurardı: anlamı ve örnekleri boş, ama YAPAY ZEKÂ
-             * ÜRETTİ damgalı. Aşağıdaki catch dalı tam olarak bu durum için
-             * yazılmış (bilgi yok, kart boş bırakılır, kullanıcı doldurur);
-             * oraya düşürülüyor.
-             *
-             * Toplu eklemede tek tek "bunu mu demek istedin" sorulmuyor: kırk
-             * kelimelik bir yüklemede her biri için soru sormak akışı
-             * kilitler. Kelime kaybolmuyor, elle doldurulacak kart olarak
-             * listede kalıyor.
-             */
-            if (cardData && cardData.notAWord) throw new Error('yazim-supheli');
+            const cardData = sonuc.kart;
 
             const newCard: WordCard = {
-              id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+              id: cardData.id,
               word: cardData.word || item.raw,
               // Sözcük türü de uydurulmaz; verilmediyse boş kalır.
               partOfSpeech: cardData.partOfSpeech || '',

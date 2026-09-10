@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { WordCard } from '../types';
-import { apiUrl, getApiCapabilities } from '../config/api';
+import { apiUrl, yoklamayiTazele } from '../config/api';
 import {
   TopluKuyruk,
   ilkiniDusur,
@@ -25,11 +25,31 @@ import {
 /** İstekler arasındaki nefes payı. */
 const ARA_MS = 250;
 
+/** Bir kelime için en fazla kaç deneme yapılır. */
+const DENEME_SAYISI = 3;
+
+/** Denemeler arasındaki bekleme; son deneme için beklenmez. */
+const DENEME_BEKLEME_MS = [1_000, 4_000];
+
+/** Kuyruk geçici bir arıza yüzünden duraklarsa ne kadar sonra tekrar dener. */
+const DURAKLAMA_MS = 30_000;
+
+/**
+ * Tek bir üretim isteğinin zaman aşımı.
+ *
+ * Yapay zekâ kart üretimi kelime başına sekiz saniyeyi bulabiliyor, bu yüzden
+ * geniş tutuldu; amaç yavaş yanıtı kesmek değil, yanıtsız kalan bir isteğin
+ * kuyruğu süresiz kilitlemesini önlemek.
+ */
+const URETIM_ZAMAN_ASIMI_MS = 45_000;
+
 export interface TopluIlerleme {
   /** Kuyruk boşsa null. */
   kuyruk: TopluKuyruk | null;
   /** Şu an üretilen kelime; arayüz bunu gösterebilir. */
   suAnki: string | null;
+  /** Sunucuya ulaşılamadığı için beklemede mi? */
+  duraklatildi: boolean;
 }
 
 interface Secenekler {
@@ -45,9 +65,11 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
 } {
   const [kuyruk, setKuyruk] = useState<TopluKuyruk | null>(() => kuyruguOku());
   const [suAnki, setSuAnki] = useState<string | null>(null);
+  const [duraklatildi, setDuraklatildi] = useState(false);
 
   const calisiyorRef = useRef(false);
   const eklenenRef = useRef(0);
+  const zamanlayiciRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onKartEkleRef = useRef(onKartEkle);
   onKartEkleRef.current = onKartEkle;
   const onBittiRef = useRef(onBitti);
@@ -57,14 +79,40 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
     if (calisiyorRef.current) return;
     calisiyorRef.current = true;
 
+    if (zamanlayiciRef.current) {
+      clearTimeout(zamanlayiciRef.current);
+      zamanlayiciRef.current = null;
+    }
+
     try {
       let mevcut = kuyruguOku();
       while (mevcut && mevcut.ogeler.length) {
         const oge = mevcut.ogeler[0];
         setSuAnki(oge.kelime);
 
-        const kart = await kartUret(oge.kelime);
-        onKartEkleRef.current(kart, oge.setId);
+        const sonuc = await kartUret(oge.kelime);
+
+        /*
+         * GEÇİCİ ARIZADA KELİME HARCANMIYOR.
+         *
+         * Ağ kesintisi, soğuk başlayan sunucu ya da 5xx yüzünden kelimeyi boş
+         * kartla "eklendi" saymak, listenin tamamını saniyeler içinde boş
+         * kartlara çeviriyordu: kullanıcı doksan sekiz kelimeyi eklemiş ama
+         * hiçbirinin anlamı yok. Öğe kuyrukta kalıyor, koşucu duruyor ve bir
+         * süre sonra kendiliğinden yeniden deniyor.
+         */
+        if (sonuc.tur === 'gecici') {
+          setDuraklatildi(true);
+          yoklamayiTazele();
+          zamanlayiciRef.current = setTimeout(() => {
+            zamanlayiciRef.current = null;
+            void dongu();
+          }, DURAKLAMA_MS);
+          return;
+        }
+
+        setDuraklatildi(false);
+        onKartEkleRef.current(sonuc.kart, oge.setId);
         eklenenRef.current++;
 
         /*
@@ -75,13 +123,14 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
          * gösterilirse kullanıcı kartı açıp boş bulduğunda bunu hata sanar.
          * Boş kalanlar listede ayrı görünüyor.
          */
-        mevcut = ilkiniDusur(kart.turkishMeaning ? 'eklendi' : 'bos');
+        mevcut = ilkiniDusur(sonuc.tur === 'kart' ? 'eklendi' : 'bos');
         setKuyruk(mevcut);
 
         if (mevcut) await new Promise(r => setTimeout(r, ARA_MS));
       }
 
       setSuAnki(null);
+      setDuraklatildi(false);
       if (eklenenRef.current > 0) {
         onBittiRef.current?.(eklenenRef.current);
         eklenenRef.current = 0;
@@ -101,15 +150,27 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
    * WebView'i askıya alabiliyor; askıya alınan bir `await` geri döndüğünde
    * döngü kendiliğinden sürer ama tamamen öldürülmüşse sürmez. Bu dinleyici
    * ikinci durumu kurtarıyor; kilit sayesinde birinci durumda ikinci bir
-   * döngü başlamıyor.
+   * döngü başlamıyor. Duraklamış kuyruk da burada hemen uyanıyor:
+   * kullanıcı telefonu cebinden çıkarana kadar ağ geri gelmiş olabilir.
    */
   useEffect(() => {
     const geriDonuldu = () => {
       if (document.visibilityState === 'visible' && kuyruguOku()) void dongu();
     };
     document.addEventListener('visibilitychange', geriDonuldu);
-    return () => document.removeEventListener('visibilitychange', geriDonuldu);
+    window.addEventListener('online', geriDonuldu);
+    return () => {
+      document.removeEventListener('visibilitychange', geriDonuldu);
+      window.removeEventListener('online', geriDonuldu);
+    };
   }, [dongu]);
+
+  useEffect(
+    () => () => {
+      if (zamanlayiciRef.current) clearTimeout(zamanlayiciRef.current);
+    },
+    []
+  );
 
   const kuyrugaEkle = useCallback(
     (setId: string, setAdi: string, kelimeler: string[]) => {
@@ -120,20 +181,25 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
     [dongu]
   );
 
-  return { ilerleme: { kuyruk, suAnki }, kuyrugaEkle };
+  return { ilerleme: { kuyruk, suAnki, duraklatildi }, kuyrugaEkle };
 }
 
 /**
- * Tek bir kelime için kart üretir.
+ * Bir üretim denemesinin sonucu.
  *
- * HİÇBİR DURUMDA HATA FIRLATMAZ: kuyruk her koşulda ilerlemeli. Üretim
- * başarısızsa kelime ELLE DOLDURULACAK boş kart olarak ekleniyor -- bu,
- * toplu ekleme penceresindeki eski davranışın aynısı ve gerekçesi de aynı:
- * kelimeyi sessizce düşürmek kullanıcının listesini eksiltir, uydurma bir
- * anlam yazmak ise yanlış öğretir.
+ * `sunucuYok` ile `gecici` ayrımı bu dosyanın en önemli kararı: birincisinde
+ * yeniden denemenin anlamı yok (sunucusuz pakette yapay zekâ hiç yok),
+ * ikincisinde ise denememenin bedeli kullanıcının listesinin boşalması.
  */
-async function kartUret(kelime: string): Promise<WordCard> {
-  const bos: WordCard = {
+type Deneme =
+  | { tur: 'veri'; veri: Record<string, unknown> }
+  | { tur: 'sunucuYok' }
+  | { tur: 'gecici' };
+
+export type UretimSonucu = { tur: 'kart' | 'bos'; kart: WordCard } | { tur: 'gecici' };
+
+function bosKart(kelime: string): WordCard {
+  return {
     id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     word: kelime,
     partOfSpeech: '',
@@ -142,34 +208,106 @@ async function kartUret(kelime: string): Promise<WordCard> {
     isCustom: true,
     dateAdded: new Date().toISOString().slice(0, 10)
   };
+}
+
+/**
+ * Yanıtı sınıflandırır.
+ *
+ * NEDEN BURADA YETENEK YOKLAMASI YOK. Eskiden `getApiCapabilities()`
+ * sorulup `ai` kapalıysa boş karta düşülüyordu. Yoklamanın üç saniyelik
+ * zaman aşımı var ve başarısız sonucu otuz saniye önbellekleniyor; soğuk
+ * başlayan bir Cloudflare kopyası bunu aşınca kuyruğun TAMAMI tek bir
+ * başarısız yoklama yüzünden saniyeler içinde boş kartlara dönüşüyordu --
+ * üstelik yapay zekâya tek bir istek bile gitmeden. Tekli ekleme yolu
+ * yoklama yapmadan doğrudan istek attığı için çalışmaya devam ediyordu;
+ * kullanıcının gördüğü fark tam olarak buydu. Artık iki yol da aynı: önce
+ * istek atılır, karar yanıta göre verilir.
+ */
+async function birDeneme(kelime: string): Promise<Deneme> {
+  let res: Response;
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), URETIM_ZAMAN_ASIMI_MS);
+    try {
+      res = await fetch(apiUrl('/api/ai/generate-word'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ word: kelime }),
+        signal: controller.signal
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+  } catch {
+    // Ağ hatası ya da zaman aşımı: geçici sayılır.
+    return { tur: 'gecici' };
+  }
+
+  // 5xx sunucunun kendi arızası, 429 kota, 408 zaman aşımı: hepsi geçebilir.
+  if (res.status >= 500 || res.status === 429 || res.status === 408) return { tur: 'gecici' };
+  if (!res.ok) return { tur: 'sunucuYok' };
+
+  /*
+   * Sunucu yoksa statik barındırma ya da Capacitor kendi index.html'ini 200
+   * ile döndürür; JSON denetimi bu ikisini ayırır.
+   */
+  const tur = res.headers.get('content-type') || '';
+  if (!tur.includes('application/json')) return { tur: 'sunucuYok' };
 
   try {
-    const yetenekler = await getApiCapabilities();
-    if (!yetenekler.ai) return bos;
-
-    const res = await fetch(apiUrl('/api/ai/generate-word'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ word: kelime })
-    });
-    if (!res.ok) return bos;
-
     const veri = await res.json();
+    if (!veri || typeof veri !== 'object') return { tur: 'sunucuYok' };
+    return { tur: 'veri', veri: veri as Record<string, unknown> };
+  } catch {
+    return { tur: 'sunucuYok' };
+  }
+}
+
+/**
+ * Tek bir kelime için kart üretir.
+ *
+ * HİÇBİR DURUMDA HATA FIRLATMAZ: kuyruk her koşulda ya ilerlemeli ya da
+ * açıkça duraklamalı. Yapay zekâ kelimeyi tanımazsa ya da ortada sunucu
+ * yoksa kelime ELLE DOLDURULACAK boş kart olarak ekleniyor -- kelimeyi
+ * sessizce düşürmek kullanıcının listesini eksiltir, uydurma bir anlam
+ * yazmak ise yanlış öğretir.
+ */
+export async function kartUret(kelime: string): Promise<UretimSonucu> {
+  const bos = bosKart(kelime);
+
+  for (let deneme = 0; deneme < DENEME_SAYISI; deneme++) {
+    const cevap = await birDeneme(kelime);
+
+    if (cevap.tur === 'gecici') {
+      const bekleme = DENEME_BEKLEME_MS[deneme];
+      if (bekleme !== undefined) await new Promise(r => setTimeout(r, bekleme));
+      continue;
+    }
+
+    if (cevap.tur === 'sunucuYok') return { tur: 'bos', kart: bos };
+
+    const veri = cevap.veri;
     // "Bu bir İngilizce kelime değil" cevabında ortada kart yok; boş kart
     // eklenir ve kullanıcı düzeltir.
-    if (!veri || veri.notAWord) return bos;
+    if (veri.notAWord) return { tur: 'bos', kart: bos };
+
+    const anlam = typeof veri.turkishMeaning === 'string' ? veri.turkishMeaning : '';
+    if (!anlam) return { tur: 'bos', kart: bos };
 
     return {
-      ...bos,
-      word: veri.word || kelime,
-      partOfSpeech: veri.partOfSpeech || '',
-      turkishMeaning: veri.turkishMeaning || '',
-      phonetic: veri.phonetic || '',
-      examples: Array.isArray(veri.examples) ? veri.examples : [],
-      level: veri.level || undefined,
-      isAiGenerated: true
+      tur: 'kart',
+      kart: {
+        ...bos,
+        word: typeof veri.word === 'string' && veri.word ? veri.word : kelime,
+        partOfSpeech: typeof veri.partOfSpeech === 'string' ? veri.partOfSpeech : '',
+        turkishMeaning: anlam,
+        phonetic: typeof veri.phonetic === 'string' ? veri.phonetic : undefined,
+        examples: Array.isArray(veri.examples) ? (veri.examples as WordCard['examples']) : [],
+        level: (veri.level as WordCard['level']) || undefined,
+        isAiGenerated: true
+      }
     };
-  } catch {
-    return bos;
   }
+
+  return { tur: 'gecici' };
 }

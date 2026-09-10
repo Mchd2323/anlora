@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader2, Check, X } from 'lucide-react';
+import { Loader2, Check, X, WifiOff } from 'lucide-react';
 import { useModalA11y } from '../hooks/useModalA11y';
 import type { TopluIlerleme } from '../hooks/useTopluKuyruk';
 
@@ -70,15 +70,37 @@ export const TopluKuyrukPaneli: React.FC<Props> = ({ ilerleme, onClose }) => {
         </div>
 
         <div className="p-5 space-y-4 max-h-[60vh] overflow-y-auto">
+          {/*
+            DURAKLAMA GİZLENMİYOR. Sunucuya ulaşılamadığında kuyruk boş kart
+            üretmek yerine duruyor; bunu söylemezsek kullanıcı ilerlemeyen bir
+            sayıya bakıp uygulamanın kilitlendiğini sanır.
+          */}
+          {ilerleme.duraklatildi && (
+            <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl bg-[var(--danger-soft)] border border-[var(--danger-border)]">
+              <WifiOff className="w-3.5 h-3.5 text-[var(--danger)] shrink-0 mt-0.5" />
+              <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
+                <span className="font-bold text-[var(--danger)]">Bağlantı bekleniyor.</span>{' '}
+                Anlora AI'ya şu an ulaşılamıyor. Kelimeler kuyrukta duruyor, hiçbiri
+                kaybolmadı; bağlantı gelince kaldığı yerden sürecek.
+              </p>
+            </div>
+          )}
+
           {suAnki && (
             <div>
               <div className="text-[11px] font-bold text-[var(--text-muted)] tracking-wider mb-1.5">
                 ŞU AN
               </div>
               <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--primary-soft)] border border-[var(--primary-border)]">
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-[var(--primary)] shrink-0" />
+                <Loader2
+                  className={`w-3.5 h-3.5 text-[var(--primary)] shrink-0 ${
+                    ilerleme.duraklatildi ? 'opacity-40' : 'animate-spin'
+                  }`}
+                />
                 <span className="text-xs font-bold text-[var(--primary)]">{suAnki}</span>
-                <span className="text-[11px] text-[var(--text-secondary)] ml-auto">ekleniyor</span>
+                <span className="text-[11px] text-[var(--text-secondary)] ml-auto">
+                  {ilerleme.duraklatildi ? 'bekliyor' : 'ekleniyor'}
+                </span>
               </div>
             </div>
           )}
