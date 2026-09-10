@@ -226,13 +226,20 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
           if (sonuc.hataTuru === 'kota') kotayaCarptiRef.current = true;
           sonIlerlemeRef.current = Date.now();
           yoklamayiTazele();
-          zamanlayiciRef.current = setTimeout(
-            () => {
-              zamanlayiciRef.current = null;
-              void dongu();
-            },
-            sonuc.hizSiniri ? KOTA_BEKLEME_MS : DURAKLAMA_MS
-          );
+          /*
+           * SUNUCUNUN SÖYLEDİĞİ KADAR BEKLENİYOR. Sabit iki dakika iki
+           * yönden de yanlıştı: sınır otuz saniyede kalkacaksa boşuna
+           * bekleniyor, daha uzun sürecekse erken vurulup sınır tazeleniyor.
+           */
+          const bekleme = sonuc.bekleme
+            ? Math.min(Math.max(sonuc.bekleme * 1000, 5_000), 900_000)
+            : sonuc.hizSiniri
+              ? KOTA_BEKLEME_MS
+              : DURAKLAMA_MS;
+          zamanlayiciRef.current = setTimeout(() => {
+            zamanlayiciRef.current = null;
+            void dongu();
+          }, bekleme);
           return;
         }
 
@@ -423,14 +430,27 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
 type Deneme =
   | { tur: 'veri'; veri: Record<string, unknown> }
   | { tur: 'sunucuYok'; neden: string }
-  | { tur: 'gecici'; neden: string; hizSiniri?: boolean; hataTuru: HataTuru };
+  | {
+      tur: 'gecici';
+      neden: string;
+      hizSiniri?: boolean;
+      hataTuru: HataTuru;
+      /** Sunucunun bildirdiği bekleme süresi (sn); bilinmiyorsa 0. */
+      bekleme?: number;
+    };
 
 /** Geçici başarısızlığın kaynağı. */
 export type HataTuru = 'ag' | 'kota' | 'sunucu';
 
 export type UretimSonucu =
   | { tur: 'kart' | 'bos'; kart: WordCard; neden?: string }
-  | { tur: 'gecici'; neden: string; hizSiniri?: boolean; hataTuru: HataTuru };
+  | {
+      tur: 'gecici';
+      neden: string;
+      hizSiniri?: boolean;
+      hataTuru: HataTuru;
+      bekleme?: number;
+    };
 
 function bosKart(kelime: string): WordCard {
   return {
@@ -498,15 +518,17 @@ async function birDeneme(kelime: string, disSinyal?: AbortSignal): Promise<Denem
    * yeniden denemek durumu kötüleştiriyor.
    */
   if (res.status === 429) {
+    const { ozet, bekleme } = await hataAyrintisi(res);
     return {
       tur: 'gecici',
       hizSiniri: true,
       hataTuru: 'kota',
-      neden: `Anlora AI istekleri sınırlıyor (429)${await hataMetni(res)}`
+      bekleme,
+      neden: `Anlora AI istekleri sınırlıyor (429)${ozet}`
     };
   }
   if (res.status >= 500) {
-    const ayrinti = await hataMetni(res);
+    const { ozet: ayrinti, bekleme } = await hataAyrintisi(res);
     /*
      * VEKİL SUNUCU KOTA HATASINI 500'E SARABİLİR.
      *
@@ -520,6 +542,7 @@ async function birDeneme(kelime: string, disSinyal?: AbortSignal): Promise<Denem
         tur: 'gecici',
         hizSiniri: true,
         hataTuru: 'kota',
+        bekleme,
         neden: `Anlora AI istekleri sınırlıyor${ayrinti}`
       };
     }
@@ -563,9 +586,27 @@ async function birDeneme(kelime: string, disSinyal?: AbortSignal): Promise<Denem
  * kod numarasından çok daha değerli; kısaltılarak ekrana taşınıyor.
  */
 async function hataMetni(res: Response): Promise<string> {
+  return (await hataAyrintisi(res)).ozet;
+}
+
+/**
+ * Hata gövdesinden hem okunabilir özeti hem de "şu kadar sonra dene"
+ * süresini çıkarır.
+ *
+ * NEDEN SÜRE. Sabit iki dakika beklemek iki yönden de yanlış: sınır otuz
+ * saniyede kalkacaksa boşuna bekleniyor, on dakika sürecekse erken vurulup
+ * sınır tazeleniyor. Gemini gerekli süreyi zaten söylüyor (`retryDelay`);
+ * Anlora Worker'ı bunu `retryAfter` alanında ve `Retry-After` başlığında
+ * geçiriyor.
+ */
+async function hataAyrintisi(res: Response): Promise<{ ozet: string; bekleme: number }> {
+  /** Başlık, gövdeden bağımsız olarak da gelebilir. */
+  const basliktan = Number(res.headers.get('retry-after') || 0);
+  let bekleme = Number.isFinite(basliktan) && basliktan > 0 ? Math.ceil(basliktan) : 0;
+
   try {
     const metin = (await res.text()).trim();
-    if (!metin) return '';
+    if (!metin) return { ozet: '', bekleme };
     let ozet = metin;
     try {
       const j = JSON.parse(metin);
@@ -582,13 +623,22 @@ async function hataMetni(res: Response): Promise<string> {
       const genel = String(j?.error?.message || j?.error || j?.message || '');
       const ayrinti = String(j?.details || '');
       ozet = ayrinti && ayrinti !== genel ? ayrinti : genel || metin;
+      if (!bekleme && Number(j?.retryAfter) > 0) bekleme = Math.ceil(Number(j.retryAfter));
     } catch {
       /* düz metin */
     }
+    /*
+     * Vekil süreyi ayrı alanda geçirmemiş olabilir (eski sürüm); Gemini'nin
+     * kendi `retryDelay` alanı metnin içinde duruyor.
+     */
+    if (!bekleme) {
+      const eslesme = /"retryDelay"\s*:\s*\\?"(\d+(?:\.\d+)?)s/.exec(ozet);
+      if (eslesme) bekleme = Math.ceil(Number(eslesme[1]));
+    }
     ozet = ozet.replace(/\s+/g, ' ').slice(0, 400);
-    return ozet ? ` — ${ozet}` : '';
+    return { ozet: ozet ? ` — ${ozet}` : '', bekleme };
   } catch {
-    return '';
+    return { ozet: '', bekleme };
   }
 }
 
@@ -618,7 +668,13 @@ export async function kartUret(kelime: string, disSinyal?: AbortSignal): Promise
        * Kuyruk duruyor, sebep ekrana yazılıyor ve daha uzun bekleniyor.
        */
       if (cevap.hizSiniri) {
-        return { tur: 'gecici', neden: cevap.neden, hizSiniri: true, hataTuru: 'kota' };
+        return {
+          tur: 'gecici',
+          neden: cevap.neden,
+          hizSiniri: true,
+          hataTuru: 'kota',
+          bekleme: cevap.bekleme
+        };
       }
       // Tur terk edildiyse yeniden denemenin anlamı yok.
       if (disSinyal?.aborted) {

@@ -394,6 +394,24 @@ function hesapHatasi(durum: number): boolean {
 }
 
 /**
+ * Gemini'nin "şu kadar sonra tekrar dene" bilgisi (saniye).
+ *
+ * 429 gövdesinde `RetryInfo` ayrıntısı geliyor: {"retryDelay": "27s"}.
+ * Bunu geçirmek, çağıranın körlemesine iki dakika beklemek yerine tam
+ * gerektiği kadar beklemesini sağlıyor -- yani kuyruk, hesabın izin verdiği
+ * en yüksek hızda akıyor. Yoksa 0 dönüyor ve çağıran kendi varsayılanını
+ * kullanıyor.
+ */
+export function beklemeSuresi(govde: string): number {
+  const eslesme = /"retryDelay"\s*:\s*"(\d+(?:\.\d+)?)s"/.exec(govde);
+  if (!eslesme) return 0;
+  const saniye = Math.ceil(Number(eslesme[1]));
+  // Saçma değerlere karşı sınır: bir saatlik bekleme öneren bir yanıt,
+  // kuyruğu sessizce ölü bırakırdı.
+  return Number.isFinite(saniye) && saniye > 0 ? Math.min(saniye, 900) : 0;
+}
+
+/**
  * Yukarıdan gelen durumu TAŞIYAN hata.
  *
  * NEDEN GEREKLİ. Buradaki her hata dışarıya 500 olarak çıkıyordu. Kotası
@@ -404,7 +422,12 @@ function hesapHatasi(durum: number): boolean {
  * olmadığını söyleyen bir şey yoktu.
  */
 export class AiHatasi extends Error {
-  constructor(mesaj: string, readonly durum: number) {
+  constructor(
+    mesaj: string,
+    readonly durum: number,
+    /** Kaç saniye sonra tekrar denenmeli; bilinmiyorsa 0. */
+    readonly bekleme = 0
+  ) {
     super(mesaj);
     this.name = 'AiHatasi';
   }
@@ -443,7 +466,8 @@ export function geminiKoprusu(apiKey: string): AiGateway {
         if (hesapHatasi(sonuc.durum)) {
           throw new AiHatasi(
             `Hız sınırı (${onbellek.surum}/${onbellek.model}): ${sonuc.detay}`,
-            429
+            429,
+            beklemeSuresi(sonuc.detay)
           );
         }
 
@@ -493,7 +517,11 @@ export function geminiKoprusu(apiKey: string): AiGateway {
           throw new AiHatasi(`Gemini 400 (v1beta/${WORD_MODEL}): ${dogrudan.detay}`, 400);
         }
         if (hesapHatasi(dogrudan.durum)) {
-          throw new AiHatasi(`Hız sınırı (v1beta/${WORD_MODEL}): ${dogrudan.detay}`, 429);
+          throw new AiHatasi(
+            `Hız sınırı (v1beta/${WORD_MODEL}): ${dogrudan.detay}`,
+            429,
+            beklemeSuresi(dogrudan.detay)
+          );
         }
         atlanan = WORD_MODEL;
       }
@@ -519,7 +547,11 @@ export function geminiKoprusu(apiKey: string): AiGateway {
           throw new AiHatasi(`Gemini 400 (${surum}/${model}): ${sonuc.detay}`, 400);
         }
         if (hesapHatasi(sonuc.durum)) {
-          throw new AiHatasi(`Hız sınırı (${surum}/${model}): ${sonuc.detay}`, 429);
+          throw new AiHatasi(
+            `Hız sınırı (${surum}/${model}): ${sonuc.detay}`,
+            429,
+            beklemeSuresi(sonuc.detay)
+          );
         }
       }
 
@@ -536,7 +568,8 @@ export function geminiKoprusu(apiKey: string): AiGateway {
        */
       throw new AiHatasi(
         `Son yanıt: ${sonDetay} | denenen: ${denenenler.join('; ')}`,
-        sonDurum === 429 ? 429 : 500
+        sonDurum === 429 ? 429 : 500,
+        sonDurum === 429 ? beklemeSuresi(sonDetay) : 0
       );
     },
   };
@@ -688,6 +721,7 @@ export default {
        * uygulama da ikisine aynı tepkiyi veriyordu.
        */
       const kota = durum === 429;
+      const bekleme = hata instanceof AiHatasi ? hata.bekleme : 0;
       return jsonYanit(
         {
           error: kota
@@ -695,9 +729,12 @@ export default {
             : 'Yapay zekâ şu anda yanıt veremedi. Tekrar deneyebilirsiniz.',
           code: kota ? 'AI_RATE_LIMIT' : 'AI_ERROR',
           details: mesaj,
+          ...(bekleme ? { retryAfter: bekleme } : {}),
         },
         durum,
-        cors
+        cors,
+        // Standart başlık: aracı katmanlar da anlasın.
+        bekleme ? { 'Retry-After': String(bekleme) } : {}
       );
     }
   },
