@@ -26,6 +26,18 @@ import {
 /** İstekler arasındaki nefes payı. */
 const ARA_MS = 250;
 
+/**
+ * Hız sınırına bir kez çarptıktan SONRAKİ nefes payı.
+ *
+ * ÖLÇÜLDÜ: üç kelimelik liste sorunsuz geçti, altmış yedi kelimelik liste
+ * 429 aldı. Yani sorun tek bir isteğin kendisi değil, dakikadaki istek
+ * SAYISI. Sınıra çarptıktan sonra eski hızla devam etmek aynı duvara tekrar
+ * toslamak demek; kuyruk yavaşlıyor. Kart üretimi zaten sekiz saniye
+ * sürdüğü için bu, toplam süreyi kelime başına on saniyeye çıkarıyor --
+ * duran bir kuyruktan iyidir.
+ */
+const KOTA_SONRASI_ARA_MS = 10_000;
+
 /** Bir kelime için en fazla kaç deneme yapılır. */
 const DENEME_SAYISI = 3;
 
@@ -146,6 +158,8 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
 
   const calisiyorRef = useRef(false);
   const eklenenRef = useRef(0);
+  /** Bu turda hız sınırına çarpıldı mı? Çarpıldıysa tempo düşüyor. */
+  const kotayaCarptiRef = useRef(false);
   const zamanlayiciRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   /**
    * Kaçıncı tur olduğumuz. Takılan bir tur terk edilirken artıyor; eski tur
@@ -209,6 +223,7 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
           setDuraklatildi(true);
           setSonHata(sonuc.neden);
           setHataTuru(sonuc.hataTuru);
+          if (sonuc.hataTuru === 'kota') kotayaCarptiRef.current = true;
           sonIlerlemeRef.current = Date.now();
           yoklamayiTazele();
           zamanlayiciRef.current = setTimeout(
@@ -253,11 +268,16 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
         mevcut = ilkiniDusur(sonuc.tur === 'kart' ? 'eklendi' : 'bos');
         setKuyruk(mevcut);
 
-        if (mevcut) await new Promise(r => setTimeout(r, ARA_MS));
+        if (mevcut) {
+          await new Promise(r =>
+            setTimeout(r, kotayaCarptiRef.current ? KOTA_SONRASI_ARA_MS : ARA_MS)
+          );
+        }
       }
 
       setSuAnki(null);
       setDuraklatildi(false);
+      kotayaCarptiRef.current = false;
       if (eklenenRef.current > 0) {
         onBittiRef.current?.(eklenenRef.current);
         eklenenRef.current = 0;
@@ -565,7 +585,7 @@ async function hataMetni(res: Response): Promise<string> {
     } catch {
       /* düz metin */
     }
-    ozet = ozet.replace(/\s+/g, ' ').slice(0, 200);
+    ozet = ozet.replace(/\s+/g, ' ').slice(0, 400);
     return ozet ? ` — ${ozet}` : '';
   } catch {
     return '';

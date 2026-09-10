@@ -75,7 +75,7 @@ describe('geminiKoprusu yedeklemesi', () => {
   it('birden çok model yüklüyse aşağı inmeyi sürdürür', async () => {
     const { sahte, cagrilar } = sahteFetch({
       'gemini-flash-latest': 503,
-      'gemini-3.8-flash': 429,
+      'gemini-3.8-flash': 404,
     });
     vi.stubGlobal('fetch', sahte);
 
@@ -83,6 +83,29 @@ describe('geminiKoprusu yedeklemesi', () => {
 
     expect(cagrilar).toHaveLength(3);
     expect(metin).toContain('gemini-3.7-flash');
+  });
+
+  /*
+   * BU TEST BİR HATADAN SONRA YAZILDI.
+   *
+   * Kullanıcının ekranındaki kayıt: tek bir kelime için altı model denenmiş
+   * ve altısı da 429 dönmüş. Hız sınırı MODELE değil PROJEYE ait; bir model
+   * sınıra çarptıysa ötekiler de çarpar. Yedekleme burada yardım etmiyordu,
+   * sınırı aşan isteği altıyla çarpıyordu: dakikalık kota saniyeler içinde
+   * tükeniyor, sıradaki kelime de aynı duvara toslıyordu.
+   *
+   * Bu test, 429'da yedeklemenin DURDUĞUNU sabitliyor. Değiştirilirse o
+   * kendi kendini besleyen döngü geri gelir.
+   */
+  it('429 alınca başka model DENEMEZ, hemen durur', async () => {
+    const { sahte, cagrilar } = sahteFetch({ 'gemini-flash-latest': 429 });
+    vi.stubGlobal('fetch', sahte);
+
+    await expect(
+      geminiKoprusu('anahtar').generateJson({ prompt: 'x' })
+    ).rejects.toThrow(/Hız sınırı/);
+
+    expect(cagrilar).toEqual(['gemini-flash-latest']);
   });
 
   it('hepsi başarısızsa denenenleri hatada sayar', async () => {

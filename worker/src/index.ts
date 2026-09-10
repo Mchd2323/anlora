@@ -373,6 +373,27 @@ function istekHatasi(durum: number): boolean {
 }
 
 /**
+ * Bu hata HESABA mı ait?
+ *
+ * ÖLÇÜLDÜ, VARSAYILMADI. Kullanıcının ekranındaki kayıt aynen şuydu:
+ *   "Hiçbir model yanıt vermedi (gemini-3.6-flash -> 429; gemini-flash-latest
+ *    -> 429; gemini-3.8-flash -> 429; gemini-3.7-flash -> 429; gemini-3.5-flash
+ *    -> 429; gemini-2.5-flash -> 404)"
+ *
+ * Yani TEK bir kelime için ALTI istek gitmiş ve hepsi aynı sınıra çarpmış.
+ * Hız sınırı modele değil PROJEYE ait; bir model 429 verdiyse ötekiler de
+ * verecek. Yedekleme burada yardım etmiyor, tam tersi: sınırı aşan isteği
+ * altıyla çarpıyor ve dakikalık kotayı saniyeler içinde tüketiyor. Sonraki
+ * kelime de bu yüzden 429 alıyor -- kendi kendini besleyen bir döngü.
+ *
+ * Artık ilk 429'da duruluyor ve durum aynen dışarı veriliyor; çağıran
+ * bekleyip yeniden deniyor.
+ */
+function hesapHatasi(durum: number): boolean {
+  return durum === 429;
+}
+
+/**
  * Yukarıdan gelen durumu TAŞIYAN hata.
  *
  * NEDEN GEREKLİ. Buradaki her hata dışarıya 500 olarak çıkıyordu. Kotası
@@ -417,6 +438,12 @@ export function geminiKoprusu(apiKey: string): AiGateway {
           throw new AiHatasi(
             `Gemini 400 (${onbellek.surum}/${onbellek.model}): ${sonuc.detay}`,
             400
+          );
+        }
+        if (hesapHatasi(sonuc.durum)) {
+          throw new AiHatasi(
+            `Hız sınırı (${onbellek.surum}/${onbellek.model}): ${sonuc.detay}`,
+            429
           );
         }
 
@@ -465,6 +492,9 @@ export function geminiKoprusu(apiKey: string): AiGateway {
         if (istekHatasi(dogrudan.durum)) {
           throw new AiHatasi(`Gemini 400 (v1beta/${WORD_MODEL}): ${dogrudan.detay}`, 400);
         }
+        if (hesapHatasi(dogrudan.durum)) {
+          throw new AiHatasi(`Hız sınırı (v1beta/${WORD_MODEL}): ${dogrudan.detay}`, 429);
+        }
         atlanan = WORD_MODEL;
       }
 
@@ -488,6 +518,9 @@ export function geminiKoprusu(apiKey: string): AiGateway {
         if (istekHatasi(sonuc.durum)) {
           throw new AiHatasi(`Gemini 400 (${surum}/${model}): ${sonuc.detay}`, 400);
         }
+        if (hesapHatasi(sonuc.durum)) {
+          throw new AiHatasi(`Hız sınırı (${surum}/${model}): ${sonuc.detay}`, 429);
+        }
       }
 
       /*
@@ -496,8 +529,13 @@ export function geminiKoprusu(apiKey: string): AiGateway {
        * "sunucu arızası" sanıp hızla yeniden denemeye itiyor ve sınırı daha
        * da zorluyor.
        */
+      /*
+       * SON YANIT BAŞA YAZILIYOR. Çağıran bu metni ekrana sığdırmak için
+       * kısaltıyor; model listesi başta olunca kısaltma tam da tanıyı yapan
+       * parçayı ("quota metric ... per_day" gibi) kesiyordu.
+       */
       throw new AiHatasi(
-        `Hiçbir model yanıt vermedi (${denenenler.join('; ')}). Son yanıt: ${sonDetay}`,
+        `Son yanıt: ${sonDetay} | denenen: ${denenenler.join('; ')}`,
         sonDurum === 429 ? 429 : 500
       );
     },
