@@ -573,7 +573,8 @@ export default function App() {
   const {
     ilerleme: topluIlerleme,
     kuyrugaEkle,
-    yenidenDene: topluYenidenDene
+    yenidenDene: topluYenidenDene,
+    iptalEt: topluIptalEt
   } = useTopluKuyruk({
     onKartEkle: (card, collectionId) => {
       /*
@@ -1185,6 +1186,7 @@ export default function App() {
         <TopluKuyrukPaneli
           ilerleme={topluIlerleme}
           onYenidenDene={topluYenidenDene}
+          onIptal={topluIptalEt}
           onClose={() => setTopluPanelAcik(false)}
         />
       )}

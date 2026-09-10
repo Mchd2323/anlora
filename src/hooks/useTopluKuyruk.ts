@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { WordCard } from '../types';
-import { apiUrl, yoklamayiTazele } from '../config/api';
+import { API_BASE, apiUrl, yoklamayiTazele } from '../config/api';
 import {
   TopluKuyruk,
   ilkiniDusur,
   kuyrugaAl,
-  kuyruguOku
+  kuyruguOku,
+  kuyrugaTemizle
 } from '../services/topluKuyruk';
 
 /**
@@ -33,6 +34,16 @@ const DENEME_BEKLEME_MS = [1_000, 4_000];
 
 /** Kuyruk geçici bir arıza yüzünden duraklarsa ne kadar sonra tekrar dener. */
 const DURAKLAMA_MS = 30_000;
+
+/**
+ * Hız sınırına (429) takıldıysa beklenen süre.
+ *
+ * Sınıra takılan bir sunucuya otuz saniyede bir dönmek sınırı büyütmüyor,
+ * aksine bazı sağlayıcılarda ceza süresini uzatıyor. Üstelik kota GÜNLÜK
+ * dolmuşsa hiçbir bekleme yetmez; o yüzden burada asıl iş, kullanıcıya ne
+ * olduğunu SÖYLEMEK -- sebep arayüzde yazıyor.
+ */
+const KOTA_BEKLEME_MS = 120_000;
 
 /**
  * Koşucu bu kadar süredir tek adım ilerlemediyse TAKILMIŞ sayılır.
@@ -88,6 +99,25 @@ export interface TopluIlerleme {
   gecenSure: number;
   /** Koşucu takılmış görünüyor mu? */
   takildi: boolean;
+  /**
+   * Son başarısızlığın SEBEBİ, kullanıcıya gösterilmek üzere.
+   *
+   * Tek bir "Bağlantı bekleniyor" cümlesi, birbirinden çok farklı üç durumu
+   * aynı şekilde gösteriyordu: ağın gerçekten kopması, sunucunun hata
+   * dönmesi ve günlük kotanın dolması. Kullanıcı ağını değiştirip durumun
+   * düzelmesini bekliyor, oysa sorun ağda değil. Sebep yazılıyor.
+   */
+  sonHata: string | null;
+  /**
+   * Başarısızlığın TÜRÜ.
+   *
+   * Metni okumak yerine tür taşınıyor: arayüzün "ağını değiştir" mi yoksa
+   * "ağınla ilgisi yok" mu diyeceği buna bağlı ve bu ayrım, kullanıcının
+   * boşuna mobil veriye geçip geri dönmesini engelleyen tek şey.
+   */
+  hataTuru: 'ag' | 'kota' | 'sunucu' | null;
+  /** İsteklerin gittiği sunucu; boşsa yapay zekâ bu pakette hiç yok. */
+  sunucu: string;
 }
 
 interface Secenekler {
@@ -102,12 +132,17 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
   kuyrugaEkle: (setId: string, setAdi: string, kelimeler: string[]) => void;
   /** Kullanıcı "şimdi tekrar dene" dediğinde çağrılır. */
   yenidenDene: () => void;
+  /** Bekleyen bütün kelimeleri düşürüp kuyruğu kapatır. */
+  iptalEt: () => void;
 } {
   const [kuyruk, setKuyruk] = useState<TopluKuyruk | null>(() => kuyruguOku());
   const [suAnki, setSuAnki] = useState<string | null>(null);
   const [duraklatildi, setDuraklatildi] = useState(false);
   /** Ekrana yansıyan "kaç saniyedir bekliyor" değeri. */
   const [gecenSure, setGecenSure] = useState(0);
+  /** Son başarısızlığın sebebi; kullanıcıya aynen gösteriliyor. */
+  const [sonHata, setSonHata] = useState<string | null>(null);
+  const [hataTuru, setHataTuru] = useState<TopluIlerleme['hataTuru']>(null);
 
   const calisiyorRef = useRef(false);
   const eklenenRef = useRef(0);
@@ -172,16 +207,27 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
          */
         if (sonuc.tur === 'gecici') {
           setDuraklatildi(true);
+          setSonHata(sonuc.neden);
+          setHataTuru(sonuc.hataTuru);
           sonIlerlemeRef.current = Date.now();
           yoklamayiTazele();
-          zamanlayiciRef.current = setTimeout(() => {
-            zamanlayiciRef.current = null;
-            void dongu();
-          }, DURAKLAMA_MS);
+          zamanlayiciRef.current = setTimeout(
+            () => {
+              zamanlayiciRef.current = null;
+              void dongu();
+            },
+            sonuc.hizSiniri ? KOTA_BEKLEME_MS : DURAKLAMA_MS
+          );
           return;
         }
 
         setDuraklatildi(false);
+        /*
+         * Başarılı üretimde sebep siliniyor, BOŞ KALAN KARTTA silinmiyor:
+         * "eklendi ama anlamı yok" durumunun da bir açıklaması olmalı.
+         */
+        setSonHata(sonuc.tur === 'kart' ? null : sonuc.neden || null);
+        setHataTuru(null);
         /*
          * Kart ekleme KORUMA ALTINDA. Buradan çıkan bir hata (silinmiş set,
          * dolu depolama) bütün döngüyü öldürüyor ve kuyruk, ekranda dönen bir
@@ -303,16 +349,47 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
     void dongu(true);
   }, [dongu]);
 
+  /**
+   * Kuyruğu tamamen boşaltır.
+   *
+   * NEDEN GEREKLİ. Kuyruk diske yazıldığı için uygulama güncellemesinden de
+   * sağ çıkıyor; kullanıcı, ESKİ sürümde başlattığı ve artık istemediği bir
+   * listeyi durduramıyordu. Bekleyen kelimeler kart olarak EKLENMİYOR: zaten
+   * istenmedikleri için iptal ediliyorlar. Eklenmiş olanlar sette kalır.
+   */
+  const iptalEt = useCallback(() => {
+    nesilRef.current++; // süren tur terk edilsin
+    iptalRef.current?.abort();
+    iptalRef.current = null;
+    calisiyorRef.current = false;
+    if (zamanlayiciRef.current) {
+      clearTimeout(zamanlayiciRef.current);
+      zamanlayiciRef.current = null;
+    }
+    kuyrugaTemizle();
+    eklenenRef.current = 0;
+    setKuyruk(null);
+    setSuAnki(null);
+    setDuraklatildi(false);
+    setSonHata(null);
+    setHataTuru(null);
+    setGecenSure(0);
+  }, []);
+
   return {
     ilerleme: {
       kuyruk,
       suAnki,
       duraklatildi,
       gecenSure,
-      takildi: gecenSure > TAKILDI_UYARI_MS
+      takildi: gecenSure > TAKILDI_UYARI_MS,
+      sonHata,
+      hataTuru,
+      sunucu: API_BASE
     },
     kuyrugaEkle,
-    yenidenDene
+    yenidenDene,
+    iptalEt
   };
 }
 
@@ -325,10 +402,15 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
  */
 type Deneme =
   | { tur: 'veri'; veri: Record<string, unknown> }
-  | { tur: 'sunucuYok' }
-  | { tur: 'gecici' };
+  | { tur: 'sunucuYok'; neden: string }
+  | { tur: 'gecici'; neden: string; hizSiniri?: boolean; hataTuru: HataTuru };
 
-export type UretimSonucu = { tur: 'kart' | 'bos'; kart: WordCard } | { tur: 'gecici' };
+/** Geçici başarısızlığın kaynağı. */
+export type HataTuru = 'ag' | 'kota' | 'sunucu';
+
+export type UretimSonucu =
+  | { tur: 'kart' | 'bos'; kart: WordCard; neden?: string }
+  | { tur: 'gecici'; neden: string; hizSiniri?: boolean; hataTuru: HataTuru };
 
 function bosKart(kelime: string): WordCard {
   return {
@@ -356,6 +438,12 @@ function bosKart(kelime: string): WordCard {
  * istek atılır, karar yanıta göre verilir.
  */
 async function birDeneme(kelime: string, disSinyal?: AbortSignal): Promise<Deneme> {
+  if (!API_BASE && typeof location !== 'undefined' && location.protocol === 'https:' &&
+      location.hostname === 'localhost') {
+    // Capacitor kabuğunda göreli yol uygulamanın kendi paketine gider.
+    return { tur: 'sunucuYok', neden: 'Bu pakete sunucu adresi girilmemiş' };
+  }
+
   let res: Response;
   try {
     const controller = new AbortController();
@@ -376,27 +464,82 @@ async function birDeneme(kelime: string, disSinyal?: AbortSignal): Promise<Denem
       disSinyal?.removeEventListener('abort', disIptal);
     }
   } catch {
-    // Ağ hatası ya da zaman aşımı: geçici sayılır.
-    return { tur: 'gecici' };
+    /*
+     * Ağ hatası ile zaman aşımı burada ayrılamıyor (ikisi de AbortError ya da
+     * TypeError olarak geliyor), ama kullanıcı için ikisi de aynı anlama
+     * geliyor: istek sunucuya varmadı.
+     */
+    return { tur: 'gecici', hataTuru: 'ag', neden: 'Sunucuya ulaşılamadı (ağ ya da zaman aşımı)' };
   }
 
-  // 5xx sunucunun kendi arızası, 429 kota, 408 zaman aşımı: hepsi geçebilir.
-  if (res.status >= 500 || res.status === 429 || res.status === 408) return { tur: 'gecici' };
-  if (!res.ok) return { tur: 'sunucuYok' };
+  /*
+   * HIZ SINIRI AYRI TUTULUYOR. Aynı "geçici hata" kutusuna atmak, kullanıcıya
+   * ağını değiştirtiyordu; oysa 429'da ağın hiçbir kusuru yok ve hızlı
+   * yeniden denemek durumu kötüleştiriyor.
+   */
+  if (res.status === 429) {
+    return {
+      tur: 'gecici',
+      hizSiniri: true,
+      hataTuru: 'kota',
+      neden: `Anlora AI istekleri sınırlıyor (429)${await hataMetni(res)}`
+    };
+  }
+  if (res.status >= 500) {
+    return {
+      tur: 'gecici',
+      hataTuru: 'sunucu',
+      neden: `Sunucu hatası (${res.status})${await hataMetni(res)}`
+    };
+  }
+  if (res.status === 408) {
+    return { tur: 'gecici', hataTuru: 'sunucu', neden: 'Sunucu zaman aşımı (408)' };
+  }
+  if (!res.ok) {
+    return { tur: 'sunucuYok', neden: `Sunucu isteği reddetti (${res.status})${await hataMetni(res)}` };
+  }
 
   /*
    * Sunucu yoksa statik barındırma ya da Capacitor kendi index.html'ini 200
    * ile döndürür; JSON denetimi bu ikisini ayırır.
    */
   const tur = res.headers.get('content-type') || '';
-  if (!tur.includes('application/json')) return { tur: 'sunucuYok' };
+  if (!tur.includes('application/json')) {
+    return { tur: 'sunucuYok', neden: 'Adres yapay zekâ sunucusuna değil, uygulamanın kendisine gidiyor' };
+  }
 
   try {
     const veri = await res.json();
-    if (!veri || typeof veri !== 'object') return { tur: 'sunucuYok' };
+    if (!veri || typeof veri !== 'object') {
+      return { tur: 'sunucuYok', neden: 'Sunucudan beklenmeyen yanıt geldi' };
+    }
     return { tur: 'veri', veri: veri as Record<string, unknown> };
   } catch {
-    return { tur: 'sunucuYok' };
+    return { tur: 'sunucuYok', neden: 'Sunucu yanıtı okunamadı' };
+  }
+}
+
+/**
+ * Hata gövdesinden okunabilir bir parça çıkarır.
+ *
+ * Sunucunun kendi açıklaması ("quota exceeded", "model overloaded") tanı için
+ * kod numarasından çok daha değerli; kısaltılarak ekrana taşınıyor.
+ */
+async function hataMetni(res: Response): Promise<string> {
+  try {
+    const metin = (await res.text()).trim();
+    if (!metin) return '';
+    let ozet = metin;
+    try {
+      const j = JSON.parse(metin);
+      ozet = String(j?.error?.message || j?.error || j?.message || metin);
+    } catch {
+      /* düz metin */
+    }
+    ozet = ozet.replace(/\s+/g, ' ').slice(0, 120);
+    return ozet ? ` — ${ozet}` : '';
+  } catch {
+    return '';
   }
 }
 
@@ -411,33 +554,54 @@ async function birDeneme(kelime: string, disSinyal?: AbortSignal): Promise<Denem
  */
 export async function kartUret(kelime: string, disSinyal?: AbortSignal): Promise<UretimSonucu> {
   const bos = bosKart(kelime);
+  let sonNeden = 'Bilinmeyen hata';
+  let sonTur: HataTuru = 'ag';
 
   for (let deneme = 0; deneme < DENEME_SAYISI; deneme++) {
     const cevap = await birDeneme(kelime, disSinyal);
 
     if (cevap.tur === 'gecici') {
+      sonNeden = cevap.neden;
+      sonTur = cevap.hataTuru;
+      /*
+       * HIZ SINIRINDA YENİDEN DENENMİYOR. Saniyeler arayla üç kez daha
+       * vurmak sınırı açmıyor; sağlayıcıya göre ceza süresini uzatıyor.
+       * Kuyruk duruyor, sebep ekrana yazılıyor ve daha uzun bekleniyor.
+       */
+      if (cevap.hizSiniri) {
+        return { tur: 'gecici', neden: cevap.neden, hizSiniri: true, hataTuru: 'kota' };
+      }
       // Tur terk edildiyse yeniden denemenin anlamı yok.
-      if (disSinyal?.aborted) return { tur: 'gecici' };
+      if (disSinyal?.aborted) {
+        return { tur: 'gecici', neden: cevap.neden, hataTuru: cevap.hataTuru };
+      }
       const bekleme = DENEME_BEKLEME_MS[deneme];
       if (bekleme !== undefined) await new Promise(r => setTimeout(r, bekleme));
       continue;
     }
 
-    if (cevap.tur === 'sunucuYok') return { tur: 'bos', kart: bos };
+    if (cevap.tur === 'sunucuYok') return { tur: 'bos', kart: bos, neden: cevap.neden };
 
     const veri = cevap.veri;
     // "Bu bir İngilizce kelime değil" cevabında ortada kart yok; boş kart
     // eklenir ve kullanıcı düzeltir.
-    if (veri.notAWord) return { tur: 'bos', kart: bos };
+    if (veri.notAWord) {
+      return { tur: 'bos', kart: bos, neden: 'Yapay zekâ kelimeyi tanımadı' };
+    }
 
     const anlam = typeof veri.turkishMeaning === 'string' ? veri.turkishMeaning : '';
-    if (!anlam) return { tur: 'bos', kart: bos };
+    if (!anlam) return { tur: 'bos', kart: bos, neden: 'Yapay zekâ Türkçe anlam vermedi' };
 
     return {
       tur: 'kart',
       kart: {
         ...bos,
-        word: typeof veri.word === 'string' && veri.word ? veri.word : kelime,
+        /*
+         * Kelime KÜÇÜK HARFE çevriliyor. Tekli ekleme kutusu bunu yazarken
+         * zaten yapıyor; kuyruk yapmayınca "Split Second" ile "split second"
+         * iki ayrı kart oluyordu ve tekrar denetimi de ikisini ayrı sayıyordu.
+         */
+        word: (typeof veri.word === 'string' && veri.word ? veri.word : kelime).toLowerCase(),
         partOfSpeech: typeof veri.partOfSpeech === 'string' ? veri.partOfSpeech : '',
         turkishMeaning: anlam,
         phonetic: typeof veri.phonetic === 'string' ? veri.phonetic : undefined,
@@ -448,5 +612,5 @@ export async function kartUret(kelime: string, disSinyal?: AbortSignal): Promise
     };
   }
 
-  return { tur: 'gecici' };
+  return { tur: 'gecici', neden: sonNeden, hataTuru: sonTur };
 }

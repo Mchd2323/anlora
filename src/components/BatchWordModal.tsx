@@ -417,12 +417,12 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
           i => i.status === 'NEW' && !i.elleDolduruldu && !i.matchedCard
         )
       : [];
-    const kuyruktakiler = new Set(kuyrugaGidecek.map(i => i.raw));
+    const kuyruktakiler = new Set(kuyrugaGidecek.map(i => i.normalized));
 
     for (let i = 0; i < selectedItems.length; i++) {
       const item = selectedItems[i];
-      if (kuyruktakiler.has(item.raw)) continue;
-      setProgressMsg(`İşleniyor (${i + 1}/${selectedItems.length}): ${item.raw}...`);
+      if (kuyruktakiler.has(item.normalized)) continue;
+      setProgressMsg(`İşleniyor (${i + 1}/${selectedItems.length}): ${item.normalized}...`);
 
       if (item.status === 'EXACT_IN_COLLECTION' || item.status === 'LISTEDE_TEKRAR') {
         skippedCount++;
@@ -505,7 +505,7 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
            * (örneğin sözlükte görünüp harf dosyası açılamayan bir girdi);
            * NEW kelimelerin tamamı arka plan kuyruğuna gidiyor.
            */
-          const sonuc = await kartUret(item.raw);
+          const sonuc = await kartUret(item.normalized);
           if (sonuc.tur !== 'kart') throw new Error('yapay-zeka-basarisiz');
 
           {
@@ -513,7 +513,7 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
 
             const newCard: WordCard = {
               id: cardData.id,
-              word: cardData.word || item.raw,
+              word: cardData.word || item.normalized,
               // Sözcük türü de uydurulmaz; verilmediyse boş kalır.
               partOfSpeech: cardData.partOfSpeech || '',
               /*
@@ -555,7 +555,7 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
            */
           const elleDoldurulacak: WordCard = {
             id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-            word: item.raw,
+            word: item.normalized,
             partOfSpeech: '',
             turkishMeaning: '',
             examples: [],
@@ -576,7 +576,7 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
       onKuyrugaEkle(
         targetCollection.id,
         targetCollection.name,
-        kuyrugaGidecek.map(i => i.raw)
+        kuyrugaGidecek.map(i => i.normalized)
       );
     }
 
@@ -887,7 +887,16 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
                         className="w-3.5 h-3.5 rounded text-[var(--primary)] accent-[var(--primary)] cursor-pointer"
                       />
                       <div>
-                        <span className="text-xs font-bold text-[var(--text-primary)]">{item.raw}</span>
+                        {/*
+                          YAZILDIĞI GİBİ DEĞİL, EKLENECEĞİ GİBİ GÖSTERİLİYOR.
+                          Tekli eklemede kutu zaten küçük harfe çeviriyor;
+                          toplu listede kelime "Split Second" yazıldığı gibi
+                          kalıyor ve sete de öyle giriyordu. Aynı kelime iki
+                          farklı yazımla iki ayrı kart oluyordu.
+                        */}
+                        <span className="text-xs font-bold text-[var(--text-primary)]">
+                          {item.normalized}
+                        </span>
                         {/*
                           Anlam yalnızca O KART GERÇEKTEN kullanılacaksa
                           yazılıyor. `matchedCard`, tekrar denetimi yakın bir

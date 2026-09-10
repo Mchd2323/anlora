@@ -1,5 +1,5 @@
-import React from 'react';
-import { Loader2, Check, X, WifiOff, RotateCw } from 'lucide-react';
+import React, { useState } from 'react';
+import { Loader2, Check, X, WifiOff, RotateCw, Trash2 } from 'lucide-react';
 import { useModalA11y } from '../hooks/useModalA11y';
 import type { TopluIlerleme } from '../hooks/useTopluKuyruk';
 
@@ -25,7 +25,18 @@ interface Props {
   ilerleme: TopluIlerleme;
   /** "Şimdi tekrar dene" düğmesi. */
   onYenidenDene?: () => void;
+  /** Bekleyen bütün kelimeleri düşürür. */
+  onIptal?: () => void;
   onClose: () => void;
+}
+
+/** Adresten yalnızca sunucu adını alır; ekranda tam URL'e gerek yok. */
+function sunucuAdi(adres: string): string {
+  try {
+    return new URL(adres).host;
+  } catch {
+    return adres;
+  }
 }
 
 /** 95_000 -> "1 dk 35 sn" */
@@ -35,7 +46,17 @@ function sureMetni(ms: number): string {
   return `${Math.floor(sn / 60)} dk ${sn % 60} sn`;
 }
 
-export const TopluKuyrukPaneli: React.FC<Props> = ({ ilerleme, onYenidenDene, onClose }) => {
+export const TopluKuyrukPaneli: React.FC<Props> = ({
+  ilerleme,
+  onYenidenDene,
+  onIptal,
+  onClose
+}) => {
+  /*
+   * İptal İKİ DOKUNUŞ. Kuyruk saatler sürebilen bir iş ve tek dokunuşla yok
+   * edilmesi, yanlışlıkla basıldığında geri alınamayan bir kayıp olurdu.
+   */
+  const [iptalOnayi, setIptalOnayi] = useState(false);
   const panelRef = useModalA11y(true, onClose);
   const kuyruk = ilerleme.kuyruk;
 
@@ -89,7 +110,33 @@ export const TopluKuyrukPaneli: React.FC<Props> = ({ ilerleme, onYenidenDene, on
               <div className="flex items-start gap-2">
                 <WifiOff className="w-3.5 h-3.5 text-[var(--danger)] shrink-0 mt-0.5" />
                 <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
-                  {ilerleme.duraklatildi ? (
+                  {ilerleme.duraklatildi && ilerleme.hataTuru === 'kota' ? (
+                    /*
+                      KOTA HATASINA "BAĞLANTI BEKLENİYOR" DENMİYOR.
+
+                      Kullanıcı bu cümle yüzünden mobil veriye geçip sabit
+                      hatta bağlandı ve hiçbiri değiştirmedi -- çünkü sorun
+                      ağda değildi. Ne olduğunu ve ne YAPMAMASI gerektiğini
+                      söylemek, doğru cümlenin yarısı.
+                    */
+                    <>
+                      <span className="font-bold text-[var(--danger)]">
+                        Anlora AI şu an istek kabul etmiyor.
+                      </span>{' '}
+                      Bunun ağınızla ilgisi yok; ağ değiştirmek işe yaramaz. Günlük
+                      sınır dolmuşsa yenilenmesini beklemek gerekiyor. Kelimeler
+                      kuyrukta duruyor, hiçbiri kaybolmadı — beklemek istemezseniz
+                      aşağıdan iptal edebilirsiniz.
+                    </>
+                  ) : ilerleme.duraklatildi && ilerleme.hataTuru === 'sunucu' ? (
+                    <>
+                      <span className="font-bold text-[var(--danger)]">
+                        Sunucu hata veriyor.
+                      </span>{' '}
+                      Anlora AI şu an yanıt üretemiyor. Ağınızla ilgisi yok. Kelimeler
+                      kuyrukta duruyor; belirli aralıklarla yeniden denenecek.
+                    </>
+                  ) : ilerleme.duraklatildi ? (
                     <>
                       <span className="font-bold text-[var(--danger)]">Bağlantı bekleniyor.</span>{' '}
                       Anlora AI'ya şu an ulaşılamıyor. Kelimeler kuyrukta duruyor, hiçbiri
@@ -114,6 +161,24 @@ export const TopluKuyrukPaneli: React.FC<Props> = ({ ilerleme, onYenidenDene, on
                   )}
                 </p>
               </div>
+
+              {/*
+                SEBEP GİZLENMİYOR.
+
+                Kullanıcı ağını değiştirip durumun düzelmesini bekliyordu; oysa
+                "Bağlantı bekleniyor" cümlesi ağ kopmasını, sunucu hatasını ve
+                dolan kotayı aynı şekilde gösteriyordu. Sunucunun kendi
+                açıklaması ("quota exceeded" gibi) buraya taşınıyor: ne
+                yapılacağına ancak bu bilgiyle karar verilebilir.
+              */}
+              {ilerleme.sonHata && (
+                <p className="text-[10px] text-[var(--text-secondary)] leading-relaxed pl-5">
+                  <span className="font-bold">Sebep:</span> {ilerleme.sonHata}
+                </p>
+              )}
+              <p className="text-[10px] text-[var(--text-muted)] leading-relaxed pl-5">
+                Sunucu: {ilerleme.sunucu ? sunucuAdi(ilerleme.sunucu) : 'tanımlı değil'}
+              </p>
             </div>
           )}
 
@@ -216,16 +281,50 @@ export const TopluKuyrukPaneli: React.FC<Props> = ({ ilerleme, onYenidenDene, on
           her an bir kol olması, nadiren basılan bir düğmeden iyi. Basmanın
           bedeli süren isteğin kesilmesi; kelime kaybolmuyor, yeniden deneniyor.
         */}
-        {kuyruk && onYenidenDene && (
-          <div className="px-5 py-3 border-t border-[var(--border-light)]">
-            <button
-              type="button"
-              onClick={onYenidenDene}
-              className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[var(--bg)] border border-[var(--border)] text-[11px] font-bold text-[var(--text-primary)] cursor-pointer hover:bg-[var(--surface-soft)]"
-            >
-              <RotateCw className="w-3 h-3" />
-              Şimdi tekrar dene
-            </button>
+        {kuyruk && (onYenidenDene || onIptal) && (
+          <div className="px-5 py-3 border-t border-[var(--border-light)] space-y-2">
+            {onYenidenDene && (
+              <button
+                type="button"
+                onClick={onYenidenDene}
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[var(--bg)] border border-[var(--border)] text-[11px] font-bold text-[var(--text-primary)] cursor-pointer hover:bg-[var(--surface-soft)]"
+              >
+                <RotateCw className="w-3 h-3" />
+                Şimdi tekrar dene
+              </button>
+            )}
+            {onIptal &&
+              (iptalOnayi ? (
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onIptal();
+                      setIptalOnayi(false);
+                      onClose();
+                    }}
+                    className="flex-1 px-3 py-2 rounded-lg bg-[var(--danger-soft)] border border-[var(--danger-border)] text-[11px] font-bold text-[var(--danger)] cursor-pointer"
+                  >
+                    Evet, {kuyruk.ogeler.length} kelimeyi iptal et
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIptalOnayi(false)}
+                    className="px-3 py-2 rounded-lg bg-[var(--bg)] border border-[var(--border)] text-[11px] font-bold text-[var(--text-secondary)] cursor-pointer"
+                  >
+                    Vazgeç
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setIptalOnayi(true)}
+                  className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[var(--bg)] border border-[var(--border)] text-[11px] font-bold text-[var(--text-secondary)] cursor-pointer hover:bg-[var(--surface-soft)]"
+                >
+                  <Trash2 className="w-3 h-3" />
+                  Eklemeyi iptal et
+                </button>
+              ))}
           </div>
         )}
       </div>

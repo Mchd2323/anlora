@@ -155,4 +155,80 @@ describe('kuyruk kart üretimi', () => {
     // Anlamı olmayan kart kullanıcı için boş karttır; listede öyle görünmeli.
     expect(sonuc.tur).toBe('bos');
   });
+
+  /*
+   * KOTA HATASI AĞ HATASI DEĞİL.
+   *
+   * Kullanıcı "Bağlantı bekleniyor" yazısını görüp mobil veriye geçti, sonra
+   * sabit hatta bağlandı; hiçbiri değişmedi çünkü sorun ağda değildi. Türün
+   * ayrı taşınması, arayüzün doğru cümleyi kurabilmesi için.
+   */
+  it('429 ayrı tür taşır ve yeniden denenmez', async () => {
+    const fetchSahte = vi.fn(
+      async () =>
+        ({
+          ok: false,
+          status: 429,
+          headers: { get: () => 'application/json' },
+          text: async () => JSON.stringify({ error: { message: 'Quota exceeded' } })
+        }) as unknown as Response
+    );
+    vi.stubGlobal('fetch', fetchSahte);
+
+    const { kartUret } = await import('../useTopluKuyruk');
+    const sonuc = await bitir(kartUret('thrive'));
+
+    expect(sonuc.tur).toBe('gecici');
+    if (sonuc.tur === 'gecici') {
+      expect(sonuc.hataTuru).toBe('kota');
+      expect(sonuc.hizSiniri).toBe(true);
+      // Sunucunun kendi açıklaması ekrana taşınıyor: tanıyı yapan tek bilgi bu.
+      expect(sonuc.neden).toContain('Quota exceeded');
+    }
+    // Sınıra saniyeler arayla üç kez daha vurmak sınırı açmıyor.
+    expect(fetchSahte).toHaveBeenCalledTimes(1);
+  });
+
+  it('5xx sunucu türünde ve üç kez denenir', async () => {
+    const fetchSahte = vi.fn(
+      async () =>
+        ({
+          ok: false,
+          status: 503,
+          headers: { get: () => 'application/json' },
+          text: async () => JSON.stringify({ error: 'model overloaded' })
+        }) as unknown as Response
+    );
+    vi.stubGlobal('fetch', fetchSahte);
+
+    const { kartUret } = await import('../useTopluKuyruk');
+    const sonuc = await bitir(kartUret('thrive'));
+
+    expect(sonuc.tur).toBe('gecici');
+    if (sonuc.tur === 'gecici') {
+      expect(sonuc.hataTuru).toBe('sunucu');
+      expect(sonuc.neden).toContain('model overloaded');
+    }
+    expect(fetchSahte).toHaveBeenCalledTimes(3);
+  });
+
+  it('ağ hatası ağ türünde gelir', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new Error('ağ yok'); }));
+    const { kartUret } = await import('../useTopluKuyruk');
+    const sonuc = await bitir(kartUret('thrive'));
+    expect(sonuc.tur).toBe('gecici');
+    if (sonuc.tur === 'gecici') expect(sonuc.hataTuru).toBe('ag');
+  });
+
+  it('kelimeyi küçük harfe çevirir', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => jsonYanit({ ...YANIT, word: 'Split Second' }))
+    );
+    const { kartUret } = await import('../useTopluKuyruk');
+    const sonuc = await bitir(kartUret('Split Second'));
+    // Tekli ekleme kutusu zaten küçük harfe çeviriyor; iki yol aynı kartı
+    // üretmeli, yoksa aynı kelime iki ayrı kayıt olur.
+    if (sonuc.tur !== 'gecici') expect(sonuc.kart.word).toBe('split second');
+  });
 });
