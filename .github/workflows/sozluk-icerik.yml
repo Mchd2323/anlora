@@ -80,10 +80,10 @@ jobs:
           fi
           git config user.name "Anlora CI"
           git config user.email "noreply@anthropic.com"
-          SAYI=$(python3 -c "
-import json,glob
-n=sum(len(json.load(open(f))) for f in glob.glob('scripts/extended/content/*.json'))
-print(n)")
+          # TEK SATIR. Çok satırlı `python3 -c` bloğu YAML girintisini bozuyor:
+          # devam satırları sütun 1'den başlayınca dosya ayrıştırılamıyor ve
+          # iş akışı "workflow_dispatch tetikleyicisi yok" diye reddediliyor.
+          SAYI=$(python3 -c "import json,glob;print(sum(len(json.load(open(f))) for f in glob.glob('scripts/extended/content/*.json')))")
           git commit -m "Sozluk icerigi: bant ${{ github.event.inputs.bant }} (toplam $SAYI anlam)"
           # Koşu sırasında dala başka bir itme olabilir; önce üstüne binilir.
           git pull --rebase origin "$GITHUB_REF_NAME"
