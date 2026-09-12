@@ -54,7 +54,13 @@ CONTENT_DIR = 'scripts/extended/content'
 OUT_DIR = 'src/data/extended'
 INDEX_FILE = 'src/data/extended/index.json'
 
-POS_SLUG = {'n.': 'n', 'v.': 'v', 'adj.': 'adj', 'adv.': 'adv'}
+# EDAT VE BAĞLAÇ SONRADAN EKLENDİ. Liste yalnızca dört tür tanıyordu; oysa
+# -ing/-ed biçimlerinin bir kısmı edat ya da bağlaç olarak sözlükselleşiyor
+# (owing to, concerning, considering, provided, supposing, granted, barring,
+# respecting). Bunlar öğrenci için en çok karıştıran biçimler ve tür listesi
+# onları dışarıda bıraktığı için pakete hiç giremiyorlardı.
+POS_SLUG = {'n.': 'n', 'v.': 'v', 'adj.': 'adj', 'adv.': 'adv',
+            'prep.': 'prep', 'conj.': 'conj'}
 
 MIN_EXAMPLES = 3
 
