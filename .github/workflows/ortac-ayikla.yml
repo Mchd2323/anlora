@@ -105,6 +105,11 @@ jobs:
           git config user.email "noreply@anthropic.com"
           KABUL=$(node -e "const a=require('./scripts/ortac/ayiklanan.json');console.log(a.filter(x=>x.ayriAnlam).length+'/'+a.length)")
           git commit -m "Ortac ayiklama sonucu: $KABUL ayri anlamli"
+          # KOŞU SIRASINDA DALA BAŞKA BİR ITME OLABİLİR. Bir kez yaşandı:
+          # on altı grupluk içerik turu bitti, 208 kart üretildi ve `git push`
+          # "fetch first" diye reddedildi -- sonuç yalnızca koşucunun diskinde
+          # kaldığı için tamamen kayboldu. Önce rebase ile üstüne biniliyor.
+          git pull --rebase origin "$GITHUB_REF_NAME"
           git push
 
       - name: Özet
