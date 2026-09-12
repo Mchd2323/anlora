@@ -5,6 +5,7 @@ import { findLemmaCandidate, normalizeWordString } from '../utils/lemmatizer';
 import { detectWordDuplicate } from '../utils/duplicateDetector';
 import { aramaAnahtari } from '../utils/aramaAnahtari';
 import { yazimOnerileri } from '../utils/yazimOnerisi';
+import { dagilimMetni, yeniDagilimi } from '../utils/topluDagilim';
 import {
   extendedKelimeler,
   getExtendedCard,
@@ -822,6 +823,43 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
                   </span>
                 </div>
               </div>
+
+              {/*
+                "SÖZLÜKTE YOK" TEK BAŞINA SÖZLÜĞÜ SUÇLU GÖSTERİYOR.
+
+                Kullanıcı 250 kelimelik bir liste yükleyip doksanının
+                bulunamadığını görünce haklı olarak sözlüğün eksik olduğundan
+                şüphelendi. Ölçüldü: sözlük eksik değil (gündelik kırk
+                kelimenin otuz sekizi var), listenin kendisi kalıp ağırlıklı
+                -- "split second", "mass production", "waste basket" gibi iki
+                sözcüklü ifadeler. Sözlükteki 20.751 kaydın yalnızca dokuzunda
+                boşluk var; çok sözcüklü ifadeler ayrı listede ve orada 750
+                kalıp bulunuyor.
+
+                Döküm bunu görünür kılıyor. Yan faydası da var: yazım şüpheli
+                ve çekimli biçim sayılarını gören kullanıcı listesini
+                düzeltebiliyor.
+              */}
+              {(() => {
+                const dagilim = yeniDagilimi(analyzedList);
+                if (!dagilim.toplam) return null;
+                return (
+                  <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed px-1">
+                    <span className="font-bold text-[var(--text-primary)]">
+                      {dagilim.toplam} kelime sözlükte yok
+                    </span>
+                    {' — '}
+                    {dagilimMetni(dagilim)}.
+                    {dagilim.cokSozcuklu > 0 && (
+                      <>
+                        {' '}
+                        Sözlük tek sözcüklü; kalıplar ayrı listede ve orada 750 kayıt
+                        var, gerisini Anlora AI çeviriyor.
+                      </>
+                    )}
+                  </p>
+                );
+              })()}
 
               {/*
                 KAÇ KELİME YAPAY ZEKÂYA GİDECEK VE NE KADAR SÜRECEK?
