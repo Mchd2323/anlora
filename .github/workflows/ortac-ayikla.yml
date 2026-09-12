@@ -19,6 +19,10 @@ on:
         description: 'Bu koşuda en fazla kaç aday işlensin? (boş = hepsi)'
         required: false
         default: ''
+      sifirla:
+        description: 'Önceki sonucu silip baştan başla (evet/hayir)'
+        required: false
+        default: 'hayir'
 
 permissions:
   contents: write
@@ -52,6 +56,12 @@ jobs:
 
       - name: Aday listesini üret
         run: npx tsx scripts/ortac/adaylari_uret.ts
+
+      - name: Gerekiyorsa önceki sonucu sil
+        # İstem değiştiğinde eski kararlar karşılaştırılamaz hale geliyor;
+        # kontrol noktası onları atlayacağı için baştan koşmak gerekiyor.
+        if: ${{ github.event.inputs.sifirla == 'evet' }}
+        run: rm -f scripts/ortac/ayiklanan.json
 
       - name: Ayıkla
         env:

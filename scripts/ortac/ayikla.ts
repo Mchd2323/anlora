@@ -61,6 +61,10 @@ interface Karar {
   ayriAnlam: boolean;
   /** Modelin verdiği kısa Türkçe karşılık; yalnızca ayriAnlam true ise. */
   turkce?: string;
+  /** Biçimin AYRI İngilizce tanımı; kökün tanımı değil. */
+  ingilizce?: string;
+  /** Kökün anlamının uymadığı örnek cümle -- iddianın kanıtı. */
+  ornek?: string;
   /** Sözcük türü: adj. / n. / v. */
   tur?: string;
   /** Elendiyse sebebi. */
@@ -72,25 +76,31 @@ function istem(grup: Aday[]): string {
 
 Bu biçim, İngilizce sözlüklerde KENDİ BAŞINA madde olacak kadar ayrı bir anlam taşıyor mu?
 
-EVET örnekleri (ayrı anlam):
-  trapped  -> kapana kısılmış (sıfat) — "trap" tuzak/tuzağa düşürmek
-  demanding -> yorucu, çok şey isteyen (sıfat)
-  moving -> duygulandırıcı (sıfat)
-  learned -> âlim, bilgili (sıfat, /ˈlɜːnɪd/)
-  deposited -> yatırılmış (sıfat/ortaç, bankacılıkta yerleşik kullanım)
+ELEME ÖLÇÜTÜ (en önemli kural):
+Anlam yalnızca "kökün yapılmış/yapılıyor hâli" ise CEVAP FALSE'TUR.
+  changed  = "değiştirilmiş"  -> FALSE (change'in ortacı, yeni anlam yok)
+  improved = "geliştirilmiş"  -> FALSE
+  designed = "tasarlanmış"    -> FALSE
+  asked, called, added, arrived, believed -> hepsi FALSE
 
-HAYIR örnekleri (yalnızca çekim):
-  walked, asked, called, carried, arriving, adding — anlamları kökün aynısı
+TRUE demek için üçünü de verebilmelisin:
+  1. ingilizce : bu biçimin AYRI sözlük tanımı (kökün tanımı değil)
+  2. turkce    : kısa Türkçe karşılık (en fazla 4 kelime)
+  3. ornek     : İngilizce bir cümle; öyle bir cümle ki kökün anlamını
+                 koyunca ANLAMSIZ olsun. Cümlede biçim aynen geçmeli.
 
-Kural:
-- Yalnızca gerçekten sözlükselleşmiş olanlara true de. Şüphedeysen false.
-- true dediğinde "turkce" alanına KISA Türkçe karşılığı (en fazla 4 kelime),
-  "tur" alanına sözcük türünü (adj. / n. / v.) yaz.
-- false dediğinde turkce ve tur BOŞ kalsın.
-- Uydurma yapma; emin değilsen false.
+Üçünü birden veremiyorsan o kelime sözlükselleşmemiştir; false de.
+
+DOĞRU TRUE örnekleri:
+  dressing : "sauce for salad" / salata sosu / "She poured dressing on the salad."
+  filling  : "material a dentist puts in a tooth" / diş dolgusu / "I need a filling."
+  learned  : "having a lot of knowledge" / âlim, bilgili / "a learned professor"
+  trapped  : "unable to escape" / kapana kısılmış / "The miners were trapped underground."
+  decided  : "clear and definite" / belirgin, açık / "a decided advantage"
 
 Yanıtı yalnızca şu JSON dizisi olarak ver:
-[{"bicim":"...","ayriAnlam":true|false,"turkce":"...","tur":"adj."}]
+[{"bicim":"...","ayriAnlam":true,"ingilizce":"...","turkce":"...","tur":"adj.","ornek":"..."}]
+false olanlarda diğer alanlar boş kalsın.
 
 Biçimler:
 ${grup.map(a => `${a.bicim} (kök: ${a.kok})`).join('\n')}`;
@@ -102,18 +112,42 @@ function kabul(ham: any, aday: Aday): Karar {
   if (!ham || ham.ayriAnlam !== true) return { ...temel, ayriAnlam: false };
 
   const turkce = String(ham.turkce || '').trim();
+  const ingilizce = String(ham.ingilizce || '').trim();
+  const ornek = String(ham.ornek || '').trim();
   const tur = String(ham.tur || '').trim();
 
-  // Karşılıksız bir "evet" işe yaramaz: sonraki adımda doldurulacak alan yok.
-  if (!turkce) return { ...temel, ayriAnlam: false, elendi: 'Türkçe karşılık verilmedi' };
+  /*
+   * ÜÇ ALAN DA ZORUNLU.
+   *
+   * İlk sürüm yalnızca Türkçe karşılık istiyordu ve "changed = değişmiş",
+   * "improved = geliştirilmiş" gibi kayıtlar geçiyordu -- bunlar ayrı bir
+   * sözlük maddesi değil, ortacın sıfat gibi kullanılması. İngilizce tanım
+   * ve KÖKÜN ANLAMININ UYMADIĞI bir örnek cümle istemek, iddiayı
+   * kanıtlanabilir kılıyor: veremiyorsa kelime sözlükselleşmemiştir.
+   */
+  if (!turkce) return { ...temel, ayriAnlam: false, elendi: 'Türkçe karşılık yok' };
+  if (!ingilizce) return { ...temel, ayriAnlam: false, elendi: 'İngilizce tanım yok' };
+  if (!ornek) return { ...temel, ayriAnlam: false, elendi: 'ayırt edici örnek yok' };
+
   if (turkce.split(/\s+/).length > 5) {
     return { ...temel, ayriAnlam: false, elendi: 'karşılık cümleye dönmüş' };
   }
-  // Karşılık İngilizce kelimenin kendisiyse bilgi taşımıyor.
   if (turkce.toLowerCase() === aday.bicim || turkce.toLowerCase() === aday.kok) {
     return { ...temel, ayriAnlam: false, elendi: 'karşılık kelimenin kendisi' };
   }
-  return { ...temel, ayriAnlam: true, turkce, tur: tur || undefined };
+  // Örnek cümle biçimi gerçekten içermeli; içermiyorsa kanıt değil.
+  if (!new RegExp(`\\b${aday.bicim}\\b`, 'i').test(ornek)) {
+    return { ...temel, ayriAnlam: false, elendi: 'örnek cümlede biçim geçmiyor' };
+  }
+  /*
+   * İngilizce tanım KÖKÜ tekrar ediyorsa ("designed: made by design")
+   * ortada ayrı bir anlam yok, kökün yeniden anlatımı var.
+   */
+  if (new RegExp(`^(the act of |being |having been )?${aday.kok}`, 'i').test(ingilizce)) {
+    return { ...temel, ayriAnlam: false, elendi: 'tanım kökü tekrar ediyor' };
+  }
+
+  return { ...temel, ayriAnlam: true, turkce, ingilizce, ornek, tur: tur || undefined };
 }
 
 function bekle(ms: number): Promise<void> {
