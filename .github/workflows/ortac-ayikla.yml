@@ -68,7 +68,9 @@ jobs:
         run: rm -f scripts/ortac/ayiklanan.json
 
       - name: Ayıkla (1. tur)
-        if: ${{ github.event.inputs.asama != 'dogrula' }}
+        # TAM eşleşme: `!= 'dogrula'` yazıldığında `icerik` aşaması da bu
+        # adımı çalıştırıyordu -- yani birinci tur boşuna tekrar koşacaktı.
+        if: ${{ github.event.inputs.asama == 'ayikla' || github.event.inputs.asama == '' }}
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
@@ -94,7 +96,7 @@ jobs:
         run: |
           # `git diff` İZLENMEYEN dosyayı görmez; ilk koşuda çıktı yeni bir
           # dosya olduğu için "değişiklik yok" deyip sessizce geçiyordu.
-          git add -A scripts/ortac/ scripts/ortac/icerik.json
+          git add -A scripts/ortac/
           if git diff --cached --quiet; then
             echo "Değişiklik yok."
             exit 0
