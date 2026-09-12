@@ -117,9 +117,7 @@
   "bicim": "changed",
   "kok": "change",
   "ek": "ed",
-  "ayriAnlam": true,
-  "turkce": "değişmiş",
-  "tur": "adj."
+  "ayriAnlam": false
  },
  {
   "bicim": "checking",
@@ -162,7 +160,9 @@
   "kok": "close",
   "ek": "ing",
   "ayriAnlam": true,
-  "turkce": "kapanış",
+  "turkce": "kapanış, son",
+  "ingilizce": "bringing something to an end",
+  "ornek": "He made a closing speech at the conference.",
   "tur": "adj."
  },
  {
@@ -193,7 +193,11 @@
   "bicim": "cooked",
   "kok": "cook",
   "ek": "ed",
-  "ayriAnlam": false
+  "ayriAnlam": true,
+  "turkce": "pişmiş",
+  "ingilizce": "prepared for eating by heating",
+  "ornek": "We ate cooked meat.",
+  "tur": "adj."
  },
  {
   "bicim": "correcting",
@@ -248,7 +252,9 @@
   "kok": "decide",
   "ek": "ed",
   "ayriAnlam": true,
-  "turkce": "kesinleşmiş, kararlaştırılmış",
+  "turkce": "belirgin, kesin",
+  "ingilizce": "clear and definite",
+  "ornek": "She has a decided advantage over the others.",
   "tur": "adj."
  },
  {
@@ -267,15 +273,17 @@
   "bicim": "designing",
   "kok": "design",
   "ek": "ing",
-  "ayriAnlam": false
+  "ayriAnlam": true,
+  "turkce": "çıkarcı, sinsi",
+  "ingilizce": "calculating and selfish",
+  "ornek": "She is a designing woman.",
+  "tur": "adj."
  },
  {
   "bicim": "designed",
   "kok": "design",
   "ek": "ed",
-  "ayriAnlam": true,
-  "turkce": "tasarlanmış, özel yapım",
-  "tur": "adj."
+  "ayriAnlam": false
  },
  {
   "bicim": "dieing",
@@ -306,8 +314,10 @@
   "kok": "dress",
   "ek": "ing",
   "ayriAnlam": true,
-  "turkce": "salata sosu, sargı",
-  "tur": "n."
+  "turkce": "salata sosu",
+  "ingilizce": "sauce for salad",
+  "ornek": "She poured dressing on the salad.",
+  "tur": "noun"
  },
  {
   "bicim": "emailing",
@@ -368,8 +378,10 @@
   "kok": "fill",
   "ek": "ing",
   "ayriAnlam": true,
-  "turkce": "diş dolgusu, dolgu",
-  "tur": "n."
+  "turkce": "diş dolgusu",
+  "ingilizce": "material a dentist puts in a tooth",
+  "ornek": "I need a filling.",
+  "tur": "noun"
  },
  {
   "bicim": "filled",
@@ -388,7 +400,9 @@
   "kok": "finish",
   "ek": "ed",
   "ayriAnlam": true,
-  "turkce": "bitmiş, bitkin",
+  "turkce": "bitmiş, tükenmiş",
+  "ingilizce": "completed or brought to an end; no longer working or valid",
+  "ornek": "He is a finished actor in Hollywood.",
   "tur": "adj."
  },
  {
@@ -426,8 +440,10 @@
   "kok": "happen",
   "ek": "ing",
   "ayriAnlam": true,
-  "turkce": "güncel olay, moda",
-  "tur": "adj."
+  "turkce": "sanatsal etkinlik",
+  "ingilizce": "a planned event or performance",
+  "ornek": "We attended an art happening downtown.",
+  "tur": "noun"
  },
  {
   "bicim": "happened",
@@ -451,7 +467,11 @@
   "bicim": "helping",
   "kok": "help",
   "ek": "ing",
-  "ayriAnlam": false
+  "ayriAnlam": true,
+  "turkce": "yemek porsiyonu",
+  "ingilizce": "a portion of food served to one person",
+  "ornek": "I would like a second helping of pie.",
+  "tur": "noun"
  },
  {
   "bicim": "helped",
@@ -481,9 +501,7 @@
   "bicim": "imagined",
   "kok": "imagine",
   "ek": "ed",
-  "ayriAnlam": true,
-  "turkce": "hayali, düşsel",
-  "tur": "adj."
+  "ayriAnlam": false
  },
  {
   "bicim": "improving",
@@ -495,9 +513,7 @@
   "bicim": "improved",
   "kok": "improve",
   "ek": "ed",
-  "ayriAnlam": true,
-  "turkce": "geliştirilmiş, iyileşmiş",
-  "tur": "adj."
+  "ayriAnlam": false
  },
  {
   "bicim": "interviewing",
@@ -553,6 +569,8 @@
   "ek": "ed",
   "ayriAnlam": true,
   "turkce": "âlim, bilgili",
+  "ingilizce": "having much knowledge acquired by study",
+  "ornek": "She is a learned scholar in history.",
   "tur": "adj."
  },
  {
