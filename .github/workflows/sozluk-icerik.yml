@@ -1,0 +1,94 @@
+name: Sözlük içeriği üret
+
+# Genel Dağarcık'ta içeriği eksik anlamları doldurur.
+#
+# NEDEN CI'DA. Gemini anahtarı yalnızca burada gizli bir değer olarak
+# duruyor; ne depoya ne de geliştirme makinesine kopyalanıyor.
+#
+# BANT SIRASIYLA ÇALIŞTIRIN. Bant numarası sıklık sırasını taşıyor: bant 8,
+# bant 13'ten daha sık kullanılan kelimeleri içerir. İş yarıda kalsa bile en
+# çok işe yarayacak kısım hazır olsun diye küçük numaralı bantlar önce
+# doldurulur.
+#
+# ÇIKTI DOĞRUDAN PAKETE GİRMEZ: `build_bands.py --strict` kapısından
+# geçmeyen içerik uygulamaya yazılmaz.
+
+on:
+  workflow_dispatch:
+    inputs:
+      bant:
+        description: 'Hangi bant doldurulsun? (8-13)'
+        required: true
+        default: '8'
+      limit:
+        description: 'Bu koşuda en fazla kaç anlam? (boş = hepsi)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  uret:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Bağımlılıkları kur
+        run: npm ci
+
+      - name: Anahtarı denetle
+        env:
+          GEMINI: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          if [ -z "$GEMINI" ]; then
+            echo "::error::GEMINI_API_KEY tanımlı değil."
+            exit 1
+          fi
+
+      - name: İçerik üret
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          if [ -n "${{ github.event.inputs.limit }}" ]; then
+            npx tsx scripts/extended/uret_icerik.ts --bant "${{ github.event.inputs.bant }}" --limit "${{ github.event.inputs.limit }}"
+          else
+            npx tsx scripts/extended/uret_icerik.ts --bant "${{ github.event.inputs.bant }}"
+          fi
+
+      - name: Paketi yeniden derle
+        # ASIL KAPI BURASI: denetimi geçemeyen içerik pakete yazılmaz.
+        run: python3 scripts/extended/build_bands.py --strict
+
+      - name: Sonucu dala işle
+        run: |
+          git add -A scripts/extended/content src/data/extended scripts/extended/source
+          if git diff --cached --quiet; then
+            echo "Değişiklik yok."
+            exit 0
+          fi
+          git config user.name "Anlora CI"
+          git config user.email "noreply@anthropic.com"
+          SAYI=$(python3 -c "
+import json,glob
+n=sum(len(json.load(open(f))) for f in glob.glob('scripts/extended/content/*.json'))
+print(n)")
+          git commit -m "Sozluk icerigi: bant ${{ github.event.inputs.bant }} (toplam $SAYI anlam)"
+          # Koşu sırasında dala başka bir itme olabilir; önce üstüne binilir.
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push
+
+      - name: Özet
+        if: always()
+        run: python3 scripts/extended/export_gaps.py --summary >> "$GITHUB_STEP_SUMMARY"
