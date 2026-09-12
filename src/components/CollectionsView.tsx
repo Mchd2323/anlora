@@ -2778,6 +2778,29 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                       </div>
                     </div>
                   </button>
+
+                  {/*
+                    YAPAY ZEKÂ ZORUNLU DEĞİL -- VE BU GÖRÜNMÜYORDU.
+
+                    Kelime sözlükte bulunmayınca ekranı büyük "Anlora AI ile
+                    hazırla" kartı kaplıyor; altındaki form, o karta basılması
+                    gereken bir ön adım sanılıyor. Oysa kayıt yolu yapay zekâya
+                    hiç bağlı değil: `saveManualCard` yalnızca kelimeyi ve
+                    Türkçe anlamı istiyor.
+
+                    Bu özellikle "great deal of" gibi çok sözcüklü kalıplarda
+                    önemli: sözlükte bulunmazlar ve yapay zekâ da her zaman
+                    karşılık üretemez. Kullanıcı o noktada sıkışmış hissediyor,
+                    oysa yapması gereken tek şey formu doldurmak.
+
+                    Tek satır, çünkü buranın işi bilgilendirmek; uzun bir
+                    açıklama asıl seçeneğin önüne geçerdi.
+                  */}
+                  <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
+                    Şart değil: aşağıdaki formu doldurup{' '}
+                    <span className="font-bold text-[var(--text-primary)]">Kartı Kaydet</span>'e
+                    basarak yapay zekâ olmadan da ekleyebilirsin.
+                  </p>
                 </div>
                 )}
 
