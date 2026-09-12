@@ -19,6 +19,7 @@ import { SettingsPanel } from './SettingsPanel';
 import { readJSON, writeJSON } from '../utils/safeStorage';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { sonYedekZamani } from '../services/otomatikYedek';
 import { Share } from '@capacitor/share';
 import { RealmsIcon } from './ui/RealmsIcon';
 import { RealmsFigure } from './ui/RealmsFigure';
@@ -114,6 +115,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
    */
   const [exportedPath, setExportedPath] = useState('');
   const [showExportSuccess, setShowExportSuccess] = useState(false);
+  /** Son otomatik yedeğin zamanı; ekran açıldığında bir kez okunuyor. */
+  const [otoYedek] = useState<string | null>(() => sonYedekZamani());
   const [importError, setImportError] = useState<string | null>(null);
   const importInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -884,6 +887,28 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <Trash2 className="w-3.5 h-3.5" />
             <span>Tüm Verileri Sıfırla</span>
           </button>
+        </div>
+
+        {/*
+          OTOMATİK YEDEK GÖRÜNÜR OLMALI.
+
+          Kullanıcı bir güncellemeden sonra verisini kaybetti ve elinde hiçbir
+          yedek yoktu. Uygulama artık kendiliğinden yedek alıyor; ama sessizce
+          alınan bir yedek, kaybın yaşandığı gün kimsenin aklına gelmez.
+          Dosyanın ADI ve YERİ burada yazıyor -- "Geri Yükle" düğmesine
+          basıldığında hangi dosyayı arayacağını bilsin diye.
+        */}
+        <div className="mt-3 px-3 py-2.5 rounded-xl bg-[var(--bg)] border border-[var(--border-light)]">
+          <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
+            <span className="font-bold text-[var(--text-primary)]">Otomatik yedek:</span>{' '}
+            {otoYedek
+              ? `son kopya ${new Date(otoYedek).toLocaleString('tr-TR')}`
+              : 'henüz alınmadı'}
+            . Uygulama günde iki kez, telefonun <span className="font-bold">Belgeler</span>{' '}
+            klasörüne <span className="font-mono">anlora_otomatik_yedek_…json</span> adıyla
+            bir kopya yazıyor; son üç kopya saklanıyor. Bu dosyalar uygulamayı
+            kaldırsanız bile yerinde kalır — "Yedekten Geri Yükle" ile açabilirsiniz.
+          </p>
         </div>
 
       </div>

@@ -66,6 +66,7 @@ import { OxfordGroupKey } from './types/oxford';
 import { loadExtendedIndex } from './services/extendedRepository';
 import { useToast } from './components/ui/ToastProvider';
 import { useTopluKuyruk } from './hooks/useTopluKuyruk';
+import { otomatikYedekAl } from './services/otomatikYedek';
 import { TopluKuyrukPaneli } from './components/TopluKuyrukPaneli';
 import { useAndroidBackButton } from './hooks/useAndroidBackButton';
 import { useTheme } from './hooks/useTheme';
@@ -405,6 +406,25 @@ export default function App() {
    * Sözlük gelmemişken Setlerim o üyelikleri çözemiyor ve dolu bir seti boş
    * gösteriyordu.
    */
+  /*
+   * OTOMATİK YEDEK.
+   *
+   * Kullanıcı bir güncellemeden sonra bütün verisini kaybetti. Elle yedek
+   * alma özelliği zaten vardı ama kimse her gün elle yedek almaz; alınmamış
+   * bir yedek yok hükmündedir. Bu çağrı, uygulamanın özel dizininin DIŞINA
+   * (telefonun Belgeler klasörü) günde iki kez bir kopya yazıyor -- orası
+   * uygulama kaldırılsa bile duruyor.
+   *
+   * Açılışta değil, veri YÜKLENDİKTEN sonra çağrılıyor ve boş durum asla
+   * yedeklenmiyor; yoksa veri kaybından sonra açılan uygulama kurtarma
+   * dosyasının üzerine boş bir kopya yazardı.
+   */
+  useEffect(() => {
+    const veriVar = collections.length > 0 || customWords.length > 0;
+    if (!veriVar) return;
+    void otomatikYedekAl(true);
+  }, [collections.length, customWords.length]);
+
   useEffect(() => {
     if (isDictionaryReady) return;
     if (
