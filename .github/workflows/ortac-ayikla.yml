@@ -23,6 +23,10 @@ on:
         description: 'Önceki sonucu silip baştan başla (evet/hayir)'
         required: false
         default: 'hayir'
+      asama:
+        description: 'ayikla (1. tur) | dogrula (2. tur)'
+        required: false
+        default: 'ayikla'
 
 permissions:
   contents: write
@@ -63,7 +67,8 @@ jobs:
         if: ${{ github.event.inputs.sifirla == 'evet' }}
         run: rm -f scripts/ortac/ayiklanan.json
 
-      - name: Ayıkla
+      - name: Ayıkla (1. tur)
+        if: ${{ github.event.inputs.asama != 'dogrula' }}
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
@@ -73,11 +78,17 @@ jobs:
             npx tsx scripts/ortac/ayikla.ts
           fi
 
+      - name: Doğrula (2. tur)
+        if: ${{ github.event.inputs.asama == 'dogrula' }}
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: npx tsx scripts/ortac/dogrula.ts
+
       - name: Sonucu dala işle
         run: |
           # `git diff` İZLENMEYEN dosyayı görmez; ilk koşuda çıktı yeni bir
           # dosya olduğu için "değişiklik yok" deyip sessizce geçiyordu.
-          git add scripts/ortac/ayiklanan.json scripts/ortac/adaylar.json
+          git add scripts/ortac/ayiklanan.json scripts/ortac/adaylar.json scripts/ortac/onaylanan.json
           if git diff --cached --quiet; then
             echo "Değişiklik yok."
             exit 0
@@ -92,6 +103,15 @@ jobs:
         if: always()
         run: |
           test -f scripts/ortac/ayiklanan.json || { echo "Çıktı üretilmedi." >> "$GITHUB_STEP_SUMMARY"; exit 0; }
+          if [ -f scripts/ortac/onaylanan.json ]; then
+            node -e "
+              const o=require('./scripts/ortac/onaylanan.json');
+              const g=o.filter(x=>x.onaylandi);
+              console.log('2. tur: '+g.length+'/'+o.length+' onaylandı');
+              console.log('');
+              console.log(g.slice(0,60).map(x=>x.bicim+' = '+x.turkce).join(' · '));
+            " >> "$GITHUB_STEP_SUMMARY"
+          fi
           node -e "
             const a=require('./scripts/ortac/ayiklanan.json');
             const e=a.filter(x=>x.ayriAnlam);
