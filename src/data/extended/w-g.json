@@ -6291,6 +6291,41 @@
   "band": 2
  },
  {
+  "id": "ort-el-gifted",
+  "headword": "gifted",
+  "cefr": "B2",
+  "sourceCollection": "extended",
+  "sourceOrder": 900003,
+  "sourceEntry": "gifted adj. (< gift)",
+  "senses": [
+   {
+    "id": "ort-el-gifted-1",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "yetenekli",
+     "üstün yetenekli"
+    ],
+    "examples": [
+     {
+      "en": "She is a gifted young pianist.",
+      "tr": "Yetenekli, genç bir piyanist."
+     },
+     {
+      "en": "The school has a program for gifted children.",
+      "tr": "Okulun üstün yetenekli çocuklar için bir programı var."
+     },
+     {
+      "en": "He is gifted at solving difficult problems.",
+      "tr": "Zor sorunları çözmekte yeteneklidir."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈɡɪftɪd/",
+  "band": 3
+ },
+ {
   "id": "gen-b1-gigantic",
   "headword": "gigantic",
   "cefr": "C1",

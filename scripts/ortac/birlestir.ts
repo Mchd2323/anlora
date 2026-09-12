@@ -38,7 +38,23 @@ interface Kart {
 }
 
 const yaz = process.argv.includes('--yaz');
-const kartlar: Kart[] = JSON.parse(fs.readFileSync(KART, 'utf8'));
+
+/*
+ * ELLE YAZILAN KAYITLAR AYRI DOSYADA.
+ *
+ * İkinci tur isabeti artırırken kapsamı düşürdü ve gerçek maddeleri de
+ * eledi: `trapped` (kullanıcının kendi örneği), `trying`, `gifted`.
+ * Bunlar makine çıktısına karıştırılmıyor -- karışsalardı hangi kaydın
+ * nereden geldiği bir daha ayırt edilemezdi. Kimlikleri de `ort-el-` ile
+ * başlıyor.
+ */
+const ELLE = path.join(ROOT, 'scripts/ortac/elle.json');
+const elleKartlar: Kart[] = fs.existsSync(ELLE)
+  ? JSON.parse(fs.readFileSync(ELLE, 'utf8'))
+  : [];
+const elleAdlar = new Set(elleKartlar.map(k => k.bicim.toLowerCase()));
+
+const kartlar: Kart[] = [...JSON.parse(fs.readFileSync(KART, 'utf8')), ...elleKartlar];
 
 const index = JSON.parse(fs.readFileSync(path.join(EXT, 'index.json'), 'utf8'));
 const mevcut = new Set<string>((index.words || []).map((w: string) => String(w).toLowerCase()));
@@ -77,8 +93,9 @@ for (const k of kartlar) {
     continue;
   }
 
+  const elleMi = elleAdlar.has(ad);
   const kayit = {
-    id: `ort-${ad}`,
+    id: `${elleMi ? 'ort-el-' : 'ort-'}${ad}`,
     headword: k.bicim,
     cefr: k.cefr,
     sourceCollection: 'extended',
@@ -86,7 +103,7 @@ for (const k of kartlar) {
     sourceEntry: `${k.bicim} ${k.partOfSpeech} (< ${k.kok})`,
     senses: [
       {
-        id: `ort-${ad}-1`,
+        id: `${elleMi ? 'ort-el-' : 'ort-'}${ad}-1`,
         partOfSpeech: k.partOfSpeech,
         turkishMeanings: k.turkishMeanings,
         examples: k.examples
@@ -121,6 +138,6 @@ if (yaz) {
 }
 
 console.log(`${yaz ? 'YAZILDI' : 'DENEME (yazılmadı)'}`);
-console.log(`  eklenen : ${eklenen}`);
+console.log(`  eklenen : ${eklenen} (elle: ${elleKartlar.length})`);
 console.log(`  atlanan : ${atlanan.length}${atlanan.length ? ' — ' + atlanan.slice(0, 10).join(', ') : ''}`);
 console.log(`  Genel Dağarcık: ${index.wordCount} -> ${yeniKelimeler.length}`);

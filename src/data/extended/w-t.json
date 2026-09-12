@@ -21835,6 +21835,76 @@
   "band": 3
  },
  {
+  "id": "ort-el-trapped",
+  "headword": "trapped",
+  "cefr": "B1",
+  "sourceCollection": "extended",
+  "sourceOrder": 900000,
+  "sourceEntry": "trapped adj. (< trap)",
+  "senses": [
+   {
+    "id": "ort-el-trapped-1",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "kapana kısılmış",
+     "sıkışıp kalmış"
+    ],
+    "examples": [
+     {
+      "en": "The miners were trapped underground for two days.",
+      "tr": "Madenciler iki gün yer altında mahsur kaldı."
+     },
+     {
+      "en": "She felt trapped in a job she hated.",
+      "tr": "Nefret ettiği bir işte sıkışıp kalmış hissediyordu."
+     },
+     {
+      "en": "A bird was trapped inside the chimney.",
+      "tr": "Bacanın içinde bir kuş kapana kısılmıştı."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/træpt/",
+  "band": 3
+ },
+ {
+  "id": "ort-el-trapping",
+  "headword": "trapping",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 900001,
+  "sourceEntry": "trapping n. (< trap)",
+  "senses": [
+   {
+    "id": "ort-el-trapping-1",
+    "partOfSpeech": "n.",
+    "turkishMeanings": [
+     "tuzakla avlama",
+     "tuzak kurma"
+    ],
+    "examples": [
+     {
+      "en": "Trapping wild animals is illegal in this area.",
+      "tr": "Bu bölgede yabani hayvanları tuzakla avlamak yasaktır."
+     },
+     {
+      "en": "He earned a living by hunting and trapping.",
+      "tr": "Avcılık ve tuzakçılıkla geçimini sağlıyordu."
+     },
+     {
+      "en": "The law put an end to fur trapping here.",
+      "tr": "Yasa buradaki kürk avcılığına son verdi."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈtræpɪŋ/",
+  "band": 3
+ },
+ {
   "id": "gen-b5-trappings",
   "headword": "trappings",
   "cefr": "C1",
@@ -26296,6 +26366,41 @@
   "variants": [],
   "phonetic": null,
   "band": 7
+ },
+ {
+  "id": "ort-el-trying",
+  "headword": "trying",
+  "cefr": "C1",
+  "sourceCollection": "extended",
+  "sourceOrder": 900002,
+  "sourceEntry": "trying adj. (< try)",
+  "senses": [
+   {
+    "id": "ort-el-trying-1",
+    "partOfSpeech": "adj.",
+    "turkishMeanings": [
+     "zor",
+     "yıpratıcı"
+    ],
+    "examples": [
+     {
+      "en": "It has been a trying week for everyone.",
+      "tr": "Herkes için yıpratıcı bir hafta oldu."
+     },
+     {
+      "en": "She stayed calm during a trying situation.",
+      "tr": "Zor bir durumda sakin kaldı."
+     },
+     {
+      "en": "Caring for a sick parent can be very trying.",
+      "tr": "Hasta bir ebeveyne bakmak çok yıpratıcı olabilir."
+     }
+    ]
+   }
+  ],
+  "variants": [],
+  "phonetic": "/ˈtraɪɪŋ/",
+  "band": 3
  },
  {
   "id": "gen-b4-tryout",
