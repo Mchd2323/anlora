@@ -1,0 +1,96 @@
+name: Ortaç adaylarını ayıkla
+
+# -ed / -ing biçimlerinden hangisinin AYRI bir sözlük anlamı taşıdığını
+# ayıklar (trapped = kapana kısılmış, deposited = yatırılmış gibi).
+#
+# NEDEN CI'DA. Gemini anahtarı yalnızca burada gizli bir değer olarak
+# duruyor; ne depoya ne de geliştirme makinesine kopyalanıyor.
+#
+# SONUÇ DOĞRUDAN SÖZLÜĞE GİRMEZ. Çıktı `scripts/ortac/ayiklanan.json`
+# dosyasına yazılıp dala işleniyor; insan gözüyle bakılacak bir ADAY
+# listesidir. Uydurma veri yazılmaması kuralı (talimat 59) burada da
+# geçerli: betik, karşılık vermeyen ya da karşılığı kelimenin kendisi olan
+# cevapları eliyor.
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: 'Bu koşuda en fazla kaç aday işlensin? (boş = hepsi)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  ayikla:
+    runs-on: ubuntu-latest
+    # Hız sınırına takılırsa beklemeler uzayabilir; koşu yarıda kalsa da
+    # kontrol noktası sayesinde bir sonraki koşu kaldığı yerden devam eder.
+    timeout-minutes: 180
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Bağımlılıkları kur
+        run: npm ci
+
+      - name: Anahtarı denetle
+        env:
+          GEMINI: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          if [ -z "$GEMINI" ]; then
+            echo "::error::GEMINI_API_KEY tanımlı değil. Settings → Secrets and variables → Actions altından ekleyin."
+            exit 1
+          fi
+
+      - name: Aday listesini üret
+        run: npx tsx scripts/ortac/adaylari_uret.ts
+
+      - name: Ayıkla
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          if [ -n "${{ github.event.inputs.limit }}" ]; then
+            npx tsx scripts/ortac/ayikla.ts --limit "${{ github.event.inputs.limit }}"
+          else
+            npx tsx scripts/ortac/ayikla.ts
+          fi
+
+      - name: Sonucu dala işle
+        run: |
+          if git diff --quiet -- scripts/ortac/ayiklanan.json; then
+            echo "Değişiklik yok."
+            exit 0
+          fi
+          git config user.name "Anlora CI"
+          git config user.email "noreply@anthropic.com"
+          git add scripts/ortac/ayiklanan.json scripts/ortac/adaylar.json
+          KABUL=$(node -e "const a=require('./scripts/ortac/ayiklanan.json');console.log(a.filter(x=>x.ayriAnlam).length+'/'+a.length)")
+          git commit -m "Ortac ayiklama sonucu: $KABUL ayri anlamli"
+          git push
+
+      - name: Özet
+        run: |
+          node -e "
+            const a=require('./scripts/ortac/ayiklanan.json');
+            const e=a.filter(x=>x.ayriAnlam);
+            console.log('| Alan | Değer |'); console.log('| --- | --- |');
+            console.log('| İşlenen | '+a.length+' |');
+            console.log('| Ayrı anlamlı | '+e.length+' |');
+            console.log('');
+            console.log('İlk 40: '+e.slice(0,40).map(x=>x.bicim+' = '+x.turkce).join(' · '));
+          " >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Artefakt olarak yükle
+        uses: actions/upload-artifact@v4
+        with:
+          name: ortac-ayiklama
+          path: scripts/ortac/ayiklanan.json
+          if-no-files-found: error
