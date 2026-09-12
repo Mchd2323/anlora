@@ -31,7 +31,13 @@ const ROOT = process.cwd();
 const ADAY = path.join(ROOT, 'scripts/ortac/adaylar.json');
 const CIKTI = path.join(ROOT, 'scripts/ortac/ayiklanan.json');
 
-const GRUP = 50;
+/*
+ * GRUP BOYUTU 50 -> 30. Elli kelimelik istem uzun bir yanıt istiyor;
+ * yoğunluk altındaki model uzun üretimi daha sık reddediyor. Otuz kelime
+ * hâlâ 2.122 aday için ~71 istek demek -- kelime başına bir istekten kırk
+ * kat ucuz.
+ */
+const GRUP = 30;
 const GRUPLAR_ARASI_MS = 4000;
 
 /**
@@ -115,10 +121,9 @@ function bekle(ms: number): Promise<void> {
 }
 
 /** 429 gövdesinden "şu kadar sonra dene" süresini okur. */
-function beklemeSuresi(hata: unknown): number {
-  const metin = String((hata as Error)?.message || '');
-  const m = /"retryDelay"\s*:\s*"(\d+(?:\.\d+)?)s"/.exec(metin);
-  return m ? Math.min(Math.ceil(Number(m[1])), 900) : 60;
+function beklemeSuresi(metin: string): number {
+  const m = /"retryDelay"\s*:\s*"(\d+(?:\.\d+)?)s"/.exec(metin || '');
+  return m ? Math.min(Math.ceil(Number(m[1])), 900) : 45;
 }
 
 async function main() {
@@ -142,36 +147,50 @@ async function main() {
   const sonuc: Karar[] = [...onceki];
   /** Çalışan model bulunana kadar listede ilerlenir. */
   let modelIdx = 0;
+  /** Son hata metni; bekleme süresi buradan okunuyor. */
+  let sonHata = '';
 
   for (let i = 0; i < kalan.length; i += GRUP) {
     const grup = kalan.slice(i, i + GRUP);
     const no = Math.floor(i / GRUP) + 1;
     const toplam = Math.ceil(kalan.length / GRUP);
 
+    /*
+     * ÖNCE MODEL DEĞİŞTİR, SONRA BEKLE.
+     *
+     * İlk sürüm yalnızca 404'te sıradaki modele geçiyordu; 503 gelince
+     * altmış saniye bekleyip AYNI modeli yeniden deniyordu. Koşu on dört
+     * dakika sürdü ve hiçbir grup işlenemedi, çünkü `gemini-flash-latest`
+     * o sırada sürekli 503 "high demand" döndürüyordu.
+     *
+     * Oysa 503 de 404 gibi MODELE ait: başka bir model o anda boş olabilir.
+     * Anlora Worker'ında zaten bu mantık var (her hatada sıradaki aday
+     * denenir); betik onunla aynı davranışa çekildi. Beklemek yalnızca
+     * BÜTÜN modeller tükendiğinde yapılıyor.
+     */
     let cevap: any[] | null = null;
-    for (let deneme = 0; deneme < 3 && !cevap; deneme++) {
-      try {
-        const yanit = await ai.models.generateContent({
-          model: MODELLER[modelIdx],
-          contents: istem(grup),
-          config: { responseMimeType: 'application/json' }
-        });
-        const metin = (yanit.text || '').trim().replace(/^```json\s*|\s*```$/g, '');
-        cevap = JSON.parse(metin);
-      } catch (hata) {
-        const mesaj = String((hata as Error).message || '');
-        /*
-         * 404 MODELE AİT, BEKLEMEKLE GEÇMEZ. Emekliye ayrılmış bir model
-         * için altmış saniye beklemek yalnızca koşuyu uzatıyor; sıradaki
-         * modele geçmek gerekiyor.
-         */
-        if (/\b404\b|no longer available|not found/i.test(mesaj) && modelIdx < MODELLER.length - 1) {
-          modelIdx++;
-          console.warn(`  grup ${no}: model kullanılamıyor, "${MODELLER[modelIdx]}" deneniyor.`);
-          continue;
+    for (let tur = 0; tur < 3 && !cevap; tur++) {
+      for (let m = 0; m < MODELLER.length && !cevap; m++) {
+        const model = MODELLER[(modelIdx + m) % MODELLER.length];
+        try {
+          const yanit = await ai.models.generateContent({
+            model,
+            contents: istem(grup),
+            config: { responseMimeType: 'application/json' }
+          });
+          const metin = (yanit.text || '').trim().replace(/^```json\s*|\s*```$/g, '');
+          cevap = JSON.parse(metin);
+          // Çalışan model hatırlanıyor: sonraki gruplar doğrudan ona gidiyor.
+          modelIdx = MODELLER.indexOf(model);
+        } catch (hata) {
+          const mesaj = String((hata as Error).message || '');
+          console.warn(`  grup ${no} · ${model}: ${mesaj.slice(0, 110)}`);
+          sonHata = mesaj;
         }
-        const sn = beklemeSuresi(hata);
-        console.warn(`  grup ${no}: hata, ${sn} sn sonra yeniden denenecek (${mesaj.slice(0, 140)})`);
+      }
+      if (!cevap && tur < 2) {
+        const sn = beklemeSuresi(sonHata);
+        console.warn(`  grup ${no}: bütün modeller başarısız, ${sn} sn bekleniyor.`);
         await bekle(sn * 1000);
       }
     }
