@@ -3,6 +3,7 @@ import { DuplicateCheckResult, WordCard } from '../types';
 import { AlertCircle, Edit2, Link, X } from 'lucide-react';
 import { CEFRBadge } from './ui/CEFRBadge';
 import { shouldShowCefr } from '../types/oxford';
+import { ortacOlabilirMi } from '../utils/lemmatizer';
 import { useModalA11y } from '../hooks/useModalA11y';
 import { RealmsIcon } from './ui/RealmsIcon';
 
@@ -160,9 +161,32 @@ export const DuplicateWarningModal: React.FC<DuplicateWarningModalProps> = ({
             <div className="p-3.5 bg-[var(--learning-soft)]/60 rounded-xl border border-[var(--learning-border)] text-xs text-[var(--learning-text)] space-y-1">
               <p className="font-bold">Çekimli Kelime Tespiti:</p>
               <p className="text-[11px]">{duplicateInfo.lemmaSuggestion.explanation}</p>
-              <p className="text-[11px] text-[var(--learning-text)]">
-                Kalıcı hafıza için genellikle kök formu (<b>{duplicateInfo.lemmaSuggestion.baseForm}</b>) kartlaştırmak önerilir.
-              </p>
+              {/*
+                ÖĞÜT -ed/-ing BİÇİMLERİNDE DEĞİŞİYOR.
+
+                Burada koşulsuz "kök formu kartlaştırmak önerilir" yazıyordu.
+                "walked" için doğru, "trapped" için yanlış:
+                  trap = tuzak · trapped = kapana kısılmış · trapping = tuzak kurma
+                Aynısı demanding (yorucu), trying (yıpratıcı), learned (âlim),
+                gifted (yetenekli) için de geçerli. Bu ayrım uydurma değil:
+                sözlükte bu biçimlerden 151 tanesi zaten AYRI sıfat girdisi
+                olarak duruyor (bored, boring, excited, moving, outstanding...).
+
+                Hangi biçimin gerçekten ayrı anlamı olduğuna burada KARAR
+                VERİLMİYOR -- o sözlük bilgisi ister. Yapılan tek şey, yanlış
+                olabilecek bir öğüdü kesin bir dille vermemek.
+              */}
+              {ortacOlabilirMi(duplicateInfo.normalizedWord) ? (
+                <p className="text-[11px] text-[var(--learning-text)]">
+                  Ama <b>-ed</b> ve <b>-ing</b> biçimleri çoğu zaman kendi anlamını taşır
+                  (<i>trap</i> = tuzak, <i>trapped</i> = kapana kısılmış). Bu biçimi ayrı
+                  bir kart olarak eklemek istiyorsan aşağıdan devam edebilirsin.
+                </p>
+              ) : (
+                <p className="text-[11px] text-[var(--learning-text)]">
+                  Kalıcı hafıza için genellikle kök formu (<b>{duplicateInfo.lemmaSuggestion.baseForm}</b>) kartlaştırmak önerilir.
+                </p>
+              )}
             </div>
           )}
 

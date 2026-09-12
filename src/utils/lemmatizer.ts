@@ -240,3 +240,27 @@ export function checkTypedAnswerCorrectness(
 
   return { isCorrect: false, isTypo: false };
 }
+
+/**
+ * Bu biçim -ed / -ing ortacı olabilir mi?
+ *
+ * NEDEN GEREKLİ. Uygulama çekimli bir biçim görünce "kök formu kartlaştırmak
+ * önerilir" diyordu. Bu, "walked" için doğru ama "trapped" için YANLIŞ:
+ *   trap     = tuzak / tuzağa düşürmek
+ *   trapped  = kapana kısılmış
+ *   trapping = tuzak kurma
+ * Aynı şey demanding (yorucu), trying (yıpratıcı), learned (âlim), gifted
+ * (yetenekli) için de geçerli. Sözlükte bu biçimlerden 151 tanesi zaten AYRI
+ * sıfat girdisi olarak duruyor -- yani ayrım uydurma değil, verinin kendisi
+ * bunu söylüyor.
+ *
+ * Burada hangi biçimin gerçekten ayrı anlamı olduğuna KARAR VERİLMİYOR; o,
+ * sözlük bilgisi ister ve uydurulamaz. Yalnızca "bu biçim ortaç olabilir"
+ * deniyor ve arayüz kök önerisini bir emir değil, bir seçenek olarak
+ * sunuyor.
+ */
+export function ortacOlabilirMi(word: string): boolean {
+  const w = normalizeWordString(word);
+  if (w.length < 5) return false;
+  return /(?:ed|ing)$/.test(w);
+}

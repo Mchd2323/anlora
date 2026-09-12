@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Collection, WordCard, CollectionMembership } from '../types';
 import { Sparkles, ArrowRight, X, Loader2 } from 'lucide-react';
-import { findLemmaCandidate, normalizeWordString } from '../utils/lemmatizer';
+import { findLemmaCandidate, normalizeWordString, ortacOlabilirMi } from '../utils/lemmatizer';
 import { detectWordDuplicate } from '../utils/duplicateDetector';
 import { aramaAnahtari } from '../utils/aramaAnahtari';
 import { yazimOnerileri } from '../utils/yazimOnerisi';
@@ -1058,6 +1058,19 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
                             >
                               {item.kokBicimi}
                             </button>
+                            {/*
+                              -ed/-ing BİÇİMİNDE KÖKE ÇEVİRMEK VERİ KAYBI OLABİLİR.
+                              Düğmeye dokunmak girdiyi kökle DEĞİŞTİRİYOR; "trapped"
+                              yazan kullanıcı "trap" kartını alıyor ve aradığı anlamı
+                              (kapana kısılmış) kaybediyor. Uyarı satırın içinde
+                              duruyor, çünkü karar tam orada veriliyor.
+                            */}
+                            {ortacOlabilirMi(item.normalized) && (
+                              <span className="text-[10px] text-[var(--text-muted)] basis-full">
+                                -ed/-ing biçimi ayrı anlam taşıyabilir; dokunmazsan kendi
+                                hâliyle eklenir.
+                              </span>
+                            )}
                           </>
                         )}
                         {item.yazimOnerisi?.length ? (
