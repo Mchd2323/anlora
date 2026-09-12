@@ -170,7 +170,14 @@ async function enrichBatch(
   batch: Entry[]
 ): Promise<Record<string, { turkishMeanings: string[]; examples: Example[] }>> {
   const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash',
+    /*
+     * TAKMA AD KULLANILIYOR. Burada 'gemini-2.5-flash' yazıyordu ve o sürüm
+     * emekliye ayrıldı: istek 404 "no longer available to new users"
+     * döndürüyor. Sabit sürüm adı, bir gün sessizce çalışmayı bırakan bir
+     * betik demek; `-latest` Google yeni sürüme geçtiğinde kendiliğinden
+     * onu gösteriyor.
+     */
+    model: 'gemini-flash-latest',
     contents: buildPrompt(batch),
     config: { responseMimeType: 'application/json' },
   });

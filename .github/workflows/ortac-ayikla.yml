@@ -65,19 +65,23 @@ jobs:
 
       - name: Sonucu dala işle
         run: |
-          if git diff --quiet -- scripts/ortac/ayiklanan.json; then
+          # `git diff` İZLENMEYEN dosyayı görmez; ilk koşuda çıktı yeni bir
+          # dosya olduğu için "değişiklik yok" deyip sessizce geçiyordu.
+          git add scripts/ortac/ayiklanan.json scripts/ortac/adaylar.json
+          if git diff --cached --quiet; then
             echo "Değişiklik yok."
             exit 0
           fi
           git config user.name "Anlora CI"
           git config user.email "noreply@anthropic.com"
-          git add scripts/ortac/ayiklanan.json scripts/ortac/adaylar.json
           KABUL=$(node -e "const a=require('./scripts/ortac/ayiklanan.json');console.log(a.filter(x=>x.ayriAnlam).length+'/'+a.length)")
           git commit -m "Ortac ayiklama sonucu: $KABUL ayri anlamli"
           git push
 
       - name: Özet
+        if: always()
         run: |
+          test -f scripts/ortac/ayiklanan.json || { echo "Çıktı üretilmedi." >> "$GITHUB_STEP_SUMMARY"; exit 0; }
           node -e "
             const a=require('./scripts/ortac/ayiklanan.json');
             const e=a.filter(x=>x.ayriAnlam);

@@ -34,6 +34,19 @@ const CIKTI = path.join(ROOT, 'scripts/ortac/ayiklanan.json');
 const GRUP = 50;
 const GRUPLAR_ARASI_MS = 4000;
 
+/**
+ * Denenecek modeller, sırayla.
+ *
+ * BU LİSTE BİR HATADAN SONRA EKLENDİ. Betik tek bir model adıyla
+ * (`gemini-2.5-flash`) yazılmıştı ve koşu şunu döndürdü:
+ *   404 "This model models/gemini-2.5-flash is no longer available to new users."
+ * Yani sorun kota değil, EMEKLİYE AYRILMIŞ MODELDİ; on iki dakika boyunca
+ * 404 alınıp "hız sınırı" sanılarak beklendi. Takma adlar (`-latest`) bu
+ * yüzden önde: Google bir sürümü kapattığında ad kendiliğinden yenisine
+ * işaret ediyor.
+ */
+const MODELLER = ['gemini-flash-latest', 'gemini-2.0-flash', 'gemini-flash-lite-latest'];
+
 interface Aday { kok: string; bicim: string; ek: 'ing' | 'ed' }
 interface Karar {
   bicim: string;
@@ -127,6 +140,8 @@ async function main() {
 
   const ai = new GoogleGenAI({ apiKey });
   const sonuc: Karar[] = [...onceki];
+  /** Çalışan model bulunana kadar listede ilerlenir. */
+  let modelIdx = 0;
 
   for (let i = 0; i < kalan.length; i += GRUP) {
     const grup = kalan.slice(i, i + GRUP);
@@ -137,15 +152,26 @@ async function main() {
     for (let deneme = 0; deneme < 3 && !cevap; deneme++) {
       try {
         const yanit = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
+          model: MODELLER[modelIdx],
           contents: istem(grup),
           config: { responseMimeType: 'application/json' }
         });
         const metin = (yanit.text || '').trim().replace(/^```json\s*|\s*```$/g, '');
         cevap = JSON.parse(metin);
       } catch (hata) {
+        const mesaj = String((hata as Error).message || '');
+        /*
+         * 404 MODELE AİT, BEKLEMEKLE GEÇMEZ. Emekliye ayrılmış bir model
+         * için altmış saniye beklemek yalnızca koşuyu uzatıyor; sıradaki
+         * modele geçmek gerekiyor.
+         */
+        if (/\b404\b|no longer available|not found/i.test(mesaj) && modelIdx < MODELLER.length - 1) {
+          modelIdx++;
+          console.warn(`  grup ${no}: model kullanılamıyor, "${MODELLER[modelIdx]}" deneniyor.`);
+          continue;
+        }
         const sn = beklemeSuresi(hata);
-        console.warn(`  grup ${no}: hata, ${sn} sn sonra yeniden denenecek (${String((hata as Error).message).slice(0, 120)})`);
+        console.warn(`  grup ${no}: hata, ${sn} sn sonra yeniden denenecek (${mesaj.slice(0, 140)})`);
         await bekle(sn * 1000);
       }
     }
@@ -170,7 +196,20 @@ async function main() {
 
   const kabulEdilen = sonuc.filter(k => k.ayriAnlam);
   console.log(`\nBİTTİ. İşlenen: ${sonuc.length} · ayrı anlamlı bulunan: ${kabulEdilen.length}`);
+  console.log(`Kullanılan model: ${MODELLER[modelIdx]}`);
   console.log(`Çıktı: ${path.relative(ROOT, CIKTI)}`);
+
+  /*
+   * HİÇBİR GRUP GEÇMEDİYSE KOŞU BAŞARISIZ SAYILIR.
+   *
+   * Önceki koşu "BİTTİ. İşlenen: 0" yazıp yeşil bitti; hata ancak sonraki
+   * adımda, "dosya yok" diye ortaya çıktı. Sessizce hiçbir şey yapmayan bir
+   * koşu, başarısız olandan daha kötüdür.
+   */
+  if (sonuc.length === onceki.length && kalan.length > 0) {
+    console.error('Hiçbir grup işlenemedi; yukarıdaki hataya bakın.');
+    process.exit(1);
+  }
 }
 
 main();
