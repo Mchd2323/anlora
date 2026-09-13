@@ -60,6 +60,14 @@ const GRUP = 15;
  */
 const DENETIM_GRUP = 10;
 const ARA_MS = 3000;
+/**
+ * Aynı anda kaç istek. Darboğaz kota değil gecikme: bir istek 15 anlamı
+ * üçer örnek cümleyle yazıyor ve ~24 saniye sürüyor. Sıradan koşuda bu
+ * dakikada ~2,5 istek eder; ücretsiz katmanın dakika sınırı bunun çok
+ * üstünde. Dörde çıkarınca dakikada ~10 istek: hâlâ sınırın altında,
+ * ama toplam süre dörtte birine iniyor.
+ */
+const ESZAMANLI = 4;
 /** Bir kimlik bu kadar kez denetimden dönerse artık istenmiyor. */
 const EN_COK_RED = 3;
 const MODELLER = ['gemini-flash-latest', 'gemini-2.0-flash', 'gemini-flash-lite-latest'];
@@ -202,26 +210,38 @@ async function denetle(
   durum: { idx: number }
 ): Promise<Map<string, string>> {
   const red = new Map<string, string>();
+  const gruplar: typeof kayitlar[] = [];
   for (let i = 0; i < kayitlar.length; i += DENETIM_GRUP) {
-    const grup = kayitlar.slice(i, i + DENETIM_GRUP);
-    const no = Math.floor(i / DENETIM_GRUP) + 1;
-    const toplam = Math.ceil(kayitlar.length / DENETIM_GRUP);
-    const cevap = await modeleSor(ai, denetimIstemi(grup), `denetim ${no}`, durum);
-    if (!cevap) {
-      console.warn(`  denetim ${no}/${toplam} yapılamadı; bu partinin kayıtları yazılmıyor.`);
-      for (const g of grup) red.set(g.id, 'denetim yapılamadı');
-      continue;
+    gruplar.push(kayitlar.slice(i, i + DENETIM_GRUP));
+  }
+  const toplam = gruplar.length;
+
+  for (let d = 0; d < gruplar.length; d += ESZAMANLI) {
+    const dalga = gruplar.slice(d, d + ESZAMANLI);
+    const cevaplar = await Promise.all(
+      dalga.map((grup, j) => modeleSor(ai, denetimIstemi(grup), `denetim ${d + j + 1}`, durum))
+    );
+
+    for (let j = 0; j < dalga.length; j++) {
+      const grup = dalga[j];
+      const cevap = cevaplar[j];
+      const no = d + j + 1;
+      if (!cevap) {
+        console.warn(`  denetim ${no}/${toplam} yapılamadı; bu partinin kayıtları yazılmıyor.`);
+        for (const g of grup) red.set(g.id, 'denetim yapılamadı');
+        continue;
+      }
+      const gecerli = new Set(grup.map(g => g.id));
+      let bulunan = 0;
+      for (const x of cevap) {
+        const id = String(x?.id || '');
+        if (!gecerli.has(id)) continue;
+        red.set(id, String(x?.sebep || 'denetimden döndü').slice(0, 120));
+        bulunan++;
+      }
+      console.log(`  denetim ${no}/${toplam}: ${grup.length} kayıt · ${bulunan} sorunlu`);
     }
-    const gecerli = new Set(grup.map(g => g.id));
-    let bulunan = 0;
-    for (const x of cevap) {
-      const id = String(x?.id || '');
-      if (!gecerli.has(id)) continue;
-      red.set(id, String(x?.sebep || 'denetimden döndü').slice(0, 120));
-      bulunan++;
-    }
-    console.log(`  denetim ${no}/${toplam}: ${grup.length} kayıt · ${bulunan} sorunlu`);
-    if (i + DENETIM_GRUP < kayitlar.length) await bekle(ARA_MS);
+    if (d + ESZAMANLI < gruplar.length) await bekle(ARA_MS);
   }
   return red;
 }
@@ -337,40 +357,51 @@ async function main() {
   const damga = new Date().toISOString().slice(0, 10);
   const cikti = path.join(ICERIK, `b${bant}-ai-${damga}.json`);
 
-  for (let i = 0; i < isler.length; i += GRUP) {
-    const grup = isler.slice(i, i + GRUP);
-    const no = Math.floor(i / GRUP) + 1;
-    const toplam = Math.ceil(isler.length / GRUP);
+  const gruplar: Is[][] = [];
+  for (let i = 0; i < isler.length; i += GRUP) gruplar.push(isler.slice(i, i + GRUP));
+  const toplam = gruplar.length;
 
-    const cevap = await modeleSor(ai, istem(grup), `grup ${no}`, durum);
-    if (!cevap) {
-      console.warn(`  grup ${no}/${toplam} atlandı; sonraki koşuda yeniden denenir.`);
-      continue;
+  for (let d = 0; d < gruplar.length; d += ESZAMANLI) {
+    const dalga = gruplar.slice(d, d + ESZAMANLI);
+    const cevaplar = await Promise.all(
+      dalga.map((grup, j) => modeleSor(ai, istem(grup), `grup ${d + j + 1}`, durum))
+    );
+
+    for (let j = 0; j < dalga.length; j++) {
+      const grup = dalga[j];
+      const cevap = cevaplar[j];
+      const no = d + j + 1;
+      if (!cevap) {
+        console.warn(`  grup ${no}/${toplam} atlandı; sonraki koşuda yeniden denenir.`);
+        continue;
+      }
+
+      const indeks = new Map(cevap.map((x: any) => [String(x?.id || ''), x]));
+      let gecen = 0;
+      for (const is of grup) {
+        const ham = indeks.get(is.id);
+        if (!ham) { atilan.push(`${is.word} (yanıtta yok)`); continue; }
+        const anlam: Anlam = {
+          turkishMeanings: (Array.isArray(ham.turkishMeanings) ? ham.turkishMeanings : [])
+            .map((m: unknown) => String(m).trim())
+            .filter(Boolean)
+            .slice(0, 3),
+          examples: (Array.isArray(ham.examples) ? ham.examples : [])
+            .map((e: any) => ({ en: String(e?.en || '').trim(), tr: String(e?.tr || '').trim() }))
+            .slice(0, 3)
+        };
+        const s = sorunlar(is.word, anlam, is.pos);
+        if (s.length) { atilan.push(`${is.word} (${s[0]})`); continue; }
+        uretilen[is.id] = anlam;
+        gecen++;
+      }
+      console.log(`  grup ${no}/${toplam}: ${gecen}/${grup.length}`);
     }
 
-    const indeks = new Map(cevap.map((x: any) => [String(x?.id || ''), x]));
-    let gecen = 0;
-    for (const is of grup) {
-      const ham = indeks.get(is.id);
-      if (!ham) { atilan.push(`${is.word} (yanıtta yok)`); continue; }
-      const anlam: Anlam = {
-        turkishMeanings: (Array.isArray(ham.turkishMeanings) ? ham.turkishMeanings : [])
-          .map((m: unknown) => String(m).trim())
-          .filter(Boolean)
-          .slice(0, 3),
-        examples: (Array.isArray(ham.examples) ? ham.examples : [])
-          .map((e: any) => ({ en: String(e?.en || '').trim(), tr: String(e?.tr || '').trim() }))
-          .slice(0, 3)
-      };
-      const s = sorunlar(is.word, anlam, is.pos);
-      if (s.length) { atilan.push(`${is.word} (${s[0]})`); continue; }
-      uretilen[is.id] = anlam;
-      gecen++;
-    }
-
+    // Dalga bitince yaz: koşu ortasında kesilse de iş diskte kalır.
     fs.writeFileSync(cikti, JSON.stringify(uretilen, null, 1));
-    console.log(`  grup ${no}/${toplam}: ${gecen}/${grup.length} · toplam ${Object.keys(uretilen).length}`);
-    if (i + GRUP < isler.length) await bekle(ARA_MS);
+    console.log(`  ...${Math.min(d + ESZAMANLI, toplam)}/${toplam} grup · toplam ${Object.keys(uretilen).length} anlam`);
+    if (d + ESZAMANLI < gruplar.length) await bekle(ARA_MS);
   }
 
   const uretilenSayi = Object.keys(uretilen).length;
