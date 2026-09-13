@@ -108,15 +108,17 @@ ${grup.map(g => {
  * Denetim istemi. Örnek cümle göndermiyor: yanlış anlam da yazım hatası da
  * karşılığın kendisinde görünüyor, cümleler istek boyutunu üçe katlardı.
  */
-function denetimIstemi(grup: { id: string; word: string; pos: string; tanim: string; anlamlar: string[] }[]): string {
+function denetimIstemi(grup: { id: string; word: string; pos: string; tanimlar: string[]; anlamlar: string[] }[]): string {
   return `Aşağıda İngilizce kelimeler, sözcük türleri, İngilizce tanımları ve
 onlar için yazılmış Türkçe karşılıklar var.
 
 Her kaydın HER BİR karşılığını tanımla tek tek karşılaştır:
 
-1. Bu karşılık, VERİLEN TANIMIN Türkçesi mi? Kelimenin başka bir anlamı
-   yazılmışsa sorunludur. Örnek: gild (n.) tanımı "a formal association"
-   iken "altın yaldız" yazılmışsa yanlıştır; fiil anlamı yazılmıştır.
+1. Bu karşılık, VERİLEN TANIMLARDAN BİRİNİN Türkçesi mi? Bir kelimenin
+   birden çok tanımı verilmiş olabilir; karşılık HERHANGİ birine uyuyorsa
+   doğrudur, hepsine birden uyması gerekmez. Hiçbirine uymuyorsa sorunludur.
+   Örnek: gild (n.) tanımı "a formal association" iken "altın yaldız"
+   yazılmışsa yanlıştır; fiil anlamı yazılmıştır.
 2. Türkçe yazımı doğru mu? Harf düşmesi, harf fazlalığı, eksik ek ara.
    Örnek: "sendteleyen" yanlış, "sendeleyen" doğru; "gülme kriz" eksik,
    "gülme krizi" doğru.
@@ -141,7 +143,12 @@ Yanıt yalnızca şu JSON dizisi:
 [{"id":"...","sebep":"kısa sebep"}]
 
 Kayıtlar:
-${grup.map(g => `${g.id}\t${g.word} (${g.pos})${g.tanim ? ` — ${g.tanim}` : ''}\n   yazılan: ${g.anlamlar.join(' / ')}`).join('\n')}`;
+${grup.map(g => {
+    const tanim = g.tanimlar.length
+      ? g.tanimlar.map((t, i) => `\n   tanım ${i + 1}. ${t}`).join('')
+      : '';
+    return `${g.id}\t${g.word} (${g.pos})${tanim}\n   yazılan: ${g.anlamlar.join(' / ')}`;
+  }).join('\n')}`;
 }
 
 const bekle = (ms: number) => new Promise(r => setTimeout(r, ms));
@@ -191,7 +198,7 @@ function redDefteriYaz(bant: number, defter: RedDefteri): void {
  */
 async function denetle(
   ai: any,
-  kayitlar: { id: string; word: string; pos: string; tanim: string; anlamlar: string[] }[],
+  kayitlar: { id: string; word: string; pos: string; tanimlar: string[]; anlamlar: string[] }[],
   durum: { idx: number }
 ): Promise<Map<string, string>> {
   const red = new Map<string, string>();
@@ -250,7 +257,7 @@ async function dosyaDenetle(ai: any, yol: string, temizle: boolean): Promise<voi
     const slug = parca[parca.length - 1];
     const word = parca.slice(2, -1).join('-');
     const pos = (turByWord.get(word) || []).find(t => POS_SLUG[t] === slug) || slugTur[slug] || '';
-    return { id, word, pos, tanim: (tanimlar[`${word}|${pos}`] || [])[0] || '', anlamlar: a.turkishMeanings };
+    return { id, word, pos, tanimlar: tanimlar[`${word}|${pos}`] || [], anlamlar: a.turkishMeanings };
   });
 
   console.log(`${path.relative(ROOT, tam)}: ${kayitlar.length} kayıt denetleniyor`);
@@ -376,7 +383,7 @@ async function main() {
     const isIndeks = new Map(isler.map(i => [i.id, i]));
     const denetlenecek = Object.entries(uretilen).map(([id, a]) => {
       const i = isIndeks.get(id)!;
-      return { id, word: i.word, pos: i.pos, tanim: i.tanimlar[0] || '', anlamlar: a.turkishMeanings };
+      return { id, word: i.word, pos: i.pos, tanimlar: i.tanimlar, anlamlar: a.turkishMeanings };
     });
     const red = await denetle(ai, denetlenecek, durum);
     for (const [id, sebep] of red) {
