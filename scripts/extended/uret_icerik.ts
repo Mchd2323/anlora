@@ -50,11 +50,15 @@ const DENETIM = path.join(ROOT, 'scripts/extended/denetim');
 
 const GRUP = 15;
 /**
- * Denetim turunda istek başına kaç kayıt. 60 ile denendi: elle bulunan 16
- * hatanın yalnızca 5'ini yakaladı, tanımı elinde olduğu hâlde gild (n.)
- * "altın yaldız"ı geçirdi. Grup küçüldükçe model her karşılığa bakıyor.
+ * Denetim turunda istek başına kaç kayıt. Aynı 125 kayıt (16'sı elle
+ * doğrulanmış hatalı) üzerinde ölçüldü:
+ *     60 kayıt/istek -> 16 hatanın  5'i yakalandı (%31)
+ *     20 kayıt/istek -> 16 hatanın 12'si yakalandı (%75)
+ *     10 kayıt/istek -> aşağıdaki ölçüm
+ * Grup küçüldükçe model her karşılığa tek tek bakıyor. Denetim turu örnek
+ * cümle taşımadığı için küçük grup da ucuz: üretimin dörtte biri kadar istek.
  */
-const DENETIM_GRUP = 20;
+const DENETIM_GRUP = 10;
 const ARA_MS = 3000;
 /** Bir kimlik bu kadar kez denetimden dönerse artık istenmiyor. */
 const EN_COK_RED = 3;
@@ -119,6 +123,11 @@ Her kaydın HER BİR karşılığını tanımla tek tek karşılaştır:
 3. Karşılık gerçekten Türkçe bir söz mü, yoksa uydurma mı? Örnek: "kaletay"
    diye bir Türkçe kelime yoktur.
 4. Türü uyuyor mu? Fiil karşılığı "-mak/-mek" ile biter, isim bitmez.
+
+Her karşılık için şunu yap: karşılığı Türkçeden İngilizceye GERİ ÇEVİR ve
+tanımla karşılaştır. Geri çeviri tanımdan uzaksa karşılık yanlıştır. Gerçek
+bir Türkçe kelime olması doğru olduğu anlamına gelmez: "dalavere" gerçek bir
+kelimedir ama "disorderly outburst" değil "dolandırıcılık" demektir.
 
 Karşılıklardan BİRİ bile sorunluysa o kaydı bildir.
 
@@ -248,6 +257,12 @@ async function dosyaDenetle(ai: any, yol: string, temizle: boolean): Promise<voi
   const red = await denetle(ai, kayitlar, { idx: 0 });
   console.log(`\nSorunlu: ${red.size}/${kayitlar.length}`);
   for (const [id, sebep] of red) console.log(`   ${id}: ${sebep}`);
+
+  // Bulgular diske yazılıyor ki `olcum.py` referans listeyle karşılaştırsın.
+  fs.mkdirSync(DENETIM, { recursive: true });
+  const bulguYolu = path.join(DENETIM, `${path.basename(tam, '.json')}-bulgu.json`);
+  fs.writeFileSync(bulguYolu, JSON.stringify(Object.fromEntries(red), null, 1));
+  console.log(`Bulgular: ${path.relative(ROOT, bulguYolu)}`);
 
   if (temizle && red.size) {
     for (const id of red.keys()) delete icerik[id];

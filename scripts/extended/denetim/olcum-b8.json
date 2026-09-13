@@ -1,0 +1,23 @@
+{
+ "_aciklama": "Bant 8'in ilk 125 kaydinda ELLE bulunan hatalar. Denetim turunun ne kadarini yakaladigini olcmek icin referans. WordNet tanimlarina karsi dogrulandi.",
+ "_kaynak": "scripts/extended/content/b8-ai-2026-09-12.json",
+ "_toplam_kayit": 125,
+ "hatalar": {
+  "gen-b8-gild-n": "yanlis anlam: yazilan 'altin yaldiz', WordNet 'a formal association' (lonca)",
+  "gen-b8-inlay-n": "isim kaydina fiil: 'kakmak / islemek', isim 'kakma isi / dolgu'",
+  "gen-b8-trudge-n": "isim kaydina fiil: 'zorlukla yurumek', isim 'zahmetli yuruyus'",
+  "gen-b8-yearling-n": "yanlis anlam: 'yasli' -- WordNet 'bir yasindaki hayvan'",
+  "gen-b8-instep-n": "yanlis anlam: 'ayakyolu' tuvalet demek, WordNet 'the arch of the foot'",
+  "gen-b8-topsail-n": "uydurma karsilik: 'malyel yelkeni' -- Turkcesi 'gabya yelkeni'",
+  "gen-b8-presidio-n": "uydurma karsilik: 'kaletay' diye bir Turkce kelime yok",
+  "gen-b8-afterbirth-n": "uydurma karsilik: 'sonlanim' -- dogrusu 'son / es / plasenta'",
+  "gen-b8-satiated-adj": "yanlis anlam: 'iskalanmis' -- WordNet 'fed to satisfaction'",
+  "gen-b8-kerfuffle-n": "yanlis anlam: 'dalavere' dolandiricilik demek, WordNet 'disorderly outburst'",
+  "gen-b8-headrest-n": "yaniltici karsilik: 'baslik / kafalik' -- dogrusu 'koltuk basligi / bas dayanagi'",
+  "gen-b8-tottering-adj": "yazim: 'sendteleyen' -> 'sendeleyen'",
+  "gen-b8-sneezy-adj": "yazim: 'hapsiran' -> 'hapsiran' (s yerine s)",
+  "gen-b8-hilarity-n": "yazim: 'gulme kriz' -> 'gulme krizi'",
+  "gen-b8-gumdrop-n": "yazim: 'jole seker' -> 'jole seker' (o yerine o)",
+  "gen-b8-thumbnail-n": "yazim: 'bas parmak tirnagi' -> 'basparmak tirnagi'"
+ }
+}
