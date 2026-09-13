@@ -24,6 +24,14 @@ on:
         description: 'Bu koşuda en fazla kaç anlam? (boş = hepsi)'
         required: false
         default: ''
+      denetle:
+        description: 'Var olan bir içerik dosyasını denetle (yol). Doluysa üretim yapılmaz.'
+        required: false
+        default: ''
+      temizle:
+        description: 'Denetimde sorunlu bulunanlar dosyadan silinsin mi?'
+        required: false
+        default: 'false'
 
 permissions:
   contents: write
@@ -57,7 +65,19 @@ jobs:
             exit 1
           fi
 
+      - name: Var olan içeriği denetle
+        if: github.event.inputs.denetle != ''
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          if [ "${{ github.event.inputs.temizle }}" = "true" ]; then
+            npx tsx scripts/extended/uret_icerik.ts --denetle "${{ github.event.inputs.denetle }}" --temizle
+          else
+            npx tsx scripts/extended/uret_icerik.ts --denetle "${{ github.event.inputs.denetle }}"
+          fi
+
       - name: İçerik üret
+        if: github.event.inputs.denetle == ''
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
@@ -73,7 +93,7 @@ jobs:
 
       - name: Sonucu dala işle
         run: |
-          git add -A scripts/extended/content src/data/extended scripts/extended/source
+          git add -A scripts/extended/content scripts/extended/denetim src/data/extended scripts/extended/source
           if git diff --cached --quiet; then
             echo "Değişiklik yok."
             exit 0
@@ -84,7 +104,9 @@ jobs:
           # devam satırları sütun 1'den başlayınca dosya ayrıştırılamıyor ve
           # iş akışı "workflow_dispatch tetikleyicisi yok" diye reddediliyor.
           SAYI=$(python3 -c "import json,glob;print(sum(len(json.load(open(f))) for f in glob.glob('scripts/extended/content/*.json')))")
-          git commit -m "Sozluk icerigi: bant ${{ github.event.inputs.bant }} (toplam $SAYI anlam)"
+          ETIKET="bant ${{ github.event.inputs.bant }}"
+          if [ -n "${{ github.event.inputs.denetle }}" ]; then ETIKET="denetim"; fi
+          git commit -m "Sozluk icerigi: $ETIKET (toplam $SAYI anlam)"
           # Koşu sırasında dala başka bir itme olabilir; önce üstüne binilir.
           git pull --rebase origin "$GITHUB_REF_NAME"
           git push
