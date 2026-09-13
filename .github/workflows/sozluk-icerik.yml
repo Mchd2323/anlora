@@ -93,6 +93,7 @@ jobs:
 
       - name: Sonucu dala işle
         run: |
+          mkdir -p scripts/extended/denetim
           git add -A scripts/extended/content scripts/extended/denetim src/data/extended scripts/extended/source
           if git diff --cached --quiet; then
             echo "Değişiklik yok."

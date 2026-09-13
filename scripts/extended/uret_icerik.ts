@@ -49,8 +49,12 @@ const ICERIK = path.join(ROOT, 'scripts/extended/content');
 const DENETIM = path.join(ROOT, 'scripts/extended/denetim');
 
 const GRUP = 15;
-/** Denetim turu örnek cümle taşımıyor; kayıt başına birkaç kelime. */
-const DENETIM_GRUP = 60;
+/**
+ * Denetim turunda istek başına kaç kayıt. 60 ile denendi: elle bulunan 16
+ * hatanın yalnızca 5'ini yakaladı, tanımı elinde olduğu hâlde gild (n.)
+ * "altın yaldız"ı geçirdi. Grup küçüldükçe model her karşılığa bakıyor.
+ */
+const DENETIM_GRUP = 20;
 const ARA_MS = 3000;
 /** Bir kimlik bu kadar kez denetimden dönerse artık istenmiyor. */
 const EN_COK_RED = 3;
@@ -102,15 +106,27 @@ ${grup.map(g => {
  */
 function denetimIstemi(grup: { id: string; word: string; pos: string; tanim: string; anlamlar: string[] }[]): string {
   return `Aşağıda İngilizce kelimeler, sözcük türleri, İngilizce tanımları ve
-onlar için yazılmış Türkçe karşılıklar var. Her kaydı denetle:
+onlar için yazılmış Türkçe karşılıklar var.
 
-1. Türkçe karşılık VERİLEN TANIMA uyuyor mu? (kelimenin başka bir anlamı
-   yazılmışsa uymuyor sayılır)
-2. Türkçe yazım hatası var mı?
-3. Karşılığın türü kelimenin türüne uyuyor mu? (fiil "-mak/-mek" ile biter)
+Her kaydın HER BİR karşılığını tanımla tek tek karşılaştır:
 
-YALNIZCA sorunlu kayıtları döndür. Sorun görmediğin kaydı yazma; hepsi
-düzgünse boş dizi döndür. Emin değilsen sorunlu SAYMA.
+1. Bu karşılık, VERİLEN TANIMIN Türkçesi mi? Kelimenin başka bir anlamı
+   yazılmışsa sorunludur. Örnek: gild (n.) tanımı "a formal association"
+   iken "altın yaldız" yazılmışsa yanlıştır; fiil anlamı yazılmıştır.
+2. Türkçe yazımı doğru mu? Harf düşmesi, harf fazlalığı, eksik ek ara.
+   Örnek: "sendteleyen" yanlış, "sendeleyen" doğru; "gülme kriz" eksik,
+   "gülme krizi" doğru.
+3. Karşılık gerçekten Türkçe bir söz mü, yoksa uydurma mı? Örnek: "kaletay"
+   diye bir Türkçe kelime yoktur.
+4. Türü uyuyor mu? Fiil karşılığı "-mak/-mek" ile biter, isim bitmez.
+
+Karşılıklardan BİRİ bile sorunluysa o kaydı bildir.
+
+ŞÜPHELENDİĞİNİ BİLDİR. Bildirilen kayıt yazılmaz, yeniden üretilir; bu
+ucuzdur. Bildirilmeyen yanlış kayıt ise sözlüğe girer ve öğrenciye yanlış
+öğretir. Bu yüzden kararsız kaldığın kaydı bildir.
+
+Sorun görmediğin kaydı yazma; hepsi düzgünse boş dizi döndür.
 
 Yanıt yalnızca şu JSON dizisi:
 [{"id":"...","sebep":"kısa sebep"}]
