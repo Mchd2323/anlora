@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Loader2, Check, X, WifiOff, RotateCw, Trash2 } from 'lucide-react';
+import { Loader2, Check, X, WifiOff, RotateCw, Trash2, PencilLine } from 'lucide-react';
 import { useModalA11y } from '../hooks/useModalA11y';
 import type { TopluIlerleme } from '../hooks/useTopluKuyruk';
 
@@ -27,6 +27,8 @@ interface Props {
   onYenidenDene?: () => void;
   /** Bekleyen bütün kelimeleri düşürür. */
   onIptal?: () => void;
+  /** Kalanları anlamı boş kart olarak ekleyip kuyruğu kapatır. */
+  onYapayZekasizBitir?: () => void;
   onClose: () => void;
 }
 
@@ -50,6 +52,7 @@ export const TopluKuyrukPaneli: React.FC<Props> = ({
   ilerleme,
   onYenidenDene,
   onIptal,
+  onYapayZekasizBitir,
   onClose
 }) => {
   /*
@@ -292,6 +295,37 @@ export const TopluKuyrukPaneli: React.FC<Props> = ({
                 <RotateCw className="w-3 h-3" />
                 Şimdi tekrar dene
               </button>
+            )}
+            {/*
+              ÜÇÜNCÜ YOL.
+
+              Kota dolduğunda kullanıcının elinde yalnızca "bekle" ve "iptal
+              et" vardı. Bekleme saatler sürebiliyor, iptal ise yazdığı listeyi
+              çöpe atıyor; kullanıcı altmış yedi kelimesiyle bu ikisinin
+              arasında kaldı. Kelimeler kart olarak girsin, anlamı sonra
+              doldurulsun: liste kaybolmuyor, beklemek de gerekmiyor.
+
+              Uydurma anlam YAZILMIYOR; alan boş bırakılıp kart "anlamı boş"
+              diye işaretleniyor.
+            */}
+            {onYapayZekasizBitir && (
+              <button
+                type="button"
+                onClick={() => {
+                  onYapayZekasizBitir();
+                  onClose();
+                }}
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[var(--bg)] border border-[var(--border)] text-[11px] font-bold text-[var(--text-primary)] cursor-pointer hover:bg-[var(--surface-soft)]"
+              >
+                <PencilLine className="w-3 h-3" />
+                {kuyruk.ogeler.length} kelimeyi yapay zekâsız ekle
+              </button>
+            )}
+            {onYapayZekasizBitir && (
+              <p className="text-[10px] text-[var(--text-muted)] leading-relaxed">
+                Kelimeler kart olarak eklenir, anlam alanları boş kalır; sonra
+                kendin doldurabilirsin. Beklemek zorunda değilsin.
+              </p>
             )}
             {onIptal &&
               (iptalOnayi ? (

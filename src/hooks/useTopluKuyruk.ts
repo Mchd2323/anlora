@@ -3,7 +3,9 @@ import { WordCard } from '../types';
 import { API_BASE, apiUrl, yoklamayiTazele } from '../config/api';
 import {
   TopluKuyruk,
+  bosKart,
   ilkiniDusur,
+  kalanlariBosEkle,
   kuyrugaAl,
   kuyruguOku,
   kuyrugaTemizle
@@ -144,6 +146,8 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
   kuyrugaEkle: (setId: string, setAdi: string, kelimeler: string[]) => void;
   /** Kullanıcı "şimdi tekrar dene" dediğinde çağrılır. */
   yenidenDene: () => void;
+  /** Kalanları anlamı boş kart olarak ekleyip kuyruğu kapatır. */
+  yapayZekasizBitir: () => void;
   /** Bekleyen bütün kelimeleri düşürüp kuyruğu kapatır. */
   iptalEt: () => void;
 } {
@@ -403,6 +407,43 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
     setGecenSure(0);
   }, []);
 
+  /**
+   * Kuyrukta kalan kelimeleri yapay zekâyı beklemeden, anlamı boş kartlar
+   * olarak ekler ve kuyruğu kapatır.
+   *
+   * NEDEN GEREKLİ. Günlük yapay zekâ hakkı dolduğunda kullanıcının elinde
+   * yalnızca iki seçenek vardı: hakkın yenilenmesini beklemek ya da listeyi
+   * iptal edip kelimeleri kaybetmek. Kullanıcı altmış yedi kelimelik listesiyle
+   * bu ikisi arasında sıkıştı: "baya zaman geçti 67'den 63'e indi ama aynı
+   * uyarıyı hâlâ veriyor". Bekleme saatler sürebilir, iptal ise yazdığı listeyi
+   * çöpe atmak demek.
+   *
+   * Üçüncü yol: kelimeler kart olarak GİRER, anlamlarını kullanıcı kendi
+   * doldurur. Uydurma anlam yazılmıyor (talimat 59); alan boş bırakılıyor ve
+   * kart listede "anlamı boş" diye işaretleniyor -- zaten yapay zekânın
+   * üretemediği kelimeler için var olan yol.
+   */
+  const yapayZekasizBitir = useCallback(() => {
+    nesilRef.current++; // süren tur terk edilsin
+    iptalRef.current?.abort();
+    iptalRef.current = null;
+    calisiyorRef.current = false;
+    if (zamanlayiciRef.current) {
+      clearTimeout(zamanlayiciRef.current);
+      zamanlayiciRef.current = null;
+    }
+
+    const eklenen = kalanlariBosEkle((kart, setId) => onKartEkleRef.current(kart, setId));
+    eklenenRef.current = 0;
+    setKuyruk(null);
+    setSuAnki(null);
+    setDuraklatildi(false);
+    setSonHata(null);
+    setHataTuru(null);
+    setGecenSure(0);
+    if (eklenen > 0) onBittiRef.current?.(eklenen);
+  }, []);
+
   return {
     ilerleme: {
       kuyruk,
@@ -416,7 +457,8 @@ export function useTopluKuyruk({ onKartEkle, onBitti }: Secenekler): {
     },
     kuyrugaEkle,
     yenidenDene,
-    iptalEt
+    iptalEt,
+    yapayZekasizBitir
   };
 }
 
@@ -451,18 +493,6 @@ export type UretimSonucu =
       hataTuru: HataTuru;
       bekleme?: number;
     };
-
-function bosKart(kelime: string): WordCard {
-  return {
-    id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-    word: kelime,
-    partOfSpeech: '',
-    turkishMeaning: '',
-    examples: [],
-    isCustom: true,
-    dateAdded: new Date().toISOString().slice(0, 10)
-  };
-}
 
 /**
  * Yanıtı sınıflandırır.

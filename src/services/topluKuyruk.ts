@@ -1,4 +1,5 @@
 import { readJSON, removeKey, writeJSON } from '../utils/safeStorage';
+import type { WordCard } from '../types';
 
 /**
  * Anlora – Toplu eklemenin kalıcı kuyruğu.
@@ -139,4 +140,55 @@ export function kuyrugaTemizle(): void {
 export function settekiKalan(kayit: TopluKuyruk | null, setId: string): number {
   if (!kayit) return 0;
   return kayit.ogeler.filter(o => o.setId === setId).length;
+}
+
+
+/**
+ * Anlamı boş kart.
+ *
+ * Yapay zekâ kelimeyi üretemediğinde uydurma bir anlam YAZILMIYOR (talimat
+ * 59): alan boş bırakılıyor, kart listede "anlamı boş" diye işaretleniyor ve
+ * kullanıcı kendisi dolduruyor.
+ */
+export function bosKart(kelime: string): WordCard {
+  return {
+    id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    word: kelime,
+    partOfSpeech: '',
+    turkishMeaning: '',
+    examples: [],
+    isCustom: true,
+    dateAdded: new Date().toISOString().slice(0, 10)
+  };
+}
+
+/**
+ * Kuyrukta kalan her kelimeyi anlamı boş kart olarak ekler ve kuyruğu siler.
+ * Eklenen kart sayısını döndürür.
+ *
+ * NEDEN GEREKLİ. Günlük yapay zekâ hakkı dolduğunda kullanıcının elinde
+ * yalnızca iki seçenek vardı: hakkın yenilenmesini beklemek ya da listeyi
+ * iptal edip kelimeleri kaybetmek. Kullanıcı altmış yedi kelimelik listesiyle
+ * bu ikisi arasında sıkıştı: "baya zaman geçti 67'den 63'e indi ama aynı
+ * uyarıyı hâlâ veriyor." Bekleme saatler sürebiliyor, iptal ise yazdığı
+ * listeyi çöpe atmak demek. Üçüncü yol: kelimeler kart olarak girer, anlamı
+ * sonra doldurulur.
+ *
+ * TEK KART EKLENEMEZSE DİĞERLERİ EKLENİR. Depolama dolabilir ya da çağıran
+ * taraf atabilir; bir kelimenin başarısızlığı kalan altmış altısını
+ * düşürmemeli.
+ */
+export function kalanlariBosEkle(ekle: (kart: WordCard, setId: string) => void): number {
+  const kayit = kuyruguOku();
+  let eklenen = 0;
+  for (const oge of kayit?.ogeler ?? []) {
+    try {
+      ekle(bosKart(oge.kelime), oge.setId);
+      eklenen++;
+    } catch {
+      /* bu kart eklenemedi; kalanlar yine de eklensin */
+    }
+  }
+  kuyrugaTemizle();
+  return eklenen;
 }
