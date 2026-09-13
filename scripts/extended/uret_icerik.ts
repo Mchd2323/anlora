@@ -45,6 +45,7 @@ import { sorunlar, type Anlam } from './denetim_kurallari';
 const ROOT = process.cwd();
 const LISTE = path.join(ROOT, 'scripts/extended/source/wordlist.json');
 const TANIM = path.join(ROOT, 'scripts/extended/source/tanimlar.json');
+const ELEME = path.join(ROOT, 'scripts/extended/source/skiplist.json');
 const ICERIK = path.join(ROOT, 'scripts/extended/content');
 const DENETIM = path.join(ROOT, 'scripts/extended/denetim');
 
@@ -323,6 +324,19 @@ async function main() {
   const tanimlar: Record<string, string[]> = fs.existsSync(TANIM)
     ? JSON.parse(fs.readFileSync(TANIM, 'utf8'))
     : {};
+
+  /*
+   * ELENENLER ÜRETİLMEZ. `build_bands.py` skiplist.json'daki maddeleri
+   * hedeften çıkarıyor; üretici bunu bilmiyordu ve elenmiş bir kelimeye
+   * içerik yazınca paket derleyicisi "BİLİNMEYEN KİMLİK" deyip düşüyordu.
+   * Bir kayıt yüzünden koşunun tamamı boşa gitti: 939 anlamlık üretim ve
+   * o kadar kota. İki taraf aynı listeyi okumak zorunda.
+   */
+  const elenen = new Set(
+    fs.existsSync(ELEME)
+      ? Object.keys(JSON.parse(fs.readFileSync(ELEME, 'utf8'))).filter(k => !k.startsWith('_'))
+      : []
+  );
   if (!Object.keys(tanimlar).length) {
     console.warn('UYARI: tanimlar.json yok. Model anlamı tahmin edecek;');
     console.warn('       önce `python3 scripts/extended/tanim_uret.py` koşulmalı.');
@@ -334,6 +348,7 @@ async function main() {
   let vazgecilen = 0;
   for (const k of kelimeler) {
     if (k.band !== bant) continue;
+    if (elenen.has(k.word)) continue;
     for (const pos of k.pos) {
       if (!POS_SLUG[pos]) continue;
       const id = `gen-b${k.band}-${k.word}-${POS_SLUG[pos]}`;

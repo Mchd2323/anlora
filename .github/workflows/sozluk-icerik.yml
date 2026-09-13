@@ -87,20 +87,15 @@ jobs:
             npx tsx scripts/extended/uret_icerik.ts --bant "${{ github.event.inputs.bant }}"
           fi
 
-      - name: İçeriği denetle
-        # ASIL KAPI BURASI: denetimi geçemeyen içerik pakete yazılmaz.
-        # Burada yalnızca sınanıyor; paket, aşağıda birleşik içerikten
-        # yeniden üretiliyor.
-        run: python3 scripts/extended/build_bands.py --strict
-
-      - name: Sonucu dala işle
-        # PAKET REBASE'DEN SONRA ÜRETİLİYOR. Bantlar paralel koşabilsin diye:
-        # her koşu yalnızca kendi içerik dosyasını işler (b9-ai-*.json,
-        # b10-ai-*.json -- ayrı dosyalar, çakışmaz). Üretilen paket dosyaları
-        # (src/data/extended) ise her koşuda baştan yazılıyor; ikisi birden
-        # işlenirse rebase çakışır. O yüzden önce içerik işlenip rebase
-        # yapılıyor, paket ondan SONRA birleşik içerikten üretilip ayrı bir
-        # commit'e alınıyor. Çakışacak bir şey kalmıyor.
+      - name: İçeriği dala işle
+        # İÇERİK ÖNCE İŞLENİR, KAPI SONRA.
+        #
+        # Eskiden `build_bands.py --strict` üretimden hemen sonra ayrı bir
+        # adımda koşuyordu; düşünce iş orada bitiyor ve ÜRETİLEN İÇERİK HİÇ
+        # İŞLENMİYORDU. Tek bir bozuk kayıt (skiplist'teki bir kelimeye içerik
+        # yazılmıştı) 24 dakikalık üretimi ve 939 anlamlık kotayı çöpe attı.
+        # İçerik ham maddedir: önce diske alınır, hangi kaydın pakete gireceğine
+        # kapı sonra karar verir. Kapı düşerse iş yine düşer ama üretim durur.
         run: |
           mkdir -p scripts/extended/denetim
           git config user.name "Anlora CI"
@@ -121,24 +116,50 @@ jobs:
 
           for DENEME in 1 2 3 4 5; do
             git pull --rebase origin "$GITHUB_REF_NAME"
-            python3 scripts/extended/build_bands.py --strict
-            git add -A src/data/extended
-            PAKET=0
-            if ! git diff --cached --quiet; then
-              git commit -m "Paketi yeniden derle: $ETIKET"
-              PAKET=1
-            fi
             if git push; then
-              echo "İtildi (deneme $DENEME)."
+              echo "İçerik itildi (deneme $DENEME)."
               exit 0
             fi
             echo "İtme reddedildi; başka bir koşu araya girdi. Yeniden deneniyor."
-            # YALNIZCA paket commit'i geri alınıyor; içerik commit'i duruyor.
-            # Paket bir sonraki turda birleşik içerikten yeniden üretilecek.
-            if [ "$PAKET" = "1" ]; then git reset --hard HEAD~1; fi
             sleep $((DENEME * 5))
           done
-          echo "::error::İtme beş denemede başarısız oldu."
+          echo "::error::İçerik itilemedi."
+          exit 1
+
+      - name: Paketi derle ve işle
+        # ASIL KAPI BURASI: denetimi geçemeyen içerik pakete yazılmaz. İçerik
+        # bir üstteki adımda güvenceye alındığı için burası düşse de üretim
+        # kaybolmaz; bozuk kayıt ayıklanıp yalnızca bu adım yeniden koşturulur.
+        #
+        # PAKET REBASE'DEN SONRA ÜRETİLİYOR. Bantlar paralel koşabilsin diye:
+        # her koşu kendi içerik dosyasını yazıyor (b9-ai-*.json, b10-ai-*.json --
+        # çakışmaz). Üretilen paket dosyaları (src/data/extended) ise her koşuda
+        # baştan yazılıyor; ikisi birden işlenirse rebase çakışır. O yüzden paket
+        # her turda BİRLEŞİK içerikten yeniden üretilip ayrı commit'e alınıyor.
+        run: |
+          git config user.name "Anlora CI"
+          git config user.email "noreply@anthropic.com"
+          ETIKET="bant ${{ github.event.inputs.bant }}"
+          if [ -n "${{ github.event.inputs.denetle }}" ]; then ETIKET="denetim"; fi
+
+          for DENEME in 1 2 3 4 5; do
+            git pull --rebase origin "$GITHUB_REF_NAME"
+            python3 scripts/extended/build_bands.py --strict
+            git add -A src/data/extended
+            if git diff --cached --quiet; then
+              echo "Pakette değişiklik yok."
+              exit 0
+            fi
+            git commit -m "Paketi yeniden derle: $ETIKET"
+            if git push; then
+              echo "Paket itildi (deneme $DENEME)."
+              exit 0
+            fi
+            echo "İtme reddedildi; başka bir koşu araya girdi. Yeniden deneniyor."
+            git reset --hard HEAD~1
+            sleep $((DENEME * 5))
+          done
+          echo "::error::Paket itilemedi."
           exit 1
 
       - name: Özet
