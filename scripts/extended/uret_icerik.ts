@@ -143,6 +143,14 @@ Her kaydın HER BİR karşılığını tanımla tek tek karşılaştır:
    doğrudur, hepsine birden uyması gerekmez. Hiçbirine uymuyorsa sorunludur.
    Örnek: gild (n.) tanımı "a formal association" iken "altın yaldız"
    yazılmışsa yanlıştır; fiil anlamı yazılmıştır.
+
+   TANIM 1 EN YAYGIN ANLAM DEĞİLDİR. Tanımlar WordNet sırasıyla geliyor ve
+   bu sıra kelimenin günlük kullanımını yansıtmıyor: "wiener" için birinci
+   tanım matematikçi Norbert Wiener'ı, "cod" için birinci tanım tohum
+   kapsülünü anlatıyor -- oysa doğru karşılıklar "sosis" ve "morina".
+   Karşılık alttaki tanımlardan birine uyuyorsa DOĞRUDUR; birinci tanıma
+   uymadığı için sorunlu sayma. Tanım listesinde hiç geçmeyen ama kelimenin
+   herkesçe bilinen anlamı olan karşılıkları da sorunlu sayma.
 2. Türkçe yazımı doğru mu? Harf düşmesi, harf fazlalığı, eksik ek ara.
    Örnek: "sendteleyen" yanlış, "sendeleyen" doğru; "gülme kriz" eksik,
    "gülme krizi" doğru.
