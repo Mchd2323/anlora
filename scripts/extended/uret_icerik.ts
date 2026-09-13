@@ -76,8 +76,16 @@ const POS_SLUG: Record<string, string> = {
   'n.': 'n', 'v.': 'v', 'adj.': 'adj', 'adv.': 'adv', 'prep.': 'prep', 'conj.': 'conj'
 };
 
-interface Kelime { word: string; pos: string[]; rank: number; band: number; ipa: string | null }
-interface Is { id: string; word: string; pos: string; tanimlar: string[] }
+interface Kelime {
+  word: string;
+  pos: string[];
+  rank: number;
+  band: number;
+  ipa: string | null;
+  /** 'küfür' | 'hakaret' — varsa karşılığa kullanım etiketi konuyor. */
+  uyari?: string;
+}
+interface Is { id: string; word: string; pos: string; tanimlar: string[]; uyari?: string }
 
 const arg = (ad: string): string | undefined => {
   const i = process.argv.indexOf(ad);
@@ -93,6 +101,13 @@ Her kayıt için:
 - turkishMeanings: 1-3 kısa Türkçe karşılık (dizi). Karşılık İngilizce
   kelimenin kendisi OLAMAZ. Tür ne ise karşılık da o tür olmalı: fiil için
   mastar ("kaçmak"), isim için isim ("kaçış"). Türkçe yazımı doğru olmalı.
+
+KULLANIM ETİKETİ. Bazı kelimelerin yanında [küfür] ya da [hakaret] yazıyor.
+Bunlar sözlükte yer alıyor çünkü öğrenci dizide ve günlük konuşmada
+karşılaşıyor; ama karşılığı yumuşatılırsa öğrenci ne kadar ağır olduğunu
+bilemez. Bu kelimelerin BİRİNCİ karşılığının sonuna parantez içinde etiketi
+yaz: "aptal (hakaret)", "kahretsin (küfür)". Örnek cümleler kelimenin gerçek
+kullanımını göstersin, sansürlenmesin.
 - examples: TAM ÜÇ örnek; her biri {"en": "...", "tr": "..."}
     * İngilizce cümlede kelime AYNEN geçmeli (çekimli hâli değil)
     * üçü farklı bağlamda olmalı, birbirinin tekrarı olmamalı
@@ -106,7 +121,7 @@ Yanıt yalnızca şu JSON dizisi:
 
 Kelimeler:
 ${grup.map(g => {
-    const basli = `${g.id}\t${g.word} (${g.pos})`;
+    const basli = `${g.id}\t${g.word} (${g.pos})${g.uyari ? ` [${g.uyari}]` : ''}`;
     return g.tanimlar.length
       ? `${basli}\n${g.tanimlar.map((t, i) => `   ${i + 1}. ${t}`).join('\n')}`
       : basli;
@@ -354,7 +369,13 @@ async function main() {
       const id = `gen-b${k.band}-${k.word}-${POS_SLUG[pos]}`;
       if (hazir.has(id)) continue;
       if ((defter[id]?.kez || 0) >= EN_COK_RED) { vazgecilen++; continue; }
-      eksik.push({ id, word: k.word, pos, tanimlar: tanimlar[`${k.word}|${pos}`] || [] });
+      eksik.push({
+        id,
+        word: k.word,
+        pos,
+        tanimlar: tanimlar[`${k.word}|${pos}`] || [],
+        uyari: k.uyari
+      });
     }
   }
   const isler = eksik.slice(0, limit);
