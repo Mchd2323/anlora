@@ -86,7 +86,13 @@ const ESZAMANLI = 4;
 const TUR_BEKLEME_MS = Number(process.env.ANLORA_TUR_BEKLEME_MS ?? 45_000);
 /** Bir kimlik bu kadar kez denetimden dönerse artık istenmiyor. */
 const EN_COK_RED = 3;
-const MODELLER = ['gemini-flash-latest', 'gemini-2.0-flash', 'gemini-flash-lite-latest'];
+/**
+ * Yedekleme sırası. `gemini-2.0-flash` LİSTEDEN ÇIKARILDI: artık
+ * "no longer available" (404) dönüyor ve her turun üçte birini boşa
+ * harcıyordu. Takma adlar (`-latest`) sürüm emekli olunca kendiliğinden
+ * güncele kayıyor; sabit sürüm numarası yazmak aynı tuzağı kurar.
+ */
+const MODELLER = ['gemini-flash-latest', 'gemini-flash-lite-latest'];
 const POS_SLUG: Record<string, string> = {
   'n.': 'n', 'v.': 'v', 'adj.': 'adj', 'adv.': 'adv', 'prep.': 'prep', 'conj.': 'conj'
 };

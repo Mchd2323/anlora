@@ -24,7 +24,8 @@ const CIKTI = path.join(ROOT, 'scripts/ortac/icerik.json');
 /** Üç örnek cümle uzun yanıt demek; grup küçük tutuluyor. */
 const GRUP = 15;
 const ARA_MS = 4000;
-const MODELLER = ['gemini-flash-latest', 'gemini-2.0-flash', 'gemini-flash-lite-latest'];
+// gemini-2.0-flash cikarildi: artik 404 "no longer available" donuyor.
+const MODELLER = ['gemini-flash-latest', 'gemini-flash-lite-latest'];
 const SEVIYELER = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
 interface Onay {

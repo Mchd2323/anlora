@@ -51,7 +51,8 @@ const GRUPLAR_ARASI_MS = 4000;
  * yüzden önde: Google bir sürümü kapattığında ad kendiliğinden yenisine
  * işaret ediyor.
  */
-const MODELLER = ['gemini-flash-latest', 'gemini-2.0-flash', 'gemini-flash-lite-latest'];
+// gemini-2.0-flash cikarildi: artik 404 "no longer available" donuyor.
+const MODELLER = ['gemini-flash-latest', 'gemini-flash-lite-latest'];
 
 interface Aday { kok: string; bicim: string; ek: 'ing' | 'ed' }
 interface Karar {

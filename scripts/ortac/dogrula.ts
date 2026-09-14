@@ -30,7 +30,8 @@ const CIKTI = path.join(ROOT, 'scripts/ortac/onaylanan.json');
 
 const GRUP = 30;
 const ARA_MS = 4000;
-const MODELLER = ['gemini-flash-latest', 'gemini-2.0-flash', 'gemini-flash-lite-latest'];
+// gemini-2.0-flash cikarildi: artik 404 "no longer available" donuyor.
+const MODELLER = ['gemini-flash-latest', 'gemini-flash-lite-latest'];
 
 interface Karar {
   bicim: string;
