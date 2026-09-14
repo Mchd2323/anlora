@@ -47,6 +47,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
 import { sorunlar, type Anlam } from './denetim_kurallari';
 
@@ -77,6 +78,12 @@ const ARA_MS = 3000;
  * ama toplam süre dörtte birine iniyor.
  */
 const ESZAMANLI = 4;
+/**
+ * Tur arası bekleme. Model bütün modellerde başarısız olunca bir sonraki
+ * tura kadar beklenir. Testlerde sıfıra çekiliyor: bekleme süresi sınanan
+ * davranışın parçası değil ve test paketini doksan saniye uzatıyordu.
+ */
+const TUR_BEKLEME_MS = Number(process.env.ANLORA_TUR_BEKLEME_MS ?? 45_000);
 /** Bir kimlik bu kadar kez denetimden dönerse artık istenmiyor. */
 const EN_COK_RED = 3;
 const MODELLER = ['gemini-flash-latest', 'gemini-2.0-flash', 'gemini-flash-lite-latest'];
@@ -210,7 +217,7 @@ async function modeleSor(ai: any, istem: string, etiket: string, durum: { idx: n
         console.warn(`  ${etiket} · ${model}: ${String((hata as Error).message).slice(0, 90)}`);
       }
     }
-    if (tur < 2) await bekle(45_000);
+    if (tur < 2) await bekle(TUR_BEKLEME_MS);
   }
   return null;
 }
@@ -236,7 +243,7 @@ function redDefteriYaz(bant: number, defter: RedDefteri): void {
  * İkinci tur: yazılan karşılıkları İngilizce tanıma karşı sınar.
  * Dönen küme, yazılmaması gereken kimlikler ve sebepleridir.
  */
-async function denetle(
+export async function denetle(
   ai: any,
   kayitlar: { id: string; word: string; pos: string; tanimlar: string[]; anlamlar: string[] }[],
   durum: { idx: number }
@@ -517,4 +524,11 @@ async function main() {
   }
 }
 
-main();
+/*
+ * Yalnızca doğrudan çalıştırıldığında koşar. Testler `denetle`'yi içe
+ * aktarabilsin diye: modül yüklenince `main()` koşarsa test API anahtarı
+ * arayıp çıkıyordu.
+ */
+if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+  main();
+}
