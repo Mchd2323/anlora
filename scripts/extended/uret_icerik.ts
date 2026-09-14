@@ -26,6 +26,14 @@
  * biri kadar bile istek harcamıyor. Denetimden dönen kayıt yazılmıyor,
  * `denetim/` altına sebebiyle kaydediliyor; üç kez dönen bir daha istenmiyor.
  *
+ * DENETİM YAPILAMAZSA İÇERİK ATILMAZ. İlk sürüm, denetim turu yanıt
+ * alamadığında o partinin hepsini reddediyordu. Bant 9'da tur kotaya takıldı
+ * ve 1.185 SAĞLAM kayıt bu yüzden çöpe gitti: 2.170 anlamlık koşudan 91 anlam
+ * kaldı. Denetim ikinci ağdır; birincil kapı `sorunlar()` ve
+ * `build_bands.py --strict`. İkinci ağın kurulamaması, balığı geri atmak için
+ * sebep değil. Artık kayıtlar yazılıyor, kimlikleri
+ * `denetim/b<N>-denetlenmedi.json` içine not ediliyor.
+ *
  * BANT SIRASIYLA. Bant numarası sıklık sırasını taşıyor: bant 8, bant 13'ten
  * daha sık kullanılan kelimeleri içeriyor. En sık kullanılanlar önce
  * dolduruluyor ki iş yarıda kalsa bile en çok işe yarayacak kısım hazır
@@ -232,8 +240,9 @@ async function denetle(
   ai: any,
   kayitlar: { id: string; word: string; pos: string; tanimlar: string[]; anlamlar: string[] }[],
   durum: { idx: number }
-): Promise<Map<string, string>> {
+): Promise<{ red: Map<string, string>; denetlenemeyen: Set<string> }> {
   const red = new Map<string, string>();
+  const denetlenemeyen = new Set<string>();
   const gruplar: typeof kayitlar[] = [];
   for (let i = 0; i < kayitlar.length; i += DENETIM_GRUP) {
     gruplar.push(kayitlar.slice(i, i + DENETIM_GRUP));
@@ -251,8 +260,20 @@ async function denetle(
       const cevap = cevaplar[j];
       const no = d + j + 1;
       if (!cevap) {
-        console.warn(`  denetim ${no}/${toplam} yapılamadı; bu partinin kayıtları yazılmıyor.`);
-        for (const g of grup) red.set(g.id, 'denetim yapılamadı');
+        /*
+         * DENETİM YAPILAMADIYSA İÇERİK ATILMAZ.
+         *
+         * İlk sürüm bu partinin hepsini reddediyordu. Bant 9'da denetim turu
+         * kotaya takıldı ve 1.185 SAĞLAM kayıt bu yüzden çöpe gitti: 2.170
+         * anlamlık koşudan 91 anlam kaldı. Denetim ikinci ağ; birincil kapı
+         * `sorunlar()` ve `build_bands.py --strict`, ikisini de geçmişler.
+         * İkinci ağın kurulamaması, balığı geri atmak için sebep değil.
+         *
+         * Kayıtlar yazılıyor, kimlikleri "denetlenmedi" listesine düşüyor;
+         * sonraki koşu `--denetle <dosya>` ile onları ayrıca sınayabiliyor.
+         */
+        console.warn(`  denetim ${no}/${toplam} yapılamadı; kayıtlar yazılıyor, denetimi sonraya kalıyor.`);
+        for (const g of grup) denetlenemeyen.add(g.id);
         continue;
       }
       const gecerli = new Set(grup.map(g => g.id));
@@ -267,7 +288,7 @@ async function denetle(
     }
     if (d + ESZAMANLI < gruplar.length) await bekle(ARA_MS);
   }
-  return red;
+  return { red, denetlenemeyen };
 }
 
 function mevcutIcerik(): Set<string> {
@@ -305,8 +326,9 @@ async function dosyaDenetle(ai: any, yol: string, temizle: boolean): Promise<voi
   });
 
   console.log(`${path.relative(ROOT, tam)}: ${kayitlar.length} kayıt denetleniyor`);
-  const red = await denetle(ai, kayitlar, { idx: 0 });
+  const { red, denetlenemeyen } = await denetle(ai, kayitlar, { idx: 0 });
   console.log(`\nSorunlu: ${red.size}/${kayitlar.length}`);
+  if (denetlenemeyen.size) console.log(`Denetlenemeyen: ${denetlenemeyen.size} (kayıt silinmiyor)`);
   for (const [id, sebep] of red) console.log(`   ${id}: ${sebep}`);
 
   // Bulgular diske yazılıyor ki `olcum.py` referans listeyle karşılaştırsın.
@@ -460,7 +482,7 @@ async function main() {
       const i = isIndeks.get(id)!;
       return { id, word: i.word, pos: i.pos, tanimlar: i.tanimlar, anlamlar: a.turkishMeanings };
     });
-    const red = await denetle(ai, denetlenecek, durum);
+    const { red, denetlenemeyen } = await denetle(ai, denetlenecek, durum);
     for (const [id, sebep] of red) {
       delete uretilen[id];
       const onceki = defter[id]?.kez || 0;
@@ -469,6 +491,22 @@ async function main() {
     if (red.size) redDefteriYaz(bant, defter);
     console.log(`Denetimden dönen: ${red.size} · yazılan: ${Object.keys(uretilen).length}`);
     for (const [id, sebep] of [...red].slice(0, 15)) console.log(`   ${id}: ${sebep}`);
+
+    /*
+     * Denetimi yapılamayanlar YAZILIYOR, kimlikleri not ediliyor. Denetim
+     * ikinci ağ; kurulamaması üretilmiş içeriği atmak için sebep değil.
+     * Sonraki koşu `--denetle <dosya>` ile bunları ayrıca sınayabilir.
+     */
+    if (denetlenemeyen.size) {
+      fs.mkdirSync(DENETIM, { recursive: true });
+      const yol = path.join(DENETIM, `b${bant}-denetlenmedi.json`);
+      const onceki: string[] = fs.existsSync(yol) ? JSON.parse(fs.readFileSync(yol, 'utf8')) : [];
+      const hepsi = [...new Set([...onceki, ...denetlenemeyen])].sort();
+      fs.writeFileSync(yol, JSON.stringify(hepsi, null, 1));
+      console.log(`Denetimi yapılamayan ${denetlenemeyen.size} kayıt yazıldı; `
+        + `kimlikleri ${path.relative(ROOT, yol)} içinde.`);
+    }
+
     fs.writeFileSync(cikti, JSON.stringify(uretilen, null, 1));
   }
 
