@@ -1,3 +1,17 @@
+import type { RealmsOnAyarId } from '../theme/realmsPresets';
+
+/**
+ * Artık listede olmayan tema kimlikleri.
+ *
+ * Diskteki ayar bunlardan birini taşıyor olabilir: uygulamanın iki eski tema
+ * modeli vardı ve kullanıcıların seçimleri telefonlarında duruyor. `useTheme`
+ * içindeki `cozTemayi` her birini bugünkü bir temaya eşliyor. Tipten silmek
+ * gerçeği değiştirmezdi -- yalnızca derleyiciyi kör ederdi.
+ */
+export type EskiTemaKimligi =
+  | 'deniz' | 'kum' | 'gul' | 'sis' | 'lavanta' | 'orman' | 'komur'
+  | 'light' | 'dark';
+
 export type Level = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
 
 export type PartOfSpeech =
@@ -271,7 +285,14 @@ export interface UserSettings {
    * okunuyor çünkü kullanıcıların ayarlarında KAYITLI; ilk açılışta yeni iki
    * alana çevriliyor ve değeri silinmiyor. Yeni kod buraya yazmıyor.
    */
-  theme?: 'system' | 'deniz' | 'kum' | 'gul' | 'sis' | 'dark' | 'orman' | 'komur' | 'light' | 'lavanta';
+  /*
+   * Görünüm tercihi. Tip `useTheme`'in `TemaTercihi` tipinden geliyor;
+   * burada elle yazılmış bir liste vardı ve GÜNCELLİĞİNİ KAYBETMİŞTİ:
+   * 'deniz', 'kum', 'gul' gibi artık var olmayan sekiz ön ayarı sayıyor,
+   * bugünkü dört temanın hiçbirini tanımıyordu. İki listenin ayrışması
+   * derleyicinin yakalayamadığı bir boşluk bırakıyor; tek kaynağa bağlandı.
+   */
+  theme?: 'system' | RealmsOnAyarId | EskiTemaKimligi;
   /**
    * Açık/koyu modu. 'system' hiçbir işaret koymaz; ayrımı yalnızca
    * `prefers-color-scheme` yapar, böylece telefon ayarı sonradan değişince

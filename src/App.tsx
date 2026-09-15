@@ -65,9 +65,8 @@ import { runOxfordIdMigrationIfNeeded } from './utils/oxfordIdMigration';
 import { OxfordGroupKey } from './types/oxford';
 import { loadExtendedIndex } from './services/extendedRepository';
 import { useToast } from './components/ui/ToastProvider';
-import { useTopluKuyruk } from './hooks/useTopluKuyruk';
+import { eskiKuyrugaTakilanlariKurtar } from './services/eskiKuyrukGocu';
 import { otomatikYedekAl } from './services/otomatikYedek';
-import { TopluKuyrukPaneli } from './components/TopluKuyrukPaneli';
 import { useAndroidBackButton } from './hooks/useAndroidBackButton';
 import { useTheme } from './hooks/useTheme';
 import { useKeyboardShortcuts, Shortcut } from './hooks/useKeyboardShortcuts';
@@ -587,31 +586,32 @@ export default function App() {
    * Kanca burada olduğu için sekme değişimi, pencere kapanması ve hatta
    * uygulamanın kapanıp açılması işi kesmiyor.
    */
-  /** Kuyruk ayrıntı penceresi; hatırlatmaya dokununca açılıyor. */
-  const [topluPanelAcik, setTopluPanelAcik] = useState(false);
-
-  const {
-    ilerleme: topluIlerleme,
-    kuyrugaEkle,
-    yenidenDene: topluYenidenDene,
-    iptalEt: topluIptalEt,
-    yapayZekasizBitir: topluYapayZekasizBitir
-  } = useTopluKuyruk({
-    onKartEkle: (card, collectionId) => {
-      /*
-       * Kuyruk dakikalarca sürebiliyor ve kullanıcı bu sırada hedef seti
-       * silebilir. Silinmiş bir sete üyelik yazmak, hiçbir ekranda
-       * görünmeyen ölü bir kayıt bırakırdı. Set yoksa kart yine ekleniyor
-       * ama sete bağlanmıyor: üretilen içerik kaybolmuyor, kullanıcının
-       * kendi kelimeleri arasında duruyor.
-       */
+  /*
+   * ESKİ KUYRUKTA TAKILI KALANLARI KURTAR.
+   *
+   * Toplu eklemede yapay zekâ kaldırıldı; arka plan kuyruğu da onunla
+   * birlikte kalktı. Ama kuyruk DİSKTE duruyor olabilir: kullanıcının
+   * telefonunda bu sürümden önce başlatılmış, yarım kalmış bir liste.
+   * İşleyen kod artık olmadığı için o kelimeler hiçbir zaman eklenmez ve
+   * kullanıcı bunu göremez. Yaşandı: kuyrukta altmış yedi kelime "0 hazır ·
+   * 57 bekliyor" diye takılı kalmıştı.
+   *
+   * Bir kez koşar; kelimeleri anlamı boş kart olarak ekleyip kuyruğu siler.
+   */
+  useEffect(() => {
+    const kurtarilan = eskiKuyrugaTakilanlariKurtar((card, collectionId) => {
       const setVar = collections.some(c => c.id === collectionId);
       handleAddCustomWord(card, setVar ? collectionId : undefined);
-    },
-    onBitti: (eklenen) => {
-      showToast(`${eklenen} kelime eklendi.`, 'learned');
+    });
+    if (kurtarilan > 0) {
+      showToast(
+        `Önceki sürümde yarım kalan ${kurtarilan} kelime eklendi; anlamlarını doldurabilirsin.`,
+        'learned'
+      );
     }
-  });
+    // Yalnızca ilk açılışta; kuyruk silindiği için ikinci koşuda iş kalmıyor.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleUpdateCustomWord = (card: WordCard) => {
     updateCustomWordV2(card);
@@ -843,8 +843,6 @@ export default function App() {
             oxfordWords={oxfordWords}
             extraWords={oxfordExtraWords}
             sozlukHazir={isDictionaryReady}
-            topluIlerleme={topluIlerleme}
-            onTopluDetay={() => setTopluPanelAcik(true)}
             learningStates={learningStates}
             settings={settings}
             stats={stats}
@@ -888,9 +886,6 @@ export default function App() {
               isDictionaryReady ? 'hazir' : dictionaryError ? 'hata' : 'yukleniyor'
             }
             onSozlugüYenidenDene={() => { setDictionaryError(false); sozlugüYukle(); }}
-            topluIlerleme={topluIlerleme}
-            onTopluKuyrugaEkle={kuyrugaEkle}
-            onTopluDetay={() => setTopluPanelAcik(true)}
             learningStates={learningStates}
             favorites={favorites}
             profile={profile}
@@ -1197,21 +1192,6 @@ export default function App() {
         </div>
       </footer>
 
-      {/*
-        Kuyruk ayrıntı penceresi uygulamanın KÖKÜNDE duruyor: hatırlatma hem
-        ana sayfada hem set ekranında var ve ikisi de aynı pencereyi açıyor.
-        Bileşenlerin içinde ayrı ayrı tutmak, iki kopyanın zamanla ayrışması
-        demekti.
-      */}
-      {topluPanelAcik && (
-        <TopluKuyrukPaneli
-          ilerleme={topluIlerleme}
-          onYenidenDene={topluYenidenDene}
-          onIptal={topluIptalEt}
-          onYapayZekasizBitir={topluYapayZekasizBitir}
-          onClose={() => setTopluPanelAcik(false)}
-        />
-      )}
     </div>
   );
 }

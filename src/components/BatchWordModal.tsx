@@ -14,9 +14,6 @@ import {
 } from '../services/extendedRepository';
 import { getPhraseCard, loadPhrases } from '../services/phraseRepository';
 import { useModalA11y } from '../hooks/useModalA11y';
-import { kartUret } from '../hooks/useTopluKuyruk';
-// Üretim isteği `kartUret` üzerinden gidiyor; bu dosyada doğrudan API çağrısı yok.
-import { useRemoteApi } from '../hooks/useRemoteApi';
 import { RealmsIcon } from './ui/RealmsIcon';
 
 interface BatchWordModalProps {
@@ -38,20 +35,11 @@ interface BatchWordModalProps {
     addedCount: number;
     linkedCount: number;
     skippedCount: number;
-    /** Arka plan kuyruğuna verilen, yapay zekâ ile üretilecek kelime sayısı. */
-    kuyrugaAlinan: number;
+    /** Sözlükte bulunmayıp anlamı boş eklenen kelime sayısı. */
+    bosEklenen: number;
   }) => void;
   onAddCustomWord: (card: WordCard, collectionId?: string) => void;
   onLinkWordToCollection: (wordId: string, collectionId: string) => void;
-  /**
-   * Yapay zekâ ile üretilecek kelimeleri ARKA PLAN kuyruğuna verir.
-   *
-   * Üretim eskiden bu pencerenin içinde dönüyordu ve pencere kapanınca
-   * ölüyordu; doksan sekiz kelimelik bir liste on üç dakika boyunca ekranın
-   * açık kalmasını gerektiriyordu. Verilmezse (eski davranış) üretim yine
-   * burada yapılır, ama uygulama artık her zaman veriyor.
-   */
-  onKuyrugaEkle?: (setId: string, setAdi: string, kelimeler: string[]) => void;
 }
 
 interface AnalyzedToken {
@@ -113,16 +101,8 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
   oxfordWords,
   onBatchProcessComplete,
   onAddCustomWord,
-  onLinkWordToCollection,
-  onKuyrugaEkle
+  onLinkWordToCollection
 }) => {
-  /*
-   * Yapay zekâ ulaşılabilir mi? Sunucusuz kurulumda eşleşmeyen her kelime
-   * için boşuna istek çıkarmamak, doğrudan elle doldurulacak karta geçmek
-   * için bakılıyor.
-   */
-  const yapayZekaVar = useRemoteApi('ai') === true;
-
   const modalRef = useModalA11y(isOpen, onClose);
 
   /*
@@ -153,13 +133,13 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
   };
 
   /**
-   * Kelimeyi yeniden Anlora AI'ya bırakır: elle doldurulan içerik silinir.
+   * Doldurulan içeriği siler; kelime yine eklenir ama anlamı boş kalır.
    *
-   * Geri dönüşü olmayan bir seçim bırakmamak için var. Kullanıcı yanlışlıkla
-   * "Elle doldur"a dokunduğunda ya da fikrini değiştirdiğinde, tek yol
-   * anlam alanını boşaltıp kaydetmekti; bunu kimsenin keşfetmesi beklenemez.
+   * Geri dönüşü olmayan bir seçim bırakmamak için var: kullanıcı yanlışlıkla
+   * "Elle doldur"a dokunduğunda ya da fikrini değiştirdiğinde, tek yol anlam
+   * alanını boşaltıp kaydetmekti; bunu kimsenin keşfetmesi beklenemez.
    */
-  const aiyaBirak = (idx: number) => {
+  const doldurmayiTemizle = (idx: number) => {
     const guncel = [...analyzedList];
     guncel[idx] = { ...guncel[idx], elleDolduruldu: undefined };
     setAnalyzedList(guncel);
@@ -315,9 +295,15 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
         if (!cokKelimeli) {
           const kok = findLemmaCandidate(normalized, bilinenKelime);
           if (kok && kok.baseForm !== normalized) kokBicimi = kok.baseForm;
-          // Kök biçimi zaten ayrı bir düğme olarak sunuluyor; yazım
-          // önerilerinde ikinci kez göstermek aynı şeyi iki kez sormak olurdu.
-          const oneri = yazimOnerileri(anahtar, adaylar, 2).filter(o => o !== kokBicimi);
+          /*
+           * Kök biçimi zaten ayrı bir düğme olarak sunuluyor; yazım
+           * önerilerinde ikinci kez göstermek aynı şeyi iki kez sormak olurdu.
+           *
+           * DÖRT ÖNERİ, İKİ DEĞİL. Toplu eklemede yapay zekâ kaldırıldı;
+           * sözlükte bulunmayan bir kelimede kullanıcının elindeki tek hazır
+           * yol bu liste. İki aday çoğu zaman doğruyu kaçırıyordu.
+           */
+          const oneri = yazimOnerileri(anahtar, adaylar, 4).filter(o => o !== kokBicimi);
           if (oneri.length) yazimOnerisi = oneri;
         }
       }
@@ -404,25 +390,21 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
     let skippedCount = 0;
 
     const selectedItems = analyzedList.filter(i => i.selected);
+    /** Sözlükte bulunmayan ve kullanıcının doldurmadığı kelimeler. */
+    let bosEklenen = 0;
 
     /*
-     * YAPAY ZEKÂ İSTEYEN KELİMELER ARKA PLANA VERİLİYOR.
+     * HER ŞEY CİHAZDA BİTİYOR.
      *
-     * Geri kalan her şey (bağlama, sözlükten kopyalama, elle doldurulmuş
-     * kart) anında biter -- hepsi cihazda. Uzun süren tek iş üretim ve
-     * pencerenin onu beklemesi için bir sebep yok: kuyruk uygulamanın
-     * kökünde, pencere kapansa da sürüyor.
+     * Bu ekran eskiden sözlükte bulunmayan kelimeleri yapay zekâya
+     * gönderiyordu: kelime başına ~8 saniye, yüz kelimelik bir liste on üç
+     * dakika, üstelik günlük kota dolduğunda hiç çalışmıyordu. Artık üç yol
+     * var ve üçü de anında sonuçlanıyor -- sözlükten kopyala, var olan karta
+     * bağla, ya da kullanıcı kendi doldursun. Doldurulmayan kelime anlamı boş
+     * kart olarak giriyor; uydurma anlam yazılmıyor (talimat 59).
      */
-    const kuyrugaGidecek = onKuyrugaEkle
-      ? selectedItems.filter(
-          i => i.status === 'NEW' && !i.elleDolduruldu && !i.matchedCard
-        )
-      : [];
-    const kuyruktakiler = new Set(kuyrugaGidecek.map(i => i.normalized));
-
     for (let i = 0; i < selectedItems.length; i++) {
       const item = selectedItems[i];
-      if (kuyruktakiler.has(item.normalized)) continue;
       setProgressMsg(`İşleniyor (${i + 1}/${selectedItems.length}): ${item.normalized}...`);
 
       if (item.status === 'EXACT_IN_COLLECTION' || item.status === 'LISTEDE_TEKRAR') {
@@ -489,105 +471,32 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
         onAddCustomWord(yeniKart, targetCollection.id);
         addedCount++;
       } else {
-        try {
-          /*
-           * ÜRETİM KUYRUKLA AYNI İŞLEVDEN GEÇİYOR.
-           *
-           * Burada ayrı bir istek ve ayrı bir `getApiCapabilities()` kapısı
-           * vardı. Yoklamanın üç saniyelik zaman aşımı ve otuz saniyelik
-           * başarısızlık önbelleği yüzünden, soğuk başlayan bir sunucuda
-           * yapay zekâya TEK BİR İSTEK BİLE gitmeden bütün kelimeler boş
-           * karta düşüyordu. `kartUret` yoklama yapmıyor, doğrudan deniyor
-           * ve geçici arızada yeniden deniyor; iki yolun aynı işlevi
-           * kullanması, birinin düzelip diğerinin bozuk kalmasını da
-           * önlüyor.
-           *
-           * Bu dal yalnızca kuyruğa girmeyen bir kelime kaldığında çalışır
-           * (örneğin sözlükte görünüp harf dosyası açılamayan bir girdi);
-           * NEW kelimelerin tamamı arka plan kuyruğuna gidiyor.
-           */
-          const sonuc = await kartUret(item.normalized);
-          if (sonuc.tur !== 'kart') throw new Error('yapay-zeka-basarisiz');
-
-          {
-            const cardData = sonuc.kart;
-
-            const newCard: WordCard = {
-              id: cardData.id,
-              word: cardData.word || item.normalized,
-              // Sözcük türü de uydurulmaz; verilmediyse boş kalır.
-              partOfSpeech: cardData.partOfSpeech || '',
-              /*
-               * ANLAM UYDURULMAZ. Burada `|| item.raw` vardı: yapay zekâ
-               * Türkçe anlam vermediğinde İngilizce kelimenin kendisi Türkçe
-               * anlamı olarak yazılıyordu ("apple → apple"). Yanlış veri,
-               * eksik veriden kötüdür; alan boş kalır, kullanıcı doldurur.
-               */
-              turkishMeaning: cardData.turkishMeaning || '',
-              phonetic: cardData.phonetic || '',
-              examples: cardData.examples || [],
-              // Yapay zekâ seviye vermediyse UYDURULMAZ; alan boş kalır ve
-              // arayüz rozeti kendiliğinden gizler.
-              level: cardData.level || undefined,
-              isCustom: true,
-              dateAdded: new Date().toISOString().slice(0, 10),
-              isAiGenerated: true
-            };
-            onAddCustomWord(newCard, targetCollection.id);
-            addedCount++;
-          }
-        } catch {
-          /*
-           * Yapay zekâya ulaşılamadı — sözlükte de bulunmayan bu kelime için
-           * elimizde hiçbir bilgi yok.
-           *
-           * ÖNCEKİ DAVRANIŞ VERİ UYDURUYORDU: Türkçe anlam alanına İngilizce
-           * kelimenin kendisi ("thrive" → "thrive"), seviyeye de sabit 'B1'
-           * yazılıyordu. İkisi de yanlıştı ve yanlış oldukları belli
-           * olmuyordu: kullanıcı setinde B1 rozetli, anlamı kendisi olan
-           * kartlar görüyor ve bunları doğru sanıyordu. Sunucusuz kurulumda
-           * her eşleşmeyen kelime bu yoldan geçtiği için 40 kelimelik bir
-           * yüklemeden 40 uydurma kart çıkabilirdi.
-           *
-           * Artık boş bırakılıyor: seviye verilmez (rozet kendiliğinden
-           * gizlenir), anlam alanı boş kalır ve kullanıcı kartı açtığında
-           * doldurulacak yeri görür. Bilinmeyeni boş bırakmak, yanlış
-           * doldurmaktan iyidir.
-           */
-          const elleDoldurulacak: WordCard = {
-            id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-            word: item.normalized,
-            partOfSpeech: '',
-            turkishMeaning: '',
-            examples: [],
-            isCustom: true,
-            dateAdded: new Date().toISOString().slice(0, 10)
-          };
-          onAddCustomWord(elleDoldurulacak, targetCollection.id);
-          addedCount++;
-        }
+        /*
+         * SÖZLÜKTE YOK VE DOLDURULMADI: anlamı boş kart olarak ekleniyor.
+         *
+         * Uydurma veri yazılmıyor (talimat 59). Daha önce bu alana İngilizce
+         * kelimenin kendisi ("thrive" -> "thrive") ve sabit bir 'B1' seviyesi
+         * yazılıyordu; kullanıcı setinde rozetli, anlamı kendisi olan kartlar
+         * görüyor ve bunları doğru sanıyordu. Boş bırakmak, yanlış
+         * doldurmaktan iyidir: kart açıldığında doldurulacak yer görünüyor.
+         */
+        const elleDoldurulacak: WordCard = {
+          id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          word: item.normalized,
+          partOfSpeech: '',
+          turkishMeaning: '',
+          examples: [],
+          isCustom: true,
+          dateAdded: new Date().toISOString().slice(0, 10)
+        };
+        onAddCustomWord(elleDoldurulacak, targetCollection.id);
+        addedCount++;
+        bosEklenen++;
       }
     }
 
-    /*
-     * Kuyruk EN SONDA doldruluyor: yukarıdaki anlık işler bitmeden koşucu
-     * çalışmaya başlarsa aynı kelime iki koldan eklenebilirdi.
-     */
-    if (kuyrugaGidecek.length && onKuyrugaEkle) {
-      onKuyrugaEkle(
-        targetCollection.id,
-        targetCollection.name,
-        kuyrugaGidecek.map(i => i.normalized)
-      );
-    }
-
     setIsProcessing(false);
-    onBatchProcessComplete({
-      addedCount,
-      linkedCount,
-      skippedCount,
-      kuyrugaAlinan: kuyrugaGidecek.length
-    });
+    onBatchProcessComplete({ addedCount, linkedCount, skippedCount, bosEklenen });
     onClose();
   };
 
@@ -854,7 +763,7 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
                       <>
                         {' '}
                         Sözlük tek sözcüklü; kalıplar ayrı listede ve orada 750 kayıt
-                        var, gerisini Anlora AI çeviriyor.
+                        var. Listede olmayan kalıbın anlamını kendin yazabilirsin.
                       </>
                     )}
                   </p>
@@ -862,35 +771,27 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
               })()}
 
               {/*
-                KAÇ KELİME YAPAY ZEKÂYA GİDECEK VE NE KADAR SÜRECEK?
-                Ölçüldü: kart üretimi kelime başına yaklaşık sekiz saniye ve
-                istekler sırayla gidiyor. Yüz kelimelik bir liste on üç dakika
-                demek; kullanıcı bunu BAŞLAMADAN önce bilmeli, yoksa ekranın
-                donduğunu sanıp pencereyi kapatıyor ve yarım kalmış bir set
-                kalıyor.
+                SÖZLÜKTE BULUNMAYANLAR NE OLACAK?
+
+                Bu satır eskiden "şu kadar kelime Anlora AI ile hazırlanacak,
+                yaklaşık şu kadar dakika sürer" diyordu. Toplu eklemede yapay
+                zekâ kaldırıldı: kelime başına ~8 saniye bekleme, günlük kota
+                dolunca hiç çalışmama ve kuyruğun takılması buna değmiyordu.
+                Artık her şey cihazda ve anında bitiyor; kullanıcının bilmesi
+                gereken tek şey, doldurmadığı kelimelerin anlamının boş
+                kalacağı.
               */}
               {(() => {
-                const yapayZekayaGidecek = analyzedList.filter(
+                const doldurulmayan = analyzedList.filter(
                   i => i.selected && i.status === 'NEW' && !i.elleDolduruldu
                 ).length;
-                if (!yapayZekayaGidecek) return null;
-                const dakika = Math.max(1, Math.round((yapayZekayaGidecek * 8) / 60));
+                if (!doldurulmayan) return null;
                 return (
                   <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed px-1">
-                    {yapayZekaVar ? (
-                      <>
-                        <span className="font-bold text-[var(--text-primary)]">{yapayZekayaGidecek}</span>{' '}
-                        kelime sözlükte yok; Anlora AI ile hazırlanacak.
-                        Yaklaşık <span className="font-bold">{dakika} dakika</span> sürer ve
-                        pencere açık kalmalı.
-                      </>
-                    ) : (
-                      <>
-                        <span className="font-bold text-[var(--text-primary)]">{yapayZekayaGidecek}</span>{' '}
-                        kelime sözlükte yok ve Anlora AI bu kurulumda kapalı; bunlar
-                        anlamı boş kart olarak eklenir. Yukarıdan tek tek doldurabilirsin.
-                      </>
-                    )}
+                    <span className="font-bold text-[var(--text-primary)]">{doldurulmayan}</span>{' '}
+                    kelime sözlükte yok. Aşağıdan <span className="font-bold">Elle doldur</span>{' '}
+                    diyerek anlamını şimdi yazabilirsin; yazmazsan kart eklenir ama
+                    anlamı boş kalır ve sonra doldurabilirsin.
                   </p>
                 );
               })()}
@@ -957,47 +858,19 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
 
                     <div>
                       {/*
-                        Rozet gerçeği söylüyor: yapay zekâ bu kurulumda kapalıysa
-                        kart boş eklenir, "AI kartı" demek yanlış olur.
-                      */}
-                      {/*
-                        SÖZLÜKTE OLMAYAN KELİMEDE İKİ SEÇENEK DE VERİLİYOR.
-                        Burada yalnızca "Yeni AI Kartı" yazan bir ROZET vardı:
-                        kullanıcının elle doldurma seçeneği, yalnızca Anlora AI
-                        kapalıyken beliriyordu. Yani yapay zekâ açıkken kelimeyi
-                        kendi bilgisiyle doldurmak isteyen kullanıcının hiçbir
-                        yolu yoktu -- oysa anlamı bilen kullanıcı için sekiz
-                        saniye beklemek de, kota harcamak da gereksiz.
+                        SÖZLÜKTE OLMAYAN KELİME: TEK BİR EYLEM.
 
-                        İkisi bir arada duruyor ve hangisinin seçili olduğu
-                        görünüyor; seçim geri alınabilir.
+                        Burada iki düğme vardı -- "Anlora AI" ve "Elle doldur".
+                        Yapay zekâ toplu eklemeden kaldırıldığı için seçim de
+                        kalktı: geriye kullanıcının kendi doldurması kaldı.
+                        Doldurmazsa kelime yine ekleniyor, anlamı boş kalıyor.
+                        Doldurduysa düğme bunu söylüyor ve geri alınabiliyor;
+                        yanlışlıkla dokunmanın bedeli olmamalı.
                       */}
                       {item.status === 'NEW' && (
                         <div className="flex flex-wrap items-center justify-end gap-1">
                           <button
                             type="button"
-                            disabled={!yapayZekaVar}
-                            aria-pressed={!item.elleDolduruldu}
-                            onClick={() => aiyaBirak(idx)}
-                            title={
-                              yapayZekaVar
-                                ? 'Anlora AI bu kelimenin kartını hazırlasın'
-                                : 'Anlora AI bu kurulumda kapalı'
-                            }
-                            className={`text-[10px] font-bold px-2 py-1 rounded-md border transition-colors ${
-                              !yapayZekaVar
-                                ? 'bg-[var(--bg)] text-[var(--text-muted)] border-[var(--border)] opacity-50 cursor-not-allowed'
-                                : !item.elleDolduruldu
-                                  ? 'bg-[var(--learned-soft)] text-[var(--learned-text)] border-[var(--learned-border)] cursor-pointer'
-                                  : 'bg-[var(--bg)] text-[var(--text-secondary)] border-[var(--border)] cursor-pointer'
-                            }`}
-                          >
-                            {!item.elleDolduruldu && yapayZekaVar ? '✓ ' : ''}
-                            Anlora AI
-                          </button>
-                          <button
-                            type="button"
-                            aria-pressed={!!item.elleDolduruldu}
                             onClick={() => doldurmayiAc(idx)}
                             className={`text-[10px] font-bold px-2 py-1 rounded-md border cursor-pointer transition-colors ${
                               item.elleDolduruldu
@@ -1005,20 +878,21 @@ export const BatchWordModal: React.FC<BatchWordModalProps> = ({
                                 : 'bg-[var(--primary-soft)] text-[var(--primary)] border-[var(--primary-border)]'
                             }`}
                           >
-                            {item.elleDolduruldu ? '✓ Elle dolduruldu · düzenle' : 'Elle doldur'}
+                            {item.elleDolduruldu ? '✓ Dolduruldu · düzenle' : 'Elle doldur'}
                           </button>
+                          {item.elleDolduruldu && (
+                            <button
+                              type="button"
+                              onClick={() => doldurmayiTemizle(idx)}
+                              title="Yazdıklarını sil; kelime anlamı boş olarak eklenir"
+                              className="text-[10px] font-bold px-2 py-1 rounded-md border border-[var(--border)] bg-[var(--bg)] text-[var(--text-secondary)] cursor-pointer"
+                            >
+                              Temizle
+                            </button>
+                          )}
                         </div>
                       )}
-                      {item.status === 'EXACT_IN_OXFORD' && (
-                        <span className="text-[10px] font-bold bg-[var(--primary-soft)] text-[var(--primary)] px-2 py-0.5 rounded-md border border-[var(--primary-border)]">
-                          Oxford ({item.matchedCard?.level}) Bağlanacak
-                        </span>
-                      )}
-                      {item.status === 'EXACT_IN_OTHER_COLLECTION' && (
-                        <span className="text-[10px] font-bold bg-[var(--bg)] text-[var(--text-secondary)] px-2 py-0.5 rounded-md border border-[var(--border)]">
-                          Setlerinden Bağlanacak
-                        </span>
-                      )}
+
                       {item.status === 'EXACT_IN_COLLECTION' && (
                         <span className="text-[10px] font-bold bg-[var(--learning-soft)] text-[var(--learning-text)] px-2 py-0.5 rounded-md border border-[var(--learning-border)]">
                           Zaten Bu Sette
