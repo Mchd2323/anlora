@@ -1,0 +1,778 @@
+{
+  "gen-b9-allowable-adj": {
+    "turkishMeanings": ["izin verilebilir", "kabul edilebilir", "vergiden düşülebilir"],
+    "examples": [
+      {"en": "The expense is allowable.", "tr": "Gider vergiden düşülebilir."},
+      {"en": "That is an allowable exception.", "tr": "Bu kabul edilebilir bir istisna."},
+      {"en": "The allowable limit is two hundred.", "tr": "İzin verilen sınır iki yüz."}
+    ]
+  },
+  "gen-b9-crystallize-v": {
+    "turkishMeanings": ["billurlaşmak", "netleşmek", "belirginleştirmek"],
+    "examples": [
+      {"en": "Honey crystallizes in the cold.", "tr": "Bal soğukta billurlaşır."},
+      {"en": "His plan crystallized overnight.", "tr": "Planı bir gecede netleşti."},
+      {"en": "The talk crystallized our doubts.", "tr": "Konuşma kuşkularımızı belirginleştirdi."}
+    ]
+  },
+  "gen-b9-vileness-n": {
+    "turkishMeanings": ["alçaklık", "iğrençlik", "adilik"],
+    "examples": [
+      {"en": "The vileness of the act shocked them.", "tr": "Eylemin alçaklığı onları sarstı."},
+      {"en": "He could not hide his vileness.", "tr": "Adiliğini gizleyemedi."},
+      {"en": "The vileness of the smell drove us out.", "tr": "Kokunun iğrençliği bizi dışarı attı."}
+    ]
+  },
+  "gen-b9-stupefying-adj": {
+    "turkishMeanings": ["afallatan", "şaşkına çeviren", "uyuşturucu"],
+    "examples": [
+      {"en": "The scale of it is stupefying.", "tr": "Boyutu şaşkına çevirici."},
+      {"en": "A stupefying heat filled the room.", "tr": "Odayı uyuşturucu bir sıcak doldurdu."},
+      {"en": "He gave a stupefying answer.", "tr": "Afallatan bir yanıt verdi."}
+    ]
+  },
+  "gen-b9-unhindered-adj": {
+    "turkishMeanings": ["engellenmemiş", "serbestçe ilerleyen"],
+    "examples": [
+      {"en": "The work went on unhindered.", "tr": "İş engellenmeden sürdü."},
+      {"en": "He walked unhindered through the gate.", "tr": "Kapıdan serbestçe geçti."},
+      {"en": "Unhindered growth followed the reform.", "tr": "Reformun ardından engelsiz bir büyüme geldi."}
+    ]
+  },
+  "gen-b9-philosophic-adj": {
+    "turkishMeanings": ["felsefi", "felsefeyle ilgili", "olgunlukla karşılayan"],
+    "examples": [
+      {"en": "He took a philosophic view of the loss.", "tr": "Kaybı felsefi bir olgunlukla karşıladı."},
+      {"en": "The essay raises philosophic questions.", "tr": "Deneme felsefi sorular soruyor."},
+      {"en": "She stayed philosophic about the delay.", "tr": "Gecikme karşısında sakin kaldı."}
+    ]
+  },
+  "gen-b9-solicitude-n": {
+    "turkishMeanings": ["derin kaygı", "özenli ilgi", "endişeli özen"],
+    "examples": [
+      {"en": "His solicitude touched her.", "tr": "Özenli ilgisi onu duygulandırdı."},
+      {"en": "She showed anxious solicitude for the child.", "tr": "Çocuk için kaygılı bir özen gösterdi."},
+      {"en": "Too much solicitude smothers a person.", "tr": "Aşırı ilgi insanı boğar."}
+    ]
+  },
+  "gen-b9-flossy-adj": {
+    "turkishMeanings": ["ipeksi", "tüy gibi yumuşak", "havlı"],
+    "examples": [
+      {"en": "The chick has flossy down.", "tr": "Civcivin ipeksi bir tüyü var."},
+      {"en": "A flossy cloud crossed the sky.", "tr": "Gökyüzünü tüy gibi bir bulut geçti."},
+      {"en": "Her flossy hair caught the light.", "tr": "İpeksi saçı ışığı yakaladı."}
+    ]
+  },
+  "gen-b9-rediscovery-n": {
+    "turkishMeanings": ["yeniden keşif", "yeniden bulma"],
+    "examples": [
+      {"en": "The rediscovery of the letters was luck.", "tr": "Mektupların yeniden bulunması şanstı."},
+      {"en": "His rediscovery came thirty years late.", "tr": "Yeniden keşfedilmesi otuz yıl gecikti."},
+      {"en": "Rediscovery changed how we read him.", "tr": "Yeniden keşif onu okuyuşumuzu değiştirdi."}
+    ]
+  },
+  "gen-b9-blain-n": {
+    "turkishMeanings": ["kabarcık", "iltihaplı şişlik"],
+    "examples": [
+      {"en": "A blain formed on his heel.", "tr": "Topuğunda bir kabarcık oluştu."},
+      {"en": "The blain burst overnight.", "tr": "Şişlik gece patladı."},
+      {"en": "Cold weather brings blains.", "tr": "Soğuk hava kabarcıklar getirir."}
+    ]
+  },
+  "gen-b9-sadomasochism-n": {
+    "turkishMeanings": ["sadomazoşizm", "acı verme ve acı çekme eğiliminin birlikteliği"],
+    "examples": [
+      {"en": "The book discusses sadomasochism.", "tr": "Kitap sadomazoşizmi ele alıyor."},
+      {"en": "Sadomasochism combines two tendencies.", "tr": "Sadomazoşizm iki eğilimi birleştirir."},
+      {"en": "He wrote a chapter on sadomasochism.", "tr": "Sadomazoşizm üzerine bir bölüm yazdı."}
+    ]
+  },
+  "gen-b9-triumvir-n": {
+    "turkishMeanings": ["triumvir", "üçlü yönetimin bir üyesi"],
+    "examples": [
+      {"en": "Each triumvir held equal power.", "tr": "Her triumvir eşit güce sahipti."},
+      {"en": "The triumvir refused to step down.", "tr": "Üçlü yönetimin üyesi çekilmeyi reddetti."},
+      {"en": "A triumvir governed the province.", "tr": "Eyaleti bir triumvir yönetti."}
+    ]
+  },
+  "gen-b9-moppet-n": {
+    "turkishMeanings": ["küçük kız", "yavrucak", "sevimli çocuk"],
+    "examples": [
+      {"en": "The moppet clutched her doll.", "tr": "Küçük kız bebeğine sarıldı."},
+      {"en": "He called his niece a moppet.", "tr": "Yeğenine yavrucak diyordu."},
+      {"en": "A moppet in a red coat waved.", "tr": "Kırmızı montlu küçük bir kız el salladı."}
+    ]
+  },
+  "gen-b9-rudiments-n": {
+    "turkishMeanings": ["temel bilgiler", "ilk adımlar", "körelmiş kalıntı organlar"],
+    "examples": [
+      {"en": "He learned the rudiments of the trade.", "tr": "Zanaatın temellerini öğrendi."},
+      {"en": "Teach the rudiments first.", "tr": "Önce temel bilgileri öğret."},
+      {"en": "The rudiments of wings remain.", "tr": "Kanatların körelmiş kalıntıları duruyor."}
+    ]
+  },
+  "gen-b9-becalmed-adj": {
+    "turkishMeanings": ["rüzgârsız kalmış", "kımıldayamayan (yelkenli)"],
+    "examples": [
+      {"en": "The ship lay becalmed for days.", "tr": "Gemi günlerce rüzgârsız kaldı."},
+      {"en": "They were becalmed off the cape.", "tr": "Burun açıklarında rüzgârsız kaldılar."},
+      {"en": "A becalmed boat drifts slowly.", "tr": "Rüzgârsız kalan bir tekne ağır ağır sürüklenir."}
+    ]
+  },
+  "gen-b9-statuary-adj": {
+    "turkishMeanings": ["heykele uygun", "heykelle ilgili"],
+    "examples": [
+      {"en": "They used statuary marble.", "tr": "Heykele uygun mermer kullandılar."},
+      {"en": "The hall has statuary niches.", "tr": "Salonda heykel nişleri var."},
+      {"en": "Statuary bronze is expensive.", "tr": "Heykel bronzu pahalıdır."}
+    ]
+  },
+  "gen-b9-statuary-n": {
+    "turkishMeanings": ["heykeller topluluğu", "heykel koleksiyonu"],
+    "examples": [
+      {"en": "The garden statuary needs cleaning.", "tr": "Bahçedeki heykellerin temizlenmesi gerek."},
+      {"en": "Roman statuary fills the hall.", "tr": "Salonu Roma heykelleri dolduruyor."},
+      {"en": "He photographed the statuary.", "tr": "Heykelleri fotoğrafladı."}
+    ]
+  },
+  "gen-b9-bigness-n": {
+    "turkishMeanings": ["büyüklük", "irilik"],
+    "examples": [
+      {"en": "The bigness of the hall surprised him.", "tr": "Salonun büyüklüğü onu şaşırttı."},
+      {"en": "Bigness alone does not impress.", "tr": "Tek başına irilik etkilemez."},
+      {"en": "He judged the fish by its bigness.", "tr": "Balığı iriliğine göre değerlendirdi."}
+    ]
+  },
+  "gen-b9-dewdrop-n": {
+    "turkishMeanings": ["çiy damlası", "sabah çiyi"],
+    "examples": [
+      {"en": "A dewdrop hung from the leaf.", "tr": "Yapraktan bir çiy damlası sarkıyordu."},
+      {"en": "Each dewdrop caught the sun.", "tr": "Her çiy damlası güneşi yakaladı."},
+      {"en": "The dewdrop fell on his hand.", "tr": "Çiy damlası eline düştü."}
+    ]
+  },
+  "gen-b9-segregate-n": {
+    "turkishMeanings": ["ayrı tutulan kimse", "dışlanmış birey"],
+    "examples": [
+      {"en": "The segregate lived apart from the rest.", "tr": "Ayrı tutulan kişi ötekilerden uzakta yaşadı."},
+      {"en": "A segregate has fewer rights.", "tr": "Dışlanmış bir bireyin hakları daha azdır."},
+      {"en": "The report counted every segregate.", "tr": "Rapor ayrı tutulan herkesi saydı."}
+    ]
+  },
+  "gen-b9-segregate-v": {
+    "turkishMeanings": ["ayırmak", "ayrımcılık uygulamak", "ayrı tutmak"],
+    "examples": [
+      {"en": "The law segregated the schools.", "tr": "Yasa okulları ayırdı."},
+      {"en": "They segregate the sick birds.", "tr": "Hasta kuşları ayrı tutuyorlar."},
+      {"en": "Do not segregate people by origin.", "tr": "İnsanları kökenine göre ayırma."}
+    ]
+  },
+  "gen-b9-novena-n": {
+    "turkishMeanings": ["dokuz günlük dua", "novena"],
+    "examples": [
+      {"en": "She began a novena for her son.", "tr": "Oğlu için dokuz günlük duaya başladı."},
+      {"en": "The novena ends on Sunday.", "tr": "Novena pazar günü bitiyor."},
+      {"en": "A novena lasts nine days.", "tr": "Novena dokuz gün sürer."}
+    ]
+  },
+  "gen-b9-midweek-adv": {
+    "turkishMeanings": ["hafta ortasında", "haftanın ortasına doğru"],
+    "examples": [
+      {"en": "They travel midweek to save money.", "tr": "Para biriktirmek için hafta ortasında seyahat ediyorlar."},
+      {"en": "The shop is quiet midweek.", "tr": "Dükkân hafta ortasında sakin."},
+      {"en": "He calls her midweek every week.", "tr": "Her hafta hafta ortasında onu arıyor."}
+    ]
+  },
+  "gen-b9-midweek-n": {
+    "turkishMeanings": ["hafta ortası", "çarşamba"],
+    "examples": [
+      {"en": "The midweek is always busiest.", "tr": "Hafta ortası hep en yoğun zamandır."},
+      {"en": "They meet at the midweek.", "tr": "Hafta ortasında buluşuyorlar."},
+      {"en": "The midweek brought heavy rain.", "tr": "Hafta ortası şiddetli yağmur getirdi."}
+    ]
+  },
+  "gen-b9-digestible-adj": {
+    "turkishMeanings": ["sindirilebilir", "hazmı kolay", "anlaşılır"],
+    "examples": [
+      {"en": "Boiled rice is easily digestible.", "tr": "Haşlanmış pirinç kolay sindirilir."},
+      {"en": "He wrote a digestible summary.", "tr": "Anlaşılır bir özet yazdı."},
+      {"en": "Some fibre is not digestible.", "tr": "Bazı lifler sindirilemez."}
+    ]
+  },
+  "gen-b9-pneumonic-adj": {
+    "turkishMeanings": ["zatürreyle ilgili", "akciğerle ilgili"],
+    "examples": [
+      {"en": "Pneumonic plague spreads by air.", "tr": "Akciğer vebası havayla yayılır."},
+      {"en": "The pneumonic signs were clear.", "tr": "Zatürre belirtileri açıktı."},
+      {"en": "He has pneumonic complications.", "tr": "Akciğer kaynaklı komplikasyonları var."}
+    ]
+  },
+  "gen-b9-metaphoric-adj": {
+    "turkishMeanings": ["mecazi", "eğretilemeli"],
+    "examples": [
+      {"en": "The phrase is metaphoric, not literal.", "tr": "Bu deyiş mecazidir, düz anlam değil."},
+      {"en": "He speaks in a metaphoric way.", "tr": "Mecazi bir biçimde konuşuyor."},
+      {"en": "A metaphoric reading opens the poem.", "tr": "Mecazi bir okuma şiiri açıyor."}
+    ]
+  },
+  "gen-b9-oration-n": {
+    "turkishMeanings": ["nutuk", "söylev", "hitabet örneği"],
+    "examples": [
+      {"en": "He delivered a long oration.", "tr": "Uzun bir nutuk çekti."},
+      {"en": "The oration moved the whole hall.", "tr": "Söylev bütün salonu etkiledi."},
+      {"en": "Her funeral oration was brief.", "tr": "Cenaze söylevi kısaydı."}
+    ]
+  },
+  "gen-b9-spiffing-adj": {
+    "turkishMeanings": ["mükemmel", "harika", "şahane"],
+    "examples": [
+      {"en": "That is a spiffing idea.", "tr": "Bu harika bir fikir."},
+      {"en": "We had a spiffing time.", "tr": "Şahane vakit geçirdik."},
+      {"en": "The cake was absolutely spiffing.", "tr": "Kek kesinlikle mükemmeldi."}
+    ]
+  },
+  "gen-b9-microorganism-n": {
+    "turkishMeanings": ["mikroorganizma", "mikroskobik canlı"],
+    "examples": [
+      {"en": "A microorganism causes the disease.", "tr": "Hastalığa bir mikroorganizma yol açıyor."},
+      {"en": "Soil teems with microorganisms.", "tr": "Toprak mikroorganizma kaynıyor."},
+      {"en": "They isolated the microorganism.", "tr": "Mikroorganizmayı ayrıştırdılar."}
+    ]
+  },
+  "gen-b9-ecstatically-adv": {
+    "turkishMeanings": ["coşkuyla", "kendinden geçerek", "büyük bir sevinçle"],
+    "examples": [
+      {"en": "The crowd cheered ecstatically.", "tr": "Kalabalık coşkuyla tezahürat yaptı."},
+      {"en": "She smiled ecstatically at the news.", "tr": "Haber karşısında kendinden geçerek gülümsedi."},
+      {"en": "He spoke ecstatically about the trip.", "tr": "Yolculuktan büyük bir coşkuyla söz etti."}
+    ]
+  },
+  "gen-b9-hydrocephalus-n": {
+    "turkishMeanings": ["hidrosefali", "beyinde sıvı birikmesi"],
+    "examples": [
+      {"en": "The baby was born with hydrocephalus.", "tr": "Bebek hidrosefaliyle doğdu."},
+      {"en": "Hydrocephalus enlarges the head in infants.", "tr": "Hidrosefali bebeklerde başı büyütür."},
+      {"en": "A shunt treats hydrocephalus.", "tr": "Bir şant hidrosefaliyi tedavi eder."}
+    ]
+  },
+  "gen-b9-gingko-n": {
+    "turkishMeanings": ["ginkgo ağacı", "yelpaze yapraklı Çin ağacı"],
+    "examples": [
+      {"en": "A gingko lines the avenue.", "tr": "Cadde boyunca ginkgo ağaçları dizili."},
+      {"en": "The gingko turns bright yellow.", "tr": "Ginkgo parlak sarıya döner."},
+      {"en": "Gingko leaves are fan-shaped.", "tr": "Ginkgo yaprakları yelpaze biçimlidir."}
+    ]
+  },
+  "gen-b9-sentience-n": {
+    "turkishMeanings": ["duyarlık", "bilinçli algılama yetisi", "hissetme"],
+    "examples": [
+      {"en": "They debated animal sentience.", "tr": "Hayvan duyarlığını tartıştılar."},
+      {"en": "Sentience is hard to measure.", "tr": "Duyarlığı ölçmek zordur."},
+      {"en": "The law now recognizes sentience.", "tr": "Yasa artık duyarlığı tanıyor."}
+    ]
+  },
+  "gen-b9-lycanthropy-n": {
+    "turkishMeanings": ["kurt adama dönüşme", "likantropi"],
+    "examples": [
+      {"en": "The legend describes lycanthropy.", "tr": "Efsane kurt adama dönüşmeyi anlatıyor."},
+      {"en": "Lycanthropy appears in many folk tales.", "tr": "Likantropi birçok halk masalında geçer."},
+      {"en": "He believed he suffered from lycanthropy.", "tr": "Kurt adama dönüştüğüne inanıyordu."}
+    ]
+  },
+  "gen-b9-flinders-n": {
+    "turkishMeanings": ["kıymıklar", "parçalar", "un ufak parçalar"],
+    "examples": [
+      {"en": "The vase broke into flinders.", "tr": "Vazo un ufak parçalara ayrıldı."},
+      {"en": "Flinders of glass covered the floor.", "tr": "Zemini cam kıymıkları kaplamıştı."},
+      {"en": "The blow smashed it to flinders.", "tr": "Darbe onu paramparça etti."}
+    ]
+  },
+  "gen-b9-gunrunning-n": {
+    "turkishMeanings": ["silah kaçakçılığı", "yasadışı silah taşıma"],
+    "examples": [
+      {"en": "He was arrested for gunrunning.", "tr": "Silah kaçakçılığından tutuklandı."},
+      {"en": "Gunrunning funded the rebellion.", "tr": "Silah kaçakçılığı isyanı finanse etti."},
+      {"en": "They broke a gunrunning ring.", "tr": "Bir silah kaçakçılığı şebekesini çökerttiler."}
+    ]
+  },
+  "gen-b9-seersucker-n": {
+    "turkishMeanings": ["seersucker kumaş", "kabartmalı çizgili hafif kumaş"],
+    "examples": [
+      {"en": "He wore a seersucker suit.", "tr": "Kabartmalı çizgili bir takım giymişti."},
+      {"en": "Seersucker stays cool in heat.", "tr": "Bu kumaş sıcakta serin tutar."},
+      {"en": "The stripes of seersucker pucker.", "tr": "Bu kumaşın çizgileri kabarıktır."}
+    ]
+  },
+  "gen-b9-coconspirator-n": {
+    "turkishMeanings": ["suç ortağı", "komploya katılan kimse"],
+    "examples": [
+      {"en": "The coconspirator turned witness.", "tr": "Suç ortağı tanıklığa döndü."},
+      {"en": "Two coconspirators were never found.", "tr": "İki suç ortağı hiç bulunamadı."},
+      {"en": "He named his coconspirator.", "tr": "Suç ortağının adını verdi."}
+    ]
+  },
+  "gen-b9-rawness-n": {
+    "turkishMeanings": ["çiğlik", "acemilik", "sızlayan yüzey"],
+    "examples": [
+      {"en": "The rawness of the wound hurt.", "tr": "Yaranın sızlayan yüzeyi acıttı."},
+      {"en": "His rawness showed in the first game.", "tr": "Acemiliği ilk maçta belli oldu."},
+      {"en": "A damp rawness filled the air.", "tr": "Havayı nemli bir çiğlik doldurdu."}
+    ]
+  },
+  "gen-b9-sartorial-adj": {
+    "turkishMeanings": ["giyim kuşamla ilgili", "terzilikle ilgili"],
+    "examples": [
+      {"en": "He has real sartorial flair.", "tr": "Gerçek bir giyim zevki var."},
+      {"en": "Sartorial standards fell over time.", "tr": "Giyim standartları zamanla düştü."},
+      {"en": "The sartorial detail matters here.", "tr": "Burada giyim ayrıntısı önemli."}
+    ]
+  },
+  "gen-b9-sixpack-n": {
+    "turkishMeanings": ["altılı paket", "altı şişelik kutu"],
+    "examples": [
+      {"en": "He bought a sixpack of water.", "tr": "Altılı bir su paketi aldı."},
+      {"en": "The sixpack costs less than singles.", "tr": "Altılı paket tek tek almaktan ucuz."},
+      {"en": "She carried a sixpack to the picnic.", "tr": "Pikniğe altılı bir paket götürdü."}
+    ]
+  },
+  "gen-b9-conciliation-n": {
+    "turkishMeanings": ["uzlaştırma", "gönül alma", "arabuluculuk"],
+    "examples": [
+      {"en": "Conciliation ended the strike.", "tr": "Uzlaştırma grevi bitirdi."},
+      {"en": "He offered conciliation, not blame.", "tr": "Suçlama değil, uzlaşma önerdi."},
+      {"en": "Conciliation is cheaper than court.", "tr": "Arabuluculuk mahkemeden ucuzdur."}
+    ]
+  },
+  "gen-b9-upended-adj": {
+    "turkishMeanings": ["baş aşağı çevrilmiş", "devrilmiş", "altüst olmuş"],
+    "examples": [
+      {"en": "An upended crate served as a table.", "tr": "Ters çevrilmiş bir kasa masa görevi gördü."},
+      {"en": "The boat lay upended on the sand.", "tr": "Tekne kumda devrilmiş yatıyordu."},
+      {"en": "Their plans were left upended.", "tr": "Planları altüst olmuş hâlde kaldı."}
+    ]
+  },
+  "gen-b9-falsification-n": {
+    "turkishMeanings": ["sahtecilik", "tahrif", "yanlışlama"],
+    "examples": [
+      {"en": "He was charged with falsification.", "tr": "Sahtecilikle suçlandı."},
+      {"en": "Falsification of records is a crime.", "tr": "Kayıtların tahrifi suçtur."},
+      {"en": "Science advances by falsification.", "tr": "Bilim yanlışlamayla ilerler."}
+    ]
+  },
+  "gen-b9-gobsmacked-adj": {
+    "turkishMeanings": ["ağzı açık kalmış", "şoke olmuş"],
+    "examples": [
+      {"en": "I was gobsmacked by the news.", "tr": "Haber karşısında ağzım açık kaldı."},
+      {"en": "She looked gobsmacked.", "tr": "Şoke olmuş görünüyordu."},
+      {"en": "The crowd stood gobsmacked.", "tr": "Kalabalık ağzı açık kalakaldı."}
+    ]
+  },
+  "gen-b9-starlit-adj": {
+    "turkishMeanings": ["yıldız ışığıyla aydınlanmış", "yıldızlı"],
+    "examples": [
+      {"en": "They walked on a starlit path.", "tr": "Yıldız ışığıyla aydınlanmış bir patikada yürüdüler."},
+      {"en": "The starlit sky was clear.", "tr": "Yıldızlı gökyüzü açıktı."},
+      {"en": "A starlit night followed the storm.", "tr": "Fırtınadan sonra yıldızlı bir gece geldi."}
+    ]
+  },
+  "gen-b9-vigilantism-n": {
+    "turkishMeanings": ["kendi adaletini uygulama", "yasa dışı gözcülük"],
+    "examples": [
+      {"en": "Vigilantism spread after the murders.", "tr": "Cinayetlerden sonra kendi adaletini uygulama yayıldı."},
+      {"en": "The police warned against vigilantism.", "tr": "Polis kendi adaletini uygulamaya karşı uyardı."},
+      {"en": "Vigilantism never ends well.", "tr": "Kendi adaletini uygulamak hiç iyi bitmez."}
+    ]
+  },
+  "gen-b9-schnaps-n": {
+    "turkishMeanings": ["şnaps", "sert damıtık içki"],
+    "examples": [
+      {"en": "They drank schnaps after the meal.", "tr": "Yemekten sonra şnaps içtiler."},
+      {"en": "Schnaps is served ice cold.", "tr": "Şnaps buz gibi servis edilir."},
+      {"en": "One glass of schnaps was enough.", "tr": "Bir kadeh şnaps yetti."}
+    ]
+  },
+  "gen-b9-rearmament-n": {
+    "turkishMeanings": ["yeniden silahlanma", "silahlanmanın tazelenmesi"],
+    "examples": [
+      {"en": "Rearmament began in secret.", "tr": "Yeniden silahlanma gizlice başladı."},
+      {"en": "The budget funded rearmament.", "tr": "Bütçe yeniden silahlanmayı finanse etti."},
+      {"en": "Rearmament alarmed the neighbours.", "tr": "Yeniden silahlanma komşuları tedirgin etti."}
+    ]
+  },
+  "gen-b9-doggedly-adv": {
+    "turkishMeanings": ["inatla", "bırakmadan", "azimle"],
+    "examples": [
+      {"en": "He worked doggedly at the problem.", "tr": "Soruna inatla çalıştı."},
+      {"en": "She doggedly refused to give up.", "tr": "İnatla pes etmeyi reddetti."},
+      {"en": "They followed the trail doggedly.", "tr": "İzi bırakmadan takip ettiler."}
+    ]
+  },
+  "gen-b9-predestination-n": {
+    "turkishMeanings": ["alınyazısı", "kader belirlenmişliği", "önceden takdir"],
+    "examples": [
+      {"en": "He argued against predestination.", "tr": "Kader belirlenmişliğine karşı çıktı."},
+      {"en": "Predestination leaves no room for choice.", "tr": "Önceden takdir seçime yer bırakmaz."},
+      {"en": "The sermon dealt with predestination.", "tr": "Vaaz alınyazısını ele aldı."}
+    ]
+  },
+  "gen-b9-crinkly-adj": {
+    "turkishMeanings": ["buruşuk", "kırışık", "dalgalı"],
+    "examples": [
+      {"en": "The paper is thin and crinkly.", "tr": "Kâğıt ince ve buruşuk."},
+      {"en": "She has crinkly grey hair.", "tr": "Kırışık gri saçları var."},
+      {"en": "A crinkly leaf fell on the table.", "tr": "Buruşuk bir yaprak masaya düştü."}
+    ]
+  },
+  "gen-b9-garfish-n": {
+    "turkishMeanings": ["zargana", "uzun çeneli sert pullu balık"],
+    "examples": [
+      {"en": "A garfish snapped at the bait.", "tr": "Bir zargana yeme saldırdı."},
+      {"en": "The garfish has needle-like teeth.", "tr": "Zarganaların iğne gibi dişleri vardır."},
+      {"en": "Garfish live in slow rivers.", "tr": "Zarganalar yavaş akan nehirlerde yaşar."}
+    ]
+  },
+  "gen-b9-uvula-n": {
+    "turkishMeanings": ["küçük dil", "uvula"],
+    "examples": [
+      {"en": "The doctor looked at his uvula.", "tr": "Doktor küçük diline baktı."},
+      {"en": "A swollen uvula makes swallowing hard.", "tr": "Şişmiş bir küçük dil yutmayı zorlaştırır."},
+      {"en": "The uvula hangs at the back of the palate.", "tr": "Küçük dil damağın arkasında sarkar."}
+    ]
+  },
+  "gen-b9-cadenza-n": {
+    "turkishMeanings": ["kadans", "solo gösteri bölümü"],
+    "examples": [
+      {"en": "The cadenza shows the soloist's skill.", "tr": "Kadans solistin becerisini gösterir."},
+      {"en": "He improvised the cadenza.", "tr": "Kadansı doğaçlama çaldı."},
+      {"en": "The cadenza comes before the final chord.", "tr": "Kadans son akordan önce gelir."}
+    ]
+  },
+  "gen-b9-catalepsy-n": {
+    "turkishMeanings": ["katalepsi", "kaskatı kesilme nöbeti"],
+    "examples": [
+      {"en": "Catalepsy left him rigid for hours.", "tr": "Katalepsi onu saatlerce kaskatı bıraktı."},
+      {"en": "The patient fell into catalepsy.", "tr": "Hasta katalepsi nöbetine girdi."},
+      {"en": "Catalepsy can follow severe shock.", "tr": "Ağır bir şoktan sonra katalepsi görülebilir."}
+    ]
+  },
+  "gen-b9-basilar-adj": {
+    "turkishMeanings": ["tabanla ilgili", "tabanda bulunan"],
+    "examples": [
+      {"en": "The basilar artery feeds the brainstem.", "tr": "Taban atardamarı beyin sapını besler."},
+      {"en": "A basilar fracture is serious.", "tr": "Kafa tabanı kırığı ciddidir."},
+      {"en": "The basilar membrane sits in the ear.", "tr": "Taban zarı kulakta bulunur."}
+    ]
+  },
+  "gen-b9-obligate-adj": {
+    "turkishMeanings": ["zorunlu", "başka seçeneği olmayan (biyolojide)"],
+    "examples": [
+      {"en": "This is an obligate parasite.", "tr": "Bu zorunlu bir asalaktır."},
+      {"en": "Obligate anaerobes die in oxygen.", "tr": "Zorunlu oksijensiz canlılar oksijende ölür."},
+      {"en": "The bird is an obligate migrant.", "tr": "Kuş zorunlu göçmendir."}
+    ]
+  },
+  "gen-b9-obligate-v": {
+    "turkishMeanings": ["yükümlü kılmak", "zorunda bırakmak", "taahhüt altına sokmak"],
+    "examples": [
+      {"en": "The contract obligates both parties.", "tr": "Sözleşme iki tarafı da yükümlü kılıyor."},
+      {"en": "Nothing obligates you to answer.", "tr": "Hiçbir şey seni yanıt vermeye zorunda bırakmıyor."},
+      {"en": "He obligated himself to repay it.", "tr": "Geri ödemeyi taahhüt etti."}
+    ]
+  },
+  "gen-b9-notepaper-n": {
+    "turkishMeanings": ["not kâğıdı", "mektup kâğıdı"],
+    "examples": [
+      {"en": "She wrote on blue notepaper.", "tr": "Mavi mektup kâğıdına yazdı."},
+      {"en": "The notepaper bore her initials.", "tr": "Not kâğıdında baş harfleri vardı."},
+      {"en": "He ran out of notepaper.", "tr": "Not kâğıdı bitti."}
+    ]
+  },
+  "gen-b9-uselessness-n": {
+    "turkishMeanings": ["işe yaramazlık", "faydasızlık"],
+    "examples": [
+      {"en": "The uselessness of the tool annoyed him.", "tr": "Aletin işe yaramazlığı onu sinirlendirdi."},
+      {"en": "He felt his own uselessness keenly.", "tr": "Kendi faydasızlığını keskin biçimde hissetti."},
+      {"en": "The uselessness of the rule is obvious.", "tr": "Kuralın faydasızlığı ortada."}
+    ]
+  },
+  "gen-b9-adaptor-n": {
+    "turkishMeanings": ["adaptör", "uyum sağlayıcı ara parça"],
+    "examples": [
+      {"en": "You need an adaptor for this plug.", "tr": "Bu fiş için adaptör gerekiyor."},
+      {"en": "The adaptor converts the voltage.", "tr": "Adaptör gerilimi çeviriyor."},
+      {"en": "He lost the adaptor on the trip.", "tr": "Adaptörü yolculukta kaybetti."}
+    ]
+  },
+  "gen-b9-pukka-adj": {
+    "turkishMeanings": ["hakiki", "birinci sınıf", "sahici"],
+    "examples": [
+      {"en": "That is a pukka piece of work.", "tr": "Bu birinci sınıf bir iş."},
+      {"en": "He calls himself a pukka sailor.", "tr": "Kendine hakiki bir denizci diyor."},
+      {"en": "The house is pukka, built of brick.", "tr": "Ev sağlam, tuğladan yapılmış."}
+    ]
+  },
+  "gen-b9-rapidity-n": {
+    "turkishMeanings": ["hız", "çabukluk", "süratlilik"],
+    "examples": [
+      {"en": "The rapidity of the change shocked them.", "tr": "Değişimin hızı onları sarstı."},
+      {"en": "He answered with surprising rapidity.", "tr": "Şaşırtıcı bir çabuklukla yanıt verdi."},
+      {"en": "Rapidity matters more than force here.", "tr": "Burada hız güçten önemli."}
+    ]
+  },
+  "gen-b9-creatine-n": {
+    "turkishMeanings": ["kreatin", "kas enerjisi sağlayan amino asit"],
+    "examples": [
+      {"en": "Athletes sometimes take creatine.", "tr": "Sporcular bazen kreatin alır."},
+      {"en": "Creatine is stored in muscle.", "tr": "Kreatin kasta depolanır."},
+      {"en": "Creatine supplies quick energy.", "tr": "Kreatin hızlı enerji sağlar."}
+    ]
+  },
+  "gen-b9-oriel-n": {
+    "turkishMeanings": ["cumba penceresi", "dışa taşkın pencere"],
+    "examples": [
+      {"en": "Light poured through the oriel.", "tr": "Işık cumba penceresinden döküldü."},
+      {"en": "The oriel juts over the street.", "tr": "Cumba sokağın üstüne taşıyor."},
+      {"en": "She sat in the oriel to read.", "tr": "Okumak için cumbaya oturdu."}
+    ]
+  },
+  "gen-b9-skein-n": {
+    "turkishMeanings": ["yün çilesi", "iplik kangalı"],
+    "examples": [
+      {"en": "She bought two skeins of wool.", "tr": "İki çile yün aldı."},
+      {"en": "The skein tangled in her bag.", "tr": "Çile çantasında dolandı."},
+      {"en": "A skein of yarn lay on the chair.", "tr": "Sandalyede bir çile iplik duruyordu."}
+    ]
+  },
+  "gen-b9-macaque-n": {
+    "turkishMeanings": ["makak maymunu", "kısa kuyruklu maymun"],
+    "examples": [
+      {"en": "A macaque stole the fruit.", "tr": "Bir makak meyveyi çaldı."},
+      {"en": "The macaque lives among the rocks.", "tr": "Makak kayaların arasında yaşar."},
+      {"en": "Macaques form large troops.", "tr": "Makaklar büyük gruplar oluşturur."}
+    ]
+  },
+  "gen-b9-unsalted-adj": {
+    "turkishMeanings": ["tuzsuz", "tuz katılmamış"],
+    "examples": [
+      {"en": "Use unsalted butter for the cake.", "tr": "Kek için tuzsuz tereyağı kullan."},
+      {"en": "The nuts are unsalted.", "tr": "Kuruyemişler tuzsuz."},
+      {"en": "He eats unsalted food for his heart.", "tr": "Kalbi için tuzsuz besleniyor."}
+    ]
+  },
+  "gen-b9-bicuspid-adj": {
+    "turkishMeanings": ["iki tepeli", "çift uçlu"],
+    "examples": [
+      {"en": "The bicuspid valve has two flaps.", "tr": "İki tepeli kapağın iki yaprağı vardır."},
+      {"en": "A bicuspid tooth grinds the food.", "tr": "İki tepeli bir diş yiyeceği öğütür."},
+      {"en": "He was born with a bicuspid valve.", "tr": "İki tepeli bir kapakla doğdu."}
+    ]
+  },
+  "gen-b9-bicuspid-n": {
+    "turkishMeanings": ["küçük azı dişi", "premolar"],
+    "examples": [
+      {"en": "The dentist filled a bicuspid.", "tr": "Diş hekimi bir küçük azıyı doldurdu."},
+      {"en": "A bicuspid sits between the canine and molar.", "tr": "Küçük azı köpek dişiyle azı arasındadır."},
+      {"en": "He lost a bicuspid in the fall.", "tr": "Düşerken bir küçük azısını kaybetti."}
+    ]
+  },
+  "gen-b9-digitize-v": {
+    "turkishMeanings": ["sayısallaştırmak", "dijital ortama aktarmak"],
+    "examples": [
+      {"en": "They digitize old newspapers.", "tr": "Eski gazeteleri sayısallaştırıyorlar."},
+      {"en": "He digitized the whole archive.", "tr": "Bütün arşivi dijital ortama aktardı."},
+      {"en": "Digitize the tape before it decays.", "tr": "Kaset bozulmadan sayısallaştır."}
+    ]
+  },
+  "gen-b9-dissociation-n": {
+    "turkishMeanings": ["ayrışma", "kopma", "çözünme (kimyada)"],
+    "examples": [
+      {"en": "The salt undergoes dissociation in water.", "tr": "Tuz suda ayrışmaya uğrar."},
+      {"en": "Dissociation protected him from the memory.", "tr": "Kopma onu anıdan korudu."},
+      {"en": "There was a clear dissociation of the two groups.", "tr": "İki grubun açık bir ayrışması vardı."}
+    ]
+  },
+  "gen-b9-unorganized-adj": {
+    "turkishMeanings": ["örgütsüz", "düzensiz", "sendikasız"],
+    "examples": [
+      {"en": "The workers here are unorganized.", "tr": "Buradaki işçiler sendikasız."},
+      {"en": "His notes are entirely unorganized.", "tr": "Notları tümüyle düzensiz."},
+      {"en": "An unorganized crowd achieves little.", "tr": "Örgütsüz bir kalabalık az şey başarır."}
+    ]
+  },
+  "gen-b9-individualist-adj": {
+    "turkishMeanings": ["bireyci", "kendine özgü davranan"],
+    "examples": [
+      {"en": "He has an individualist streak.", "tr": "Bireyci bir yanı var."},
+      {"en": "Her individualist style stands out.", "tr": "Kendine özgü üslubu öne çıkıyor."},
+      {"en": "An individualist approach can isolate you.", "tr": "Bireyci bir yaklaşım seni yalnızlaştırabilir."}
+    ]
+  },
+  "gen-b9-individualist-n": {
+    "turkishMeanings": ["bireyci", "kendi yolunu çizen kimse"],
+    "examples": [
+      {"en": "The individualist refused the group plan.", "tr": "Bireyci grup planını reddetti."},
+      {"en": "She is an individualist at heart.", "tr": "İçten içe bir bireyci."},
+      {"en": "An individualist rarely follows fashion.", "tr": "Bireyci biri modayı nadiren izler."}
+    ]
+  },
+  "gen-b9-panoply-n": {
+    "turkishMeanings": ["görkemli dizi", "tam takım", "gösterişli kuşam"],
+    "examples": [
+      {"en": "A panoply of flags lined the street.", "tr": "Sokağı görkemli bir bayrak dizisi süsledi."},
+      {"en": "He arrived in the full panoply of office.", "tr": "Makamın bütün gösterişiyle geldi."},
+      {"en": "The shop offers a panoply of choices.", "tr": "Dükkân görkemli bir seçenek dizisi sunuyor."}
+    ]
+  },
+  "gen-b9-slipshod-adj": {
+    "turkishMeanings": ["özensiz", "baştan savma", "savruk"],
+    "examples": [
+      {"en": "The work was slipshod.", "tr": "İş özensizdi."},
+      {"en": "He has slipshod habits.", "tr": "Savruk alışkanlıkları var."},
+      {"en": "A slipshod check missed the fault.", "tr": "Baştan savma bir denetim arızayı kaçırdı."}
+    ]
+  },
+  "gen-b9-gannet-n": {
+    "turkishMeanings": ["sümsük kuşu", "dalış yapan iri deniz kuşu"],
+    "examples": [
+      {"en": "A gannet plunged after the fish.", "tr": "Bir sümsük kuşu balığın peşinden daldı."},
+      {"en": "The gannet has a long stout bill.", "tr": "Sümsük kuşunun uzun ve kalın bir gagası vardır."},
+      {"en": "Gannets nest on the cliff.", "tr": "Sümsük kuşları kayalıkta yuva yapar."}
+    ]
+  },
+  "gen-b9-faecal-adj": {
+    "turkishMeanings": ["dışkıyla ilgili", "gaitaya ait"],
+    "examples": [
+      {"en": "They tested for faecal bacteria.", "tr": "Dışkı kaynaklı bakteri için test yaptılar."},
+      {"en": "Faecal contamination closed the beach.", "tr": "Dışkı bulaşması plajı kapattı."},
+      {"en": "A faecal sample was sent to the lab.", "tr": "Laboratuvara bir dışkı örneği gönderildi."}
+    ]
+  },
+  "gen-b9-ovulate-v": {
+    "turkishMeanings": ["yumurtlamak", "yumurta bırakmak"],
+    "examples": [
+      {"en": "Most women ovulate once a month.", "tr": "Çoğu kadın ayda bir yumurtlar."},
+      {"en": "The hen ovulates almost daily.", "tr": "Tavuk neredeyse her gün yumurtlar."},
+      {"en": "Stress can stop you ovulating.", "tr": "Stres yumurtlamayı durdurabilir."}
+    ]
+  },
+  "gen-b9-supercharge-v": {
+    "turkishMeanings": ["aşırı beslemek", "gücünü artırmak", "basıncı yükseltmek"],
+    "examples": [
+      {"en": "They supercharged the engine.", "tr": "Motoru aşırı beslediler."},
+      {"en": "The grant supercharged the project.", "tr": "Hibe projenin gücünü artırdı."},
+      {"en": "A pump supercharges the intake.", "tr": "Bir pompa emme havasının basıncını yükseltiyor."}
+    ]
+  },
+  "gen-b9-horseflesh-n": {
+    "turkishMeanings": ["at eti", "atlar (topluca)"],
+    "examples": [
+      {"en": "Horseflesh was sold cheaply then.", "tr": "O dönem at eti ucuza satılıyordu."},
+      {"en": "He is a good judge of horseflesh.", "tr": "At konusunda iyi bir bilirkişidir."},
+      {"en": "The market deals in horseflesh.", "tr": "Pazar at alım satımı yapıyor."}
+    ]
+  },
+  "gen-b9-carrel-n": {
+    "turkishMeanings": ["kütüphane çalışma bölmesi", "tek kişilik okuma yeri"],
+    "examples": [
+      {"en": "He booked a carrel for the week.", "tr": "Hafta boyunca bir çalışma bölmesi ayırttı."},
+      {"en": "The carrel has a lamp and a shelf.", "tr": "Bölmede bir lamba ve bir raf var."},
+      {"en": "She left her books in the carrel.", "tr": "Kitaplarını çalışma bölmesinde bıraktı."}
+    ]
+  },
+  "gen-b9-trillionth-adj": {
+    "turkishMeanings": ["trilyonuncu"],
+    "examples": [
+      {"en": "This is the trillionth digit.", "tr": "Bu trilyonuncu basamak."},
+      {"en": "They computed the trillionth term.", "tr": "Trilyonuncu terimi hesapladılar."},
+      {"en": "The trillionth case is hypothetical.", "tr": "Trilyonuncu durum varsayımsaldır."}
+    ]
+  },
+  "gen-b9-trillionth-n": {
+    "turkishMeanings": ["trilyonda bir", "trilyonuncu pay"],
+    "examples": [
+      {"en": "A trillionth of a second is tiny.", "tr": "Saniyenin trilyonda biri çok küçüktür."},
+      {"en": "They measured to a trillionth.", "tr": "Trilyonda bire kadar ölçtüler."},
+      {"en": "Even a trillionth counts here.", "tr": "Burada trilyonda bir bile önemlidir."}
+    ]
+  },
+  "gen-b9-subwoofer-n": {
+    "turkishMeanings": ["derin bas hoparlör", "subwoofer"],
+    "examples": [
+      {"en": "The subwoofer shook the floor.", "tr": "Bas hoparlör zemini sarstı."},
+      {"en": "He placed the subwoofer in the corner.", "tr": "Bas hoparlörü köşeye koydu."},
+      {"en": "A subwoofer handles the lowest notes.", "tr": "Subwoofer en pes notaları üstlenir."}
+    ]
+  },
+  "gen-b9-fetishism-n": {
+    "turkishMeanings": ["fetişizm", "nesneye kutsallık atfetme", "nesne takıntısı"],
+    "examples": [
+      {"en": "The study examines fetishism.", "tr": "Araştırma fetişizmi inceliyor."},
+      {"en": "Fetishism can mean object worship.", "tr": "Fetişizm nesneye tapınma anlamına gelebilir."},
+      {"en": "He wrote about commodity fetishism.", "tr": "Meta fetişizmi üzerine yazdı."}
+    ]
+  },
+  "gen-b9-voluminous-adj": {
+    "turkishMeanings": ["hacimli", "bol", "çok sayfalı"],
+    "examples": [
+      {"en": "She wore a voluminous cloak.", "tr": "Bol bir pelerin giymişti."},
+      {"en": "He left voluminous notes.", "tr": "Ardında çok sayfalı notlar bıraktı."},
+      {"en": "The file is voluminous and dull.", "tr": "Dosya hacimli ve sıkıcı."}
+    ]
+  },
+  "gen-b9-unformed-adj": {
+    "turkishMeanings": ["biçimlenmemiş", "şekilsiz", "henüz oluşmamış"],
+    "examples": [
+      {"en": "The idea is still unformed.", "tr": "Fikir hâlâ biçimlenmemiş."},
+      {"en": "An unformed mass lay in the mould.", "tr": "Kalıpta şekilsiz bir kütle duruyordu."},
+      {"en": "His plans remain unformed.", "tr": "Planları henüz oluşmadı."}
+    ]
+  },
+  "gen-b9-doubleheader-n": {
+    "turkishMeanings": ["aynı gün oynanan iki maç", "çifte karşılaşma"],
+    "examples": [
+      {"en": "They won the doubleheader.", "tr": "Çifte karşılaşmayı kazandılar."},
+      {"en": "A doubleheader tires the pitchers.", "tr": "Çifte maç atıcıları yorar."},
+      {"en": "The doubleheader starts at noon.", "tr": "Çifte karşılaşma öğlen başlıyor."}
+    ]
+  },
+  "gen-b9-flimflam-n": {
+    "turkishMeanings": ["dolandırıcılık", "kandırmaca", "laf salatası"],
+    "examples": [
+      {"en": "The scheme was pure flimflam.", "tr": "Düzenek tam bir dolandırıcılıktı."},
+      {"en": "Do not fall for that flimflam.", "tr": "O kandırmacaya kanma."},
+      {"en": "He sold flimflam to the tourists.", "tr": "Turistlere kandırmaca sattı."}
+    ]
+  },
+  "gen-b9-deadpan-adj": {
+    "turkishMeanings": ["ifadesiz", "istifini bozmadan yapılan"],
+    "examples": [
+      {"en": "He has a deadpan delivery.", "tr": "İfadesiz bir anlatımı var."},
+      {"en": "Her deadpan humour kills.", "tr": "İstifini bozmadan yaptığı mizah öldürücü."},
+      {"en": "A deadpan look met the question.", "tr": "Soruyu ifadesiz bir bakış karşıladı."}
+    ]
+  },
+  "gen-b9-deadpan-adv": {
+    "turkishMeanings": ["ifadesizce", "istifini bozmadan"],
+    "examples": [
+      {"en": "He said it deadpan.", "tr": "Bunu istifini bozmadan söyledi."},
+      {"en": "She delivered the line deadpan.", "tr": "Repliği ifadesizce söyledi."},
+      {"en": "They stared deadpan at the camera.", "tr": "Kameraya ifadesizce baktılar."}
+    ]
+  },
+  "gen-b9-jowl-n": {
+    "turkishMeanings": ["gerdan", "sarkık yanak", "alt çene"],
+    "examples": [
+      {"en": "Age gave him a heavy jowl.", "tr": "Yaş ona ağır bir gerdan verdi."},
+      {"en": "The dog shook its jowl.", "tr": "Köpek sarkık yanağını salladı."},
+      {"en": "He rubbed his unshaven jowl.", "tr": "Tıraşsız çenesini ovuşturdu."}
+    ]
+  },
+  "gen-b9-manque-adj": {
+    "turkishMeanings": ["olamamış", "hevesi kursağında kalmış"],
+    "examples": [
+      {"en": "He is a poet manque.", "tr": "Olamamış bir şairdir."},
+      {"en": "She calls herself an actress manque.", "tr": "Kendine olamamış oyuncu diyor."},
+      {"en": "A scientist manque took the job.", "tr": "Hevesi kursağında kalmış bir bilim insanı işi aldı."}
+    ]
+  }
+}
