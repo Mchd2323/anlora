@@ -28,19 +28,25 @@ import build_bands  # noqa: E402
 
 CONTENT_DIR = 'scripts/extended/content'
 
-# Kiril harfleri Latin harflerine gorsel olarak ozdes oldugu icin metne fark
-# edilmeden karisir: "kereste" icindeki 's' Kiril 's' olursa sozcuk ekranda
-# dogru gorunur ama arama, siralama ve seslendirme kirilir. Iki kayitta tam
-# bunun oldugu olculdu; goz denetimi yakalamadi, bu suzgec yakaladi.
-KIRIL = re.compile(r'[\u0400-\u04FF]')
+# Latin disi harfler metne fark edilmeden karisir. Iki kaynagi olculdu:
+# Kiril harfleri Latin harflerine gorsel olarak ozdes ("kereste" icindeki s),
+# CJK karakterleri ise bosluk yerine gecerek ("before<CJK> use") gozden kaciyor.
+# Sozcuk ekranda dogru ya da neredeyse dogru gorunuyor; arama, siralama ve
+# seslendirme kiriliyor. Goz denetimi ucunu de yakalamadi, bu suzgec yakaladi.
+#
+# Izin verilen: ASCII, Turkce harfler (Latin-1 Ek ve Latin Genisletilmis-A),
+# noktalama ve para birimi isaretleri. Geri kalan her sey kusur sayilir.
+IZINLI = re.compile(
+    r'^[\u0020-\u007E\u00A0-\u017F\u2018\u2019\u201C\u201D\u2013\u2014\u2026]*$'
+)
 
 
 def yabanci_harf(payload):
-    """Metinde Latin disi (Kiril) harf tasiyan parcalari dondurur."""
+    """Metinde Latin disi karakter tasiyan parcalari dondurur."""
     parcalar = list(payload.get('turkishMeanings') or [])
     for ornek in payload.get('examples') or []:
         parcalar.extend([ornek.get('tr') or '', ornek.get('en') or ''])
-    return [p for p in parcalar if KIRIL.search(p)]
+    return [p for p in parcalar if not IZINLI.match(p)]
 
 
 def main():
@@ -84,7 +90,7 @@ def main():
                 print(f'KUSUR  {sid}: {sorun}')
                 kusur += 1
             for metin in yabanci_harf(payload):
-                print(f'KIRIL HARF  {sid}: {metin}')
+                print(f'LATIN DISI KARAKTER  {sid}: {metin}')
                 kusur += 1
 
     print(f'--- {sayi} kayıt denetlendi, {kusur} kusur')
