@@ -20,12 +20,27 @@ Kullanım:
 import glob
 import json
 import os
+import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import build_bands  # noqa: E402
 
 CONTENT_DIR = 'scripts/extended/content'
+
+# Kiril harfleri Latin harflerine gorsel olarak ozdes oldugu icin metne fark
+# edilmeden karisir: "kereste" icindeki 's' Kiril 's' olursa sozcuk ekranda
+# dogru gorunur ama arama, siralama ve seslendirme kirilir. Iki kayitta tam
+# bunun oldugu olculdu; goz denetimi yakalamadi, bu suzgec yakaladi.
+KIRIL = re.compile(r'[\u0400-\u04FF]')
+
+
+def yabanci_harf(payload):
+    """Metinde Latin disi (Kiril) harf tasiyan parcalari dondurur."""
+    parcalar = list(payload.get('turkishMeanings') or [])
+    for ornek in payload.get('examples') or []:
+        parcalar.extend([ornek.get('tr') or '', ornek.get('en') or ''])
+    return [p for p in parcalar if KIRIL.search(p)]
 
 
 def main():
@@ -67,6 +82,9 @@ def main():
             word, pos = bilinen[sid]
             for sorun in build_bands.validate(word, pos, payload, path):
                 print(f'KUSUR  {sid}: {sorun}')
+                kusur += 1
+            for metin in yabanci_harf(payload):
+                print(f'KIRIL HARF  {sid}: {metin}')
                 kusur += 1
 
     print(f'--- {sayi} kayıt denetlendi, {kusur} kusur')
