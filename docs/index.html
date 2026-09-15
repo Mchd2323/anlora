@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Anlora — Gizlilik Politikası</title>
+<style>
+  :root{
+    --bg:#faf9f7; --fg:#1c1a17; --muted:#5d574e; --line:#e3ded6;
+    --card:#ffffff; --accent:#7a5c3e; --warn-bg:#fdf6e7; --warn-line:#e8d5a8;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#161513; --fg:#eceae6; --muted:#a49c90; --line:#2e2b27;
+      --card:#1e1c19; --accent:#c9a87c; --warn-bg:#262017; --warn-line:#4a3d28;
+      color-scheme: dark;
+    }
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    -webkit-text-size-adjust:100%;
+  }
+  .wrap{max-width:46rem; margin:0 auto; padding:2.5rem 1.25rem 4rem}
+  header{border-bottom:1px solid var(--line); padding-bottom:1.5rem; margin-bottom:2rem}
+  .brand{font-size:.8rem; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); font-weight:600; margin:0 0 .6rem}
+  h1{font-size:1.9rem; line-height:1.25; margin:0 0 .6rem; letter-spacing:-.01em}
+  .date{color:var(--muted); font-size:.9rem; margin:0}
+  h2{font-size:1.2rem; margin:2.4rem 0 .8rem; letter-spacing:-.01em}
+  h2:first-of-type{margin-top:1.6rem}
+  h3{font-size:1rem; margin:1.6rem 0 .5rem}
+  p{margin:0 0 1rem}
+  ul{margin:0 0 1rem; padding-left:1.3rem}
+  li{margin-bottom:.5rem}
+  a{color:var(--accent)}
+  strong{font-weight:650}
+  .lead{font-size:1.05rem; color:var(--muted)}
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:1.1rem 1.25rem; margin:0 0 1.2rem;
+  }
+  .card p:last-child,.card ul:last-child{margin-bottom:0}
+  .warn{background:var(--warn-bg); border-color:var(--warn-line)}
+  .tag{
+    display:inline-block; font-size:.75rem; font-weight:600; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--accent); margin-bottom:.5rem;
+  }
+  table{width:100%; border-collapse:collapse; margin:0 0 1.2rem; font-size:.94rem}
+  th,td{text-align:left; padding:.6rem .5rem; border-bottom:1px solid var(--line); vertical-align:top}
+  th{font-weight:650; color:var(--muted); font-size:.82rem; text-transform:uppercase; letter-spacing:.05em}
+  .scroll{overflow-x:auto}
+  footer{margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--line); color:var(--muted); font-size:.9rem}
+  .en{margin-top:3.5rem; padding-top:2rem; border-top:2px solid var(--line)}
+  code{
+    background:var(--card); border:1px solid var(--line); border-radius:4px;
+    padding:.1rem .35rem; font-size:.88em;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="brand">Anlora</p>
+  <h1>Gizlilik Politikası</h1>
+  <p class="date">Yürürlük tarihi: 15 Eylül 2026</p>
+</header>
+
+<p class="lead">
+  Anlora, İngilizce kelime öğrenmek için kullanılan bir mobil uygulamadır.
+  Kısa cevap: <strong>hesap açmanız istenmez, kimliğiniz sorulmaz ve
+  öğrenme verileriniz telefonunuzdan çıkmaz.</strong> Aşağıda bunun tek
+  istisnasını ve verinin tam olarak nereye gittiğini anlatıyoruz.
+</p>
+
+<h2>1. Hesap yok, kimlik yok</h2>
+<div class="card">
+  <p>
+    Anlora'da üyelik sistemi yoktur. Uygulamayı kullanmak için ad, e-posta,
+    telefon numarası ya da herhangi bir hesap bilgisi vermezsiniz. Sizi
+    tanımlayan bir kullanıcı kimliği, reklam kimliği ya da cihaz parmak izi
+    üretilmez ve saklanmaz.
+  </p>
+</div>
+
+<h2>2. Öğrenme verileriniz telefonunuzda kalır</h2>
+<p>
+  Eklediğiniz kelimeler, oluşturduğunuz setler, sınav sonuçlarınız, günlük
+  seriniz ve tüm ayarlarınız yalnızca cihazınızın kendi deposunda tutulur.
+  Bu veriler Anlora'nın sunucularına gönderilmez, çünkü böyle bir sunucu
+  yoktur.
+</p>
+<p>
+  Uygulamanın 30.000'den fazla kelimelik sözlüğü de uygulamanın içine
+  gömülüdür. Kelime aramak, çalışmak ve sınav olmak için internet
+  bağlantısı gerekmez.
+</p>
+
+<h2>3. Google yedeği</h2>
+<div class="card">
+  <p>
+    Android'in otomatik yedekleme özelliği açıktır. Bu, kelimelerinizin ve
+    setlerinizin <strong>sizin kendi Google hesabınıza</strong> yedeklendiği
+    anlamına gelir; böylece telefonunuzu değiştirdiğinizde verileriniz yeni
+    cihaza kendiliğinden gelir.
+  </p>
+  <p>
+    Bu yedek Google ile sizin aranızdadır. Anlora bu yedeğe erişemez, onu
+    okuyamaz ve silemez.
+  </p>
+</div>
+<div class="card warn">
+  <p class="tag">Bilmeniz gereken</p>
+  <p>
+    Uygulama içindeki <strong>"Tüm verileri sıfırla"</strong> seçeneği yalnızca
+    telefonunuzdaki veriyi siler. Google'ın sunucusundaki yedek kopyaya
+    dokunamaz, çünkü bir uygulamanın kendi bulut yedeğini silme yetkisi
+    yoktur. Sıfırladıktan sonra uygulamayı kaldırıp yeniden kurarsanız,
+    sıfırlamadan önceki verileriniz geri gelebilir.
+  </p>
+  <p>
+    Buluttaki kopyayı tamamen silmek için:
+    <strong>Google One &rsaquo; Depolama &rsaquo; Cihaz yedekleri</strong>
+    yolunu izleyin.
+  </p>
+</div>
+
+<h2>4. Yapay zekâ — verinin dışarı çıktığı tek yer</h2>
+<p>
+  Aradığınız kelime uygulamanın gömülü sözlüğünde <em>bulunamazsa</em>, ve
+  yalnızca o zaman, Anlora o kelime için karşılık ve örnek cümle üretmek
+  üzere yapay zekâya başvurur.
+</p>
+
+<div class="scroll">
+<table>
+  <thead>
+    <tr><th>Ne zaman</th><th>Ne gönderilir</th><th>Nereye</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Yalnızca sözlükte olmayan bir kelime eklediğinizde</td>
+      <td>Yazdığınız kelimenin kendisi</td>
+      <td>Anlora'nın Cloudflare üzerindeki aracı servisi &rarr; Google Gemini</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+  Bu istekle birlikte adınız, e-postanız, konumunuz veya sizi tanımlayan
+  herhangi bir bilgi <strong>gönderilmez</strong>. Aracı servis gönderdiğiniz
+  kelimeyi kaydetmez, veritabanına yazmaz.
+</p>
+
+<div class="card warn">
+  <p class="tag">Önemli</p>
+  <p>
+    Anlora, Google Gemini'nin <strong>ücretsiz katmanını</strong> kullanmaktadır.
+    Google'ın ücretsiz katman koşulları gereği,
+    <strong>bu şekilde gönderilen kelimeler Google tarafından kendi
+    hizmetlerini geliştirmek amacıyla kullanılabilir ve bir süre
+    saklanabilir.</strong>
+  </p>
+  <p>
+    Bu nedenle: <strong>sözlükte bulunmayan bir kelime eklerken kişisel
+    bilgi, isim, adres, parola veya özel bir metin yazmayın.</strong> Bu alan
+    yalnızca İngilizce kelimeler içindir.
+  </p>
+  <p>
+    Google'ın bu verileri nasıl işlediği Google'ın kendi koşullarına tabidir:
+    <a href="https://ai.google.dev/gemini-api/terms" rel="noopener noreferrer">
+    ai.google.dev/gemini-api/terms</a>
+  </p>
+</div>
+
+<p>
+  Yapay zekâ özelliğini hiç kullanmak istemiyorsanız, sözlükte bulunmayan
+  kelimeleri eklemeyin ya da kelimenin karşılığını ve örneğini kendiniz
+  yazın. Uygulamanın geri kalan tüm özellikleri yapay zekâ olmadan tam
+  olarak çalışır.
+</p>
+
+<h2>5. Geri bildirim gönderdiğinizde</h2>
+<div class="card">
+  <p>
+    Uygulama içinden bize bildirim gönderdiğinizde, Anlora hazır bir e-posta
+    taslağı oluşturur ve telefonunuzun kendi e-posta uygulamasını açar.
+    Mesaj, siz "gönder"e basmadıkça hiçbir yere ulaşmaz.
+  </p>
+  <p>
+    Bu taslak; yazdığınız mesajı, varsa ilgili kelimeyi, isteğe bağlı olarak
+    verdiğiniz iletişim adresini ve sorunu anlayabilmemiz için cihaz/tarayıcı
+    bilgisinin ilk 60 karakterini içerir. Gönderdiğinizde bu bilgiler
+    <a href="mailto:anloramobil@gmail.com">anloramobil@gmail.com</a>
+    adresine ulaşır ve yalnızca bildiriminizi yanıtlamak için kullanılır.
+  </p>
+</div>
+
+<h2>6. Duyurular</h2>
+<p>
+  Uygulama, yeni sürüm ve duyuru bilgilerini içeren statik bir dosyayı
+  çekebilir. Bu istekte size ait hiçbir bilgi gönderilmez; sadece dosya
+  okunur.
+</p>
+
+<h2>7. Olmayan şeyler</h2>
+<div class="card">
+  <ul>
+    <li><strong>Reklam yok.</strong> Uygulamada hiçbir reklam ağı bulunmaz.</li>
+    <li><strong>Analitik ve izleme yok.</strong> Google Analytics, Firebase
+        Analytics, Facebook SDK veya benzeri hiçbir izleme aracı kullanılmaz.</li>
+    <li><strong>Üçüncü taraf izleyici yok.</strong> Davranışınız profillenmez,
+        reklam amacıyla hiçbir yere satılmaz veya aktarılmaz.</li>
+    <li><strong>Çerez yok.</strong> Uygulama içinde izleme çerezi kullanılmaz.</li>
+    <li><strong>Ücretli özellik ve abonelik yok.</strong></li>
+    <li><strong>Konum, kişiler, kamera, mikrofon, dosya erişimi yok.</strong></li>
+  </ul>
+</div>
+
+<h2>8. İstenen izinler</h2>
+<p>
+  Anlora yalnızca tek bir Android izni ister:
+</p>
+<div class="scroll">
+<table>
+  <thead><tr><th>İzin</th><th>Neden</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>INTERNET</code></td>
+      <td>
+        Yalnızca iki şey için: sözlükte bulunmayan bir kelime için yapay
+        zekâya başvurmak ve duyuru dosyasını okumak. Bunların hiçbirini
+        yapmıyorsanız uygulama ağa hiç çıkmaz.
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>9. Çocukların gizliliği</h2>
+<p>
+  Anlora genel kitleye yönelik bir öğrenme uygulamasıdır. Hiç kimseden —
+  yaşına bakılmaksızın — kişisel bilgi toplamadığı için, çocuklardan da
+  kişisel veri toplamaz.
+</p>
+
+<h2>10. Verilerinizi nasıl silersiniz</h2>
+<div class="card">
+  <ul>
+    <li>
+      <strong>Uygulama içinden:</strong> Profil ekranındaki
+      "Tüm verileri sıfırla" seçeneği telefonunuzdaki tüm kelime, set ve
+      ilerleme verinizi siler.
+    </li>
+    <li>
+      <strong>Tamamen kaldırmak için:</strong> Uygulamayı kaldırın. Cihazdaki
+      tüm veri silinir.
+    </li>
+    <li>
+      <strong>Google yedeğini de silmek için:</strong>
+      Google One &rsaquo; Depolama &rsaquo; Cihaz yedekleri yolundan Anlora
+      yedeğini kaldırın. (3. bölümdeki uyarıya bakın.)
+    </li>
+  </ul>
+  <p>
+    Bizde sizinle ilgili silinecek bir kayıt yoktur, çünkü hiçbir kaydınızı
+    tutmuyoruz. Yalnızca bize e-posta gönderdiyseniz o yazışma
+    posta kutumuzda kalır; silinmesini isterseniz aynı adrese yazmanız
+    yeterlidir.
+  </p>
+</div>
+
+<h2>11. Bu politikadaki değişiklikler</h2>
+<p>
+  Uygulamanın veri işleyişi değişirse bu sayfa güncellenir ve yukarıdaki
+  yürürlük tarihi yenilenir. Önemli bir değişiklik olursa uygulama içi
+  duyuruyla bildirilir.
+</p>
+
+<h2>12. İletişim</h2>
+<p>
+  Gizlilikle ilgili her soru için:
+  <a href="mailto:anloramobil@gmail.com">anloramobil@gmail.com</a>
+</p>
+
+<!-- ============ ENGLISH ============ -->
+<section class="en" lang="en">
+  <h2 style="margin-top:0">Privacy Policy (English summary)</h2>
+  <p class="date">Effective date: 15 September 2026</p>
+
+  <p>
+    Anlora is an English vocabulary learning app. <strong>There are no
+    accounts, no sign-up, and no identifiers.</strong> Your words, sets and
+    progress are stored only on your device and are never sent to any Anlora
+    server, because no such server exists.
+  </p>
+
+  <h3>Android backup</h3>
+  <p>
+    Android auto-backup is enabled, so your words and sets are backed up to
+    <strong>your own Google account</strong>. Anlora cannot read or delete
+    that backup. Note that the in-app "reset all data" option clears only the
+    copy on your phone; to remove the cloud copy, use Google One &rsaquo;
+    Storage &rsaquo; Device backups.
+  </p>
+
+  <h3>AI — the only data that leaves your device</h3>
+  <p>
+    If, and only if, a word you add is <em>not</em> found in the app's
+    built-in 30,000-word dictionary, that word is sent through Anlora's proxy
+    on Cloudflare to <strong>Google Gemini</strong> to generate a meaning and
+    example sentences. No name, email, location or identifier is sent with
+    it, and the proxy does not store the word.
+  </p>
+  <p>
+    <strong>Anlora uses the free tier of the Google Gemini API. Under
+    Google's free-tier terms, words sent this way may be used by Google to
+    improve its services and may be retained for a period.</strong> For this
+    reason, please do not type personal information, names, addresses or
+    passwords into the word field — it is intended for English words only.
+    See <a href="https://ai.google.dev/gemini-api/terms" rel="noopener noreferrer">Google's Gemini API terms</a>.
+  </p>
+  <p>
+    Every other feature of the app works fully without AI and without a
+    network connection.
+  </p>
+
+  <h3>Feedback</h3>
+  <p>
+    Sending feedback opens a pre-filled draft in your own email app; nothing
+    is transmitted unless you press send. The draft includes your message,
+    the related word if any, an optional contact address you choose to give,
+    and the first 60 characters of your device/browser string.
+  </p>
+
+  <h3>What Anlora does not do</h3>
+  <p>
+    No ads. No analytics or tracking SDKs. No third-party trackers. No
+    cookies. No paid features or subscriptions. No access to location,
+    contacts, camera, microphone or files. The only Android permission
+    requested is <code>INTERNET</code>.
+  </p>
+
+  <h3>Children</h3>
+  <p>
+    Anlora is a general-audience learning app. Because it collects no
+    personal information from anyone, it collects none from children.
+  </p>
+
+  <h3>Deleting your data</h3>
+  <p>
+    Use "reset all data" in the app, or uninstall the app, to remove
+    everything from your device; remove the Google backup separately via
+    Google One. We hold no records about you to delete.
+  </p>
+
+  <h3>Contact</h3>
+  <p><a href="mailto:anloramobil@gmail.com">anloramobil@gmail.com</a></p>
+</section>
+
+<footer>
+  <p>Anlora &middot; anloramobil@gmail.com</p>
+</footer>
+
+</div>
+</body>
+</html>
