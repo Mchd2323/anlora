@@ -130,7 +130,7 @@
         "tr": "Çocuk sabah ateşli belirtiler gösterdi."
       },
       {
-        "en": "Doctor noted a febrile condition during the exam.",
+        "en": "The doctor noted a febrile condition during the exam.",
         "tr": "Doktor muayene sırasında ateşli bir durum kaydetti."
       },
       {
@@ -565,7 +565,7 @@
     "turkishMeanings": [
       "kanıtlanmış",
       "onaylanmış",
-      "tesdik edilmiş"
+      "tasdik edilmiş"
     ],
     "examples": [
       {
@@ -604,13 +604,13 @@
   "gen-b9-sciatic-adj": {
     "turkishMeanings": [
       "siyatikle ilgili",
-      "siyatik hastası",
+      "siyatik sinire ait",
       "oturga kemiğine ait"
     ],
     "examples": [
       {
         "en": "He felt a sharp sciatic pain in his leg.",
-        "tr": "Bacağında keskin bir siyatrik ağrı hissetti."
+        "tr": "Bacağında keskin bir siyatik ağrı hissetti."
       },
       {
         "en": "The doctor examined the sciatic nerve closely.",
@@ -706,7 +706,7 @@
   "gen-b9-parity-n": {
     "turkishMeanings": [
       "doğum sayısı",
-      "tekliçiftlik",
+      "teklik-çiftlik",
       "parite"
     ],
     "examples": [
@@ -716,7 +716,7 @@
       },
       {
         "en": "Mathematical parity helps check number types.",
-        "tr": "Matematiksel tekliçiftlik sayı türlerini kontrol etmeye yardımcı olur."
+        "tr": "Matematiksel teklik-çiftlik sayı türlerini kontrol etmeye yardımcı olur."
       },
       {
         "en": "The computer protocol uses parity bits for errors.",
@@ -934,7 +934,7 @@
     "turkishMeanings": [
       "bolluk",
       "aşırı bolluk",
-      "fransızca"
+      "taşkınlık"
     ],
     "examples": [
       {
@@ -943,7 +943,7 @@
       },
       {
         "en": "Data is available in a profusion of formats.",
-        "tr": "Veriler bolca formatta mevcuttur."
+        "tr": "Veriler pek çok formatta mevcuttur."
       },
       {
         "en": "He spoke with a profusion of details.",
@@ -1025,7 +1025,7 @@
       },
       {
         "en": "The island has an insular community.",
-        "tr": "Adanın adalı bir topluluğu var."
+        "tr": "Adada kendi içine kapalı bir topluluk var."
       },
       {
         "en": "His insular mindset prevented new ideas.",
@@ -1077,29 +1077,29 @@
   },
   "gen-b9-allegorical-adj": {
     "turkishMeanings": [
-      "allegorik",
+      "alegorik",
       "sembolik",
       "mecazi"
     ],
     "examples": [
       {
         "en": "The book has an allegorical meaning.",
-        "tr": "Kitabın allegorik bir anlamı var."
+        "tr": "Kitabın alegorik bir anlamı var."
       },
       {
         "en": "It is an allegorical tale about society.",
-        "tr": "Bu, toplum hakkında allegorik bir masaldır."
+        "tr": "Bu, toplum hakkında alegorik bir masaldır."
       },
       {
         "en": "The painting uses allegorical figures.",
-        "tr": "Tablo allegorik figürler kullanıyor."
+        "tr": "Tablo alegorik figürler kullanıyor."
       }
     ]
   },
   "gen-b9-nebulous-adj": {
     "turkishMeanings": [
       "belirsiz",
-      "siluet gibi",
+      "bulanık",
       "net olmayan"
     ],
     "examples": [
@@ -1112,8 +1112,8 @@
         "tr": "Plan hâlâ belirsiz ve net değildi."
       },
       {
-        "en": "We saw a nebulous cloud in the sky.",
-        "tr": "Gökyüzünde bulutsu bir bulut gördük."
+        "en": "A nebulous haze hung over the valley.",
+        "tr": "Vadinin üzerinde bulanık bir pus asılıydı."
       }
     ]
   },
@@ -1175,7 +1175,7 @@
       },
       {
         "en": "The data suffered complete obliteration.",
-        "tr": "Veriler tamamen yok olma durumu yaşadı."
+        "tr": "Veriler tamamen silindi."
       }
     ]
   },
@@ -1196,7 +1196,7 @@
       },
       {
         "en": "The economic travail affected everyone.",
-        "tr": "Ekonomik zahmet herkesi etkiledi."
+        "tr": "Ekonomik sıkıntı herkesi etkiledi."
       }
     ]
   },
@@ -1284,7 +1284,7 @@
   "gen-b9-churlish-adj": {
     "turkishMeanings": [
       "kaba",
-      "hımgır",
+      "ters",
       "anlayışsız"
     ],
     "examples": [
@@ -1442,21 +1442,21 @@
   },
   "gen-b9-mediaeval-adj": {
     "turkishMeanings": [
-      "orta çağ'a ait",
-      "ortaçağ"
+      "Orta Çağ'a ait",
+      "Orta Çağ"
     ],
     "examples": [
       {
         "en": "They visited a mediaeval castle.",
-        "tr": "Ortaçağ'a ait bir kale ziyaret ettiler."
+        "tr": "Orta Çağ'a ait bir kale ziyaret ettiler."
       },
       {
         "en": "The town has mediaeval architecture.",
-        "tr": "Kasabanın ortaçağ mimarisi var."
+        "tr": "Kasabanın Orta Çağ mimarisi var."
       },
       {
         "en": "His ideas feel rather mediaeval.",
-        "tr": "Onun fikirleri oldukça orta çağ'a ait hissettiriyor."
+        "tr": "Onun fikirleri oldukça Orta Çağ'a ait hissettiriyor."
       }
     ]
   },
@@ -1494,7 +1494,7 @@
       },
       {
         "en": "Small streams meander across the wide valley.",
-        "tr": "Geniş vadinin boyunca küçük dereler kıvrıla kıvrıla akar."
+        "tr": "Geniş vadi boyunca küçük dereler kıvrıla kıvrıla akar."
       },
       {
         "en": "Tourists meander down the narrow cobblestone streets.",
@@ -1633,11 +1633,11 @@
         "tr": "Filtre, bir mikrondan küçük parçacıkları temizler."
       },
       {
-        "en": "This thin plastic film is only a few micron thick.",
+        "en": "This thin plastic film is only a few microns thick.",
         "tr": "Bu ince plastik film yalnızca birkaç mikron kalınlığındadır."
       },
       {
-        "en": "A human hair measures about seventy micron across.",
+        "en": "A human hair measures about seventy microns across.",
         "tr": "Bir insan saçı yaklaşık yetmiş mikron genişliğindedir."
       }
     ]
@@ -1910,7 +1910,7 @@
     "turkishMeanings": [
       "kanun çiğneyen",
       "suçlu",
-      "tecavüzcü"
+      "ihlal eden kimse"
     ],
     "examples": [
       {
@@ -2032,8 +2032,8 @@
   "gen-b9-buss-n": {
     "turkishMeanings": [
       "öpücük",
-      "otobüs",
-      "bar bağlantısı"
+      "yanaktan öpme",
+      "selam öpücüğü"
     ],
     "examples": [
       {
@@ -2041,20 +2041,20 @@
         "tr": "Annesinin yanağına tatlı bir öpücük kondurdu."
       },
       {
-        "en": "The old buss stopped at the corner.",
-        "tr": "Eski otobüs köşede durdu."
+        "en": "She gave him a quick buss before leaving.",
+        "tr": "Gitmeden önce ona hızlı bir öpücük verdi."
       },
       {
-        "en": "Check the power buss on the circuit board.",
-        "tr": "Devre kartındaki güç bar bağlantısını kontrol et."
+        "en": "A friendly buss on the cheek is a common greeting there.",
+        "tr": "Yanağa dostça bir öpücük orada yaygın bir selamlaşmadır."
       }
     ]
   },
   "gen-b9-buss-v": {
     "turkishMeanings": [
       "öpmek",
-      "otobüsle göndermek",
-      "otobüse binmek"
+      "yanağından öpmek",
+      "selam için öpmek"
     ],
     "examples": [
       {
@@ -2062,12 +2062,12 @@
         "tr": "Ona veda etmek için öpmeye çalıştı."
       },
       {
-        "en": "They had to buss the packages across town.",
-        "tr": "Paketleri şehir boyunca otobüsle göndermek zorunda kaldılar."
+        "en": "Grandparents always buss the children on arrival.",
+        "tr": "Büyükanne ve büyükbabalar gelince çocukları hep öper."
       },
       {
-        "en": "Let's buss to the city center.",
-        "tr": "Şehir merkezine otobüse binelim."
+        "en": "He leaned in to buss her cheek.",
+        "tr": "Yanağından öpmek için eğildi."
       }
     ]
   },
@@ -2119,7 +2119,7 @@
     "examples": [
       {
         "en": "He used a plumbing auger to clear the clogged pipe.",
-        "tr": "Tıkalı boruyu açmak için tesisat lavabo açma teli kullandı."
+        "tr": "Tıkalı boruyu açmak için bir tesisat teli kullandı."
       },
       {
         "en": "The carpenter picked up his auger to drill a hole.",
@@ -2133,13 +2133,13 @@
   },
   "gen-b9-tress-n": {
     "turkishMeanings": [
-      "saç örüğü",
+      "saç örgüsü",
       "lüle"
     ],
     "examples": [
       {
         "en": "A single tress fell across her forehead.",
-        "tr": "Alnına tek bir saç örüğü düştü."
+        "tr": "Alnına tek bir saç örgüsü düştü."
       },
       {
         "en": "She tied a ribbon around a golden tress.",
@@ -2147,7 +2147,7 @@
       },
       {
         "en": "Every tress was neatly styled for the wedding.",
-        "tr": "Düğün için her saç örüğü düzgünce şekillendirilmişti."
+        "tr": "Düğün için her saç örgüsü düzgünce şekillendirilmişti."
       }
     ]
   },
@@ -2187,7 +2187,7 @@
       },
       {
         "en": "She washed the cookware after dinner.",
-        "tr": "Akşam yemekten sonra pişirme kabını yıkadı."
+        "tr": "Akşam yemeğinden sonra pişirme kabını yıkadı."
       }
     ]
   },
@@ -2249,7 +2249,7 @@
       },
       {
         "en": "The tailback received the handoff quickly.",
-        "tr": "Tailback oyuncusu topu elden teslim almayı hızlıca gerçekleştirdi."
+        "tr": "Tailback oyuncusu elden verilen topu hızlıca aldı."
       }
     ]
   },
@@ -2343,7 +2343,7 @@
     "examples": [
       {
         "en": "She grated raw daikon for the salad.",
-        "tr": "Salata için çiğ Japon turpu rendeleyerek hazırladı."
+        "tr": "Salata için çiğ Japon turpu rendeledi."
       },
       {
         "en": "Daikon adds a crisp texture to the dish.",
