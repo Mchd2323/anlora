@@ -55,19 +55,44 @@ const KAYNAK = JSON.parse(fs.readFileSync(path.join(KOK, 'src/theme/theme-preset
  * tanımlı. Kullanıcı temasını değiştirdiğinde setin rengi kendiliğinden
  * doğru tarafa geçiyor.
  *
- * Değerler kullanıcının verdiği tablodan birebir; türetilmedi. Fildişi
- * kaynak renkleri açık zeminde dolgu olarak kullanılmıyor — Demir Gece ve
- * Fildişi Altın'ın açık karşılıkları bu yüzden ayrı değerler.
+ * DEĞERLER ÖLÇÜLEREK YENİLENDİ (ayırt edilebilirlik).
+ *
+ * İlk tablo kullanıcının verdiği renklerden birebir alınmıştı, ama sekiz
+ * kutucuk yan yana konunca bazıları ayırt edilemiyordu. CIEDE2000 ile
+ * ölçülen en yakın çiftler:
+ *
+ *   açık zemin: Taçlı Parşömen / Fildişi Altın  ΔE 3.0  (pratikte aynı renk)
+ *               Buz Kalesi / Demir Gece         ΔE 9.2
+ *               Ejderha Köz / Kızıl Kale        ΔE 10.1
+ *   koyu zemin: Buz Kalesi / Kuzgun Haritası    ΔE 5.8
+ *               Kuzgun Haritası / Demir Gece    ΔE 6.6
+ *
+ * ΔE 3 demek, kullanıcının iki seçeneği ayıramaması demek; setine renk
+ * seçerken hangisini seçtiğini göremiyordu.
+ *
+ * Yeni değerler göz kararı seçilmedi: her rengin adına sadık bir ton
+ * penceresi (Lab hue) içinde, her yüzeye karşı 3:1 kontrastı koruyan ve
+ * en yakın çiftin ΔE'sini büyüten bir arama ile bulundu. Sonuç:
+ * açık zeminde en yakın çift ΔE 16.5, koyu zeminde ΔE 14.8.
+ *
+ * KROMA TAVANLARI BİLEREK DÜŞÜK TUTULDU. Ayrışmayı doygunluktan almak
+ * daha kolaydı ama doygun camgöbeği ve pembe bu uygulamanın parşömen
+ * estetiğine yabancı duruyordu; ayrışma tondan ve açıklıktan alındı.
+ *
+ * Kuzgun Haritası koyu laciverttendi, mürekkep moruna kaydırıldı: koyu
+ * zeminde Buz Kalesi ve Demir Gece ile aynı mavi kümesinde duruyordu.
+ * Fildişi Altın altın-kahveden soluk zeytin-fildişine kaydırıldı: açık
+ * zeminde Taçlı Parşömen'in kendisiydi.
  */
 const SET_RENKLERI = [
-  { id: 'tacli-parsomen',  ad: 'Taçlı Parşömen', acik: '#765A26', koyu: '#D4B56D' },
-  { id: 'buz-kalesi',      ad: 'Buz Kalesi',      acik: '#2F6078', koyu: '#9FC9DE' },
-  { id: 'kuzgun-haritasi', ad: 'Kuzgun Haritası', acik: '#15283D', koyu: '#A8BED1' },
-  { id: 'ejderha-koz',     ad: 'Ejderha Köz',     acik: '#8B3E20', koyu: '#E28F61' },
-  { id: 'kizil-kale',      ad: 'Kızıl Kale',      acik: '#7E2C2A', koyu: '#D9786D' },
-  { id: 'orman-nobeti',    ad: 'Orman Nöbeti',    acik: '#355B4A', koyu: '#8BC6A1' },
-  { id: 'demir-gece',      ad: 'Demir Gece',      acik: '#3F4E5A', koyu: '#C1CDD4' },
-  { id: 'fildisi-altin',   ad: 'Fildişi Altın',   acik: '#6D5428', koyu: '#FBF7EF' }
+  { id: 'tacli-parsomen',  ad: 'Taçlı Parşömen', acik: '#684B25', koyu: '#F9D8A2' },
+  { id: 'buz-kalesi',      ad: 'Buz Kalesi',      acik: '#2B7381', koyu: '#82C4D6' },
+  { id: 'kuzgun-haritasi', ad: 'Kuzgun Haritası', acik: '#60658A', koyu: '#B3ACD3' },
+  { id: 'ejderha-koz',     ad: 'Ejderha Köz',     acik: '#A15847', koyu: '#F7A587' },
+  { id: 'kizil-kale',      ad: 'Kızıl Kale',      acik: '#782F3D', koyu: '#F89EAE' },
+  { id: 'orman-nobeti',    ad: 'Orman Nöbeti',    acik: '#33523F', koyu: '#91C8AE' },
+  { id: 'demir-gece',      ad: 'Demir Gece',      acik: '#43484C', koyu: '#D0D5DA' },
+  { id: 'fildisi-altin',   ad: 'Fildişi Altın',   acik: '#6F6D56', koyu: '#BBB99F' }
 ];
 
 /** Metin ve ikon için eşik. Büyük olmayan her yazı bunu geçmek zorunda. */
