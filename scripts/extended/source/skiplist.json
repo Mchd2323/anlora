@@ -2,5 +2,6 @@
  "_aciklama": "Kelime listesi Open English WordNet ve OpenSubtitles frekans listelerinden üretildi. Frekans listesi bazı satırlarda İngilizce sözcük değil, altyazı artığı ya da özel ad taşıyor. Böyle maddelere Türkçe karşılık ve örnek cümle yazmak uydurma içerik üretmek olurdu (talimat 59); bu yüzden hedeften çıkarılıyorlar. Müstehcenlik gerekçesiyle çıkarma YAPILMIYOR: kullanıcı bu kelimelerin sözlükte kalmasını istedi. Listede yalnızca İngilizce sözlük anlamı olmayan maddeler var. Anahtar madde başı, değer çıkarılma gerekçesidir.",
  "nuna": "İngilizce sözlük anlamı yok; altyazı frekans listesinden gelen özel ad ya da yabancı sözcük artığı.",
  "unnie": "İngilizce sözlük maddesi değil; Korece bir akrabalık hitabının altyazı frekans listesine karışmış hâli.",
- "nagi": "İngilizce sözlük maddesi değil; altyazı frekans listesinden gelen Japonca özel ad artığı."
+ "nagi": "İngilizce sözlük maddesi değil; altyazı frekans listesinden gelen Japonca özel ad artığı.",
+ "needleman": "İngilizce sözlük maddesi değil; WordNet'te tanımı yok ve altyazı frekans listesine özel ad olarak karışmış. Uydurma karşılık yazılmadı."
 }
