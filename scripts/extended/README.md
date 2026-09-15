@@ -1,12 +1,22 @@
-# Genel Dağarcık (uygulamayı 20.000 kelimeye taşıyan katman)
+# Genel Dağarcık (uygulamayı 30.000 kelimenin üstüne taşıyan katman)
 
-Oxford çekirdeği (4.952 madde başı / 5.947 anlam) resmî listelerden gelir ve
-dokunulmaz. Bu klasör onun üstüne ikinci katmanı üretir: **15.048 kelime,
-18.115 anlam**. İkisi birlikte uygulamanın dağarcığını tam **20.000 kelimeye**
-çıkarır.
+Oxford çekirdeği (3.308 + 2.015 madde başı) resmî listelerden gelir ve
+dokunulmaz. Bu klasör onun üstüne ikinci katmanı üretir: **24.609 kelime,
+28.371 anlam**. Kalıplarla birlikte uygulamanın dağarcığı **30.682 kelimeye**
+çıkar:
 
-Kelimeler sıklık sırasına göre seçilir: listeye giren 15.048 kelime,
+| Koleksiyon | Madde başı |
+|---|---:|
+| Genel Dağarcık | 24.609 |
+| Oxford 3000 | 3.308 |
+| Oxford 5000 ek | 2.015 |
+| Kalıplar | 750 |
+| **Toplam** | **30.682** |
+
+Kelimeler sıklık sırasına göre seçilir: listeye giren 24.609 kelime,
 Oxford'da bulunmayanlar arasında günlük İngilizcede en sık geçenlerdir.
+On dört bandın tamamı yazılmıştır; `build_bands.py --strict` bilinmeyen
+kimlik ve kusurlu kayıt bulmadan geçer.
 
 Amaç kapsam: kullanıcı kendi kelimesini eklediğinde çoğu zaman zaten
 listede bulunsun, yapay zekâya başvurmak istisna olsun. Veri pakete
@@ -26,12 +36,12 @@ cümleler kaynaklardan alınmaz; `content/` altında elle yazılır.
 ## Akış
 
 ```
-source/wordlist.json          15.052 kelime: yazım, POS, sıklık sırası, bant, IPA
-source/skiplist.json          hedeften çıkarılan 4 madde + gerekçesi
+source/wordlist.json          24.614 kelime: yazım, POS, sıklık sırası, bant, IPA
+source/skiplist.json          hedeften çıkarılan 5 madde + gerekçesi
       +
 content/*.json                elle yazılan Türkçe anlamlar ve örnek cümleler
       ↓  build_bands.py
-src/data/extended/index.json  yalnızca madde başları (~160 KB), açılışta yüklenir
+src/data/extended/index.json  yalnızca madde başları (~273 KB), açılışta yüklenir
 src/data/extended/w-<harf>.json  o harfin tam kayıtları, seçilince yüklenir
 ```
 
@@ -70,14 +80,25 @@ bir korur, yalnızca sonuna ekler.
 
 ## Bantlar
 
-Kelimeler sıklığa göre 2.000'erlik bantlara ayrılır (sekizinci bant 1.052).
-Bant numarası artık yükleme birimi değil; içerik anahtarlarının ve ilerleme
-takibinin çıpası olarak duruyor.
+Kelimeler sıklığa göre 2.000'erlik bantlara ayrılır; on üçüncü bant 512,
+on dördüncü bant 102 madde başı taşır. Bant numarası artık yükleme birimi
+değil; içerik anahtarlarının ve ilerleme takibinin çıpası olarak duruyor.
+
+On dördüncü bant küfür, müstehcenlik ve hakaret maddelerinden oluşur ve en
+sona bırakılmıştır. Bu maddeler pakete girer, çünkü bir sözlüğün işi
+kullanıcının karşılaştığı kelimeyi tanıtmaktır. Türkçe karşılık maddenin ne
+olduğunu söyler ve etnik hakaret, cinsel yönelim hakareti ya da engelli
+aşağılaması olanları "(kullanılmaz)" ibaresiyle işaretler; örnek cümleler
+sözcüğü bir kişiye yöneltmez, ne olduğunu ve neden kullanılmaması
+gerektiğini anlatır.
 
 ## Süzgeçler
 
 Ham frekans listesi film altyazılarından gelir ve doğrudan kullanılamaz.
-15.052 kelimeye ulaşırken elenenler:
+Aşağıdaki sayılar listenin İLK üretimine (15.052 kelime) aittir; liste daha
+sonra `--extend-to` ile 24.614'e büyütüldü ve bu tablo yeniden sayılmadı.
+Süzgeçlerin kendisi değişmedi, yalnızca aşağıdaki adetler o ilk turun
+ölçümüdür:
 
 | Süzgeç | Adet | Örnek |
 |---|---:|---|
@@ -98,9 +119,10 @@ Kural tabanlı süzgeçlerden kaçan birkaç madde `source/skiplist.json` ile
 hedeften çıkarılır; anahtar madde başı, değer de gerekçedir. İki tür var:
 
 * İngilizce sözlük maddesi olmayan altyazı artıkları (`nuna`, `unnie`,
-  `nagi`) — karşılık yazmak uydurma içerik üretmek olurdu,
-* müstehcen sözcük süzgecinden türev olduğu için kaçanlar
-  (`masturbator`) — uygulama öğrencilere yönelik.
+  `nagi`, `needleman`) — karşılık yazmak uydurma içerik üretmek olurdu,
+* sözlük maddesi olmayan, gerçek bir kişiyi hedef alarak türetilmiş kampanya
+  sözcüğü (`santorum`).
 
-Liste bu dört maddeyi kapsayacak kadar uzun tutulur: 15.052 kayıttan 15.048'i
-pakete girer, toplam yine 20.000 kelime eder.
+Müstehcenlik gerekçesiyle çıkarma YAPILMIYOR: kullanıcı bu kelimelerin
+sözlükte kalmasını istedi. Liste bu beş maddeyi kapsayacak kadar uzun
+tutulur: 24.614 kayıttan 24.609'u pakete girer.
