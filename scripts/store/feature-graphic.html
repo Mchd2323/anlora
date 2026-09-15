@@ -1,0 +1,79 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{width:1024px;height:500px;overflow:hidden}
+  .g{
+    position:relative;width:1024px;height:500px;
+    background:
+      radial-gradient(900px 520px at 78% 18%, #6A5FC4 0%, rgba(106,95,196,0) 62%),
+      radial-gradient(700px 500px at 8% 92%, #3B3480 0%, rgba(59,52,128,0) 65%),
+      linear-gradient(135deg,#514AAB 0%,#453EA0 45%,#36307A 100%);
+    font-family:'Liberation Sans','DejaVu Sans',sans-serif;
+    overflow:hidden;
+  }
+  /* ince doku: kelime uygulamasına gönderme, çok soluk */
+  .grain{position:absolute;inset:0;opacity:.055;
+    background-image:repeating-linear-gradient(0deg,#fff 0 1px,transparent 1px 3px);}
+  .left{position:absolute;left:64px;top:0;height:500px;width:560px;
+        display:flex;flex-direction:column;justify-content:center}
+  .lock{display:flex;align-items:center;gap:18px;margin-bottom:22px}
+  .mark{width:72px;height:72px;border-radius:18px;background:#F8F7F3;
+        display:flex;align-items:center;justify-content:center;
+        box-shadow:0 6px 20px rgba(0,0,0,.22)}
+  .mark span{font-family:'Bitstream Charter',serif;font-size:52px;font-weight:700;
+             color:#4F46A5;line-height:1;margin-top:2px}
+  .name{font-family:'Bitstream Charter',serif;font-size:66px;color:#F8F7F3;
+        letter-spacing:.01em;line-height:1}
+  h1{font-family:'Bitstream Charter',serif;font-weight:400;font-size:38px;
+     line-height:1.28;color:#F8F7F3;letter-spacing:.005em;margin-bottom:16px}
+  h1 b{font-weight:700;color:#FFD89B}
+  .sub{font-size:19px;line-height:1.5;color:#CFCAEC;max-width:490px}
+  .pills{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap}
+  .pill{font-size:15px;font-weight:600;color:#EDEAFB;
+        border:1.5px solid rgba(248,247,243,.34);border-radius:999px;
+        padding:7px 15px;background:rgba(248,247,243,.09)}
+  /* sağdaki kart */
+  .card{position:absolute;right:52px;top:96px;width:326px;
+        background:#FBFAF7;border-radius:20px;padding:26px 26px 24px;
+        box-shadow:0 26px 60px rgba(20,14,60,.42);transform:rotate(2.2deg)}
+  .cw{font-family:'Bitstream Charter',serif;font-size:37px;color:#221F33;line-height:1}
+  .pos{display:inline-block;margin-left:9px;font-size:13px;font-weight:700;
+       color:#6E67B8;vertical-align:5px}
+  .mean{margin-top:11px;font-size:19px;color:#4A4560;font-weight:600}
+  .rule{height:1px;background:#E6E2DA;margin:17px 0 14px}
+  .ex{font-family:'Bitstream Charter',serif;font-size:17px;color:#2E2B3F;line-height:1.45}
+  .extr{margin-top:7px;font-size:15px;color:#807A93;line-height:1.45}
+  .lvl{position:absolute;top:22px;right:24px;font-size:12px;font-weight:700;
+       letter-spacing:.09em;color:#9A93D6}
+  /* arkadaki ikinci kart, derinlik için */
+  .card2{position:absolute;right:76px;top:120px;width:326px;height:210px;
+         background:rgba(248,247,243,.13);border-radius:20px;transform:rotate(-5deg)}
+</style></head><body>
+<div class="g">
+  <div class="grain"></div>
+  <div class="card2"></div>
+
+  <div class="left">
+    <div class="lock">
+      <div class="mark"><span>A</span></div>
+      <div class="name">Anlora</div>
+    </div>
+    <h1><b>30.000+</b> kelime.<br>Unutmadan tekrar et.</h1>
+    <div class="sub">Aralıklı tekrar, dört farklı sınav ve gömülü sözlük — tamamı çevrimdışı.</div>
+    <div class="pills">
+      <div class="pill">Reklamsız</div>
+      <div class="pill">Üyeliksiz</div>
+      <div class="pill">Çevrimdışı</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="lvl">B2</div>
+    <div class="cw">resilient<span class="pos">adj.</span></div>
+    <div class="mean">dayanıklı · çabuk toparlanan</div>
+    <div class="rule"></div>
+    <div class="ex">Children are surprisingly resilient.</div>
+    <div class="extr">Çocuklar şaşırtıcı derecede dayanıklıdır.</div>
+  </div>
+
+</div>
+</body></html>
