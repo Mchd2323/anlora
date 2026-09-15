@@ -126,7 +126,41 @@ jobs:
           java-version: '21'
 
       - name: Android SDK kur
-        uses: android-actions/setup-android@v3
+        # EYLEM KALDIRILDI: `android-actions/setup-android@v3`.
+        #
+        # O eylem kurulumun bir parçası olarak `sdkmanager tools` çalıştırıyor.
+        # `tools` paketi Android SDK deposundan ÇEKİLDİ (yerini cmdline-tools
+        # aldı) ve artık bulunamıyor:
+        #     Warning: Failed to find package 'tools'
+        #     Error: sdkmanager failed with exit code 1
+        # Derleme bir gün çalışıp ertesi gün, bizde hiçbir şey değişmeden
+        # düştü. Eylemin başka bir katkısı yoktu: SDK, GitHub'ın makinesinde
+        # ZATEN kurulu geliyor ($ANDROID_HOME) ve tek gereken lisans onayı.
+        #
+        # Adım kendini denetliyor: eksik olan neyse adıyla söylüyor, sessizce
+        # ilerleyip Gradle'ın anlaşılmaz bir hatasına bırakmıyor.
+        run: |
+          set -euo pipefail
+          KOK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          if [ ! -d "$KOK" ]; then
+            echo "::error::Android SDK bulunamadı: $KOK"
+            exit 1
+          fi
+          SDKMANAGER=$(find "$KOK/cmdline-tools" -type f -name sdkmanager 2>/dev/null | sort | tail -1)
+          if [ -z "$SDKMANAGER" ]; then
+            echo "::error::sdkmanager bulunamadı: $KOK/cmdline-tools"
+            exit 1
+          fi
+          echo "SDK      : $KOK"
+          echo "sdkmanager: $SDKMANAGER"
+          # Lisanslar: Gradle eksik bir platform ya da build-tools indirmek
+          # zorunda kalırsa onay isteyip takılmasın.
+          yes | "$SDKMANAGER" --licenses > /dev/null 2>&1 || true
+          {
+            echo "ANDROID_HOME=$KOK"
+            echo "ANDROID_SDK_ROOT=$KOK"
+          } >> "$GITHUB_ENV"
+          echo "$KOK/platform-tools" >> "$GITHUB_PATH"
 
       - name: Web varlıklarını Android projesine kopyala
         run: npx cap sync android
