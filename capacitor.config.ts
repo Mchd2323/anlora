@@ -36,6 +36,33 @@ const config: CapacitorConfig = {
      */
     adjustMarginsForEdgeToEdge: 'auto'
   },
+  ios: {
+    /*
+     * DURUM ÇUBUĞU ŞERİDİNİN RENGİ.
+     *
+     * StatusBar eklentisinin `backgroundColor` ayarı yalnızca Android'de iş
+     * görür; iOS'ta durum çubuğunun altındaki zemin, kök görünümün rengidir.
+     * Ayarlanmazsa Capacitor beyaz bırakır ve parşömen zeminli başlık
+     * şeridinin üstünde bir beyaz şerit kalır. Buradaki renk uygulamanın
+     * açık tema zemini (#F8F1E4) ile aynı.
+     *
+     * SINIRI: bu tek bir sabit renktir, temaya göre değişmez. Koyu temada
+     * durum çubuğu şeridi yine açık kalır. Gerçek cihazda görülmeden
+     * ayarlanacak bir şey değil; iPhone'da bakıldığında rahatsız ederse
+     * söylenmesi yeterli, o zaman köprüden temaya bağlarız.
+     */
+    backgroundColor: '#F8F1E4',
+
+    /*
+     * KLAVYE AÇILDIĞINDA SAYFA KAYMASIN.
+     *
+     * 'always', WKWebView'ın kaydırma görünümüne güvenli alan boşluğunu her
+     * zaman uygular. 'automatic' bırakılırsa iOS klavye açılınca içeriği
+     * kendince ittiriyor ve kelime ekleme formunda alan klavyenin altında
+     * kalabiliyor.
+     */
+    contentInset: 'always'
+  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 600,

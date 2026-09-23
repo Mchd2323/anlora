@@ -1,0 +1,235 @@
+name: iOS paketi (IPA)
+
+# Anlora'nın iOS paketini üretir.
+#
+# NEDEN AYRI BİR İŞ AKIŞI. Android tarafı ubuntu-latest'te koşuyor; iOS
+# derlemesi Xcode gerektirir, Xcode ise yalnızca macOS'ta çalışır. Aynı iş
+# akışına sıkıştırmak iki işi de yavaşlatırdı. macOS koşucusu Ubuntu'dan
+# pahalıdır ama bu depo herkese açık olduğu için Actions dakikaları
+# ücretsizdir; maliyet kaygısı yok.
+#
+# İKİ AYRI SONUÇ, İKİ AYRI ANLAM:
+#
+#   * İMZASIZ DERLEME — her koşuda yapılır. Apple hesabı gerektirmez.
+#     Tek işi şunu kanıtlamak: proje derleniyor, eklentiler bağlanıyor,
+#     Swift tarafında hata yok. iOS'a hiç dokunmamış bir projede en sık
+#     kırılan yer burasıdır ve kırıldığını Mac'e oturmadan öğrenmek
+#     istersin. ÇIKAN DOSYA TELEFONA KURULAMAZ.
+#
+#   * İMZALI IPA — yalnızca aşağıdaki gizliler tanımlıysa üretilir:
+#         APPLE_CERTIFICATE_BASE64      dağıtım sertifikası (.p12), base64
+#         APPLE_CERTIFICATE_PASSWORD    o .p12'nin şifresi
+#         APPLE_PROVISIONING_PROFILE_BASE64   App Store profili, base64
+#         APPLE_TEAM_ID                 Apple geliştirici takım kimliği
+#     Bu dördü Apple Developer Program üyeliği (yılda 99 USD) gerektirir.
+#     Üyelik yoksa gizliler de olamaz; iş akışı o zaman imzasız derlemeyle
+#     yetinir ve bunu UYARI olarak yazar — sessizce kurulamayan bir dosya
+#     üretip "hazır" demez.
+#
+# SÜRÜM NUMARASI. App Store Connect'e yüklenen her paketin build numarası
+# (CURRENT_PROJECT_VERSION) bir öncekinden büyük olmak zorundadır. Android
+# tarafında versionCode için ne yapıldıysa burada da o yapılıyor:
+# github.run_number kullanılıyor. Elle yönetilen bir sayaç er geç
+# unutuluyor ve "bu build numarası zaten kullanılmış" hatasıyla dönüyor.
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_base_url:
+        description: 'Sunucu adresi (boş bırakılırsa uygulama yalnızca çevrimdışı çalışır)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Bağımlılıkları kur
+        run: npm ci
+
+      - name: Testler ve tip denetimi
+        run: |
+          npm run lint
+          npm test
+
+      - name: Web paketini derle
+        env:
+          VITE_API_BASE_URL: ${{ github.event.inputs.api_base_url || vars.API_BASE_URL }}
+        run: npm run build
+
+      # Android tarafındaki aynı adı taşıyan adımın birebir karşılığı.
+      # Sebep: iş akışı adres kutusu boş çalıştırıldı ve `vars.API_BASE_URL`
+      # de tanımlı değilse, ortaya Anlora AI'sı ölü bir paket çıkar ve bu
+      # hiçbir yerde belli olmaz. Sessiz kalmasın diye burada söyleniyor.
+      - name: Sunucu adresi pakete girdi mi?
+        env:
+          ADRES: ${{ github.event.inputs.api_base_url || vars.API_BASE_URL }}
+        run: |
+          if [ -z "$ADRES" ]; then
+            echo "::warning::Sunucu adresi verilmedi. Bu paket TAMAMEN ÇEVRİMDIŞI: 30.000 kelimelik sözlük çalışır, Anlora AI çalışmaz."
+          else
+            echo "Sunucu adresi verildi."
+          fi
+
+      - name: Web varlıklarını iOS projesine kopyala
+        run: npx cap sync ios
+
+      - name: CocoaPods bağımlılıklarını kur
+        working-directory: ios/App
+        run: pod install --repo-update
+
+      - name: Sürüm numaralarını yaz
+        working-directory: ios/App
+        env:
+          SURUM_ADI: 1.0.${{ github.run_number }}
+          BUILD_NO: ${{ github.run_number }}
+        run: |
+          # agvtool yerine doğrudan pbxproj'a yazılıyor: agvtool proje
+          # ayarlarını kendi biçimine göre yeniden yazıyor ve depodaki
+          # dosyayı gereksiz yere değiştiriyor.
+          sed -i '' "s/MARKETING_VERSION = [^;]*;/MARKETING_VERSION = $SURUM_ADI;/g" App.xcodeproj/project.pbxproj
+          sed -i '' "s/CURRENT_PROJECT_VERSION = [^;]*;/CURRENT_PROJECT_VERSION = $BUILD_NO;/g" App.xcodeproj/project.pbxproj
+          echo "Sürüm: $SURUM_ADI (build $BUILD_NO)"
+
+      # ————————————————————————————————————————————————————————————
+      # HER KOŞUDA: derleniyor mu?
+      # ————————————————————————————————————————————————————————————
+      - name: İmzasız derleme (derlenebilirlik kanıtı)
+        working-directory: ios/App
+        run: |
+          xcodebuild \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath "$RUNNER_TEMP/dd" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: Gizlilik bildirimi pakete girdi mi?
+        run: |
+          # PrivacyInfo.xcprivacy'yi Xcode projesine EKLEMEK yetmez; dosyanın
+          # "Copy Bundle Resources" aşamasında olması gerekir. Olmazsa dosya
+          # diskte durur ama pakete girmez ve Apple yüklemede reddeder.
+          # Bu adım, projede yapılan bir düzenlemenin o bağlantıyı kopardığını
+          # Mac'e oturmadan yakalar.
+          BULUNAN=$(find "$RUNNER_TEMP/dd/Build/Products" -name 'PrivacyInfo.xcprivacy' -path '*App.app/*' | head -1)
+          if [ -z "$BULUNAN" ]; then
+            echo "::error::PrivacyInfo.xcprivacy paketin içinde yok. Xcode projesindeki Copy Bundle Resources bağlantısı kopmuş olabilir."
+            exit 1
+          fi
+          echo "Gizlilik bildirimi pakette: $BULUNAN"
+
+      # ————————————————————————————————————————————————————————————
+      # GİZLİLER VARSA: gerçekten yüklenebilir IPA
+      # ————————————————————————————————————————————————————————————
+      - name: İmza malzemesini hazırla
+        id: imza
+        env:
+          SERTIFIKA: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+          SERTIFIKA_SIFRE: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          PROFIL: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          if [ -z "$SERTIFIKA" ] || [ -z "$PROFIL" ]; then
+            echo "imzali=hayir" >> "$GITHUB_OUTPUT"
+            echo "::warning::Apple imza gizlileri tanımlı değil. Yalnızca imzasız derleme yapıldı; çıkan dosya telefona KURULAMAZ ve App Store'a yüklenemez. Gerekli gizliler: APPLE_CERTIFICATE_BASE64, APPLE_CERTIFICATE_PASSWORD, APPLE_PROVISIONING_PROFILE_BASE64, APPLE_TEAM_ID."
+            exit 0
+          fi
+
+          ANAHTARLIK="$RUNNER_TEMP/anlora.keychain-db"
+          GECICI_SIFRE=$(uuidgen)
+          security create-keychain -p "$GECICI_SIFRE" "$ANAHTARLIK"
+          security set-keychain-settings -lut 21600 "$ANAHTARLIK"
+          security unlock-keychain -p "$GECICI_SIFRE" "$ANAHTARLIK"
+
+          echo "$SERTIFIKA" | base64 --decode > "$RUNNER_TEMP/sertifika.p12"
+          security import "$RUNNER_TEMP/sertifika.p12" \
+            -P "$SERTIFIKA_SIFRE" -A -t cert -f pkcs12 -k "$ANAHTARLIK"
+          security set-key-partition-list -S apple-tool:,apple: -k "$GECICI_SIFRE" "$ANAHTARLIK"
+          security list-keychain -d user -s "$ANAHTARLIK"
+
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo "$PROFIL" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/anlora.mobileprovision
+
+          rm -f "$RUNNER_TEMP/sertifika.p12"
+          echo "imzali=evet" >> "$GITHUB_OUTPUT"
+
+      - name: İmzalı arşiv ve IPA
+        if: steps.imza.outputs.imzali == 'evet'
+        working-directory: ios/App
+        env:
+          TAKIM: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/Anlora.xcarchive" \
+            DEVELOPMENT_TEAM="$TAKIM" \
+            CODE_SIGN_STYLE=Manual \
+            archive
+
+          cat > "$RUNNER_TEMP/export.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>teamID</key><string>$TAKIM</string>
+            <key>uploadSymbols</key><true/>
+            <key>signingStyle</key><string>manual</string>
+          </dict>
+          </plist>
+          PLIST
+
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/Anlora.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/export.plist" \
+            -exportPath "$RUNNER_TEMP/ipa"
+
+          mkdir -p "$GITHUB_WORKSPACE/cikti"
+          mv "$RUNNER_TEMP/ipa"/*.ipa "$GITHUB_WORKSPACE/cikti/anlora-1.0.${{ github.run_number }}.ipa"
+
+      - name: Artefakt olarak yükle (IPA — App Store Connect için)
+        if: steps.imza.outputs.imzali == 'evet'
+        uses: actions/upload-artifact@v4
+        with:
+          name: anlora-ipa
+          path: cikti/*.ipa
+          if-no-files-found: error
+
+      - name: Koşu özeti
+        if: always()
+        run: |
+          {
+            echo "## iOS paketi"
+            echo ""
+            echo "| Alan | Değer |"
+            echo "|---|---|"
+            echo "| Sürüm | \`1.0.${{ github.run_number }}\` |"
+            echo "| Build | \`${{ github.run_number }}\` |"
+            echo "| İmza | ${{ steps.imza.outputs.imzali == 'evet' && 'imzalı IPA üretildi' || '**imzasız** — yalnızca derlenebilirlik sınandı' }} |"
+            if [ "${{ steps.imza.outputs.imzali }}" != "evet" ]; then
+              echo ""
+              echo "> Apple imza gizlileri tanımlı olmadığı için IPA üretilmedi."
+              echo "> Çıkan derleme telefona kurulamaz, App Store'a yüklenemez."
+              echo "> Ayrıntı: \`store/app-store-rehberi.md\`"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

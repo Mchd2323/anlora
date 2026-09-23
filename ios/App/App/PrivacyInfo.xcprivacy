@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Anlora — Apple gizlilik bildirimi (privacy manifest).
+
+  Apple, Mayıs 2024'ten beri App Store'a yüklenen her uygulamanın bu dosyayı
+  içermesini istiyor. Dosya iki şeyi bildirir:
+
+    1. Uygulamanın topladığı veri türleri ve ne için topladığı. Buradaki
+       beyan, App Store Connect'te doldurulan Gizlilik Etiketleri
+       (Privacy Nutrition Labels) ile AYNI olmak zorundadır; tutarsızlık
+       incelemede reddedilme sebebidir. İkisinin de kaynağı
+       store/app-store-gizlilik-etiketleri.md dosyasıdır.
+
+    2. "Gerekçe bildirilmesi zorunlu" (required reason) API'lerinden
+       hangilerinin neden kullanıldığı.
+
+  BURADAKİ HER SATIR KODDAN ÇIKARILDI, TAHMİN DEĞİL:
+
+  - E-posta adresi: Geri bildirim penceresindeki İSTEĞE BAĞLI "bana ulaşın"
+    alanı (src/components/FeedbackModal.tsx). Kullanıcı doldurmazsa hiçbir
+    şey gitmez. Kimliğe bağlanmaz, reklam izlemesi yapılmaz.
+
+  - Diğer kullanıcı içeriği: Anlora AI'ya gönderilen kelime ve bağlam
+    cümlesi (src/components/CollectionsView.tsx) ile geri bildirim mesajının
+    metni. İkisi de kullanıcının kendi yazdığı metindir.
+
+  - Toplanmayanlar bilerek yazılmadı: konum, kişiler, fotoğraf, sağlık,
+    cihaz kimliği, reklam kimliği. Uygulama bunların hiçbirine erişmiyor;
+    Android tarafında da istenen tek izin INTERNET.
+
+  - UserDefaults (CA92.1): Capacitor çekirdeği kendi ayarlarını burada
+    tutar. Yalnızca uygulamanın kendi verisine erişilir.
+
+  - Dosya damgaları (3B52.1): Otomatik yedekleme, uygulamanın Documents
+    klasöründeki eski yedekleri bulup silmek için dosya listesini ve
+    tarihlerini okur (src/services/otomatikYedek.ts). Erişim yalnızca
+    uygulamanın kendi kabındaki dosyalaradır.
+-->
+<plist version="1.0">
+<dict>
+	<key>NSPrivacyTracking</key>
+	<false/>
+
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array>
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeEmailAddress</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+			</array>
+		</dict>
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeOtherUserContent</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+			</array>
+		</dict>
+	</array>
+
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>CA92.1</string>
+			</array>
+		</dict>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>3B52.1</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>
