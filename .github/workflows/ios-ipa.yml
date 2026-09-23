@@ -127,12 +127,37 @@ jobs:
           # diskte durur ama pakete girmez ve Apple yüklemede reddeder.
           # Bu adım, projede yapılan bir düzenlemenin o bağlantıyı kopardığını
           # Mac'e oturmadan yakalar.
-          BULUNAN=$(find "$RUNNER_TEMP/dd/Build/Products" -name 'PrivacyInfo.xcprivacy' -path '*App.app/*' | head -1)
-          if [ -z "$BULUNAN" ]; then
-            echo "::error::PrivacyInfo.xcprivacy paketin içinde yok. Xcode projesindeki Copy Bundle Resources bağlantısı kopmuş olabilir."
+          #
+          # NEDEN TAM YOL ARANIYOR, `find -name` DEĞİL. Capacitor'ın kendi
+          # çerçeveleri de PrivacyInfo.xcprivacy taşıyor ve bunlar pakete
+          # App.app/Frameworks/Capacitor.framework/ altında gömülüyor. Dosyayı
+          # ada göre aramak onları da bulur; o zaman BİZİM manifestimiz hiç
+          # pakete girmese bile adım yeşil yanar ve denetim hiçbir şey
+          # kanıtlamamış olur. Aranan, uygulama kökündeki tek dosyadır.
+          #
+          # İÇERİĞE DE BAKILIYOR. Çerçevelerin manifesti boştur
+          # (NSPrivacyCollectedDataTypes = boş dizi). Bizimki e-posta adresi ve
+          # kullanıcı içeriği beyan eder. Dosyanın varlığı kadar doğru dosya
+          # olduğu da sınanıyor — yanlışlıkla boş bir manifest kopyalanırsa
+          # Apple yüklemede reddeder ve sebebini burada değil orada öğrenirsin.
+          UYGULAMA=$(find "$RUNNER_TEMP/dd/Build/Products" -maxdepth 2 -name 'App.app' -type d | head -1)
+          if [ -z "$UYGULAMA" ]; then
+            echo "::error::Derlenmiş App.app bulunamadı; derleme çıktısı beklenen yerde değil."
             exit 1
           fi
-          echo "Gizlilik bildirimi pakette: $BULUNAN"
+
+          MANIFEST="$UYGULAMA/PrivacyInfo.xcprivacy"
+          if [ ! -f "$MANIFEST" ]; then
+            echo "::error::$MANIFEST yok. Xcode projesindeki Copy Bundle Resources bağlantısı kopmuş."
+            exit 1
+          fi
+
+          if ! plutil -extract NSPrivacyCollectedDataTypes xml1 -o - "$MANIFEST" | grep -q 'NSPrivacyCollectedDataTypeEmailAddress'; then
+            echo "::error::$MANIFEST var ama beklenen beyanı taşımıyor. Uygulamanınki yerine boş bir manifest kopyalanmış olabilir."
+            exit 1
+          fi
+
+          echo "Gizlilik bildirimi pakette ve beyanı yerinde: $MANIFEST"
 
       # ————————————————————————————————————————————————————————————
       # GİZLİLER VARSA: gerçekten yüklenebilir IPA
