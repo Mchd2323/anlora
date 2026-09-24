@@ -28,7 +28,22 @@ const kaydir = async px => { await p.mouse.wheel(0,px); await p.waitForTimeout(1
 const cek = async ad => { await p.screenshot({ path:`store/screenshots/${ad}.png` }); console.log('  ✓ '+ad); };
 
 await cek('01-ana-sayfa');
-await sekme('Setlerim'); await kaydir(800); await cek('02-setlerim');
+/*
+ * SABİT PİKSEL DEĞİL, ÇIPA.
+ *
+ * Burada `kaydir(800)` vardı. Düzen değişince (set kartları renk kazanıp
+ * yükseldiğinde) o sayı listeyi ekranın DIŞINA itti ve görüntü boş bir
+ * set panelini gösterdi — yani mağazaya konacak kare, anlatması gereken
+ * şeyi hiç göstermiyordu. Sayı yerine "Set Listesi" başlığı görünüre
+ * getiriliyor; düzen yine değişse bile kare doğru yere bakar.
+ */
+await sekme('Setlerim');
+const setListesi = p.getByText('Set Listesi').first();
+await setListesi.scrollIntoViewIfNeeded();
+await p.waitForTimeout(900);
+// Başlık görünüre geldikten sonra bir tık daha: üç set kartı da kareye girsin.
+await kaydir(340);
+await cek('02-setlerim');
 
 await sekme('Oxford'); await kaydir(1150);
 const ac = p.getByText('Tüm kelimeleri listele').first();
