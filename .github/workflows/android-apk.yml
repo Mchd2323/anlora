@@ -261,6 +261,72 @@ jobs:
             exit 1
           fi
 
+      - name: Hedef API seviyesi pakete girdi mi?
+        # Google Play, yeni yüklemelerde belirli bir asgari targetSdk şartı
+        # koyuyor ve şartı karşılamayan paketi YÜKLEME EKRANINDA reddediyor —
+        # yani koşu yeşil biter, hata saatler sonra Play Console'da görülür.
+        #
+        # `variables.gradle` içinde 36 YAZMASI, çıkan paketin 36 HEDEFLEDİĞİNİ
+        # kanıtlamaz. Araya bir eklentinin kendi sabiti, bir manifest birleştirme
+        # kuralı ya da yanlış okunan bir `rootProject.ext` girebilir. Kaynak
+        # dosyaya değil, ÇIKAN PAKETE bakılıyor.
+        #
+        # İKİ BAĞIMSIZ ÖLÇÜM YAPILIYOR, ÇÜNKÜ İKİSİ DE TEK BAŞINA EKSİK:
+        #
+        #   1. Birleştirilmiş manifest — APK ve AAB paketlemesinin ORTAK girdisi.
+        #      Bu dosya 36 diyorsa ikisi de 36 hedefler. Düz XML olduğu için
+        #      okunabilir, ama diskteki bir ara çıktıdır: paketin içinden değil,
+        #      derleme klasöründen gelir.
+        #   2. APK'nın kendi ikili manifesti (aapt2) — paketin İÇİNDEN okunur,
+        #      yani gerçekten dağıtılacak dosyanın beyanıdır. AAB'de aynı manifest
+        #      protobuf olarak durduğu ve aapt2 onu okuyamadığı için ölçüm APK
+        #      üzerinden yapılıyor; iki paket aynı Gradle derlemesinden ve aynı
+        #      birleştirilmiş manifestten çıktığı için APK'nın hedefi AAB'nin
+        #      hedefidir. (1) ve (2) birlikte bu zinciri uçtan uca kapatıyor.
+        env:
+          BEKLENEN: '36'
+        run: |
+          set -o pipefail
+          HATA=0
+
+          echo "--- 1) Birleştirilmiş manifest (APK ve AAB'nin ortak girdisi) ---"
+          MANIFEST=$(find android/app/build/intermediates -path '*merged_manifest*' \
+            -name 'AndroidManifest.xml' 2>/dev/null | grep -i release | head -1)
+          if [ -z "$MANIFEST" ]; then
+            echo "::error::Birleştirilmiş release manifesti bulunamadı."
+            HATA=1
+          else
+            echo "dosya: $MANIFEST"
+            grep -o 'android:targetSdkVersion="[0-9]*"' "$MANIFEST" || true
+            if grep -q "android:targetSdkVersion=\"$BEKLENEN\"" "$MANIFEST"; then
+              echo "  -> targetSdkVersion $BEKLENEN, uyuşuyor."
+            else
+              echo "::error::Birleştirilmiş manifest targetSdkVersion $BEKLENEN demiyor."
+              HATA=1
+            fi
+          fi
+
+          echo "--- 2) APK'nın kendi manifesti (paketin içinden) ---"
+          AAPT2=$(find "$ANDROID_HOME/build-tools" -name aapt2 | sort | tail -1)
+          if [ -z "$AAPT2" ]; then
+            echo "::error::aapt2 bulunamadı: $ANDROID_HOME/build-tools"
+            HATA=1
+          else
+            "$AAPT2" dump badging "${{ steps.apk.outputs.path }}" \
+              | tee "$RUNNER_TEMP/badging.txt" | grep -E "^(package|sdkVersion|targetSdkVersion)" || true
+            GERCEK=$(grep -o "targetSdkVersion:'[0-9]*'" "$RUNNER_TEMP/badging.txt" \
+              | head -1 | grep -o "[0-9]*")
+            echo "  paketin beyanı: targetSdkVersion=${GERCEK:-okunamadı}"
+            if [ "$GERCEK" = "$BEKLENEN" ]; then
+              echo "  -> uyuşuyor."
+            else
+              echo "::error::APK targetSdkVersion $GERCEK, beklenen $BEKLENEN."
+              HATA=1
+            fi
+          fi
+
+          exit "$HATA"
+
       - name: Artefakt olarak yükle (APK)
         uses: actions/upload-artifact@v4
         with:
