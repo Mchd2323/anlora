@@ -59,6 +59,14 @@ function oxfordGroupOf(card: WordCard): OxfordGroupKey | null {
 interface QuizModuleProps {
   initialCollectionId?: string;
   allWords: WordCard[]; // Oxford 3000 words
+  /*
+   * Kalıplar (`opl-…`). AYRI PROP, çünkü `extraWords`e katılamazlar:
+   * orası "B2 Ek / C1" Oxford gruplarının kaynağı ve kalıpların o gruplarda
+   * işi yok. Buradaki tek işleri, kullanıcının KENDİ SETİNDE bir kalıp varsa
+   * o setin sınavına girebilmek -- eskiden havuzda hiç bulunmadıkları için
+   * set "1 kelime" diyor ama sınav "yeterli kelime yok" diyordu.
+   */
+  phraseWords: WordCard[];
   extraWords?: WordCard[]; // Oxford 5000 Ek (B2 Ek + C1)
   /*
    * Sözlük geldi mi? Oxford dizileri tembel yükleniyor ve bu ekran onlara
@@ -116,6 +124,7 @@ const SORU_SAYILARI = [5, 10, 15, 20, 30, 50, 75, 100] as const;
 export const QuizModule: React.FC<QuizModuleProps> = ({
   initialCollectionId,
   allWords,
+  phraseWords,
   extraWords = [],
   sozlukHazir = true,
   customCards,
@@ -235,7 +244,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
      * bir setine C1 kelime eklemiş olsa bile o kelime sorulmuyor, üstelik
      * "yeterli kelime yok" uyarısı da eksik sayı üzerinden veriliyordu.
      */
-    const combinedAll = [...allWords, ...extraWords, ...customCards];
+    const combinedAll = [...allWords, ...extraWords, ...phraseWords, ...customCards];
     const wordSet = new Set<WordCard>();
 
     selectedSources.forEach((src) => {
@@ -269,7 +278,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
     }
 
     return list;
-  }, [selectedSources, statusFilter, allWords, extraWords, customCards, memberships, learningStates]);
+  }, [selectedSources, statusFilter, allWords, extraWords, phraseWords, customCards, memberships, learningStates]);
 
   const startQuiz = () => {
     if (currentPool.length < MIN_POOL_SIZE) {
@@ -304,7 +313,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
     // seviye ve sözcük türündekileri tercih eder.
     // Çeldiriciler de aynı havuzdan; aksi hâlde C1 sorusunun şıkları
     // yalnızca A1–B2'den gelir ve doğru cevap tek başına sırıtır.
-    const distractorPool = [...allWords, ...extraWords, ...customCards];
+    const distractorPool = [...allWords, ...extraWords, ...phraseWords, ...customCards];
     const generatedQuestions = generateQuiz(currentPool, distractorPool, quizMode, questionCount);
 
     /*

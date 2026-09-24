@@ -64,6 +64,7 @@ import { apiFetch, logout } from './utils/authClient';
 import { runOxfordIdMigrationIfNeeded } from './utils/oxfordIdMigration';
 import { OxfordGroupKey } from './types/oxford';
 import { loadExtendedIndex } from './services/extendedRepository';
+import { loadPhrases, getPhraseCards, isPhrasesLoaded } from './services/phraseRepository';
 import { useToast } from './components/ui/ToastProvider';
 import { eskiKuyrugaTakilanlariKurtar } from './services/eskiKuyrukGocu';
 import { otomatikYedekAl } from './services/otomatikYedek';
@@ -170,6 +171,22 @@ export default function App() {
    */
   const [oxfordWords, setOxfordWords] = useState<WordCard[]>([]);
   const [oxfordExtraWords, setOxfordExtraWords] = useState<WordCard[]>([]);
+  /*
+   * KALIPLAR HAVUZA GİRİYOR — AMA YALNIZCA KULLANICI ONLARA DOKUNDUYSA.
+   *
+   * Kalıplar (`opl-…`) ayrı bir dosyadan tembel yükleniyor ve hiçbir zaman
+   * kelime havuzuna katılmıyordu. Oxford ekranının Kalıplar bölümünden bir
+   * kalıbı sete eklemek ya da favorilemek, çözülemeyen bir kimlik yazıyordu:
+   * `CollectionsView` haritayı yalnızca Oxford + kendi kartlarından kurduğu
+   * için kalıp sette GÖRÜNMÜYOR ama rozet onu SAYIYOR; favorilenen kalıp da
+   * Favorilerim'de hiç çıkmıyordu. Kayıt duruyordu, gösterilemiyordu.
+   *
+   * Kalıpları her açılışta yüklemek çözüm değil: dosya yarım megabayt ve
+   * kullanıcıların çoğu kalıplara hiç girmiyor. Bunun yerine kullanıcının
+   * KENDİ VERİSİNE bakılıyor -- bir üyelikte ya da favoride `opl-` ile
+   * başlayan bir kimlik varsa yükleniyor, yoksa dosyaya hiç dokunulmuyor.
+   */
+  const [phraseWords, setPhraseWords] = useState<WordCard[]>([]);
   /*
    * İKİ AYRI HAZIRLIK — ÖLÇÜLMÜŞ BİR SEBEPLE AYRILDI.
    *
@@ -418,6 +435,37 @@ export default function App() {
    * yedeklenmiyor; yoksa veri kaybından sonra açılan uygulama kurtarma
    * dosyasının üzerine boş bir kopya yazardı.
    */
+  /*
+   * Kullanıcının verisinde kalıp kimliği var mı? Varsa kalıp dosyası
+   * yükleniyor ve kartlar havuza katılıyor (bkz. `phraseWords`).
+   *
+   * Önek tek yerde sabit: `phrases.json`daki 750 kaydın hepsi `opl-` ile
+   * başlıyor (kontrol edildi). Kalıplar dosyası zaten yüklüyse -- kullanıcı
+   * Kalıplar sekmesine girdiyse -- ikinci bir ağ/disk işi yapılmıyor.
+   */
+  useEffect(() => {
+    if (phraseWords.length > 0) return;
+    const kalipVar =
+      memberships.some(m => m.wordId.startsWith('opl-')) ||
+      favorites.some(id => id.startsWith('opl-'));
+    if (!kalipVar) return;
+
+    let iptal = false;
+    const al = () => {
+      if (!iptal) setPhraseWords(getPhraseCards());
+    };
+    if (isPhrasesLoaded()) {
+      al();
+    } else {
+      loadPhrases().then(al).catch(() => {
+        /* kalıp dosyası gelmezse kartlar çözülemez; sessizce eski davranış */
+      });
+    }
+    return () => {
+      iptal = true;
+    };
+  }, [memberships, favorites, phraseWords.length]);
+
   const ogrenilenSayisi = useMemo(() => Object.keys(learningStates).length, [learningStates]);
 
   useEffect(() => {
@@ -519,8 +567,8 @@ export default function App() {
   // Oxford 3000 + Oxford 5000 Ek (B2 Ek, C1) + kullanıcının kendi kartları.
   // Çalışma, sınav ve favoriler bu birleşik havuz üzerinden çalışır.
   const allWordsCombined = useMemo(() => {
-    return [...oxfordWords, ...oxfordExtraWords, ...customWords];
-  }, [oxfordWords, oxfordExtraWords, customWords]);
+    return [...oxfordWords, ...oxfordExtraWords, ...phraseWords, ...customWords];
+  }, [oxfordWords, oxfordExtraWords, phraseWords, customWords]);
 
   /**
    * Oxford'un tamamı (3000 + 5000 Ek).
@@ -530,8 +578,8 @@ export default function App() {
    * bu havuz üzerinden yapılır.
    */
   const oxfordPool = useMemo(
-    () => [...oxfordWords, ...oxfordExtraWords],
-    [oxfordWords, oxfordExtraWords]
+    () => [...oxfordWords, ...oxfordExtraWords, ...phraseWords],
+    [oxfordWords, oxfordExtraWords, phraseWords]
   );
 
   /*
@@ -964,6 +1012,7 @@ export default function App() {
             customWords={customWords}
             oxfordWords={oxfordWords}
             extraWords={oxfordExtraWords}
+            phraseWords={phraseWords}
             learningStates={learningStates}
             settings={settings}
             onRecordStudyResult={handleRecordStudyResult}
@@ -1048,6 +1097,7 @@ export default function App() {
           <QuizModule
             allWords={oxfordWords}
             extraWords={oxfordExtraWords}
+            phraseWords={phraseWords}
             sozlukHazir={isDictionaryReady}
             customCards={customWords}
             collections={collections}

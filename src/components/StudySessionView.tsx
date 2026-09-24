@@ -31,6 +31,12 @@ interface StudySessionViewProps {
   memberships: CollectionMembership[];
   customWords: WordCard[];
   oxfordWords: WordCard[];
+  /*
+   * Kalıplar (`opl-…`). Yalnızca ÇÖZÜMLEME için: kullanıcının setinde bir
+   * kalıp varsa kartı bulunabilsin. Oxford kaynaklı çalışmaya (aşağıdaki
+   * `candidateWordIds`) bilerek katılmıyorlar.
+   */
+  phraseWords: WordCard[];
   /**
    * Oxford 5000'i tamamlayan ek liste (B2 Ek + C1, 2.015 kelime).
    *
@@ -66,6 +72,7 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
   memberships,
   customWords,
   oxfordWords,
+  phraseWords,
   extraWords = [],
   learningStates,
   settings,
@@ -115,8 +122,9 @@ export const StudySessionView: React.FC<StudySessionViewProps> = ({
     customWords.forEach(w => map.set(w.id, w));
     oxfordWords.forEach(w => map.set(w.id, w));
     extraWords.forEach(w => map.set(w.id, w));
+    phraseWords.forEach(w => map.set(w.id, w));
     return map;
-  }, [customWords, oxfordWords, extraWords]);
+  }, [customWords, oxfordWords, extraWords, phraseWords]);
 
   // Build queue based on chosen source
   const initializeQueue = () => {
