@@ -82,6 +82,27 @@ export function runOxfordIdMigrationIfNeeded(): OxfordMigrationReport {
     return report;
   }
 
+  /*
+   * YAZMALARIN SONUCU TOPLANIYOR — BAYRAK ONLARA BAĞLI.
+   *
+   * Burada bayrak koşulsuz yazılıyordu ve aşağıdaki `catch` onu koruduğu
+   * sanılıyordu. Korumuyor: `safeStorage.writeJSON` depolama dolduğunda
+   * HATA FIRLATMIYOR, sessizce `false` dönüp veriyi yalnızca belleğe
+   * koyuyor. Yani beş yazmanın beşi birden düşse bile `catch` hiç çalışmaz,
+   * bayrak yazılır ve göç BİR DAHA DENENMEZ. Kullanıcının ilerlemesi eski
+   * kimliklerde takılı kalır; ekranda görünümü birebir "güncelleme verimi
+   * sildi" olur.
+   *
+   * Doğru kalıp bu dosyada icat edilmiyor: V1 -> V2 göçü aynı tuzağa karşı
+   * `writeResults.every(Boolean)` kullanıyor ve gerekçesini
+   * `storageV2.ts:279-287` yazıyor. Oxford göçü o düzeltmeyi almamıştı.
+   *
+   * Yazılmayan bayrak zararsız: göç yeniden çalıştığında eşleme aynı
+   * sonucu üretir (idempotent), çünkü yeni kimlikler `MAP` içinde anahtar
+   * olarak bulunmaz ve `mapOxfordId` onları aynen döndürür.
+   */
+  const yazmalar: boolean[] = [];
+
   try {
     // 1. Öğrenme durumları ("Öğrendim" / "Tekrar Et" / SRS ilerlemesi)
     const states = getLearningStates();
@@ -94,14 +115,14 @@ export function runOxfordIdMigrationIfNeeded(): OxfordMigrationReport {
           migratedStates.result[id] = { ...state, wordId: id };
         }
       });
-      saveLearningStates(migratedStates.result);
+      yazmalar.push(saveLearningStates(migratedStates.result));
     }
 
     // 2. Favoriler
     const favorites = getFavorites();
     const migratedFavorites = Array.from(new Set(favorites.map(mapOxfordId)));
     report.favorites = migratedFavorites.filter((id, index) => id !== favorites[index]).length;
-    if (report.favorites > 0) saveFavorites(migratedFavorites);
+    if (report.favorites > 0) yazmalar.push(saveFavorites(migratedFavorites));
 
     // 3. Koleksiyon üyelikleri (kullanıcı Oxford kelimesini kendi setine eklemiş olabilir)
     const memberships = getMemberships();
@@ -115,7 +136,7 @@ export function runOxfordIdMigrationIfNeeded(): OxfordMigrationReport {
       return membership;
     });
     report.memberships = membershipChanges;
-    if (membershipChanges > 0) saveMemberships(migratedMemberships);
+    if (membershipChanges > 0) yazmalar.push(saveMemberships(migratedMemberships));
 
     // 4. Sınavdaki hatalı kelimeler listesi
     const stats = getUserStats();
@@ -124,7 +145,7 @@ export function runOxfordIdMigrationIfNeeded(): OxfordMigrationReport {
       report.mistakes = migratedMistakes.changed;
       if (migratedMistakes.changed > 0) {
         stats.mistakesMap = migratedMistakes.result as typeof stats.mistakesMap;
-        saveUserStats(stats);
+        yazmalar.push(saveUserStats(stats));
       }
     }
 
@@ -141,12 +162,24 @@ export function runOxfordIdMigrationIfNeeded(): OxfordMigrationReport {
         return event;
       });
       report.reviewHistory = historyChanges;
-      if (historyChanges > 0) writeJSON(V2_KEYS.REVIEW_HISTORY, migratedHistory);
+      if (historyChanges > 0) yazmalar.push(writeJSON(V2_KEYS.REVIEW_HISTORY, migratedHistory));
     }
 
-    writeRaw(MIGRATION_KEY, 'true');
+    if (yazmalar.every(Boolean)) {
+      writeRaw(MIGRATION_KEY, 'true');
+    } else {
+      /*
+       * Bayrak bilerek yazılmıyor: en az bir anahtar diske düşmedi.
+       * Kullanıcı yer açtığında göç bir sonraki açılışta baştan çalışır ve
+       * düşmeyen yazmalar tamamlanır.
+       */
+      console.warn(
+        'Oxford kimlik göçü kısmi kaldı (depolama yazması başarısız); sonraki açılışta yeniden denenecek.'
+      );
+    }
   } catch (error) {
-    // Göç başarısız olursa bayrak yazılmaz; sonraki açılışta yeniden denenir.
+    // Göç fırlatarak başarısız olursa bayrak yazılmaz; sonraki açılışta
+    // yeniden denenir. Fırlatmadan başarısız olma hâli yukarıda ele alınıyor.
     console.error('Oxford kimlik göçü tamamlanamadı:', error);
   }
 

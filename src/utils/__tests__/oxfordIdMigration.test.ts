@@ -107,4 +107,59 @@ describe('runOxfordIdMigrationIfNeeded', () => {
     const history = JSON.parse(storage.getItem(V2_KEYS.REVIEW_HISTORY)!);
     expect(history[0].wordId).toBe(NEW_ID);
   });
+
+  /*
+   * DEPOLAMA DOLUYKEN GÖÇ — sessiz ve kalıcı veri kaybının geldiği yer.
+   *
+   * `safeStorage.writeJSON` kota hatasında HATA FIRLATMAZ; sessizce `false`
+   * döner ve veriyi yalnızca belleğe koyar. Göç bu yüzden `catch` bloğuna
+   * hiç düşmüyordu ve "tamamlandı" bayrağını yine de yazıyordu: kullanıcının
+   * ilerlemesi eski kimliklerde takılı kalıyor, göç bir daha hiç denenmiyor
+   * ve ekranda görünümü birebir "güncelleme verimi sildi" oluyordu.
+   */
+  it('yazma başarısız olursa bayrağı YAZMAZ ve sonraki açılışta yeniden dener', () => {
+    saveFavorites([OLD_ID]);
+
+    // Yalnızca veri anahtarı kotaya takılıyor; bayrak anahtarı yazılabilir.
+    // Gerçek tuzak tam olarak buydu: küçük bayrak yazması başarılı oluyordu.
+    const gercekSetItem = storage.setItem.bind(storage);
+    const dolu = vi.spyOn(storage, 'setItem').mockImplementation((k: string, v: string) => {
+      if (k === V2_KEYS.FAVORITES) {
+        const hata = new Error('QuotaExceededError');
+        hata.name = 'QuotaExceededError';
+        throw hata;
+      }
+      gercekSetItem(k, v);
+    });
+
+    const ilk = runOxfordIdMigrationIfNeeded();
+    expect(ilk.alreadyMigrated).toBe(false);
+    dolu.mockRestore();
+
+    // 1) DİSKE hiçbir şey düşmedi: göç gerçekten tamamlanmadı.
+    expect(JSON.parse(storage.getItem(V2_KEYS.FAVORITES)!)).toEqual([OLD_ID]);
+
+    // 2) Asıl düzeltme: bayrak YAZILMADI. Yazılsaydı göç bir daha hiç
+    //    denenmez, kullanıcının ilerlemesi eski kimliklerde kalırdı.
+    expect(storage.getItem('anlora_oxford_id_migration_v3')).not.toBe('true');
+
+    // 3) Dolayısıyla sonraki açılış göçü yeniden deniyor.
+    expect(runOxfordIdMigrationIfNeeded().alreadyMigrated).toBe(false);
+  });
+
+  /*
+   * Yukarıdaki test "yer açıldıktan sonra taşınır" iddiasını SINAMIYOR ve
+   * bu bilerek böyle: `safeStorage` kotaya takılan değeri bellek yedeğinde
+   * tutuyor ve `readRaw` onu diskten önce okuyor (safeStorage.ts:89-95).
+   * Yani aynı oturumda yapılan ikinci çağrı diski değil belleği görür.
+   * Gerçek hayatta "sonraki açılış" uygulama yeniden başladığında olur ve o
+   * an bellek yedeği boştur; test süreci ise tek oturum. Sınanabilir olan,
+   * ve gerçekten önemli olan, bayrağın yazılmamış olmasıdır.
+   */
+
+  it('yazma başarılıysa bayrağı yazar', () => {
+    saveFavorites([OLD_ID]);
+    runOxfordIdMigrationIfNeeded();
+    expect(storage.getItem('anlora_oxford_id_migration_v3')).toBe('true');
+  });
 });

@@ -418,11 +418,36 @@ export default function App() {
    * yedeklenmiyor; yoksa veri kaybından sonra açılan uygulama kurtarma
    * dosyasının üzerine boş bir kopya yazardı.
    */
+  const ogrenilenSayisi = useMemo(() => Object.keys(learningStates).length, [learningStates]);
+
   useEffect(() => {
-    const veriVar = collections.length > 0 || customWords.length > 0;
+    /*
+     * KOŞUL KENDİ SETİ OLMAYAN KULLANICIYI DIŞARIDA BIRAKIYORDU.
+     *
+     * Burada yalnızca `collections` ve `customWords` sayılıyordu. Oxford
+     * listesinden çalışan, kendi seti ve kendi kartı olmayan bir kullanıcının
+     * ikisi de boştur -- ama aylarca biriktirdiği "Öğrendim"leri, favorileri
+     * ve serisi vardır. O kullanıcı hiç yedek almıyordu; Profil'de ona
+     * "henüz alınmadı" yazıyordu. Yedeğin varlık sebebi tam olarak bu veriyi
+     * kurtarmak.
+     *
+     * Boş durumun yedeklenmemesi kuralı korunuyor: aşağıdaki dört ölçüden
+     * biri doluysa yedek alınır, hepsi boşsa alınmaz. Böylece veri
+     * kaybından sonra açılan uygulama kurtarma dosyasının üzerine boş bir
+     * kopya yazmaya devam etmiyor.
+     */
+    const veriVar =
+      collections.length > 0 ||
+      customWords.length > 0 ||
+      ogrenilenSayisi > 0 ||
+      favorites.length > 0;
     if (!veriVar) return;
     void otomatikYedekAl(true);
-  }, [collections.length, customWords.length]);
+    // Bağımlılık nesnenin kendisi değil SAYISI: `learningStates` her çalışma
+    // sonrası yeni bir nesne oluyor ve etkiyi boşuna yeniden çalıştırırdı.
+    // Yedeğin ne zaman alınacağına zaten `yedekGerekliMi` zaman sınırıyla
+    // karar veriyor; buradaki iş yalnızca "ortada veri var mı" sorusu.
+  }, [collections.length, customWords.length, ogrenilenSayisi, favorites.length]);
 
   useEffect(() => {
     if (isDictionaryReady) return;
