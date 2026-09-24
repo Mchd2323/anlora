@@ -592,12 +592,15 @@ export default function App() {
     collectionId?: string,
     sourceContext?: string,
     sourceName?: string
-  ) => {
-    addCustomWordV2(card, collectionId, sourceContext, sourceName);
+  ): boolean => {
+    const { kalici } = addCustomWordV2(card, collectionId, sourceContext, sourceName);
     setCustomWords(getCustomWordsV2());
     setMemberships(getMembershipsV2());
     setLearningStates(getAllLearningStatesV2());
     setUnlockedBadges(checkAndUnlockBadgesV2());
+    // Kartın diske düşüp düşmediği çağırana bildiriliyor; kuyruk kurtarması
+    // buna bakarak tek kalıcı kaydı silip silmeyeceğine karar veriyor.
+    return kalici;
   };
 
   /*
@@ -626,7 +629,7 @@ export default function App() {
   useEffect(() => {
     const kurtarilan = eskiKuyrugaTakilanlariKurtar((card, collectionId) => {
       const setVar = collections.some(c => c.id === collectionId);
-      handleAddCustomWord(card, setVar ? collectionId : undefined);
+      return handleAddCustomWord(card, setVar ? collectionId : undefined);
     });
     if (kurtarilan > 0) {
       showToast(

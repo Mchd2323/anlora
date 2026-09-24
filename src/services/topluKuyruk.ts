@@ -178,17 +178,46 @@ export function bosKart(kelime: string): WordCard {
  * taraf atabilir; bir kelimenin başarısızlığı kalan altmış altısını
  * düşürmemeli.
  */
-export function kalanlariBosEkle(ekle: (kart: WordCard, setId: string) => void): number {
+export function kalanlariBosEkle(
+  ekle: (kart: WordCard, setId: string) => boolean
+): number {
   const kayit = kuyruguOku();
+  const ogeler = kayit?.ogeler ?? [];
   let eklenen = 0;
-  for (const oge of kayit?.ogeler ?? []) {
+  let dusenVar = false;
+
+  for (const oge of ogeler) {
     try {
-      ekle(bosKart(oge.kelime), oge.setId);
-      eklenen++;
+      if (ekle(bosKart(oge.kelime), oge.setId)) {
+        eklenen++;
+      } else {
+        // Kart diske düşmedi (kota). Sayılmıyor ve kuyruk korunuyor.
+        dusenVar = true;
+      }
     } catch {
       /* bu kart eklenemedi; kalanlar yine de eklensin */
+      dusenVar = true;
     }
   }
-  kuyrugaTemizle();
+
+  /*
+   * KUYRUK YALNIZCA HER ŞEY DİSKE DÜŞTÜYSE SİLİNİYOR.
+   *
+   * Burada `kuyrugaTemizle()` KOŞULSUZ çağrılıyordu ve try/catch'in
+   * koruduğu sanılıyordu. Korumuyor: `ekle` zinciri sonunda
+   * `safeStorage.writeJSON`e varıyor ve o, kota dolduğunda HATA FIRLATMIYOR
+   * -- sessizce `false` dönüp kartı yalnızca bellekte tutuyor. Yani depo
+   * doluyken altmış yedi kelimenin hepsi "eklendi" sayılıyor, hiçbiri diske
+   * düşmüyor, ve tekrar denemeye imkân verecek TEK kalıcı kayıt olan kuyruk
+   * siliniyordu. Uygulama kapanınca hepsi giderdi.
+   *
+   * Kuyruk kalırsa en kötü ihtimalle aynı kelimeler bir sonraki açılışta
+   * yeniden eklenir; `addCustomWord` aynı kimliği üzerine yazdığı için
+   * yinelenen kart oluşmaz. Kaybetmek yerine tekrarlamak tercih edilir.
+   */
+  if (!dusenVar) {
+    kuyrugaTemizle();
+  }
+
   return eklenen;
 }

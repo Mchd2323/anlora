@@ -18,7 +18,7 @@ describe('kalanlariBosEkle', () => {
     kuyrugaAl('set1', 'Denemeler', ['alpha', 'beta', 'gamma']);
     const eklenen: { kelime: string; setId: string }[] = [];
 
-    const sayi = kalanlariBosEkle((k, setId) => eklenen.push({ kelime: k.word, setId }));
+    const sayi = kalanlariBosEkle((k, setId) => { eklenen.push({ kelime: k.word, setId }); return true; });
 
     expect(sayi).toBe(3);
     expect(eklenen.map(e => e.kelime)).toEqual(['alpha', 'beta', 'gamma']);
@@ -29,7 +29,7 @@ describe('kalanlariBosEkle', () => {
     kuyrugaAl('set1', 'Denemeler', ['alpha']);
     const eklenen: WordCard[] = [];
 
-    kalanlariBosEkle(k => eklenen.push(k));
+    kalanlariBosEkle(k => { eklenen.push(k); return true; });
 
     expect(eklenen[0].turkishMeaning).toBe('');
     expect(eklenen[0].partOfSpeech).toBe('');
@@ -41,8 +41,8 @@ describe('kalanlariBosEkle', () => {
     kuyrugaAl('set1', 'Denemeler', ['alpha', 'beta']);
     const eklenen: string[] = [];
 
-    kalanlariBosEkle(k => eklenen.push(k.word));
-    const ikinci = kalanlariBosEkle(k => eklenen.push(k.word));
+    kalanlariBosEkle(k => { eklenen.push(k.word); return true; });
+    const ikinci = kalanlariBosEkle(k => { eklenen.push(k.word); return true; });
 
     expect(eklenen).toEqual(['alpha', 'beta']);
     expect(ikinci).toBe(0);
@@ -54,7 +54,7 @@ describe('kalanlariBosEkle', () => {
     kuyrugaAl('set2', 'Iki', ['beta']);
     const eklenen: { kelime: string; setId: string }[] = [];
 
-    kalanlariBosEkle((k, setId) => eklenen.push({ kelime: k.word, setId }));
+    kalanlariBosEkle((k, setId) => { eklenen.push({ kelime: k.word, setId }); return true; });
 
     expect(eklenen).toEqual([
       { kelime: 'alpha', setId: 'set1' },
@@ -62,23 +62,54 @@ describe('kalanlariBosEkle', () => {
     ]);
   });
 
-  it('bir kart eklenemezse kalanlar yine eklenir', () => {
+  it('bir kart eklenemezse kalanlar yine eklenir, KUYRUK KORUNUR', () => {
     kuyrugaAl('set1', 'Denemeler', ['alpha', 'beta', 'gamma']);
     const eklenen: string[] = [];
 
     const sayi = kalanlariBosEkle(k => {
       if (k.word === 'beta') throw new Error('depolama dolu');
       eklenen.push(k.word);
+      return true;
     });
 
     expect(eklenen).toEqual(['alpha', 'gamma']);
     expect(sayi).toBe(2);
+    // DAVRANIŞ DEĞİŞTİ: burada kuyruğun silinmesi bekleniyordu. Bir kart
+    // düştüğünde kuyruğu silmek, o kelimenin tek kalıcı kaydını yok etmek
+    // demekti. Artık kuyruk duruyor; sonraki açılışta yeniden denenir.
+    expect(kuyruguOku()).not.toBeNull();
+  });
+
+  /*
+   * ASIL TUZAK: `ekle` FIRLATMADAN başarısız olur.
+   *
+   * Zincir `safeStorage.writeJSON`e varıyor ve o, kota dolduğunda hata
+   * fırlatmıyor -- sessizce `false` dönüp kartı yalnızca bellekte tutuyor.
+   * Eski kod bunu "eklendi" sayıp kuyruğu siliyordu: altmış yedi kelimenin
+   * hiçbiri diske düşmemiş, tek kalıcı kayıt da yok edilmiş oluyordu.
+   */
+  it('kart diske düşmezse sayılmaz ve kuyruk silinmez', () => {
+    kuyrugaAl('set1', 'Denemeler', ['alpha', 'beta']);
+    const denenen: string[] = [];
+
+    const sayi = kalanlariBosEkle(k => {
+      denenen.push(k.word);
+      return false; // kota dolu: bellekte kaldı, diske düşmedi
+    });
+
+    expect(denenen).toEqual(['alpha', 'beta']);
+    expect(sayi).toBe(0);
+    expect(kuyruguOku()).not.toBeNull();
+
+    // Yer açılınca aynı kelimeler yeniden denenebiliyor.
+    const ikinci = kalanlariBosEkle(() => true);
+    expect(ikinci).toBe(2);
     expect(kuyruguOku()).toBeNull();
   });
 
   it('kuyruk boşken kart eklemez', () => {
     const eklenen: WordCard[] = [];
-    expect(kalanlariBosEkle(k => eklenen.push(k))).toBe(0);
+    expect(kalanlariBosEkle(k => { eklenen.push(k); return true; })).toBe(0);
     expect(eklenen).toHaveLength(0);
   });
 

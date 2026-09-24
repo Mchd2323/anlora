@@ -17,9 +17,11 @@ import { kalanlariBosEkle, kuyruguOku } from './topluKuyruk';
  * yazılmaz -- talimat 59). Kullanıcı sonra doldurur; hiçbiri kaybolmaz.
  *
  * Bir kez koşar: kuyruk silindiği için ikinci açılışta yapacak iş bulmaz.
+ * Kartlardan biri diske düşmezse kuyruk BİLEREK duruyor ve iş sonraki
+ * açılışta tekrarlanıyor -- bkz. `kalanlariBosEkle`.
  */
 export function eskiKuyrugaTakilanlariKurtar(
-  ekle: (kart: WordCard, setId: string) => void
+  ekle: (kart: WordCard, setId: string) => boolean
 ): number {
   if (!kuyruguOku()) return 0;
   return kalanlariBosEkle(ekle);

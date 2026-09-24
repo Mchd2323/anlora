@@ -425,7 +425,7 @@ export function addCustomWord(
   targetCollectionId?: string,
   sourceContext?: string,
   sourceName?: string
-): { updatedWords: WordCard[]; card: WordCard } {
+): { updatedWords: WordCard[]; card: WordCard; kalici: boolean } {
   const words = getCustomWords();
   const normalized = normalizeWordString(card.word);
   const cardWithCanonical: WordCard = {
@@ -435,7 +435,15 @@ export function addCustomWord(
   };
 
   const updatedWords = [cardWithCanonical, ...words.filter(w => w.id !== card.id)];
-  saveCustomWords(updatedWords);
+  /*
+   * `kalici` — KART GERÇEKTEN DİSKE DÜŞTÜ MÜ?
+   *
+   * `saveCustomWords` kota dolduğunda hata FIRLATMIYOR; sessizce `false`
+   * dönüp kartı yalnızca bellekte tutuyor (safeStorage.ts:148-153). Çağıran
+   * tarafın bunu bilmesi gerekiyor, çünkü "eklendi" sayıp ardından tek
+   * kalıcı kaydı silen bir çağıran vardı: `kalanlariBosEkle`.
+   */
+  const kalici = saveCustomWords(updatedWords);
 
   // Initialize learning state if not existing
   const states = getLearningStates();
@@ -449,7 +457,7 @@ export function addCustomWord(
     addWordToCollection(card.id, targetCollectionId, sourceContext, sourceName);
   }
 
-  return { updatedWords, card: cardWithCanonical };
+  return { updatedWords, card: cardWithCanonical, kalici };
 }
 
 export function updateCustomWord(updatedCard: WordCard): WordCard[] {

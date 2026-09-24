@@ -22,9 +22,10 @@ describe('eskiKuyrugaTakilanlariKurtar', () => {
     kuyrugaAl('set1', 'Deneme', ['alpha', 'beta', 'gamma']);
     const eklenen: { kelime: string; setId: string }[] = [];
 
-    const sayi = eskiKuyrugaTakilanlariKurtar((k, setId) =>
-      eklenen.push({ kelime: k.word, setId })
-    );
+    const sayi = eskiKuyrugaTakilanlariKurtar((k, setId) => {
+      eklenen.push({ kelime: k.word, setId });
+      return true;
+    });
 
     expect(sayi).toBe(3);
     expect(eklenen.map(e => e.kelime)).toEqual(['alpha', 'beta', 'gamma']);
@@ -35,7 +36,7 @@ describe('eskiKuyrugaTakilanlariKurtar', () => {
     kuyrugaAl('set1', 'Deneme', ['alpha']);
     const eklenen: WordCard[] = [];
 
-    eskiKuyrugaTakilanlariKurtar(k => eklenen.push(k));
+    eskiKuyrugaTakilanlariKurtar(k => { eklenen.push(k); return true; });
 
     expect(eklenen[0].turkishMeaning).toBe('');
     expect(eklenen[0].examples).toEqual([]);
@@ -44,7 +45,7 @@ describe('eskiKuyrugaTakilanlariKurtar', () => {
 
   it('kuyruk yoksa hiçbir şey yapmaz', () => {
     const eklenen: WordCard[] = [];
-    expect(eskiKuyrugaTakilanlariKurtar(k => eklenen.push(k))).toBe(0);
+    expect(eskiKuyrugaTakilanlariKurtar(k => { eklenen.push(k); return true; })).toBe(0);
     expect(eklenen).toHaveLength(0);
   });
 
@@ -52,8 +53,8 @@ describe('eskiKuyrugaTakilanlariKurtar', () => {
     kuyrugaAl('set1', 'Deneme', ['alpha', 'beta']);
     const eklenen: WordCard[] = [];
 
-    eskiKuyrugaTakilanlariKurtar(k => eklenen.push(k));
-    const ikinci = eskiKuyrugaTakilanlariKurtar(k => eklenen.push(k));
+    eskiKuyrugaTakilanlariKurtar(k => { eklenen.push(k); return true; });
+    const ikinci = eskiKuyrugaTakilanlariKurtar(k => { eklenen.push(k); return true; });
 
     expect(eklenen).toHaveLength(2);
     expect(ikinci).toBe(0);
@@ -64,7 +65,7 @@ describe('eskiKuyrugaTakilanlariKurtar', () => {
     kuyrugaAl('set2', 'Iki', ['beta']);
     const eklenen: { kelime: string; setId: string }[] = [];
 
-    eskiKuyrugaTakilanlariKurtar((k, setId) => eklenen.push({ kelime: k.word, setId }));
+    eskiKuyrugaTakilanlariKurtar((k, setId) => { eklenen.push({ kelime: k.word, setId }); return true; });
 
     expect(eklenen).toEqual([
       { kelime: 'alpha', setId: 'set1' },
