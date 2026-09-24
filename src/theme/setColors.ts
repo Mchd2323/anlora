@@ -1,3 +1,4 @@
+import React from 'react';
 import { SET_RENK_KIMLIKLERI, SET_RENK_LISTESI, SetRengiId } from './setPalette';
 
 /**
@@ -9,10 +10,23 @@ import { SET_RENK_KIMLIKLERI, SET_RENK_LISTESI, SetRengiId } from './setPalette'
  * rengi kendiliğinden doğru tarafa geçiyor ve uygulamada renk hesabı yapan
  * tek bir satır kalmıyor.
  *
- * Set rengi YALNIZCA o setin kenarını, simgesini ve ilerleme vurgusunu
- * etkiliyor; uygulamanın genel temasını değiştirmiyor. Aynı şekilde, seçili
- * tema da setin rengini değiştirmiyor — yalnızca açık mı koyu mu olduğunu
- * belirliyor.
+ * Set rengi YALNIZCA o setin kendi kartını etkiliyor; uygulamanın genel
+ * temasını değiştirmiyor. Aynı şekilde, seçili tema da setin rengini
+ * değiştirmiyor — yalnızca açık mı koyu mu olduğunu belirliyor.
+ *
+ * HER RENK ÜÇ BELİRTEÇ TAŞIYOR. Kart bunların üçünü birden yazıyor:
+ *
+ *   --set-<kimlik>         dolgu    — simge rozetinin zemini
+ *   --set-<kimlik>-uzeri   simge    — rozetin ÜSTÜNDEKİ simgenin rengi
+ *   --set-<kimlik>-zemin   tonlama  — kartın gövdesine binen saydam ton
+ *
+ * `-uzeri` ölçülerek üretiliyor. Bileşenlerde `text-white` sabitti ve koyu
+ * temada rozetler açık renge döndüğü için simge sekiz renkte de kayboluyordu
+ * (ölçülen kontrast 1,37 – 2,15).
+ *
+ * `-zemin` olmadan renk yalnızca 32 piksellik rozete giriyordu; kartın
+ * gövdesi her sette aynı kalıyordu ve kullanıcı açısından setler
+ * renklenmiyordu.
  */
 
 /** Varsayılan set rengi. */
@@ -57,5 +71,36 @@ export function setRengi(color?: string): string {
   return `var(--set-${setPaletteId(color)})`;
 }
 
-/** Set penceresindeki sekiz kutucuk. */
-export const SET_RENKLERI = SET_RENK_LISTESI.map(r => ({ id: r.id, label: r.ad, hex: r.hex }));
+/** Rozetin üstündeki simgenin rengi — ölçülerek üretilmiş belirteç. */
+export function setUzeri(color?: string): string {
+  return `var(--set-${setPaletteId(color)}-uzeri)`;
+}
+
+/** Kartın gövdesine binen saydam ton. */
+export function setZemin(color?: string): string {
+  return `var(--set-${setPaletteId(color)}-zemin)`;
+}
+
+/**
+ * Bir set kartının taşıması gereken üç belirteç, tek yerde.
+ *
+ * Üçünü ayrı ayrı yazmak, birini yazmayı unutmayı kolaylaştırıyordu: kart
+ * yalnızca `--hanedan`ı yazdığı sürece simge beyaz kalıyor ve gövde
+ * tonlanmıyor. Çağıran taraf artık tek çağrı yapıyor.
+ */
+export function setDegiskenleri(color?: string): React.CSSProperties {
+  const id = setPaletteId(color);
+  return {
+    '--hanedan': `var(--set-${id})`,
+    '--hanedan-uzeri': `var(--set-${id}-uzeri)`,
+    '--hanedan-zemin': `var(--set-${id}-zemin)`
+  } as React.CSSProperties;
+}
+
+/** Set penceresindeki renk kutucukları. */
+export const SET_RENKLERI = SET_RENK_LISTESI.map(r => ({
+  id: r.id,
+  label: r.ad,
+  hex: r.hex,
+  uzeri: r.uzeri
+}));

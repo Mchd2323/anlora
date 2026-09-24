@@ -1,5 +1,6 @@
+import React from 'react';
 import { describe, it, expect } from 'vitest';
-import { setPaletteId, setRengi, SET_RENKLERI } from '../setColors';
+import { setPaletteId, setRengi, setUzeri, setZemin, setDegiskenleri, SET_RENKLERI } from '../setColors';
 import { SET_RENK_KIMLIKLERI } from '../setPalette';
 import { VARSAYILAN_SET_RENGI } from '../setColors';
 
@@ -9,9 +10,12 @@ import { VARSAYILAN_SET_RENGI } from '../setColors';
  * ve rengin CSS belirtecine bağlandığını doğruluyor.
  */
 describe('set renkleri', () => {
-  it('sekiz kutucuk, hepsi paletteki kimliklerle aynı', () => {
-    expect(SET_RENKLERI).toHaveLength(8);
+  it('kutucuklar paletteki kimliklerle birebir aynı', () => {
+    // Sayı sabitlenmiyor: palet sekizden on ikiye çıktı (dört açık ton
+    // eklendi) ve bundan sonra da değişebilir. Sabitlenen şey, seçicinin
+    // paletten SAPMAMASI — eksik ya da fazla kutucuk olmaması.
     expect(SET_RENKLERI.map(r => r.id)).toEqual([...SET_RENK_KIMLIKLERI]);
+    expect(SET_RENKLERI.length).toBeGreaterThanOrEqual(8);
   });
 
   it('eski altı renk kimliği karşılığına eşleniyor, hiçbiri kaybolmuyor', () => {
@@ -39,5 +43,31 @@ describe('set renkleri', () => {
     expect(setRengi('buz-kalesi')).toBe('var(--set-buz-kalesi)');
     expect(setRengi()).toBe(`var(--set-${VARSAYILAN_SET_RENGI})`);
     for (const r of SET_RENKLERI) expect(r.hex).toMatch(/^var\(--set-[a-z-]+\)$/);
+  });
+
+  /*
+   * Simge rengi ölçülerek üretiliyor ve her kutucuk kendi belirtecini
+   * taşımak zorunda. Bileşenlerde `text-white` sabitken koyu temada
+   * rozetlerin sekizinde de simge kayboluyordu (kontrast 1,37 – 2,15);
+   * bu testler o sabitin geri gelmemesini bekliyor.
+   */
+  it('her renk kendi simge ve zemin belirtecini taşıyor', () => {
+    for (const r of SET_RENKLERI) {
+      expect(r.uzeri).toBe(`var(--set-${r.id}-uzeri)`);
+    }
+    expect(setUzeri('amber')).toBe('var(--set-tacli-parsomen-uzeri)');
+    expect(setZemin('amber')).toBe('var(--set-tacli-parsomen-zemin)');
+    expect(setUzeri()).toBe(`var(--set-${VARSAYILAN_SET_RENGI}-uzeri)`);
+  });
+
+  it('kart üç belirtecin üçünü birden yazıyor', () => {
+    // Biri eksik kalırsa simge beyaz kalır ya da gövde tonlanmaz.
+    expect(setDegiskenleri('buz-kalesi')).toEqual({
+      '--hanedan': 'var(--set-buz-kalesi)',
+      '--hanedan-uzeri': 'var(--set-buz-kalesi-uzeri)',
+      '--hanedan-zemin': 'var(--set-buz-kalesi-zemin)'
+    });
+    expect(setDegiskenleri('indigo')['--hanedan' as keyof React.CSSProperties])
+      .toBe('var(--set-kuzgun-haritasi)');
   });
 });

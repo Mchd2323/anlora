@@ -1,6 +1,7 @@
 import React from 'react';
 import { Collection } from '../../types';
 import { setPaletteId } from '../../theme/setColors';
+import { SetRengiSecici } from './SetRengiSecici';
 
 /**
  * Bir kelime setinin görünüm ve sıralama seçenekleri.
@@ -26,59 +27,35 @@ export interface DeckOptionValues {
 interface Props {
   deger: DeckOptionValues;
   degistir: (yeni: DeckOptionValues) => void;
-  renkler: { id: string; label: string; hex: string }[];
+  renkler: { id: string; label: string; hex: string; uzeri: string }[];
   simgeler: { id: string; label: string; Icon: React.ElementType }[];
 }
 
-export const DeckOptionFields: React.FC<Props> = ({ deger, degistir, renkler, simgeler }) => (
+export const DeckOptionFields: React.FC<Props> = ({ deger, degistir, renkler, simgeler }) => {
+  const renkEtiketId = React.useId();
+  return (
   <>
     <div>
-      <label className="block text-xs font-bold text-[var(--text-secondary)]  mb-1.5">
+      <label id={renkEtiketId} className="block text-xs font-bold text-[var(--text-secondary)]  mb-1.5">
         Renk
       </label>
       {/*
-        SEKİZ REALMS VURGUSU. Kutucuklar tema aileleriyle aynı kimliği
-        taşıyor; sette saklanan şey de bu kimlik (paletteId), rengin kendisi
-        değil. Renk değeri `--set-<kimlik>` belirtecinden geliyor ve
-        açık/koyu karşılığı orada tanımlı, yani kullanıcı temasını
-        değiştirdiğinde setin rengi kendiliğinden doğru tarafa geçiyor.
+        REALMS VURGULARI. Kutucuklar tema aileleriyle aynı kimliği taşıyor;
+        sette saklanan şey de bu kimlik (paletteId), rengin kendisi değil.
+        Renk değeri `--set-<kimlik>` belirtecinden geliyor ve açık/koyu
+        karşılığı orada tanımlı, yani kullanıcı temasını değiştirdiğinde setin
+        rengi kendiliğinden doğru tarafa geçiyor.
 
-        `secili` kimliği doğrudan karşılaştırılmıyor: eski altı renk kimliği
+        Seçili kimlik doğrudan karşılaştırılmıyor: eski altı renk kimliği
         (amber, rose, ...) hâlâ kayıtlı olabilir ve önce karşılığına
         çevriliyor. Böylece eski bir set açıldığında kutucuğu seçili çıkıyor.
       */}
-      <div className="flex flex-wrap gap-1">
-        {renkler.map(renk => {
-          const secili = setPaletteId(deger.color) === renk.id;
-          return (
-            <button
-              key={renk.id}
-              type="button"
-              onClick={() => degistir({ ...deger, color: renk.id })}
-              title={renk.label}
-              aria-label={`${renk.label} rengi`}
-              aria-pressed={secili}
-              className="flex items-center justify-center w-11 h-11 cursor-pointer"
-            >
-              {/*
-                Basılabilir kutu 44 piksel, görünen arma 32. Örneği doğrudan
-                düğmenin kendisi olarak çizersek ya parmağa küçük gelir ya da
-                44'e uzayıp kare olmaktan çıkardı; ikisi de olmasın diye görsel
-                parça içeride duruyor.
-              */}
-              <span
-                aria-hidden="true"
-                className={`hanedan-kapak w-8 h-8 rounded-xl transition-transform ${
-                  secili
-                    ? 'ring-[3px] ring-offset-2 ring-offset-[var(--surface)] ring-[var(--text-primary)] scale-105'
-                    : 'hover:scale-105'
-                }`}
-                style={{ '--hanedan': renk.hex } as React.CSSProperties}
-              />
-            </button>
-          );
-        })}
-      </div>
+      <SetRengiSecici
+        seciliId={setPaletteId(deger.color)}
+        renkler={renkler}
+        sec={id => degistir({ ...deger, color: id })}
+        etiketId={renkEtiketId}
+      />
     </div>
 
     <div>
@@ -155,4 +132,5 @@ export const DeckOptionFields: React.FC<Props> = ({ deger, degistir, renkler, si
       “Yukarı taşı / Aşağı taşı”.
     </p>
   </>
-);
+  );
+};

@@ -177,37 +177,137 @@
    Orman Nöbeti: açık #33523F (en düşük 6.35) · koyu #91C8AE (en düşük 7.79)
    Demir Gece: açık #43484C (en düşük 6.76) · koyu #D0D5DA (en düşük 9.99)
    Fildişi Altın: açık #6F6D56 (en düşük 3.84) · koyu #BBB99F (en düşük 7.42)
+   Turkuaz Sis: açık #96E8F6 (en düşük 1.01) · koyu #A3F5F4 (en düşük 11.9)
+   Şafak Gülü: açık #ECB0A0 (en düşük 1.36) · koyu #FFDCDB (en düşük 11.61)
+   Mürekkep Sisi: açık #B0AFDF (en düşük 1.53) · koyu #AECCFB (en düşük 9.02)
+   Söğüt Gölgesi: açık #8DBB98 (en düşük 1.58) · koyu #D8EEDC (en düşük 12.08)
    -------------------------------------------------------------------------- */
 :root,
 :root[data-theme='light'] {
   --set-tacli-parsomen: #684B25;
+  --set-tacli-parsomen-uzeri: #FFFFFF;
+  --set-tacli-parsomen-zemin: rgb(104 75 37 / 0.12);
   --set-buz-kalesi: #2B7381;
+  --set-buz-kalesi-uzeri: #FFFFFF;
+  --set-buz-kalesi-zemin: rgb(43 115 129 / 0.12);
   --set-kuzgun-haritasi: #60658A;
+  --set-kuzgun-haritasi-uzeri: #FFFFFF;
+  --set-kuzgun-haritasi-zemin: rgb(96 101 138 / 0.12);
   --set-ejderha-koz: #A15847;
+  --set-ejderha-koz-uzeri: #FFFFFF;
+  --set-ejderha-koz-zemin: rgb(161 88 71 / 0.12);
   --set-kizil-kale: #782F3D;
+  --set-kizil-kale-uzeri: #FFFFFF;
+  --set-kizil-kale-zemin: rgb(120 47 61 / 0.12);
   --set-orman-nobeti: #33523F;
+  --set-orman-nobeti-uzeri: #FFFFFF;
+  --set-orman-nobeti-zemin: rgb(51 82 63 / 0.12);
   --set-demir-gece: #43484C;
+  --set-demir-gece-uzeri: #FFFFFF;
+  --set-demir-gece-zemin: rgb(67 72 76 / 0.12);
   --set-fildisi-altin: #6F6D56;
+  --set-fildisi-altin-uzeri: #FFFFFF;
+  --set-fildisi-altin-zemin: rgb(111 109 86 / 0.12);
+  --set-turkuaz-sis: #96E8F6;
+  --set-turkuaz-sis-uzeri: #15283D;
+  --set-turkuaz-sis-zemin: rgb(150 232 246 / 0.12);
+  --set-safak-gulu: #ECB0A0;
+  --set-safak-gulu-uzeri: #15283D;
+  --set-safak-gulu-zemin: rgb(236 176 160 / 0.12);
+  --set-murekkep-sisi: #B0AFDF;
+  --set-murekkep-sisi-uzeri: #15283D;
+  --set-murekkep-sisi-zemin: rgb(176 175 223 / 0.12);
+  --set-sogut-golgesi: #8DBB98;
+  --set-sogut-golgesi-uzeri: #15283D;
+  --set-sogut-golgesi-zemin: rgb(141 187 152 / 0.12);
 }
 :root[data-theme='dark'] {
   --set-tacli-parsomen: #F9D8A2;
+  --set-tacli-parsomen-uzeri: #15283D;
+  --set-tacli-parsomen-zemin: rgb(249 216 162 / 0.12);
   --set-buz-kalesi: #82C4D6;
+  --set-buz-kalesi-uzeri: #15283D;
+  --set-buz-kalesi-zemin: rgb(130 196 214 / 0.12);
   --set-kuzgun-haritasi: #B3ACD3;
+  --set-kuzgun-haritasi-uzeri: #15283D;
+  --set-kuzgun-haritasi-zemin: rgb(179 172 211 / 0.12);
   --set-ejderha-koz: #F7A587;
+  --set-ejderha-koz-uzeri: #15283D;
+  --set-ejderha-koz-zemin: rgb(247 165 135 / 0.12);
   --set-kizil-kale: #F89EAE;
+  --set-kizil-kale-uzeri: #15283D;
+  --set-kizil-kale-zemin: rgb(248 158 174 / 0.12);
   --set-orman-nobeti: #91C8AE;
+  --set-orman-nobeti-uzeri: #15283D;
+  --set-orman-nobeti-zemin: rgb(145 200 174 / 0.12);
   --set-demir-gece: #D0D5DA;
+  --set-demir-gece-uzeri: #15283D;
+  --set-demir-gece-zemin: rgb(208 213 218 / 0.12);
   --set-fildisi-altin: #BBB99F;
+  --set-fildisi-altin-uzeri: #15283D;
+  --set-fildisi-altin-zemin: rgb(187 185 159 / 0.12);
+  --set-turkuaz-sis: #A3F5F4;
+  --set-turkuaz-sis-uzeri: #15283D;
+  --set-turkuaz-sis-zemin: rgb(163 245 244 / 0.12);
+  --set-safak-gulu: #FFDCDB;
+  --set-safak-gulu-uzeri: #15283D;
+  --set-safak-gulu-zemin: rgb(255 220 219 / 0.12);
+  --set-murekkep-sisi: #AECCFB;
+  --set-murekkep-sisi-uzeri: #15283D;
+  --set-murekkep-sisi-zemin: rgb(174 204 251 / 0.12);
+  --set-sogut-golgesi: #D8EEDC;
+  --set-sogut-golgesi-uzeri: #15283D;
+  --set-sogut-golgesi-zemin: rgb(216 238 220 / 0.12);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
     --set-tacli-parsomen: #F9D8A2;
+    --set-tacli-parsomen-uzeri: #15283D;
+    --set-tacli-parsomen-zemin: rgb(249 216 162 / 0.12);
+  --set-tacli-parsomen-zemin: rgb(249 216 162 / 0.12);
     --set-buz-kalesi: #82C4D6;
+    --set-buz-kalesi-uzeri: #15283D;
+    --set-buz-kalesi-zemin: rgb(130 196 214 / 0.12);
+  --set-buz-kalesi-zemin: rgb(130 196 214 / 0.12);
     --set-kuzgun-haritasi: #B3ACD3;
+    --set-kuzgun-haritasi-uzeri: #15283D;
+    --set-kuzgun-haritasi-zemin: rgb(179 172 211 / 0.12);
+  --set-kuzgun-haritasi-zemin: rgb(179 172 211 / 0.12);
     --set-ejderha-koz: #F7A587;
+    --set-ejderha-koz-uzeri: #15283D;
+    --set-ejderha-koz-zemin: rgb(247 165 135 / 0.12);
+  --set-ejderha-koz-zemin: rgb(247 165 135 / 0.12);
     --set-kizil-kale: #F89EAE;
+    --set-kizil-kale-uzeri: #15283D;
+    --set-kizil-kale-zemin: rgb(248 158 174 / 0.12);
+  --set-kizil-kale-zemin: rgb(248 158 174 / 0.12);
     --set-orman-nobeti: #91C8AE;
+    --set-orman-nobeti-uzeri: #15283D;
+    --set-orman-nobeti-zemin: rgb(145 200 174 / 0.12);
+  --set-orman-nobeti-zemin: rgb(145 200 174 / 0.12);
     --set-demir-gece: #D0D5DA;
+    --set-demir-gece-uzeri: #15283D;
+    --set-demir-gece-zemin: rgb(208 213 218 / 0.12);
+  --set-demir-gece-zemin: rgb(208 213 218 / 0.12);
     --set-fildisi-altin: #BBB99F;
+    --set-fildisi-altin-uzeri: #15283D;
+    --set-fildisi-altin-zemin: rgb(187 185 159 / 0.12);
+  --set-fildisi-altin-zemin: rgb(187 185 159 / 0.12);
+    --set-turkuaz-sis: #A3F5F4;
+    --set-turkuaz-sis-uzeri: #15283D;
+    --set-turkuaz-sis-zemin: rgb(163 245 244 / 0.12);
+  --set-turkuaz-sis-zemin: rgb(163 245 244 / 0.12);
+    --set-safak-gulu: #FFDCDB;
+    --set-safak-gulu-uzeri: #15283D;
+    --set-safak-gulu-zemin: rgb(255 220 219 / 0.12);
+  --set-safak-gulu-zemin: rgb(255 220 219 / 0.12);
+    --set-murekkep-sisi: #AECCFB;
+    --set-murekkep-sisi-uzeri: #15283D;
+    --set-murekkep-sisi-zemin: rgb(174 204 251 / 0.12);
+  --set-murekkep-sisi-zemin: rgb(174 204 251 / 0.12);
+    --set-sogut-golgesi: #D8EEDC;
+    --set-sogut-golgesi-uzeri: #15283D;
+    --set-sogut-golgesi-zemin: rgb(216 238 220 / 0.12);
+  --set-sogut-golgesi-zemin: rgb(216 238 220 / 0.12);
   }
 }

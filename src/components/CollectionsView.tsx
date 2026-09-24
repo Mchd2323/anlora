@@ -12,7 +12,7 @@ import { StudyFlashcard } from './study/StudyFlashcard';
 import { Layers, Search, Sparkles, BookOpen, GraduationCap, Tv, Briefcase, Plane, Merge, MoveRight, X, Pin, Trash2, Edit2, Copy, FileText, Check, CheckCircle2, Loader2, AlertCircle, GitMerge, ArrowUp, ArrowDown, WifiOff } from 'lucide-react';
 import { getPhraseCard } from '../services/phraseRepository';
 import { DeckOptionFields, DeckOptionValues } from './collections/DeckOptionFields';
-import { SET_RENKLERI, setPaletteId, setRengi } from '../theme/setColors';
+import { SET_RENKLERI, setDegiskenleri, setPaletteId } from '../theme/setColors';
 import { BatchWordModal } from './BatchWordModal';
 import { TextMinerModal } from './TextMinerModal';
 import { useModalA11y } from '../hooks/useModalA11y';
@@ -1624,11 +1624,16 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     setActiveDeckId(deck.id);
                     setOpenMenuDeckId(null);
                   }}
-                  className={`p-4 rounded-xl border transition-all cursor-pointer relative group ${
+                  className={`hanedan-kutu p-4 rounded-xl border transition-all cursor-pointer relative group ${
                     isActive
                       ? 'bg-[var(--surface)] border-[var(--primary)] shadow-xs ring-1 ring-[var(--primary)]'
                       : 'bg-[var(--surface)] border-[var(--border)] hover:border-[var(--neutral-300)]'
                   }`}
+                  /*
+                    Setin üç belirteci KARTA yazılıyor, rozete değil: rozet de,
+                    gövdenin tonlaması da aynı değerleri kalıtımla alıyor.
+                  */
+                  style={setDegiskenleri(deck.color)}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1 flex items-start gap-2.5">
@@ -1637,8 +1642,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                         bunlar tanıtır; kullanıcı okumadan bulur.
                       */}
                       <span
-                        className="hanedan-kapak w-8 h-8 rounded-xl flex items-center justify-center text-white shrink-0 mt-0.5"
-                        style={{ '--hanedan': setRengi(deck.color) } as React.CSSProperties}
+                        className="hanedan-kapak w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
                         aria-hidden="true"
                       >
                         <DeckIcon name={deck.iconName} className="w-4 h-4" />
@@ -3224,11 +3228,11 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                     key={deck.id}
                     type="button"
                     onClick={() => moveSelected(deck.id, bulkTarget)}
-                    className="w-full text-left px-3.5 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--bg)] hover:bg-[var(--primary-soft)] hover:border-[var(--primary-border)] transition-colors cursor-pointer flex items-center gap-2.5"
+                    className="hanedan-kutu w-full text-left px-3.5 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--bg)] hover:border-[var(--primary-border)] transition-colors cursor-pointer flex items-center gap-2.5"
+                    style={setDegiskenleri(deck.color)}
                   >
                     <span
-                      className="hanedan-kapak w-7 h-7 rounded-lg flex items-center justify-center text-white shrink-0"
-                      style={{ '--hanedan': setRengi(deck.color) } as React.CSSProperties}
+                      className="hanedan-kapak w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
                     >
                       <DeckIcon name={deck.iconName} className="w-3.5 h-3.5" />
                     </span>

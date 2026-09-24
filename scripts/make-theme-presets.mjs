@@ -92,7 +92,44 @@ const SET_RENKLERI = [
   { id: 'kizil-kale',      ad: 'Kızıl Kale',      acik: '#782F3D', koyu: '#F89EAE' },
   { id: 'orman-nobeti',    ad: 'Orman Nöbeti',    acik: '#33523F', koyu: '#91C8AE' },
   { id: 'demir-gece',      ad: 'Demir Gece',      acik: '#43484C', koyu: '#D0D5DA' },
-  { id: 'fildisi-altin',   ad: 'Fildişi Altın',   acik: '#6F6D56', koyu: '#BBB99F' }
+  { id: 'fildisi-altin',   ad: 'Fildişi Altın',   acik: '#6F6D56', koyu: '#BBB99F' },
+
+  /*
+   * AÇIK TONLU DÖRTLÜ — sonradan eklendi.
+   *
+   * Yukarıdaki sekizi açık temada KOYU duruyor: hepsi uygulamanın kendi koyu
+   * vurgularının aynası. Yan yana konunca renk seçeneği değil, sekiz koyu
+   * kare gibi okunuyordu.
+   *
+   * Yenileri serbest bir renk aramasından çıkmadı; her biri UYGULAMANIN
+   * KENDİ ton ailelerinden birinin açık register'ı (Lab hue penceresi
+   * ailenin kendi tonundan alındı):
+   *   Turkuaz Sis    <- Buz Kalesi / Buz Nöbeti vurgusu   (H 196–214)
+   *   Şafak Gülü     <- Kızıl Şafak / Kızıl Gece vurgusu  (H  22– 40)
+   *   Mürekkep Sisi  <- --text-primary / Kuzgun Haritası  (H 268–296)
+   *   Söğüt Gölgesi  <- --learned yeşili                  (H 150–172)
+   *
+   * Kroma 12–22 ile sınırlandı: eniyileyici serbest bırakıldığında ayrışmayı
+   * doygunluktan alıp neon camgöbeğine (#89ECFC) kaçıyordu — bu dosyanın
+   * yukarıdaki notunun tam olarak kaçındığı şey.
+   *
+   * ÖLÇÜLDÜ (CIEDE2000, en yakın çift):
+   *   açık tema  16,5  (sekiz renkli tablodaki değerin AYNISI — hiç düşmedi)
+   *   koyu tema  13,5  (sekiz renkte 14,8 idi)
+   * Koyu taraftaki düşüş 8 -> 12 renge çıkmanın bedeli. Eşik olarak anlamlı
+   * olan sayı bu değil: bu dosyanın yukarıdaki notu ΔE 3,0'ı "pratikte aynı
+   * renk", 5,8/6,6'yı ayırt edilemez sayıyordu; 13,5 onların iki katından
+   * fazla.
+   *
+   * Zeminden ayrışma TABAN yüzeylere değil, HER TEMANIN yüzeylerine karşı
+   * ölçülüyor. İlk denemedeki Şafak Gülü (#FFCABC) taban parşömende iyiydi
+   * ama Kızıl Şafak temasının panelinde ΔE 9,4 veriyordu — o tema gül-krem
+   * olduğu için. Aşağıdaki kapı onu yazmadan önce reddetti.
+   */
+  { id: 'turkuaz-sis',     ad: 'Turkuaz Sis',     acik: '#96E8F6', koyu: '#A3F5F4' },
+  { id: 'safak-gulu',      ad: 'Şafak Gülü',      acik: '#ECB0A0', koyu: '#FFDCDB' },
+  { id: 'murekkep-sisi',   ad: 'Mürekkep Sisi',   acik: '#B0AFDF', koyu: '#AECCFB' },
+  { id: 'sogut-golgesi',   ad: 'Söğüt Gölgesi',   acik: '#8DBB98', koyu: '#D8EEDC' }
 ];
 
 /** Metin ve ikon için eşik. Büyük olmayan her yazı bunu geçmek zorunda. */
@@ -124,6 +161,40 @@ const veri = await p.evaluate(({ KAYNAK, SET_RENKLERI, METIN_ESIGI, KENAR_ESIGI 
   const lin = v => { v/=255; return v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4); };
   const L = ([r,g,bb]) => 0.2126*lin(r)+0.7152*lin(g)+0.0722*lin(bb);
   const cr = (a,bb) => { const [m,n] = [L(rgb(a)), L(rgb(bb))].sort((u,v)=>v-u); return +((m+0.05)/(n+0.05)).toFixed(2); };
+  /* CIEDE2000 — set kutucuklarinin BIRBIRINDEN ve zeminden ayrilmasi icin.
+     Kontrast orani burada yanlis olcu: iki renk ayni kontrasta sahip olup
+     ayni renk olabilir (bkz. bu dosyanin ustundeki OLCULEREK YENILENDI notu). */
+  const lab = s => { const [r,g,bb]=rgb(s).map(lin);
+    const f=t=>t>0.008856?Math.cbrt(t):(7.787*t+16/116);
+    const X=f((0.4124*r+0.3576*g+0.1805*bb)/0.95047), Y=f(0.2126*r+0.7152*g+0.0722*bb),
+          Z=f((0.0193*r+0.1192*g+0.9505*bb)/1.08883);
+    return [116*Y-16, 500*(X-Y), 200*(Y-Z)]; };
+  const dE = (s1,s2) => { const [L1,a1,b1]=lab(s1),[L2,a2,b2]=lab(s2);
+    const C1=Math.hypot(a1,b1),C2=Math.hypot(a2,b2),Cb=(C1+C2)/2;
+    const G=0.5*(1-Math.sqrt(Cb**7/(Cb**7+25**7))), A1=a1*(1+G), A2=a2*(1+G);
+    const P1=Math.hypot(A1,b1),P2=Math.hypot(A2,b2);
+    const hp=(b,a)=>{ if(b===0&&a===0)return 0; const d=Math.atan2(b,a)*180/Math.PI; return d<0?d+360:d; };
+    const h1=hp(b1,A1),h2=hp(b2,A2), dL=L2-L1, dC=P2-P1;
+    let dh=0; if(P1*P2!==0){ dh=h2-h1; if(dh>180)dh-=360; else if(dh<-180)dh+=360; }
+    const dH=2*Math.sqrt(P1*P2)*Math.sin(dh*Math.PI/360);
+    const Lb=(L1+L2)/2, Cbp=(P1+P2)/2;
+    let hb=h1+h2; if(P1*P2!==0){ if(Math.abs(h1-h2)>180) hb += (hb<360?360:-360); hb/=2; }
+    const T=1-0.17*Math.cos((hb-30)*Math.PI/180)+0.24*Math.cos(2*hb*Math.PI/180)
+            +0.32*Math.cos((3*hb+6)*Math.PI/180)-0.20*Math.cos((4*hb-63)*Math.PI/180);
+    const Sl=1+(0.015*(Lb-50)**2)/Math.sqrt(20+(Lb-50)**2), Sc=1+0.045*Cbp, Sh=1+0.015*Cbp*T;
+    const Rt=-Math.sin(2*(30*Math.exp(-(((hb-275)/25)**2)))*Math.PI/180)
+             *2*Math.sqrt(Cbp**7/(Cbp**7+25**7));
+    return +Math.sqrt((dL/Sl)**2+(dC/Sc)**2+(dH/Sh)**2+Rt*(dC/Sc)*(dH/Sh)).toFixed(1); };
+
+  /* Kutucugun UZERINDEKI simgenin rengi: beyaz mi mürekkep mi? Olculerek
+     secilir, varsayilmaz. Eskiden bilesende `text-white` sabitti; koyu temada
+     kutucuklar acik renk oldugu icin simge sekiz renkte de kayboluyordu
+     (olculen kontrast 1,37 – 2,15). */
+  const uzeriSec = sw => {
+    const beyaz = cr(sw, '#FFFFFF'), murekkep = cr(sw, '#15283D');
+    return beyaz >= murekkep ? { renk: '#FFFFFF', k: beyaz } : { renk: '#15283D', k: murekkep };
+  };
+
   const karis = (a, bb, yuzde) => hex(`color-mix(in srgb, ${a} ${yuzde}%, ${bb})`);
   // Üretilen CSS'te color-mix KULLANILMIYOR (eski WebView riski); karışım
   // burada, üretim anında çözülüyor ve çıktıya düz hex/rgb yazılıyor.
@@ -239,13 +310,54 @@ const veri = await p.evaluate(({ KAYNAK, SET_RENKLERI, METIN_ESIGI, KENAR_ESIGI 
   // ölçülüyor; liste `theme-presets.json`'dan geliyor.
   const acikYuzeyler = ['#F2E8D8', '#F8F1E4', '#EFE5D3', ...acik.flatMap(t => [t.page, t.panel, t.inner])];
   const koyuYuzeyler = ['#0D1925', '#142433', '#0F1D29', ...koyu.flatMap(t => [t.page, t.panel, t.inner])];
-  const setler = SET_RENKLERI.map(r => ({
-    ...r,
-    acikEnDusuk: Math.min(...acikYuzeyler.map(y => cr(r.acik, y))),
-    koyuEnDusuk: Math.min(...koyuYuzeyler.map(y => cr(r.koyu, y)))
-  }));
+  /*
+   * SET KUTUSUNUN ZEMİN TONU.
+   *
+   * Setin rengi eskiden yalnızca 32 piksellik simge rozetine giriyordu; kartın
+   * gövdesi her sette aynı --surface idi. Kullanıcının gördüğü şey "setler
+   * renklenmiyor"du, çünkü renk kartın kendisine hiç ulaşmıyordu.
+   *
+   * Tonlama color-mix ile ÇALIŞMA ZAMANINDA yapılmıyor (bu dosyanın yukarıdaki
+   * notu: eski WebView riski). Bunun yerine saydam bir renk üretiliyor ve
+   * kartta `background-image` olarak --surface'in ÜSTÜNE biniyor; hangi tema
+   * seçili olursa olsun doğru zeminle karışıyor, ek değişken gerekmiyor.
+   *
+   * Oran %12: aşağıdaki kapı, tonlanmış zeminde HER temanın metin rengini
+   * ölçüyor ve 4,5'in altına düşen olursa dosya yazılmıyor.
+   */
+  const TONLAMA = 12;
+  const acikMetinler = ['#15283D', ...acik.map(t => t.text)];
+  const koyuMetinler = ['#F2EBDD', ...koyu.map(t => t.text)];
 
-  return { acik, koyu, setler };
+  const setler = SET_RENKLERI.map(r => {
+    const au = uzeriSec(r.acik), ku = uzeriSec(r.koyu);
+    return {
+      acikZemin: rgba(r.acik, TONLAMA / 100),
+      koyuZemin: rgba(r.koyu, TONLAMA / 100),
+      acikZeminMetin: Math.min(...acikYuzeyler.flatMap(y =>
+        acikMetinler.map(t => cr(t, karis(r.acik, y, TONLAMA))))),
+      koyuZeminMetin: Math.min(...koyuYuzeyler.flatMap(y =>
+        koyuMetinler.map(t => cr(t, karis(r.koyu, y, TONLAMA))))),
+      ...r,
+      acikUzeri: au.renk, acikUzeriK: au.k,
+      koyuUzeri: ku.renk, koyuUzeriK: ku.k,
+      acikEnDusuk: Math.min(...acikYuzeyler.map(y => cr(r.acik, y))),
+      koyuEnDusuk: Math.min(...koyuYuzeyler.map(y => cr(r.koyu, y))),
+      acikEnDusukDE: Math.min(...acikYuzeyler.map(y => dE(r.acik, y))),
+      koyuEnDusukDE: Math.min(...koyuYuzeyler.map(y => dE(r.koyu, y)))
+    };
+  });
+
+  const setCiftleri = [];
+  for (let i = 0; i < setler.length; i++)
+    for (let j = i + 1; j < setler.length; j++)
+      setCiftleri.push({
+        a: setler[i].ad, b: setler[j].ad,
+        acikDE: dE(setler[i].acik, setler[j].acik),
+        koyuDE: dE(setler[i].koyu, setler[j].koyu)
+      });
+
+  return { acik, koyu, setler, setCiftleri };
 }, { KAYNAK, SET_RENKLERI, METIN_ESIGI, KENAR_ESIGI });
 
 await b.close();
@@ -265,9 +377,53 @@ for (const t of hepsi) {
   if (o.armaAltini < 3.0) dusuk.push(`${t.name}: arma plakasının altını ${o.armaAltini} < 3`);
   if (o.cubukYazisi < METIN_ESIGI) dusuk.push(`${t.name}: çubuk/menü yazısı ${o.cubukYazisi}`);
 }
+/*
+ * SET KUTUCUKLARININ KAPISI — ÖLÇÜ DEĞİŞTİ, GEVŞEMEDİ.
+ *
+ * Eskiden kural "kutucuk dolgusu her yüzeye karşı 3:1" idi. Bu kural açık
+ * tonlu bir set rengini (turkuaz, gül) daha doğarken eliyordu: parşömen
+ * zemininde açık bir dolgu 3:1'i hiçbir zaman geçemez.
+ *
+ * Kuralı kaldırmak yerine DOĞRU YERE taşıdım. 3:1, "arayüzü anlamak için
+ * gereken metin dışı içerik" içindir; kutucukta bu işi yapan şey dolgu değil,
+ * KENAR: `.hanedan-kapak` zaten saç teli inceliğinde altın bir çerçeve
+ * taşıyor, kutunun nerede bittiği ondan okunuyor. Aynı gerekçe bu dosyada
+ * KENAR_ESIGI için zaten kurulmuştu.
+ *
+ * Dolgunun gerçek işi AYIRT ETTİRMEK: hem zeminden hem birbirinden. Onun
+ * ölçüsü kontrast oranı değil ΔE2000 — iki renk aynı kontrast oranına sahip
+ * olup aynı renk olabilir.
+ *
+ * Kutucuğun ÜSTÜNDEKİ simge ise gerçek metin/ikon: 4,5:1 orada uygulanıyor
+ * ve artık gerçekten uygulanıyor. Eskiden hiç ölçülmüyordu — bileşende
+ * `text-white` sabitti ve koyu temada sekiz kutucuğun sekizinde de simge
+ * kayboluyordu (1,37 – 2,15).
+ */
+const SET_AYRISMA_ESIGI = 12;   // ΔE2000, dolgunun her yüzeyden ayrılması
+const SET_SIMGE_ESIGI = 4.5;    // kontrast, simgenin kutucuğun üstünde okunması
 for (const r of veri.setler) {
-  if (r.acikEnDusuk < 3.0) dusuk.push(`set ${r.ad}: açık ${r.acik} en düşük ${r.acikEnDusuk} < 3`);
-  if (r.koyuEnDusuk < 3.0) dusuk.push(`set ${r.ad}: koyu ${r.koyu} en düşük ${r.koyuEnDusuk} < 3`);
+  if (r.acikEnDusukDE < SET_AYRISMA_ESIGI)
+    dusuk.push(`set ${r.ad}: açık ${r.acik} zeminden ayrışma ΔE ${r.acikEnDusukDE} < ${SET_AYRISMA_ESIGI}`);
+  if (r.koyuEnDusukDE < SET_AYRISMA_ESIGI)
+    dusuk.push(`set ${r.ad}: koyu ${r.koyu} zeminden ayrışma ΔE ${r.koyuEnDusukDE} < ${SET_AYRISMA_ESIGI}`);
+  if (r.acikUzeriK < SET_SIMGE_ESIGI)
+    dusuk.push(`set ${r.ad}: açık simge ${r.acikUzeri} / ${r.acik} = ${r.acikUzeriK} < ${SET_SIMGE_ESIGI}`);
+  if (r.koyuUzeriK < SET_SIMGE_ESIGI)
+    dusuk.push(`set ${r.ad}: koyu simge ${r.koyuUzeri} / ${r.koyu} = ${r.koyuUzeriK} < ${SET_SIMGE_ESIGI}`);
+  if (r.acikZeminMetin < METIN_ESIGI)
+    dusuk.push(`set ${r.ad}: açık tonlanmış kart zemininde metin ${r.acikZeminMetin} < ${METIN_ESIGI}`);
+  if (r.koyuZeminMetin < METIN_ESIGI)
+    dusuk.push(`set ${r.ad}: koyu tonlanmış kart zemininde metin ${r.koyuZeminMetin} < ${METIN_ESIGI}`);
+}
+/* Renkler birbirinden de ayrılmalı — kullanıcı seçerken hangisini seçtiğini
+   görmeli. Eşik, sekiz renkli tablonun kendi ölçülmüş tabanının altında
+   kalmasın diye 10'a konuldu (o tablo açık 16,5 / koyu 14,8 veriyordu). */
+const SET_IKILI_ESIGI = 10;
+for (const c of veri.setCiftleri) {
+  if (c.acikDE < SET_IKILI_ESIGI)
+    dusuk.push(`set çifti ${c.a} / ${c.b}: açık temada ΔE ${c.acikDE} < ${SET_IKILI_ESIGI}`);
+  if (c.koyuDE < SET_IKILI_ESIGI)
+    dusuk.push(`set çifti ${c.a} / ${c.b}: koyu temada ΔE ${c.koyuDE} < ${SET_IKILI_ESIGI}`);
 }
 if (dusuk.length) {
   console.error(`Eşiğin altında kalan değerler var, dosya yazılmadı:`);
@@ -328,14 +484,14 @@ ${veri.setler.map(r => `   ${r.ad}: açık ${r.acik} (en düşük ${r.acikEnDusu
    -------------------------------------------------------------------------- */
 :root,
 :root[data-theme='light'] {
-${veri.setler.map(r => `  --set-${r.id}: ${r.acik};`).join('\n')}
+${veri.setler.map(r => `  --set-${r.id}: ${r.acik};\n  --set-${r.id}-uzeri: ${r.acikUzeri};\n  --set-${r.id}-zemin: ${r.acikZemin};`).join('\n')}
 }
 :root[data-theme='dark'] {
-${veri.setler.map(r => `  --set-${r.id}: ${r.koyu};`).join('\n')}
+${veri.setler.map(r => `  --set-${r.id}: ${r.koyu};\n  --set-${r.id}-uzeri: ${r.koyuUzeri};\n  --set-${r.id}-zemin: ${r.koyuZemin};`).join('\n')}
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
-${veri.setler.map(r => `    --set-${r.id}: ${r.koyu};`).join('\n')}
+${veri.setler.map(r => `    --set-${r.id}: ${r.koyu};\n    --set-${r.id}-uzeri: ${r.koyuUzeri};\n    --set-${r.id}-zemin: ${r.koyuZemin};\n  --set-${r.id}-zemin: ${r.koyuZemin};`).join('\n')}
   }
 }
 `;
@@ -397,13 +553,22 @@ export interface SetRengi {
   ad: string;
   /** CSS belirteci — açık/koyu karşılığı belirtecin içinde tanımlı. */
   hex: string;
+  /**
+   * Kutucuğun ÜSTÜNDEKİ simgenin rengi — ölçülerek seçildi, varsayılmadı.
+   *
+   * Bileşenlerde \`text-white\` sabitti. Açık temada kutucuklar koyu olduğu
+   * için sorun görünmüyordu; koyu temada kutucuklar açık renge dönüyor ve
+   * simge kayboluyordu (ölçülen kontrast 1,37 – 2,15). Artık her kutucuk
+   * kendi okunur simge rengini taşıyor.
+   */
+  uzeri: string;
 }
 
 export type SetRengiId =
 ${veri.setler.map(r => `  | '${r.id}'`).join('\n')};
 
 export const SET_RENK_LISTESI: SetRengi[] = [
-${veri.setler.map(r => `  { id: '${r.id}', ad: '${r.ad}', hex: 'var(--set-${r.id})' }`).join(',\n')}
+${veri.setler.map(r => `  { id: '${r.id}', ad: '${r.ad}', hex: 'var(--set-${r.id})', uzeri: 'var(--set-${r.id}-uzeri)' }`).join(',\n')}
 ];
 
 export const SET_RENK_KIMLIKLERI: readonly SetRengiId[] = SET_RENK_LISTESI.map(r => r.id);
@@ -417,5 +582,11 @@ for (const t of hepsi) {
 }
 console.log(`  --- set renkleri (taban + ${veri.acik.length + veri.koyu.length} ek temanın tüm yüzeylerinde en düşük) ---`);
 for (const r of veri.setler) {
-  console.log(`  ${r.ad.padEnd(16)} açık ${r.acik} ${r.acikEnDusuk}   koyu ${r.koyu} ${r.koyuEnDusuk}`);
+  console.log(`  ${r.ad.padEnd(16)} açık ${r.acik} ΔE${String(r.acikEnDusukDE).padStart(5)} simge ${r.acikUzeri} ${r.acikUzeriK}` +
+              `   koyu ${r.koyu} ΔE${String(r.koyuEnDusukDE).padStart(5)} simge ${r.koyuUzeri} ${r.koyuUzeriK}`);
 }
+const enYakinA = veri.setCiftleri.reduce((m, c) => c.acikDE < m.acikDE ? c : m);
+const enYakinK = veri.setCiftleri.reduce((m, c) => c.koyuDE < m.koyuDE ? c : m);
+console.log(`  --- renkler birbirinden ne kadar ayrılıyor (CIEDE2000, en yakın çift) ---`);
+console.log(`  açık tema  ΔE ${enYakinA.acikDE}  ${enYakinA.a} / ${enYakinA.b}`);
+console.log(`  koyu tema  ΔE ${enYakinK.koyuDE}  ${enYakinK.a} / ${enYakinK.b}`);

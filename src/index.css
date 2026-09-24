@@ -367,9 +367,48 @@
    */
   .hanedan-kapak {
     background-color: var(--hanedan, var(--primary));
+    /*
+     * SİMGENİN RENGİ ARTIK ÖLÇÜLÜYOR.
+     *
+     * Burası eskiden renk vermiyordu; simgeyi bileşendeki `text-white`
+     * boyuyordu. Açık temada rozetler koyu olduğu için sorun görünmüyordu.
+     * Koyu temada rozetler açık renge dönüyor ve simge KAYBOLUYORDU: sekiz
+     * rengin sekizinde de ölçülen kontrast 1,37 – 2,15 arasındaydı.
+     *
+     * `--hanedan-uzeri` her renk için üretim anında beyaz/mürekkep arasından
+     * ölçülerek seçiliyor (scripts/make-theme-presets.mjs) ve 4,5 eşiğinin
+     * altına düşerse dosya yazılmıyor.
+     */
+    color: var(--hanedan-uzeri, #FFFFFF);
     box-shadow:
       inset 0 0 0 1px rgb(183 149 82 / 0.55),
       inset 0 -6px 8px -6px rgb(0 0 0 / 0.45);
+  }
+
+  /*
+   * SET KUTUSU — RENK ARTIK KARTIN KENDİSİNE GİRİYOR.
+   *
+   * Setin rengi yalnızca 32 piksellik rozete uygulanıyordu; kartın gövdesi
+   * her sette aynı `--surface` idi. Kullanıcı açısından setler renklenmiyordu.
+   *
+   * NEDEN box-shadow DEĞİL. Sol kenar çubuğu ilk denemede `inset box-shadow`
+   * idi. Kart etkin olduğunda Tailwind'in `shadow-xs` ve `ring-1` yardımcı
+   * sınıfları aynı özelliği yazıyor ve utilities katmanı bu base kuralını
+   * eziyor — çubuk seçili sette sessizce kayboluyordu.
+   *
+   * NEDEN color-mix DEĞİL. Üretilen CSS'te color-mix bilinçli olarak
+   * kullanılmıyor (eski WebView riski). Tonlama, üretim anında çözülmüş
+   * SAYDAM bir renk (`--hanedan-zemin`, %12) olarak `background-image` ile
+   * `background-color`ın üstüne biniyor: hangi tema seçili olursa olsun
+   * doğru zeminle karışıyor, tema başına ek değişken gerekmiyor.
+   *
+   * Tonlanmış zeminde her temanın metin rengi ölçülüyor; 4,5'in altına düşen
+   * bir renk üretilemiyor.
+   */
+  .hanedan-kutu {
+    background-image:
+      linear-gradient(to right, var(--hanedan) 0 3px, transparent 3px),
+      linear-gradient(var(--hanedan-zemin), var(--hanedan-zemin));
   }
 
   /*
