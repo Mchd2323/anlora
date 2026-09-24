@@ -1876,10 +1876,23 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
                               setSetAramasi('');
                             }}
                             className="w-full px-3.5 py-2.5 flex items-center justify-between gap-2 text-left hover:bg-[var(--surface-soft)] border-b border-[var(--border-light)] last:border-b-0 cursor-pointer"
+                            style={setDegiskenleri(deck.color)}
                           >
-                            <span className="text-xs font-semibold text-[var(--text-primary)] truncate">
-                              {deck.isPinned && '📌 '}
-                              {deck.name}
+                            <span className="flex items-center gap-2 min-w-0">
+                              {/*
+                                Sol listede seti rozetinden tanıyan kullanıcı bu
+                                listede tanıyamıyordu: burada yalnızca ad vardı.
+                              */}
+                              <span
+                                className="hanedan-kapak w-5 h-5 rounded-md flex items-center justify-center shrink-0"
+                                aria-hidden="true"
+                              >
+                                <DeckIcon name={deck.iconName} className="w-3 h-3" />
+                              </span>
+                              <span className="text-xs font-semibold text-[var(--text-primary)] truncate">
+                                {deck.isPinned && '📌 '}
+                                {deck.name}
+                              </span>
                             </span>
                             <span className="text-[10px] text-[var(--text-muted)] shrink-0">
                               {sayi} kelime

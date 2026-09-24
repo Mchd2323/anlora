@@ -87,6 +87,6 @@ kendi altyapısıdır, senin topladığın bir veri sayılmaz; Veri Güvenliği
 formunda beyan edilmez. Ama gizlilik politikasında yazıyor olması iyi
 olur — `docs/index.html` içinde zaten yazıyor.
 
-**Sözlüğün kendisi veri değildir.** 30.682 kelimelik sözlük uygulamanın
+**Sözlüğün kendisi veri değildir.** 30.580 kelimelik sözlük uygulamanın
 içinde gömülü geliyor; kullanıcıdan alınmıyor, kullanıcıya ait değil.
 Formda yeri yok.

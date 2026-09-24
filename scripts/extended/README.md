@@ -1,19 +1,19 @@
 # Genel Dağarcık (uygulamayı 30.000 kelimenin üstüne taşıyan katman)
 
 Oxford çekirdeği (3.308 + 2.015 madde başı) resmî listelerden gelir ve
-dokunulmaz. Bu klasör onun üstüne ikinci katmanı üretir: **24.609 kelime,
-28.371 anlam**. Kalıplarla birlikte uygulamanın dağarcığı **30.682 kelimeye**
+dokunulmaz. Bu klasör onun üstüne ikinci katmanı üretir: **24.507 kelime,
+28.221 anlam**. Kalıplarla birlikte uygulamanın dağarcığı **30.580 kelimeye**
 çıkar:
 
 | Koleksiyon | Madde başı |
 |---|---:|
-| Genel Dağarcık | 24.609 |
+| Genel Dağarcık | 24.507 |
 | Oxford 3000 | 3.308 |
 | Oxford 5000 ek | 2.015 |
 | Kalıplar | 750 |
-| **Toplam** | **30.682** |
+| **Toplam** | **30.580** |
 
-Kelimeler sıklık sırasına göre seçilir: listeye giren 24.609 kelime,
+Kelimeler sıklık sırasına göre seçilir: listeye giren 24.507 kelime,
 Oxford'da bulunmayanlar arasında günlük İngilizcede en sık geçenlerdir.
 On dört bandın tamamı yazılmıştır; `build_bands.py --strict` bilinmeyen
 kimlik ve kusurlu kayıt bulmadan geçer.
@@ -80,17 +80,19 @@ bir korur, yalnızca sonuna ekler.
 
 ## Bantlar
 
-Kelimeler sıklığa göre 2.000'erlik bantlara ayrılır; on üçüncü bant 512,
-on dördüncü bant 102 madde başı taşır. Bant numarası artık yükleme birimi
-değil; içerik anahtarlarının ve ilerleme takibinin çıpası olarak duruyor.
+Kelimeler sıklığa göre 2.000'erlik bantlara ayrılır; on üçüncü bant 512
+madde başı taşır ve son banttır. Bant numarası artık yükleme birimi değil;
+içerik anahtarlarının ve ilerleme takibinin çıpası olarak duruyor.
 
-On dördüncü bant küfür, müstehcenlik ve hakaret maddelerinden oluşur ve en
-sona bırakılmıştır. Bu maddeler pakete girer, çünkü bir sözlüğün işi
-kullanıcının karşılaştığı kelimeyi tanıtmaktır. Türkçe karşılık maddenin ne
-olduğunu söyler ve etnik hakaret, cinsel yönelim hakareti ya da engelli
-aşağılaması olanları "(kullanılmaz)" ibaresiyle işaretler; örnek cümleler
-sözcüğü bir kişiye yöneltmez, ne olduğunu ve neden kullanılmaması
-gerektiğini anlatır.
+ON DÖRDÜNCÜ BANT KALDIRILDI. Bu bant küfür, müstehcenlik ve hakaret
+maddelerinden oluşuyordu (102 madde başı, 150 anlam). Mağaza yaş
+derecelendirmesi gerekçesiyle çıkarıldı: kaynak listedeki 102 satır,
+`content/b14-elle-001.json` ve bu sözcükleri kaynağa geri yazan
+`kufur_kaynaga_yaz.py` birlikte silindi.
+
+Kaldırma kalıcıdır: aşağıdaki `VULGAR` ve `SLUR` süzgeçleri bu sözcükleri
+zaten eliyordu ve bant 14 onları elle geri ekliyordu. Süzgeçler yerinde
+durduğu için kelime listesi yeniden üretildiğinde geri gelmiyorlar.
 
 ## Süzgeçler
 
@@ -123,6 +125,8 @@ hedeften çıkarılır; anahtar madde başı, değer de gerekçedir. İki tür v
 * sözlük maddesi olmayan, gerçek bir kişiyi hedef alarak türetilmiş kampanya
   sözcüğü (`santorum`).
 
-Müstehcenlik gerekçesiyle çıkarma YAPILMIYOR: kullanıcı bu kelimelerin
-sözlükte kalmasını istedi. Liste bu beş maddeyi kapsayacak kadar uzun
-tutulur: 24.614 kayıttan 24.609'u pakete girer.
+Müstehcenlik gerekçesiyle çıkarma BU BEŞ MADDE İÇİN yapılmıyor; bunlar
+sözlük maddesi olmadıkları için atılıyor. Küfür ve hakaret sözcükleri ise
+`VULGAR`/`SLUR` süzgeçleriyle ayrıca eleniyor (bkz. bant 14 notu). Liste bu
+beş maddeyi kapsayacak kadar uzun tutulur: 24.512 kayıttan 24.507'si pakete
+girer.

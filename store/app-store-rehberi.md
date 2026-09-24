@@ -159,7 +159,7 @@ dolduruldu** (iOS köşeyi kendisi yuvarlar; önceden yuvarlatılmış simge
 
 | Form | Nerede | Ne yapacaksın |
 |---|---|---|
-| Yaş derecelendirmesi | Uygulama Bilgileri | **`store/app-store-yas-derecelendirme.md`** — önce oradaki üç seçenekli kararı ver |
+| Yaş derecelendirmesi | Uygulama Bilgileri | **`store/app-store-yas-derecelendirme.md`** — küfür bandı çıkarıldı, oradaki tabloyu olduğu gibi gir |
 | Uygulama gizliliği | Uygulama Gizliliği | **`store/app-store-gizlilik-etiketleri.md`** |
 | Gizlilik politikası adresi | Uygulama Gizliliği | 0.1'deki adres |
 | Kategori | Uygulama Bilgileri | Birincil: **Eğitim**. İkincil: **Başvuru** (Reference) |
@@ -215,7 +215,7 @@ Play'de karşılaşmayacağın, burada karşılaşabileceğin şeyler:
 
 **Yönerge 4.3 — Spam / tekrar.** Kelime öğrenme uygulaması App Store'un en
 kalabalık kategorilerinden. Apple "piyasada benzeri çok" diyerek
-reddedebiliyor. Anlora'nın savunması sağlam: 30.682 maddelik kendi sözlüğü,
+reddedebiliyor. Anlora'nın savunması sağlam: 30.580 maddelik kendi sözlüğü,
 tamamen çevrimdışı, Türkçe. Reddedilirse inceleme notlarına bu üçünü yaz.
 
 **Yönerge 2.3.10 — başka platform adı.** Metinde, ekran görüntülerinde,

@@ -24,6 +24,7 @@ import mansetKule from '../assets/themes/realms/carousel/carousel-storm-watchtow
 import mansetSalon from '../assets/themes/realms/carousel/carousel-oath-chamber.webp';
 import { SahneSeridi } from './ui/SahneSeridi';
 import { RealmsIcon } from './ui/RealmsIcon';
+import { setDegiskenleri } from '../theme/setColors';
 
 interface TodayDashboardProps {
   collections: Collection[];
@@ -489,7 +490,14 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
                   <div
                     key={deck.id}
                     onClick={() => onNavigateToTab('collections')}
-                    className="p-4 rounded-xl bg-[var(--bg)] hover:bg-[var(--surface-soft)] border border-[var(--border)] hover:border-[var(--neutral-300)] transition-all cursor-pointer flex flex-col justify-between group"
+                    className="hanedan-kutu p-4 rounded-xl bg-[var(--bg)] hover:bg-[var(--surface-soft)] border border-[var(--border)] hover:border-[var(--neutral-300)] transition-all cursor-pointer flex flex-col justify-between group"
+                    /*
+                      Ana sayfadaki set kartı da setin rengini taşıyor. Taşımadığı
+                      sürece kullanıcı aynı seti Setlerim'de renkli, ana sayfada
+                      renksiz görüyordu — renk seçeneğinin hiç işlemediği izlenimi
+                      buradan da geliyordu.
+                    */
+                    style={setDegiskenleri(deck.color)}
                   >
                     <div>
                       <h4 className="font-bold text-[var(--text-primary)] text-sm group-hover:text-[var(--primary)] transition-colors truncate">

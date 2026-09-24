@@ -15,9 +15,9 @@ okundu, tahmin edilmedi.
 | Paket adı (applicationId) | `com.anlora.app` | `android/app/build.gradle` |
 | Uygulama adı | Anlora | `android/app/src/main/res/values/strings.xml` |
 | minSdk | 23 (Android 6.0) | `android/variables.gradle` |
-| targetSdk | 35 (Android 15) | `android/variables.gradle` |
+| targetSdk | 36 (Android 16) | `android/variables.gradle` |
 | İstenen izin | Yalnızca `INTERNET` | `AndroidManifest.xml` |
-| Sözlük | 30.682 kelime / 35.068 anlam / 105.204 örnek cümle | ölçüldü |
+| Sözlük | 30.580 kelime / 34.918 anlam / 104.754 örnek cümle | ölçüldü |
 | Paket boyutu | ~10 MB (AAB) | derleme çıktısı |
 
 **Paket adı bir kere seçilir, bir daha değişmez.** `com.anlora.app` ile
@@ -117,7 +117,7 @@ doldurulmadan yayına çıkılamaz.
 | Gizlilik politikası | 0.1'deki adresi yapıştır |
 | Reklamlar | **"Hayır, uygulamam reklam içermiyor"** — doğru, reklam ağı yok |
 | Uygulama erişimi | **"Tüm işlevler kısıtlama olmadan kullanılabilir"** — üyelik/giriş yok, test hesabı istemeyecekler |
-| İçerik derecelendirmesi | **`store/icerik-derecelendirme-formu.md` dosyasını aç ve oradaki cevapları gir.** Küfür beyanı kritik |
+| İçerik derecelendirmesi | **`store/icerik-derecelendirme-formu.md` dosyasını aç ve oradaki cevapları gir.** Küfür artık "yok"; cinsellik ve madde beyanları duruyor |
 | Hedef kitle ve içerik | **13–17 ve 18+.** 13 yaş altını seçme (sebebi derecelendirme belgesinde) |
 | Haber uygulaması | Hayır |
 | COVID-19 izleme | Hayır |
@@ -226,7 +226,7 @@ Yurt dışındaki Türkçe konuşanlar için ikincisi daha iyi.
 - [ ] Gizlilik politikası adresi girildi
 - [ ] Reklam: yok
 - [ ] Uygulama erişimi: kısıtlama yok
-- [ ] İçerik derecelendirme anketi dolduruldu (**küfür beyanı işaretlendi**)
+- [ ] İçerik derecelendirme anketi dolduruldu (küfür **yok**; cinsellik ve madde **var** işaretlendi)
 - [ ] Hedef kitle: 13+ (13 yaş altı **seçilmedi**)
 - [ ] Veri güvenliği formu dolduruldu
 - [ ] İmzalama yolu seçildi (A veya B), keystore yedeklendi
@@ -246,10 +246,11 @@ Yükleme sırasında Console "hedef API seviyesi yetersiz" derse
 `compileSdkVersion` değerlerini bir üst seviyeye çekip yeniden derlememiz
 gerekir. Bu on dakikalık iştir; söylemen yeterli.
 
-**2. Sözlükteki küfür maddeleri.** İçerik derecelendirme belgesinde
-ayrıntısıyla yazdım. Kısacası: ankette dürüst beyan et, 13 yaş altını
-hedef kitle seçme. Beyan edip yaş sınırını doğru koyarsan sorun çıkmaz;
-beyan etmezsen ve Google sonradan fark ederse uygulama kaldırılır.
+**2. Sözlüğün hassas maddeleri.** Küfür bandı paketten çıkarıldı, o konu
+kapandı. Ama sözlükte Oxford resmî listelerinden gelen cinsellik ve madde
+terimleri duruyor ve bunlar hâlâ beyan edilmek zorunda; ayrıntısı içerik
+derecelendirme belgesinde. Beyan edip yaş sınırını doğru koyarsan sorun
+çıkmaz; beyan etmezsen ve Google sonradan fark ederse uygulama kaldırılır.
 
 ---
 

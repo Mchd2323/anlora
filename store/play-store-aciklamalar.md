@@ -118,9 +118,10 @@ Soru, öneri ve hata bildirimi için: anloramobil@gmail.com
 - Tam açıklamadaki gizlilik politikası adresi, GitHub Pages açıldıktan
   sonra çalışır hâle gelir. Pages kaynağı `main` dalına taşınırsa adres
   değişmez, yalnızca kaynak dal değişir.
-- "30.000'den fazla" ifadesi ölçülmüş bir sayıdır: Genel Dağarcık 24.609 +
-  Oxford 3000 3.308 + Oxford 5000 ek 2.015 + kalıplar 750 = 30.682 madde
-  başı. Sayı büyürse buradaki ifade de güncellenmeli.
+- "30.000'den fazla" ifadesi ölçülmüş bir sayıdır: Genel Dağarcık 24.507 +
+  Oxford 3000 3.308 + Oxford 5000 ek 2.015 + kalıplar 750 = 30.580 madde
+  başı. (Küfür bandı çıkarılmadan önce Genel Dağarcık 24.609, toplam 30.682
+  idi.) Sayı değişirse buradaki ifade de güncellenmeli.
 - Aralık merdiveni (1, 3, 7, 14, 30, 60, 120, 240) `src/utils/srsEngine.ts`
   içindeki `INTERVAL_LADDER` dizisinden alınmıştır. Merdiven değişirse
   açıklama da değişmeli.

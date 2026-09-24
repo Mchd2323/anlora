@@ -69,7 +69,7 @@ Açıklamanın en üstünde görünür. **Yeni sürüm yüklemeden değiştirile
 tek alandır** — kampanya, duyuru ya da yeni özellik haberi için kullanılır.
 
 ```
-30.682 kelimelik sözlük telefonunuzda gömülü: uçakta, metroda, çekmeyen
+30.580 kelimelik sözlük telefonunuzda gömülü: uçakta, metroda, çekmeyen
 yerde çalışır. Üyelik yok, reklam yok, ücretli özellik yok.
 ```
 *131 karakter.*
@@ -160,10 +160,9 @@ uygulamanın tamamı çalışır. Yapay zekâ tarafından üretilen kartlar
 yazıldığını neyin üretildiğini ayırt edersiniz.
 
 SÖZLÜĞÜN KAPSAMI HAKKINDA
-Anlora bir sözlüktür ve İngilizcedeki kaba sözcükleri de madde başı olarak
-içerir. Bu maddelerde sözcük kullanılmaz, tanımlanır; hakaret niteliği
-taşıyanların karşısına "kullanılmaz" notu düşülmüştür. Amaç, öğrencinin bu
-sözcüklerle karşılaştığında ne olduklarını anlamasıdır.
+Anlora bir sözlüktür; küfür ve hakaret maddeleri pakette yer almaz. Cinsellik,
+sağlık, hukuk ve madde ile ilgili terimler, Oxford 3000/5000 resmî kelime
+listelerinin maddeleri olarak sözlüksel tanım biçiminde bulunur.
 
 Gizlilik politikamız: https://mchd2323.github.io/anlora/
 

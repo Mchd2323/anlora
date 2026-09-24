@@ -52,24 +52,23 @@ node scripts/store/ios-ekran-goruntusu-al.mjs    # App Store
 
 Bunlar tek tek formlarda değil, ikisinde birden karşına çıkıyor.
 
-### 1. Sözlükteki 102 kaba madde
+### 1. Küfür bandı çıkarıldı — ama beyan bitmedi
 
-Pakette küfür ve etnik hakaret maddeleri var (sözlüksel biçimde:
-tanımlanıyor, kullanılmıyor). Her iki mağazada da **beyan edilmesi
-zorunlu.**
+Bu bölümün önceki sürümü, pakette 102 maddelik bir küfür ve hakaret bandı
+olduğunu ve iki mağazada da beyan edilmesi gerektiğini anlatıyordu.
+**O bant çıkarıldı** (kaynak, içerik dosyası ve sözcükleri kaynağa geri
+yazan betik birlikte silindi). Kelime verisi tek kaynaktan üretildiği için
+kaldırma iki paket için de geçerli; ayrı sözlük yok.
 
-İki mağazadaki bedeli farklı, o yüzden iki belgede iki ayrı öneri var:
+Kalan iş, "artık her şey yok" sanmamak. Oxford 3000/5000 resmî
+listelerinden gelen cinsellik ve madde terimleri pakette duruyor ve her
+iki mağazada da **beyan edilmesi zorunlu.** Ayrıntı ve ölçülmüş listeler:
 
-- **Play:** dürüst beyan et, bandı tut. Sonuç 12+ civarı bir etiket;
-  katlanılır. → `icerik-derecelendirme-formu.md`
-- **App Store:** bandı çıkarmayı ciddi ciddi düşün. Yüksek yaş etiketi
-  alan uygulama Ekran Süresi kısıtlaması açık cihazlarda hiç görünmüyor
-  ve hedef kitlemiz (YKS/YDS öğrencileri) tam olarak orada.
-  → `app-store-yas-derecelendirme.md`
+- **Play:** → `icerik-derecelendirme-formu.md`
+- **App Store:** → `app-store-yas-derecelendirme.md`
 
-**Çıkarma kararı verilirse iki paketten de çıkarılmalı.** Tek pakette olup
-ötekinde olmaması iki ayrı sözlük demek; sonraki her içerik turunda iş
-ikiye katlanır.
+Özellikle `rape` maddesi Oxford 5000 C1 listesinde duruyor ve Oxford
+çekirdek verisi salt okunur olduğu için çıkarılmadı.
 
 ### 2. Gizlilik politikası adresi
 
@@ -92,8 +91,9 @@ ayrışırsa hangisinin doğru olduğu belirsizleşir.
 
 Özellikle şunlar bir şey değişince eskir:
 
-- **Kelime sayısı** (şu an 30.682). `play-store-aciklamalar.md` ve
-  `app-store-aciklamalar.md` içinde geçiyor.
+- **Kelime sayısı** (şu an 30.580). Yalnızca iki `aciklamalar.md` dosyasında
+  değil; `veri-guvenligi-formu.md`, `play-console-rehberi.md` (anlam ve örnek
+  cümle sayılarıyla birlikte) ve `app-store-rehberi.md` içinde de geçiyor.
 - **Aralık merdiveni** (1, 3, 7, 14, 30, 60, 120, 240) —
   `src/utils/srsEngine.ts` içindeki `INTERVAL_LADDER`'dan geliyor.
 - **Sınav biçimleri** — `src/utils/quizGenerator.ts` içindeki `QuizMode`.
