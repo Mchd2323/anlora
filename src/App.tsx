@@ -442,7 +442,16 @@ export default function App() {
       ogrenilenSayisi > 0 ||
       favorites.length > 0;
     if (!veriVar) return;
-    void otomatikYedekAl(true);
+    /*
+     * Sabit `true` değil `veriVar` geçiliyor. `otomatikYedek.ts:50-53` bu
+     * parametreyi "özelliğin kendi kendini baltalamasını önleyen şey" diye
+     * tarif ediyor: boş durum asla yedeklenmemeli, yoksa veri kaybından
+     * sonra açılan uygulama kurtarma dosyasının üzerine boş kopya yazar.
+     * Sabit geçilince o koruma fonksiyonun kendisinde değil YALNIZCA
+     * yukarıdaki erken dönüşte kalıyordu; bu satır değişirse koruma sessizce
+     * kalkardı. Bugün ikisi de aynı sonucu veriyor — ama biri sözleşme.
+     */
+    void otomatikYedekAl(veriVar);
     // Bağımlılık nesnenin kendisi değil SAYISI: `learningStates` her çalışma
     // sonrası yeni bir nesne oluyor ve etkiyi boşuna yeniden çalıştırırdı.
     // Yedeğin ne zaman alınacağına zaten `yedekGerekliMi` zaman sınırıyla
