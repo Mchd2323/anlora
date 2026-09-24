@@ -422,19 +422,25 @@ export default function App() {
 
   useEffect(() => {
     /*
-     * KOŞUL KENDİ SETİ OLMAYAN KULLANICIYI DIŞARIDA BIRAKIYORDU.
+     * KOŞUL "VERİ VAR MI" SORUSUNU GERÇEKTEN SORUYOR.
      *
-     * Burada yalnızca `collections` ve `customWords` sayılıyordu. Oxford
-     * listesinden çalışan, kendi seti ve kendi kartı olmayan bir kullanıcının
-     * ikisi de boştur -- ama aylarca biriktirdiği "Öğrendim"leri, favorileri
-     * ve serisi vardır. O kullanıcı hiç yedek almıyordu; Profil'de ona
-     * "henüz alınmadı" yazıyordu. Yedeğin varlık sebebi tam olarak bu veriyi
-     * kurtarmak.
+     * Burada yalnızca `collections` ve `customWords` sayılıyordu. İlk bakışta
+     * bu, Oxford listesinden çalışan ve kendi seti olmayan kullanıcıyı
+     * dışarıda bırakıyor gibi görünüyor -- AMA BIRAKMIYOR: göç her yeni
+     * kuruluma örnek bir set yazıyor (`storageV2.ts:187-200`,
+     * "Dizi & Film Alıntıları"), yani `collections.length` göçten sonra
+     * hiçbir kullanıcıda sıfır değil. Bu kontrol edildi; eski koşul canlı bir
+     * boşluk bırakmıyordu.
+     *
+     * Öğrenme durumları ve favoriler yine de koşula eklendi, çünkü koşulun
+     * doğruluğu o örnek setin var olmasına yaslanmamalı: o set silinebilir,
+     * bir gün hiç yazılmayabilir. O zaman boşluk gerçek olurdu ve bunu
+     * yakalayacak hiçbir şey olmazdı.
      *
      * Boş durumun yedeklenmemesi kuralı korunuyor: aşağıdaki dört ölçüden
-     * biri doluysa yedek alınır, hepsi boşsa alınmaz. Böylece veri
-     * kaybından sonra açılan uygulama kurtarma dosyasının üzerine boş bir
-     * kopya yazmaya devam etmiyor.
+     * biri doluysa yedek alınır, hepsi boşsa alınmaz. Veri kaybından sonra
+     * açılan uygulamanın kurtarma dosyasının üzerine boş kopya yazmasını
+     * engelleyen şey o.
      */
     const veriVar =
       collections.length > 0 ||
