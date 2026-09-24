@@ -55,21 +55,24 @@ const DEFAULT_SETTINGS: UserSettings = {
   enableTypoTolerance: true,
   theme: 'system',
   /*
-   * VARSAYILAN GÖRÜNÜM: BUZ KRİSTALİ (açık buz mavisi).
+   * VARSAYILAN GÖRÜNÜM: KIZIL ŞAFAK (sıcak gül-krem).
    *
    * Önceden hiçbir tema yazılı değildi ve görünüm 'system'e düşüyordu: açık
    * mı koyu mu olduğuna telefonun ayarı karar veriyordu. Uygulamayı ilk açan
-   * kişi, telefonu koyu moddaysa Anlora'yı koyu buluyordu -- oysa ürünün
-   * kendi kimliği açık buz mavisi.
+   * kişi, telefonu koyu moddaysa Anlora'yı koyu buluyordu. Sonra varsayılan
+   * Buz Kristali oldu; şimdi Kızıl Şafak.
    *
    * ALAN `themePreset`, `theme` DEĞİL. Yukarıdaki `theme` iki sürüm önceki
    * alan ve `cozTemayi` ona hiç bakmıyor; oraya yazmak sessizce hiçbir şey
    * yapmaz (denendi, tarayıcıda yakalandı). Canlı alan budur.
    *
-   * MEVCUT KULLANICI ETKİLENMEZ: bu değerler yalnızca ayar hiç yazılmamışsa
-   * kullanılıyor; Profil > Görünüm'den 'Sistem' dahil hepsi seçilebiliyor.
+   * MEVCUT KULLANICI ETKİLENMEZ. `getUserSettings` kayıtlı ayarı varsayılanın
+   * ÜSTÜNE yazıyor (`{ ...DEFAULT_SETTINGS, ...stored }`), ve uygulamayı bir
+   * kez açmış herkesin SETTINGS anahtarı yazılmış durumda. Yani bu satır
+   * yalnızca yeni kurulumu etkiliyor; Profil > Görünüm'den 'Sistem' dahil
+   * hepsi seçilebiliyor.
    */
-  themePreset: 'light-frost-crystal',
+  themePreset: 'light-crimson-dawn',
   fontScale: 1,
   // Doğal hız. Kart üstündeki rozet bunun üzerine geçici seçim koyabilir.
   speechRate: 1
